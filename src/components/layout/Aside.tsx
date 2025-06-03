@@ -1,11 +1,25 @@
-import React, { useState } from "react";
-// import { motion } from "framer-motion";
-import { routes } from "../../routes";
+// src/components/Aside.tsx
+import React, { useState, useMemo } from "react";
+import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+
+import { generateRoutes } from "../../routes/menuItems";
+import { RoutesProps } from "../../utils";
 
 export const Aside: React.FC = () => {
   const [hoveredItem, setHoveredItem] = useState<number | null>(null);
   const [openSubMenu, setOpenSubMenu] = useState<number | null>(null);
+
+  // Retrieve and parse admin data from localStorage
+  const adminSidebar = localStorage.getItem("admin");
+  const jsonValue = adminSidebar ? JSON.parse(adminSidebar) : null;
+  console.log("jsonValue", jsonValue?.adminAccess?.modules);
+
+  // Generate routes dynamically using adminside data
+  const routes: RoutesProps[] = useMemo(() => {
+    const adminside = jsonValue?.adminAccess?.modules || [];
+    return generateRoutes(adminside);
+  }, [jsonValue]);
 
   const handleSubMenuToggle = (id: number) => {
     setOpenSubMenu(openSubMenu === id ? null : id);
@@ -24,8 +38,8 @@ export const Aside: React.FC = () => {
                 onMouseEnter={() => setHoveredItem(key)}
                 onMouseLeave={() => setHoveredItem(null)}
                 onClick={(e) => {
-                  // e.preventDefault(); // Prevent page reload when clicking #
                   if (item.submenu) {
+                    e.preventDefault(); // Prevent navigation for parent with submenu
                     handleSubMenuToggle(key);
                   }
                 }}
@@ -56,8 +70,8 @@ export const Aside: React.FC = () => {
                   transition={{ duration: 0.2, ease: "easeInOut" }}
                   className="overflow-hidden submenu"
                 >
-                  {item.submenu.map((sub, key) => (
-                    <li key={key}>
+                  {item.submenu.map((sub, subKey) => (
+                    <li key={subKey}>
                       <Link
                         to={sub.path}
                         className="text-[#AAB4D4] block py-2 px-4 hover:bg-[#1E2233] rounded-md"
@@ -70,7 +84,7 @@ export const Aside: React.FC = () => {
               )}
             </li>
           ) : (
-            <></>
+            <React.Fragment key={key} />
           )
         )}
       </ul>

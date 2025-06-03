@@ -9,6 +9,7 @@ const initialState: AuthState = {
     isSuperAdmin: false,
   },
   token: null,
+  admin: null,
   loading: false,
   error: null,
 };
@@ -50,6 +51,7 @@ const authSlice = createSlice({
         (state, action: PayloadAction<LoginResponse>) => {
           state.loading = false;
           state.token = action.payload.data.token;
+          state.admin = action.payload.data.admin;
           state.user = {
             _id: action.payload.data._id,
             email: action.payload.data.email,
@@ -58,6 +60,10 @@ const authSlice = createSlice({
 
           // Store the token in localStorage
           localStorage.setItem("token", action.payload.data.token);
+          localStorage.setItem(
+            "admin",
+            JSON.stringify(action.payload.data.admin)
+          );
         }
       )
       .addCase(login.rejected, (state, action) => {

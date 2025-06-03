@@ -1,12 +1,14 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 .root,
 #root,
 #docs-root {
-  --primary-color: #0b0d13;
+  --primary-color: #0B0D13;
   --secondary-color: #000;
-  --custom-gray: #6b7897;
-  --input-color: #181d29;
-  --dark-blue: #11141d;
+  --custom-gray: #6B7897;
+  --input-color: #181D29;
+  --dark-blue: #11141D;
   --light-border: #202637;
 }

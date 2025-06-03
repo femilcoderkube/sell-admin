@@ -1,11 +1,11 @@
 import { FC } from "react";
 import "../../assets/css/style.css";
-// import logo from "../../assets/images/nafes-logo.svg";
-// import user from "../../assets/images/user.png";
+import logo from "../../assets/images/nafes-logo.svg";
+import user from "../../assets/images/user.png";
 import { useDispatch } from "react-redux";
-// import { logout } from "../../app/features/auth/authSlice";
+import { logout } from "../../app/features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
-// import { AppDispatch } from "../../app/store";
+import { AppDispatch } from "../../app/store";
 
 export const Header: FC = () => {
   const dispatch = useDispatch<AppDispatch>();

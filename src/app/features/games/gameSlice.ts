@@ -23,7 +23,7 @@ export const fetchGames = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await axiosInstance.get("/game", {
+      const response = await axiosInstance.get("/games", {
         params: {
           page,
           limit: perPage,

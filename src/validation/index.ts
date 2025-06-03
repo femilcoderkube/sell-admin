@@ -1,5 +1,4 @@
 import * as Yup from "yup";
-import "./index.css";
 
 export const deviceSchema = Yup.object().shape({
   name: Yup.string().required("Device name is required"),
@@ -10,7 +9,7 @@ export const gameSchema = Yup.object().shape({
   name: Yup.string().required("Game name is required"),
   shortName: Yup.string().required("Short name is required"),
   logo: Yup.mixed<any>().required("Logo is required"),
-  gameId: Yup.string().required("Game Id is required"),
+  color: Yup.string().required("Color is required"),
 });
 
 export const addPartnerSchema = Yup.object().shape({

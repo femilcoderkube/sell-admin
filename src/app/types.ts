@@ -8,6 +8,7 @@ export interface AuthState {
   token: string | null;
   loading: boolean;
   error: string | null;
+  admin: any;
 }
 
 export interface LoginRequest {
@@ -21,6 +22,7 @@ export interface LoginResponse {
     email: string;
     token: string;
     isSuperAdmin: boolean;
+    admin: any;
   };
 }
 

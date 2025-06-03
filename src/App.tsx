@@ -1,14 +1,22 @@
 import { Toaster } from "react-hot-toast";
 import { Route, Routes } from "react-router";
-import { routes } from "./routes";
 import PrivateRoute from "./routes/PrivateRoute";
 import AuthRoute from "./routes/AuthRoute";
+import { useMemo } from "react";
+import { RoutesProps } from "./utils";
+import { generateRoutes } from "./routes/menuItems";
 
 export const App = () => {
+  const adminSidebar = localStorage.getItem("admin");
+  const jsonValue = adminSidebar ? JSON.parse(adminSidebar) : null;
+  const routes: RoutesProps[] = useMemo(() => {
+    const adminside = jsonValue?.adminAccess?.modules || [];
+    return generateRoutes(adminside, jsonValue);
+  }, [jsonValue]);
+
   return (
     <>
       <Toaster position="top-right" />
-      <h1 className="text-white">hello</h1>
       <Routes>
         {routes?.map((item, key) => {
           if (item.submenu && item.submenu.length > 0) {

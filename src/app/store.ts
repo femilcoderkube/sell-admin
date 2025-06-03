@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./features/auth/authSlice";
 import partnerReducer from "./features/partners/partnerSlice";
-// import ruleReducer from "./features/rules/ruleSlice";
+import ruleReducer from "./features/rules/ruleSlice";
 import badgeReducer from "./features/badge/badgeSlice";
 import deviceReducer from "./features/devices/deviceSlice";
 import gameReducer from "./features/games/gameSlice";
@@ -12,7 +12,7 @@ export const store = configureStore({
   reducer: {
     auth: authReducer,
     partner: partnerReducer,
-    // rule: ruleReducer,
+    rule: ruleReducer,
     badge: badgeReducer,
     device: deviceReducer,
     game: gameReducer,

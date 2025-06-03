@@ -22,9 +22,6 @@ export const LoginForm: FC = () => {
   }, [token, navigate]);
 
   const handleSubmit = (e: React.FormEvent) => {
-    console.log("====================================");
-    console.log("hereeeeeee login");
-    console.log("====================================");
     e.preventDefault();
     const loginRequest: LoginRequest = { email, password };
     dispatch(login(loginRequest));
