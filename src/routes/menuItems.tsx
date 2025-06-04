@@ -16,6 +16,7 @@ import { Devices } from "../pages/Devices";
 import { Users } from "../pages/Users";
 import { Trophies } from "../pages/Trophies";
 import { AdminControlIcon, DashboardIcon, NafesLeagueIcon } from "../components/ui";
+import { Admin } from "../pages/Admin";
 
 
 // Helper function to convert snake_case to Title Case
@@ -38,7 +39,7 @@ const componentMap: { [key: string]: JSX.Element } = {
   ALL_USER: <Users />,
   ALL_TEAM: <AllTeams />,
   BANNED_USER: <Games />,
-  ADMIN_ACCESS: <Games />,
+  ADMIN_ACCESS: <Admin />,
   GAMES: <Games />,
   PARTNERS: <Partners />,
   TROPHIES: <Trophies />,

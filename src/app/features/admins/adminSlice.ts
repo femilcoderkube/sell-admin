@@ -1,19 +1,20 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { GamesState } from "../../types";
+import { AdminState, } from "../../types";
 import axiosInstance from "../../../axios";
 
-const initialState: GamesState = {
-  games: [],
+const initialState: AdminState = {
+  admins: [],
   loading: false,
   error: null,
   currentPage: 1,
   perPage: 10,
   totalCount: 0,
   searchTerm: "",
+  adminDetail: null,
 };
 
-export const fetchGames = createAsyncThunk(
-  "games/fetchGames",
+export const fetchAdmin = createAsyncThunk(
+  "admin/fetchAdmin",
   async (
     {
       page,
@@ -23,7 +24,7 @@ export const fetchGames = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await axiosInstance.get("/game", {
+      const response = await axiosInstance.get("/admin", {
         params: {
           page,
           limit: perPage,
@@ -40,10 +41,10 @@ export const fetchGames = createAsyncThunk(
 );
 
 export const addGame = createAsyncThunk(
-  "games/addGame",
+  "admin/addGame",
   async (device: FormData, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post("/game", device, {
+      const response = await axiosInstance.post("/admin", device, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -58,13 +59,13 @@ export const addGame = createAsyncThunk(
 );
 
 export const updateGame = createAsyncThunk(
-  "games/updateGame",
+  "admin/updateGame",
   async (
     { id, device }: { id: string; device: FormData },
     { rejectWithValue }
   ) => {
     try {
-      const response = await axiosInstance.put(`/game?id=${id}`, device, {
+      const response = await axiosInstance.put(`/admin?id=${id}`, device, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -79,10 +80,10 @@ export const updateGame = createAsyncThunk(
 );
 
 export const deleteGame = createAsyncThunk(
-  "games/deleteGame",
+  "admin/deleteGame",
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.delete(`/game?id=${id}`);
+      const response = await axiosInstance.delete(`/admin?id=${id}`);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -91,9 +92,19 @@ export const deleteGame = createAsyncThunk(
     }
   }
 );
-
-const gamesSlice = createSlice({
-  name: "games",
+export const fetchAdminById = createAsyncThunk(
+  'admins/fetchAdminById',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(`/admin?id=${id}`);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error fetching admins');
+    }
+  }
+);
+const adminSlice = createSlice({
+  name: "admins",
   initialState,
   reducers: {
     setSearchTerm: (state, action: PayloadAction<string>) => {
@@ -110,15 +121,15 @@ const gamesSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchGames.pending, (state) => {
+      .addCase(fetchAdmin.pending, (state) => {
         state.loading = true;
       })
-      .addCase(fetchGames.fulfilled, (state, action) => {
+      .addCase(fetchAdmin.fulfilled, (state, action) => {
         state.loading = false;
-        state.games = action.payload.data?.result;
+        state.admins = action.payload.data?.result;
         state.totalCount = action.payload.data.totalItem;
       })
-      .addCase(fetchGames.rejected, (state, action) => {
+      .addCase(fetchAdmin.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
@@ -142,6 +153,17 @@ const gamesSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+      .addCase(fetchAdminById.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchAdminById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.adminDetail = action.payload.data;
+      })
+      .addCase(fetchAdminById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
       .addCase(deleteGame.pending, (state) => {
         state.loading = true;
       })
@@ -155,6 +177,6 @@ const gamesSlice = createSlice({
   },
 });
 
-export const { setSearchTerm, setPerPage, setPage } = gamesSlice.actions;
+export const { setSearchTerm, setPerPage, setPage } = adminSlice.actions;
 
-export default gamesSlice.reducer;
+export default adminSlice.reducer;

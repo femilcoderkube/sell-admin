@@ -13,7 +13,7 @@ export const Aside: React.FC = () => {
   // Retrieve and parse admin data from localStorage
   const adminSidebar = localStorage.getItem("admin");
   const jsonValue = adminSidebar ? JSON.parse(adminSidebar) : null;
-  console.log("jsonValue", jsonValue?.adminAccess?.modules);
+  // console.log("jsonValue", jsonValue?.adminAccess?.modules);
 
   // Generate routes dynamically using adminside data
   const routes: RoutesProps[] = useMemo(() => {

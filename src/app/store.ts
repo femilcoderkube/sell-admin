@@ -6,6 +6,7 @@ import badgeReducer from "./features/badge/badgeSlice";
 import deviceReducer from "./features/devices/deviceSlice";
 import gameReducer from "./features/games/gameSlice";
 import leaguesReducer from "./features/league/leagueSlice";
+import adminReducer from "./features/admins/adminSlice";
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     device: deviceReducer,
     game: gameReducer,
     leagues: leaguesReducer,
+    admins: adminReducer,
   },
 });
 

@@ -15,7 +15,29 @@ export interface LoginRequest {
   email: string;
   password: string;
 }
-
+export interface AdminType {
+  _id: string;
+  userName: string;
+  role: string;
+  email: string;
+  password: string;
+  phoneNumber: string;
+  isActive: boolean;
+  ipAddress: string;
+  deviceType: string;
+  adminAccess: string;
+  lastLoginDate: string;
+}
+export interface AdminState {
+  admins: AdminType[];
+  loading: boolean;
+  error: string | null;
+  currentPage: number;
+  perPage: number;
+  totalCount: number;
+  searchTerm: string;
+  adminDetail: AdminType | null;
+}
 export interface LoginResponse {
   data: {
     _id: string;
