@@ -38,6 +38,7 @@ const authSlice = createSlice({
       state.token = null;
       state.user = { _id: "", email: null, isSuperAdmin: false };
       localStorage.removeItem("token");
+      localStorage.removeItem("admin");
     },
   },
   extraReducers: (builder) => {

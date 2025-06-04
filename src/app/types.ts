@@ -85,6 +85,7 @@ export interface GameType {
   shortName: string;
   logo: string;
   gameId: string;
+  color: any;
 }
 
 export interface GamesState {

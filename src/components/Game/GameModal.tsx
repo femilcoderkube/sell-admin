@@ -25,13 +25,13 @@ export const GameModal: React.FC<ModalProps> = ({
   selectedGame,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { gameIds } = useSelector((state: RootState) => state.gameId);
+  // const { gameIds } = useSelector((state: RootState) => state.gameId);
 
-  useEffect(() => {
-    if (show) {
-      dispatch(fetchGameIds());
-    }
-  }, [show]);
+  // useEffect(() => {
+  //   if (show) {
+  //     dispatch(fetchGameIds());
+  //   }
+  // }, [show]);
 
   const formik = useFormik({
     initialValues: {
