@@ -1,6 +1,7 @@
 import { FC } from "react";
-import { Layout, Partner } from "../../components";
-import { PartnersTable } from "../../components/Partners/PartnersTable";
+import { Layout } from "../../components/layout";
+import { Partner } from "../../components/Partners";
+
 
 export const Partners: FC = () => {
   return (

@@ -2,7 +2,6 @@ import React from "react";
 import edit from "../../assets/images/Edit.svg";
 import deleteIcon from "../../assets/images/trash_can.svg";
 import viewIcon from "../../assets/images/setting_icon.svg";
-import leagueUser from "../../assets/images/league_use.png";
 import { PartnerType } from "../../app/types";
 import { TableHashIcon } from "../ui";
 import { baseURL } from "../../axios";
@@ -22,11 +21,11 @@ export const PartnersTable: React.FC<IPartnersProps> = ({
 }) => {
   const thead = {
     id: <TableHashIcon />,
-    partnerName: "Partner name ",
-    shortName: "Short name ",
-    picture: "Picture of the partner",
-    backgroundImage: "background image",
-    status: "Status",
+    nameEn: "Name (EN)",
+    nameAr: "Name (AR)",
+    websiteUrl: "Website URL",
+    description: "Description",
+    logo: "Logo",
     actions: "Actions",
   };
 
@@ -35,16 +34,14 @@ export const PartnersTable: React.FC<IPartnersProps> = ({
   const tdetail = data.map((partner, key) => ({
     id: partner._id,
     key: (currentPage - 1) * 10 + key + 1,
-    partnerName: partner.nameEn,
-    shortName: partner.shortName,
-    picture: partner.partnerPic,
-    backgroundImage: partner.backgroundImage,
-    status: partner.status,
+    nameEn: partner.nameEn,
+    nameAr: partner.nameAr,
+    websiteUrl: partner.websiteUrl,
+    description: partner.description,
+    logo: partner.logo,
     actions: {
       edit: <img src={edit} alt="Edit" style={{ width: "1.26rem" }} />,
-      delete: (
-        <img src={deleteIcon} alt="Delete" style={{ width: "1.26rem" }} />
-      ),
+      delete: <img src={deleteIcon} alt="Delete" style={{ width: "1.26rem" }} />,
       view: <img src={viewIcon} alt="View" style={{ width: "1.26rem" }} />,
     },
   }));
@@ -58,21 +55,20 @@ export const PartnersTable: React.FC<IPartnersProps> = ({
               {thead.id}
             </th>
             <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
-              {thead.partnerName}
+              {thead.nameEn}
             </th>
             <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
-              {thead.shortName}
+              {thead.nameAr}
             </th>
             <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
-              {thead.picture}
+              {thead.websiteUrl}
             </th>
             <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
-              {thead.backgroundImage}
+              {thead.description}
             </th>
             <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
-              {thead.status}
+              {thead.logo}
             </th>
-
             <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem] text-center">
               {thead.actions}
             </th>
@@ -85,25 +81,19 @@ export const PartnersTable: React.FC<IPartnersProps> = ({
           {tdetail.map((tdetail, index) => (
             <tr key={tdetail.key} className="border-b border-light-border">
               <td className="text-[1.0625rem] py-3">{tdetail.key}</td>
-              <td className="text-[1.0625rem] py-3">{tdetail.partnerName}</td>
-
-              <td className="text-[1.0625rem] py-3">{tdetail.shortName}</td>
+              <td className="text-[1.0625rem] py-3">{tdetail.nameEn}</td>
+              <td className="text-[1.0625rem] py-3">{tdetail.nameAr}</td>
+              <td className="text-[1.0625rem] py-3">{tdetail.websiteUrl}</td>
+              <td className="text-[1.0625rem] py-3">{tdetail.description}</td>
               <td className="text-[1.0625rem] py-3">
-                <img
-                  src={baseURL + "/api/v1/" + tdetail.picture}
-                  alt="partner-image"
-                  className="w-12 h-12 object-cover"
-                />
+                {tdetail.logo && (
+                  <img
+                    src={baseURL + "/api/v1/" +  tdetail.logo}
+                    alt="partner-logo"
+                    className="w-12 h-12 object-cover"
+                  />
+                )}
               </td>
-              <td className="text-[1.0625rem] py-3">
-                <img
-                  src={baseURL + "/api/v1/" + tdetail.backgroundImage}
-                  alt="bg-image"
-                  className="w-12 h-12 object-cover"
-                />
-              </td>
-              <td className="text-[1.0625rem] py-3">{tdetail.status}</td>
-
               <td className="text-[1.0625rem] py-3 flex space-x-3 justify-center">
                 <button
                   style={{

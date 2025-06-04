@@ -17,7 +17,7 @@ export const Pagination: FC<PaginationProps> = ({
   onPageChange,
 }) => {
   return (
-    <div className="nf_leg-pagination flex justify-between items-center text-white mt-5 ">
+    <div className="nf_leg-pagination flex justify-between items-center text-white mt-5 pb-[2rem]">
       <button
         className="inline-flex hover:opacity-80 duration-300 gap-2 py-1 px-2 prev_btn font-medium text-[1.0625rem] text-custom-gray"
         onClick={onPagePrvious}

@@ -1,5 +1,6 @@
 import { FC } from "react";
-import { Layout, League, NafesLeagues } from "../../components";
+import { Layout } from "../../components/layout";
+import { League } from "../../components/League";
 
 export const NafesLeague: FC = () => {
   return (

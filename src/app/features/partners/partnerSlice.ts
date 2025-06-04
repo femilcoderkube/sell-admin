@@ -22,7 +22,7 @@ const initialState: PartnersState = {
       { rejectWithValue }
     ) => {
       try {
-        const response = await axiosInstance.get('/partner', {
+        const response = await axiosInstance.get('/partners', {
           params: {
             page,
             limit: perPage,
@@ -40,7 +40,7 @@ const initialState: PartnersState = {
     'partners/fetchPartnerById',
     async (id: string, { rejectWithValue }) => {
       try {
-        const response = await axiosInstance.get(`/partner?id=${id}`);
+        const response = await axiosInstance.get(`/partners?id=${id}`);
         return response.data;
       } catch (error: any) {
         return rejectWithValue(error.response?.data?.message || 'Error fetching partners');
@@ -52,7 +52,7 @@ const initialState: PartnersState = {
     "partners/addPartner",
     async (partner: FormData, { rejectWithValue }) => {
       try {
-        const response = await axiosInstance.post("/partner", partner, {
+        const response = await axiosInstance.post("/partners", partner, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -73,7 +73,7 @@ const initialState: PartnersState = {
       { rejectWithValue }
     ) => {
       try {
-        const response = await axiosInstance.put(`/partner?id=${id}`, partner, {
+        const response = await axiosInstance.put(`/partners?id=${id}`, partner, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -91,7 +91,7 @@ const initialState: PartnersState = {
     "partners/deletePartner",
     async (id: string, { rejectWithValue }) => {
       try {
-        const response = await axiosInstance.delete(`/partner?id=${id}`);
+        const response = await axiosInstance.delete(`/partners?id=${id}`);
         return response.data;
       } catch (error: any) {
         return rejectWithValue(

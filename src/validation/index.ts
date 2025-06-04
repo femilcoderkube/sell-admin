@@ -15,37 +15,8 @@ export const gameSchema = Yup.object().shape({
 export const addPartnerSchema = Yup.object().shape({
   nameEn: Yup.string().required("The name field is required"),
   nameAr: Yup.string().notRequired(),
-  partnerUrl: Yup.string().notRequired(),
-  shortName: Yup.string().required("The short name field is required"),
-  description: Yup.string().notRequired(),
-  partnerPic: Yup.mixed<any>().required("This field is required"),
-  backgroundImage: Yup.mixed<any>().required("This field is required"),
-  prizePool: Yup.string().required("The prize pool field is required"),
-  order: Yup.string().required("The order field is required"),
-  partnerNews: Yup.array()
-    .of(
-      Yup.object().shape({
-        image: Yup.mixed<any>().required("Image URL is required"),
-        url: Yup.string().url("Invalid URL").required("URL is required"),
-      })
-    )
-    .notRequired(),
-
-  partnerSponsors: Yup.array()
-    .of(
-      Yup.object().shape({
-        image: Yup.mixed<any>().required("Image URL is required"),
-        url: Yup.string().url("Invalid URL").required("URL is required"),
-      })
-    )
-    .notRequired(),
   websiteUrl: Yup.string().url("Invalid Website URL").notRequired(),
-  facebookUrl: Yup.string().url("Invalid Facebook URL").notRequired(),
-  twitterUrl: Yup.string().url("Invalid Twitter URL").notRequired(),
-  youtubeUrl: Yup.string().url("Invalid YouTube URL").notRequired(),
-  twitchUrl: Yup.string().url("Invalid Twitch URL").notRequired(),
-  instagramUrl: Yup.string().url("Invalid Instagram URL").notRequired(),
-  discordUrl: Yup.string().url("Invalid Discord URL").notRequired(),
+  logo: Yup.mixed<any>().required("Logo is required"),
 });
 export const addRuleSchema = Yup.object().shape({
   nameEn: Yup.string().required("The Title field is required"),
@@ -129,4 +100,11 @@ export const leagueValidationSchema = Yup.object().shape({
   waitingList: Yup.boolean().required(),
   verifiedAccounts: Yup.boolean().required(),
   startDate: Yup.string().optional(),
+});
+
+export const addTrophieSchema = Yup.object().shape({
+  BadgeID: Yup.string().required("BadgeID is required"),
+  position: Yup.number().required("Position is required").min(1, "Position must be at least 1"),
+  points: Yup.number().required("Points are required").min(0, "Points cannot be negative"),
+  prize: Yup.string().required("Prize is required"),
 });

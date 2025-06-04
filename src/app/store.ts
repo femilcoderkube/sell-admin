@@ -1,22 +1,20 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./features/auth/authSlice";
 import partnerReducer from "./features/partners/partnerSlice";
-import ruleReducer from "./features/rules/ruleSlice";
+import trophyReducer from "./features/trophies/trophiesSlice";
 import badgeReducer from "./features/badge/badgeSlice";
 import deviceReducer from "./features/devices/deviceSlice";
 import gameReducer from "./features/games/gameSlice";
-import gameIdReducer from "./features/gameId/gameIdSlice";
 import leaguesReducer from "./features/league/leagueSlice";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     partner: partnerReducer,
-    rule: ruleReducer,
+    trophy: trophyReducer,
     badge: badgeReducer,
     device: deviceReducer,
     game: gameReducer,
-    gameId: gameIdReducer,
     leagues: leaguesReducer,
   },
 });

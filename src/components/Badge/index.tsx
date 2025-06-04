@@ -14,6 +14,7 @@ import {
   setPerPage,
   setSearchTerm,
 } from "../../app/features/badge/badgeSlice";
+import BadgeModal from "./BadgeModal";
 export * from "./BadgesTable";
 
 export const Badge: React.FC = () => {
@@ -30,6 +31,8 @@ export const Badge: React.FC = () => {
     totalCount,
     searchTerm,
   } = useSelector((state: RootState) => state.badge);
+  const [showBadgeModal, setShowBadgeModal] = useState(false);
+  const [selectedBadge, setSelectedBadge] = useState(null);
 
   useEffect(() => {
     dispatch(fetchBadges({ page: currentPage, perPage, searchTerm }));
@@ -108,15 +111,18 @@ export const Badge: React.FC = () => {
               </button>
             </div>
           </form>
-          <Link
+          <button
             className="bg-primary-gradient whitespace-nowrap sm:w-auto w-full font-medium flex hover:opacity-[0.85] duration-300 items-center gap-2 bg-[#46A2FF] hover:bg-blue-700 text-white font-base text-[1.0625rem] py-[0.6rem] px-4 rounded-[0.52rem]"
-            to={"/badges/add"}
+            onClick={() => {
+              setSelectedBadge(null);
+              setShowBadgeModal(true);
+            }}
           >
             <span>
               <PlusIcon />
             </span>
             Add new Badge
-          </Link>
+          </button>
         </div>
       </div>
       {badges.length > 0 ? (
@@ -126,10 +132,11 @@ export const Badge: React.FC = () => {
           <PartnersTable
             data={badges}
             currentPage={currentPage}
-            onEditClick={(partner) => {
-              navigate(`/badges/edit/${partner._id}`);
+            onEditClick={(badge) => {
+              setSelectedBadge(badge);
+              setShowBadgeModal(true);
             }}
-            onDeleteClick={(partnerId) => setDeleteId(partnerId)}
+            onDeleteClick={(badgeId) => setDeleteId(badgeId)}
           />
         )
       ) : (
@@ -156,6 +163,11 @@ export const Badge: React.FC = () => {
           onPageNext={() => handlePageChange(currentPage + 1)}
         />
       )}
+      <BadgeModal
+        show={showBadgeModal}
+        onClose={() => setShowBadgeModal(false)}
+        selectedBadge={selectedBadge}
+      />
     </>
   );
 };

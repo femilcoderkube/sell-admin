@@ -31,23 +31,9 @@ export interface PartnerType {
   _id: string;
   nameEn: string;
   nameAr: string;
-  shortName: string;
-  partnerPic: string;
-  backgroundImage: string;
-  status: boolean;
-  partnerUrl?: string;
   websiteUrl?: string;
-  facebookUrl?: string;
-  twitterUrl?: string;
-  youtubeUrl?: string;
-  twitchUrl?: string;
-  instagramUrl?: string;
-  discordUrl?: string;
   description?: string;
-  prizePool?: number;
-  order?: number;
-  partnerNews?: { image: any; url: string }[];
-  partnerSponsors?: { image: any; url: string }[];
+  logo?: string;
 }
 
 export interface PartnersState {
@@ -84,7 +70,6 @@ export interface GameType {
   name: string;
   shortName: string;
   logo: string;
-  gameId: string;
   color: any;
 }
 
@@ -96,19 +81,6 @@ export interface GamesState {
   perPage: number;
   totalCount: number;
   searchTerm: string;
-}
-
-// gameIds
-
-export interface GameIdType {
-  _id: string;
-  name: string;
-}
-
-export interface GameIdsState {
-  gameIds: GameIdType[];
-  loading: boolean;
-  error: string | null;
 }
 
 export interface League {
@@ -152,6 +124,7 @@ export interface LeagueState {
   searchTerm: string;
   leagueDetail: League | null;
 }
+
 export interface Rule {
   id?: string; // For existing rules from the database
   titleEn: string;
@@ -159,9 +132,54 @@ export interface Rule {
   descriptionEn: string;
   descriptionAr?: string;
 }
+
 export interface Winner {
   badgeId: string;
   position: number;
   points: number;
   prize: string;
+}
+
+export interface BadgeType {
+  _id: string;
+  name: string;
+  descriptionEN: string;
+  descriptionAR: string;
+  logo: string;
+}
+
+export interface BadgeState {
+  badges: BadgeType[];
+  loading: boolean;
+  error: string | null;
+  currentPage: number;
+  perPage: number;
+  totalCount: number;
+  searchTerm: string;
+  badgeDetail: BadgeType | null;
+  badgeNames: BadgeNameType[];
+}
+
+export interface TrophieType {
+  _id: string;
+  BadgeID: string | BadgeType;
+  position: number;
+  points: number;
+  prize: string;
+}
+
+export interface TrophiesState {
+  trophies: TrophieType[];
+  loading: boolean;
+  error: string | null;
+  currentPage: number;
+  perPage: number;
+  totalCount: number;
+  searchTerm: string;
+  trophyDetail: TrophieType | null;
+}
+
+export interface BadgeNameType {
+  _id: string;
+  name: string;
 }

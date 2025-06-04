@@ -13,6 +13,8 @@ import { Pagination } from "../ui/Pagination";
 import { PlusIcon, SearchIcon } from "../ui";
 import { Link, useNavigate } from "react-router-dom";
 import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
+import PartnerModal from "./PartnerModal";
+import { PartnerType } from "../../app/types";
 export * from "./PartnersTable";
 
 export const Partner: React.FC = () => {
@@ -29,6 +31,8 @@ export const Partner: React.FC = () => {
     totalCount,
     searchTerm,
   } = useSelector((state: RootState) => state.partner);
+  const [showPartnerModal, setShowPartnerModal] = useState(false);
+  const [selectedPartner, setSelectedPartner] = useState<PartnerType | null>(null);
 
   useEffect(() => {
     dispatch(fetchPartners({ page: currentPage, perPage, searchTerm }));
@@ -54,7 +58,7 @@ export const Partner: React.FC = () => {
 
   const totalPages = Math.ceil(totalCount / perPage);
 
-  const handleDeleteDevice = async () => {
+  const handleDeletePartner = async () => {
     const resultAction = await dispatch(deletePartner(deleteId));
     if (deletePartner.fulfilled.match(resultAction)) {
       setDeleteId("");
@@ -97,6 +101,7 @@ export const Partner: React.FC = () => {
                 name="search"
                 value={searchTerm}
                 onChange={handleSearchChange}
+                
               />
               <button
                 className="absolute left-[0.52rem] top-[0.6rem]"
@@ -108,15 +113,18 @@ export const Partner: React.FC = () => {
               </button>
             </div>
           </form>
-          <Link
+          <button
             className="bg-primary-gradient whitespace-nowrap sm:w-auto w-full font-medium flex hover:opacity-[0.85] duration-300 items-center gap-2 bg-[#46A2FF] hover:bg-blue-700 text-white font-base text-[1.0625rem] py-[0.6rem] px-4 rounded-[0.52rem]"
-            to={"/partner/add"}
+            onClick={() => {
+              setSelectedPartner(null);
+              setShowPartnerModal(true);
+            }}
           >
             <span>
               <PlusIcon />
             </span>
             Add new Partner
-          </Link>
+          </button>
         </div>
       </div>
       {partners.length > 0 ? (
@@ -127,7 +135,8 @@ export const Partner: React.FC = () => {
             data={partners}
             currentPage={currentPage}
             onEditClick={partner => {
-              navigate(`/partner/edit/${partner._id}`);
+              setSelectedPartner(partner);
+              setShowPartnerModal(true);
             }}
             onDeleteClick={(partnerId) => setDeleteId(partnerId)}
           />
@@ -144,7 +153,7 @@ export const Partner: React.FC = () => {
           setIsDeleteModalOpen(false);
           setDeleteId("");
         }}
-        onDelete={handleDeleteDevice}
+        onDelete={handleDeletePartner}
       />
 
       {totalPages > 1 && (
@@ -156,6 +165,11 @@ export const Partner: React.FC = () => {
           onPageNext={() => handlePageChange(currentPage + 1)}
         />
       )}
+      <PartnerModal
+        show={showPartnerModal}
+        onClose={() => setShowPartnerModal(false)}
+        selectedPartner={selectedPartner}
+      />
     </>
   );
 };

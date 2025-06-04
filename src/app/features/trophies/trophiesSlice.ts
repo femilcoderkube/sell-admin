@@ -2,20 +2,21 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 // import { rulesState } from "../../types";
 import axiosInstance from "../../../axios";
 import toast from "react-hot-toast";
+import { TrophiesState } from "../../types";
 
-const initialState: any = {
-  rules: [],
+const initialState: TrophiesState = {
+  trophies: [],
   loading: false,
   error: null,
   currentPage: 1,
   perPage: 10,
   totalCount: 0,
   searchTerm: "",
-  rulesDetail: null,
+  trophyDetail: null,
 };
 
-export const fetchRules = createAsyncThunk(
-  "rules/fetchRules",
+export const fetchTrophies = createAsyncThunk(
+  "trophies/fetchTrophies",
   async (
     {
       page,
@@ -25,7 +26,7 @@ export const fetchRules = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await axiosInstance.get("/rules", {
+      const response = await axiosInstance.get("/trophies", {
         params: {
           page,
           limit: perPage,
@@ -35,31 +36,31 @@ export const fetchRules = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error fetching rules"
+        error.response?.data?.message || "Error fetching trophies"
       );
     }
   }
 );
 
-export const fetchRulesById = createAsyncThunk(
-  "rules/fetchRulesById",
+export const fetchTrophieById = createAsyncThunk(
+  "trophies/fetchTrophieById",
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`/rules?id=${id}`);
+      const response = await axiosInstance.get(`/trophies?id=${id}`);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error fetching rules"
+        error.response?.data?.message || "Error fetching trophies"
       );
     }
   }
 );
 
-export const addRules = createAsyncThunk(
-  "rules/addRules",
-  async (rule: any, { rejectWithValue }) => {
+export const addTrophie = createAsyncThunk(
+  "trophies/addTrophie",
+  async (trophie: any, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post("/rules", rule, {
+      const response = await axiosInstance.post("/trophies", trophie, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -67,17 +68,17 @@ export const addRules = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error adding rule"
+        error.response?.data?.message || "Error adding trophie"
       );
     }
   }
 );
 
-export const updateRules = createAsyncThunk(
-  "rules/updateRules",
-  async ({ id, rule }: { id: string; rule: any }, { rejectWithValue }) => {
+export const updateTrophie = createAsyncThunk(
+  "trophies/updateTrophie",
+  async ({ id, trophie }: { id: string; trophie: any }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.put(`/rules?id=${id}`, rule, {
+      const response = await axiosInstance.put(`/trophies?id=${id}`, trophie, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -85,28 +86,28 @@ export const updateRules = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error updating rule"
+        error.response?.data?.message || "Error updating trophie"
       );
     }
   }
 );
 
-export const deleteRules = createAsyncThunk(
-  "rules/deleteRules",
+export const deleteTrophie = createAsyncThunk(
+  "trophies/deleteTrophie",
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.delete(`/rules?id=${id}`);
+      const response = await axiosInstance.delete(`/trophies?id=${id}`);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error adding device"
+        error.response?.data?.message || "Error deleting trophie"
       );
     }
   }
 );
 
-const rulesSlice = createSlice({
-  name: "rules",
+const trophiesSlice = createSlice({
+  name: "trophies",
   initialState,
   reducers: {
     setSearchTerm: (state, action: PayloadAction<string>) => {
@@ -123,56 +124,56 @@ const rulesSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchRules.pending, (state) => {
+      .addCase(fetchTrophies.pending, (state) => {
         state.loading = true;
       })
-      .addCase(fetchRules.fulfilled, (state, action) => {
+      .addCase(fetchTrophies.fulfilled, (state, action) => {
         state.loading = false;
-        state.rules = action.payload.data?.result;
+        state.trophies = action.payload.data?.result;
         state.totalCount = action.payload.data.totalItem;
       })
-      .addCase(fetchRules.rejected, (state, action) => {
+      .addCase(fetchTrophies.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
-      .addCase(fetchRulesById.pending, (state) => {
+      .addCase(fetchTrophieById.pending, (state) => {
         state.loading = true;
       })
-      .addCase(fetchRulesById.fulfilled, (state, action) => {
+      .addCase(fetchTrophieById.fulfilled, (state, action) => {
         state.loading = false;
-        state.ruleDetail = action.payload.data;
+        state.trophyDetail = action.payload.data;
       })
-      .addCase(fetchRulesById.rejected, (state, action) => {
+      .addCase(fetchTrophieById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
-      .addCase(addRules.pending, (state) => {
+      .addCase(addTrophie.pending, (state) => {
         state.loading = true;
       })
-      .addCase(addRules.fulfilled, (state) => {
+      .addCase(addTrophie.fulfilled, (state) => {
         state.loading = false;
-        toast.success("Rule added succesfully!");
+        toast.success("Trophie added succesfully!");
       })
-      .addCase(addRules.rejected, (state, action) => {
+      .addCase(addTrophie.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-        toast.error("Failed to add rule!");
+        toast.error("Failed to add trophie!");
       })
-      .addCase(updateRules.pending, (state) => {
+      .addCase(updateTrophie.pending, (state) => {
         state.loading = true;
       })
-      .addCase(updateRules.fulfilled, (state) => {
+      .addCase(updateTrophie.fulfilled, (state) => {
         state.loading = false;
-        toast.success("Rule updated succesfully!");
+        toast.success("Trophie updated succesfully!");
       })
-      .addCase(updateRules.rejected, (state, action) => {
+      .addCase(updateTrophie.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-        toast.error("Failed to update rule!");
+        toast.error("Failed to update trophie!");
       });
   },
 });
 
-export const { setSearchTerm, setPerPage, setPage } = rulesSlice.actions;
+export const { setSearchTerm, setPerPage, setPage } = trophiesSlice.actions;
 
-export default rulesSlice.reducer;
+export default trophiesSlice.reducer;

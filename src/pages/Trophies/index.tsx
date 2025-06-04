@@ -1,11 +1,13 @@
+
+
 import { FC } from "react";
 import { Layout } from "../../components/layout";
-import { Game } from "../../components/Game";
+import { Trophie } from "../../components/Trophies";
 
-export const Games: FC = () => {
+export const Trophies: FC = () => {
   return (
     <Layout>
-        <Game />
+      <Trophie />
     </Layout>
   );
 };

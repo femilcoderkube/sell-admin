@@ -7,7 +7,7 @@ import { LeagueSteps2 } from "../../components/LeagueStep/LeagueStep2";
 import { LeagueSteps3 } from "../../components/LeagueStep/LeagueSteps3";
 import { LeagueSteps4 } from "../../components/LeagueStep/LeagueSteps4";
 import { LeagueSteps5 } from "../../components/LeagueStep/LeagueSteps5";
-import { Layout } from "../../components";
+import { Layout } from "../../components/layout";
 import ModalPopUp from "../../components/ui/ModalPopUp";
 import { League } from "../../app/types";
 import { addLeague } from "../../app/features/league/leagueSlice";
@@ -50,7 +50,7 @@ export const AddLeague: FC = () => {
 
   const handleSubmit = () => {
     const formDataToSubmit = new FormData();
-    formDataToSubmit.append("name", formData.nameEn || "");
+    formDataToSubmit.append("name", formData.name || "");
     formDataToSubmit.append("game", formData.game || "");
     formDataToSubmit.append("partner", formData.partner || "");
     formDataToSubmit.append("about", formData.about || "");
@@ -88,21 +88,21 @@ export const AddLeague: FC = () => {
       formData.leagueBannerLink || ""
     );
     formDataToSubmit.append("endDate", formData.endDate || "");
-    formDataToSubmit.append(
-      "rules",
-      JSON.stringify(formData.rules?.map((rule) => rule.id || rule) || [])
-    );
+    // formDataToSubmit.append(
+    //   "rules",
+    //   JSON.stringify(formData.rules?.map((rule) => rule.id || rule) || [])
+    // );
     formDataToSubmit.append(
       "startDate",
       formData.startDate || new Date().toISOString()
     );
 
-    dispatch(addLeague(formDataToSubmit)).then((result) => {
-      if (addLeague.fulfilled.match(result)) {
-        navigate("/leagues");
-      }
-      setShowModal(false);
-    });
+    // dispatch(addLeague(formDataToSubmit)).then((result) => {
+    //   if (addLeague.fulfilled.match(result)) {
+    //     navigate("/leagues");
+    //   }
+    //   setShowModal(false);
+    // });
   };
 
   return (

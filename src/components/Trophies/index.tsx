@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { PartnersTable } from "./RulesTable";
+import { TrophiesTable } from "./TrophiessTable";
 import { useDispatch, useSelector } from "react-redux";
 
 import { AppDispatch, RootState } from "../../app/store";
@@ -8,31 +8,40 @@ import { PlusIcon, SearchIcon } from "../ui";
 import { Link, useNavigate } from "react-router-dom";
 import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
 import {
-  deleteRules,
-  fetchRules,
+  deleteTrophie,
+  fetchTrophies,
   setPage,
   setPerPage,
   setSearchTerm,
-} from "../../app/features/rules/ruleSlice";
-export * from "./RulesTable";
+} from "../../app/features/trophies/trophiesSlice";
+import TrophiesModal from "./TrophiesModal";
+import { fetchBadges, fetchBadgeNames } from "../../app/features/badge/badgeSlice";
+import { TrophieType } from "../../app/types";
+import { BadgeNameType } from "../../app/types";
+export * from "./TrophiessTable";
 
-export const Rule: React.FC = () => {
+export const Trophie: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const [deleteId, setDeleteId] = useState<string>("");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const {
-    rules,
+    trophies,
     loading,
     error,
     currentPage,
     perPage,
     totalCount,
     searchTerm,
-  } = useSelector((state: RootState) => state.rule);
+  } = useSelector((state: RootState) => state.trophy);
+  const [showTrophieModal, setShowTrophieModal] = useState(false);
+  const [selectedTrophie, setSelectedTrophie] = useState<TrophieType | null>(null);
+  const { badgeNames } = useSelector((state: RootState) => state.badge);
 
   useEffect(() => {
-    dispatch(fetchRules({ page: currentPage, perPage, searchTerm }));
+    dispatch(fetchTrophies({ page: currentPage, perPage, searchTerm }));
+    dispatch(fetchBadgeNames());
+
   }, [dispatch, currentPage, perPage, searchTerm]);
 
   useEffect(() => {
@@ -56,11 +65,11 @@ export const Rule: React.FC = () => {
   const totalPages = Math.ceil(totalCount / perPage);
 
   const handleDeleteDevice = async () => {
-    const resultAction = await dispatch(deleteRules(deleteId));
-    if (deleteRules.fulfilled.match(resultAction)) {
+    const resultAction = await dispatch(deleteTrophie(deleteId));
+    if (deleteTrophie.fulfilled.match(resultAction)) {
       setDeleteId("");
       setIsDeleteModalOpen(false);
-      dispatch(fetchRules({ page: currentPage, perPage: 10, searchTerm: "" }));
+      dispatch(fetchTrophies({ page: currentPage, perPage: 10, searchTerm: "" }));
     }
   };
 
@@ -69,7 +78,7 @@ export const Rule: React.FC = () => {
       <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-between items-center pt-3 pb-[2rem] border-b border-light-border">
         <div className="legue__head_left-con">
           <h3 className="font-bold text-[1.25rem] text-white">
-            Rules <span className="text-custom-gray">({rules.length})</span>
+            Trophies <span className="text-custom-gray">({trophies.length})</span>
           </h3>
         </div>
         <div className="legue__head_right-con flex-wrap flex gap-3 flex-1 justify-end">
@@ -108,28 +117,32 @@ export const Rule: React.FC = () => {
               </button>
             </div>
           </form>
-          <Link
+          <button
             className="bg-primary-gradient whitespace-nowrap sm:w-auto w-full font-medium flex hover:opacity-[0.85] duration-300 items-center gap-2 bg-[#46A2FF] hover:bg-blue-700 text-white font-base text-[1.0625rem] py-[0.6rem] px-4 rounded-[0.52rem]"
-            to={"/rules/add"}
+            onClick={() => {
+              setSelectedTrophie(null);
+              setShowTrophieModal(true);
+            }}
           >
             <span>
               <PlusIcon />
             </span>
-            Add new Rule
-          </Link>
+            Add new Trophy
+          </button>
         </div>
       </div>
-      {rules.length > 0 ? (
+      {trophies.length > 0 ? (
         loading ? (
           <></>
         ) : (
-          <PartnersTable
-            data={rules}
+          <TrophiesTable
+            data={trophies}
             currentPage={currentPage}
-            onEditClick={(partner) => {
-              navigate(`/rules/edit/${partner._id}`);
+            onEditClick={(trophy) => {
+              setSelectedTrophie(trophy);
+              setShowTrophieModal(true);
             }}
-            onDeleteClick={(partnerId) => setDeleteId(partnerId)}
+            onDeleteClick={(trophyId) => setDeleteId(trophyId)}
           />
         )
       ) : (
@@ -156,6 +169,13 @@ export const Rule: React.FC = () => {
           onPageNext={() => handlePageChange(currentPage + 1)}
         />
       )}
+
+      <TrophiesModal
+        show={showTrophieModal}
+        onClose={() => setShowTrophieModal(false)}
+        selectedTrophie={selectedTrophie}
+        badges={badgeNames}
+      />
     </>
   );
 };

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import FileUpload from "../ui/UploadFile";
 import { CancelIcon } from "../ui";
 import { useFormik } from "formik";
 import { deviceSchema } from "../../validation";
@@ -72,7 +71,7 @@ export const DeviceModal: React.FC<ModalProps> = ({
         setFileName(urlParts[urlParts.length - 1]);
       } else if (selectedDevice.logo && typeof selectedDevice.logo === 'object') {
         // Handle File object if available
-        setFileName(selectedDevice.logo.name || "Selected file");
+        setFileName(selectedDevice.logo || "Selected file");
         
         // Create preview if possible
         try {

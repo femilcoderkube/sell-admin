@@ -2,8 +2,9 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 // import { rulesState } from "../../types";
 import axiosInstance from "../../../axios";
 import toast from "react-hot-toast";
+import { BadgeState, BadgeNameType } from "../../types";
 
-const initialState: any = {
+const initialState: BadgeState = {
   badges: [],
   loading: false,
   error: null,
@@ -11,7 +12,8 @@ const initialState: any = {
   perPage: 10,
   totalCount: 0,
   searchTerm: "",
-  badgesDetail: null,
+  badgeDetail: null,
+  badgeNames: [],
 };
 
 export const fetchBadges = createAsyncThunk(
@@ -108,6 +110,20 @@ export const deleteBadges = createAsyncThunk(
   }
 );
 
+export const fetchBadgeNames = createAsyncThunk(
+  "badges/fetchBadgeNames",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get("/badge/names");
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error fetching badge names"
+      );
+    }
+  }
+);
+
 const badgesSlice = createSlice({
   name: "badges",
   initialState,
@@ -172,6 +188,17 @@ const badgesSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
         toast.error("Failed to update badge!");
+      })
+      .addCase(fetchBadgeNames.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchBadgeNames.fulfilled, (state, action) => {
+        state.loading = false;
+        state.badgeNames = action.payload.data || [];
+      })
+      .addCase(fetchBadgeNames.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });
