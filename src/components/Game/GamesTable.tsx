@@ -24,7 +24,7 @@ export const GamesTable: React.FC<IGamesProps> = ({
     game: "Game",
     shortName: "Short name ",
     picture: "Picture",
-    idField: "Id Field",
+    color: "Color",
 
     actions: "Actions",
   };
@@ -37,7 +37,7 @@ export const GamesTable: React.FC<IGamesProps> = ({
     game: game.name,
     shortName: game.shortName,
     picture: game.logo,
-    idField: game.gameId,
+    color: game.color,
     actions: {
       edit: <img src={edit} alt="Edit" style={{ width: "1.26rem" }} />,
       delete: (
@@ -64,7 +64,7 @@ export const GamesTable: React.FC<IGamesProps> = ({
               {thead.picture}
             </th>
             <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
-              {thead.idField}
+              {thead.color}
             </th>
 
             <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem] text-center">
@@ -89,7 +89,16 @@ export const GamesTable: React.FC<IGamesProps> = ({
                   className="w-12 h-12 object-cover"
                 />
               </td>
-              <td className="text-[1.0625rem] py-3">{tdetail.idField}</td>
+              {/* <td className="text-[1.0625rem] py-3">{tdetail.color}</td> */}
+              <td className="text-[1.0625rem] py-3 ">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="inline-block w-5 h-5 rounded"
+                    style={{ backgroundColor: tdetail.color }}
+                  ></span>
+                  {tdetail.color}
+                </div>
+              </td>
 
               <td className="text-[1.0625rem] py-3 flex space-x-3 justify-center">
                 <button
@@ -104,7 +113,7 @@ export const GamesTable: React.FC<IGamesProps> = ({
                       name: tdetail.game,
                       shortName: tdetail.shortName,
                       logo: tdetail.picture,
-                      gameId: tdetail.idField,
+                      color: tdetail.color,
                     });
                   }}
                 >
