@@ -2,6 +2,7 @@
 import {
   AdminControlIcon,
   DashboardIcon,
+  Device,
   NafesLeagueIcon,
 } from "../components";
 import downarr from "../assets/images/down_arr.svg";
@@ -12,6 +13,11 @@ import { Games } from "../pages/Games";
 import { Partners } from "../pages/Partners";
 import { Badges } from "../pages/Badges";
 import { RoutesProps } from "../utils";
+import { AuditLog } from "../pages/AuditLogs/AuditLog";
+import { TransMat } from "../pages/TransMet/TransMat";
+import { SEO } from "../pages/SEO/SEO";
+import { AllTeams } from "../pages/Allteams/AllTeams";
+import { Devices } from "../pages/Devices";
 
 // Helper function to convert snake_case to Title Case
 const toTitleCase = (str: string) =>
@@ -31,16 +37,17 @@ const toPath = (str: string) =>
 // Component mapping for modules and submodules
 const componentMap: { [key: string]: JSX.Element } = {
   ALL_USER: <Games />,
-  ALL_TEAM: <Games />,
+  ALL_TEAM: <AllTeams />,
   BANNED_USER: <Games />,
   ADMIN_ACCESS: <Games />,
   GAMES: <Games />,
   PARTNERS: <Partners />,
-  TROPHIES: <Games />,
+  TROPHIES: <Devices />,
+  DEVICE: <Devices />,
   BADGES: <Badges />,
-  AUDIT_LOG: <Games />,
-  TRANS_MAT: <Games />,
-  SEO: <Games />,
+  AUDIT_LOG: <AuditLog />,
+  TRANS_MAT: <TransMat />,
+  SEO: <SEO />,
 };
 
 // Icon mapping for modules

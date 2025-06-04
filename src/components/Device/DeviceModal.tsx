@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import FileUpload from "../ui/UploadFile";
 import { CancelIcon } from "../ui";
 import { useFormik } from "formik";
@@ -22,6 +22,8 @@ export const DeviceModal: React.FC<ModalProps> = ({
   selectedDevice,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string>("");
 
   const formik = useFormik({
     initialValues: {
@@ -39,6 +41,8 @@ export const DeviceModal: React.FC<ModalProps> = ({
         );
         resetForm();
         onClose();
+        setPreviewUrl(null);
+        setFileName("");
         if (updateDevice.fulfilled.match(resultAction)) {
           dispatch(fetchDevices({ page: 1, perPage: 10, searchTerm: "" }));
         }
@@ -46,6 +50,8 @@ export const DeviceModal: React.FC<ModalProps> = ({
         const resultAction = await dispatch(addDevice(formData));
         resetForm();
         onClose();
+        setPreviewUrl(null);
+        setFileName("");
         if (addDevice.fulfilled.match(resultAction)) {
           dispatch(fetchDevices({ page: 1, perPage: 10, searchTerm: "" }));
         }
@@ -57,8 +63,46 @@ export const DeviceModal: React.FC<ModalProps> = ({
     if (selectedDevice) {
       formik.setFieldValue("name", selectedDevice.name);
       formik.setFieldValue("logo", selectedDevice.logo);
+      
+      // Set preview for existing device logo
+      if (typeof selectedDevice.logo === 'string') {
+        setPreviewUrl(selectedDevice.logo);
+        // Extract filename from URL or path
+        const urlParts = selectedDevice.logo.split('/');
+        setFileName(urlParts[urlParts.length - 1]);
+      } else if (selectedDevice.logo && typeof selectedDevice.logo === 'object') {
+        // Handle File object if available
+        setFileName(selectedDevice.logo.name || "Selected file");
+        
+        // Create preview if possible
+        try {
+          const objectUrl = URL.createObjectURL(selectedDevice.logo);
+          setPreviewUrl(objectUrl);
+          return () => URL.revokeObjectURL(objectUrl);
+        } catch (error) {
+          console.error("Could not create preview URL:", error);
+        }
+      }
+    } else {
+      setPreviewUrl(null);
+      setFileName("");
     }
   }, [selectedDevice]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      formik.setFieldValue("logo", file);
+      setFileName(file.name);
+      
+      // Create preview URL for the selected file
+      const objectUrl = URL.createObjectURL(file);
+      setPreviewUrl(objectUrl);
+      
+      // Clean up the URL when component unmounts
+      return () => URL.revokeObjectURL(objectUrl);
+    }
+  };
 
   return (
     <>
@@ -84,6 +128,8 @@ export const DeviceModal: React.FC<ModalProps> = ({
                 data-modal-hide="default-modal"
                 onClick={() => {
                   formik.resetForm();
+                  setPreviewUrl(null);
+                  setFileName("");
                   onClose();
                 }}
               >
@@ -98,7 +144,7 @@ export const DeviceModal: React.FC<ModalProps> = ({
                   type="text"
                   id="name"
                   placeholder=" "
-                  className="w-full text-[0.94rem] text-white  focus:outline-0 focus:!border focus:!border-highlight-color  pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem]  px-3 block appearance-none leading-normal "
+                  className="w-full text-[0.94rem] text-white focus:outline-0 focus:!border focus:!border-highlight-color pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal"
                   {...formik.getFieldProps("name")}
                 />
                 <label
@@ -112,32 +158,70 @@ export const DeviceModal: React.FC<ModalProps> = ({
                 )}
               </div>
 
-              <FileUpload
-                label="Device Logo"
-                id="head_img"
-                onChange={(e) =>
-                  formik.setFieldValue("logo", e.target.files?.[0])
-                }
-              />
-              {formik.touched.logo && formik.errors.logo && (
-                <p className="text-red-600 !m-0 mt-1">{formik.errors.logo}</p>
-              )}
+              <div className="mb-4">
+                <label className="block text-white text-sm font-medium mb-2">
+                  Device Logo <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <div className="flex items-center justify-center w-full">
+                    <label
+                      htmlFor="logo-upload"
+                      className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-input-color border-light-border hover:bg-gray-700 transition-all"
+                    >
+                      {previewUrl ? (
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6 w-full h-full">
+                          <img 
+                            src={previewUrl} 
+                            alt="Device Logo Preview" 
+                            className="max-w-full max-h-24 object-contain mb-2"
+                          />
+                          <p className="text-xs text-gray-400 truncate w-full text-center px-2">
+                            {fileName}
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          <svg className="w-8 h-8 mb-4 text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                          </svg>
+                          <p className="mb-2 text-sm text-gray-400">
+                            <span className="font-semibold">Click to upload</span> or drag and drop
+                          </p>
+                          <p className="text-xs text-gray-400">SVG, PNG, JPG or GIF</p>
+                        </div>
+                      )}
+                      <input 
+                        id="logo-upload" 
+                        type="file" 
+                        className="hidden" 
+                        accept="image/*"
+                        onChange={handleFileChange}
+                      />
+                    </label>
+                  </div>
+                </div>
+                {formik.touched.logo && formik.errors.logo && (
+                  <p className="text-red-600 mt-1 text-sm">{formik.errors.logo}</p>
+                )}
+              </div>
             </div>
 
-            <div className="flex items-center p-4 md:p-5 border-t border-light-border rounded-b ">
+            <div className="flex items-center p-4 md:p-5 border-t border-light-border rounded-b">
               <button
                 type="button"
                 onClick={() => {
                   formik.resetForm();
+                  setPreviewUrl(null);
+                  setFileName("");
                   onClose();
                 }}
-                className="bg-gray-gradient w-1/2 text-white bg-blue-700 hover:opacity-[0.75] font-medium rounded-lg text-[0.94rem] px-5 py-[0.795rem] me-2 mb-2 duration-300 focus:outline-none "
+                className="bg-gray-gradient w-1/2 text-white bg-blue-700 hover:opacity-[0.75] font-medium rounded-lg text-[0.94rem] px-5 py-[0.795rem] me-2 mb-2 duration-300 focus:outline-none"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="bg-primary-gradient w-1/2 text-white bg-blue-700 hover:opacity-[0.75] duration-300 font-medium rounded-lg text-[0.94rem] px-5 py-[0.795rem] me-2 mb-2 focus:outline-none "
+                className="bg-primary-gradient w-1/2 text-white bg-blue-700 hover:opacity-[0.75] duration-300 font-medium rounded-lg text-[0.94rem] px-5 py-[0.795rem] me-2 mb-2 focus:outline-none"
               >
                 {`${selectedDevice ? "Update" : "Add"} Device`}
               </button>

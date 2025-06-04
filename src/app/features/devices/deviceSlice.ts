@@ -23,7 +23,7 @@ export const fetchDevices = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await axiosInstance.get("/device", {
+      const response = await axiosInstance.get("/platforms", {
         params: {
           page,
           limit: perPage,
@@ -43,7 +43,7 @@ export const addDevice = createAsyncThunk(
   "devices/addDevice",
   async (device: FormData, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post("/device", device, {
+      const response = await axiosInstance.post("/platforms", device, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -64,7 +64,7 @@ export const updateDevice = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await axiosInstance.put(`/device?id=${id}`, device, {
+      const response = await axiosInstance.put(`/platforms?id=${id}`, device, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -82,7 +82,7 @@ export const deleteDevice = createAsyncThunk(
   "devices/deleteDevice",
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.delete(`/device?id=${id}`);
+      const response = await axiosInstance.delete(`/platforms?id=${id}`);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
