@@ -7,6 +7,9 @@ import deviceReducer from "./features/devices/deviceSlice";
 import gameReducer from "./features/games/gameSlice";
 import leaguesReducer from "./features/league/leagueSlice";
 import adminReducer from "./features/admins/adminSlice";
+import newadminReducer from "./features/admins/newadminSlice";
+import adminAccessReducer from "./features/admins/adminAccessSlice";
+import booleanReducer from "./features/sidebar/booleanSlice";
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +21,9 @@ export const store = configureStore({
     game: gameReducer,
     leagues: leaguesReducer,
     admins: adminReducer,
+    newadmin: newadminReducer,
+    boolean: booleanReducer,
+    adminAccess: adminAccessReducer,
   },
 });
 

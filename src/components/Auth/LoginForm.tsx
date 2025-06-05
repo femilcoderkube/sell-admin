@@ -25,9 +25,6 @@ export const LoginForm: FC = () => {
     e.preventDefault();
     const loginRequest: LoginRequest = { email, password };
     dispatch(login(loginRequest));
-    setTimeout(() => {
-      window.location.reload();
-    }, 1000);
   };
 
   return (

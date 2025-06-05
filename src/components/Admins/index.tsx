@@ -12,10 +12,16 @@ import {
   setPerPage,
   setSearchTerm,
 } from "../../app/features/admins/adminSlice";
+import { fetchAdminAccess } from "../../app/features/admins/adminAccessSlice";
+import { AdminAccessModal } from "./AdminAccessModal";
+import CreateAdminModal from "./CreateAdminModal";
 
 export const Admins: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string>("");
+  const [adminAccessId, setAdminAccessId] = useState<string>("");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const {
     admins,
@@ -58,6 +64,15 @@ export const Admins: React.FC = () => {
       setIsDeleteModalOpen(false);
       dispatch(fetchAdmin({ page: currentPage, perPage: 10, searchTerm: "" }));
     }
+  };
+
+  const handleViewClick = (adminId: string) => {
+    dispatch(fetchAdminAccess(adminId));
+    setAdminAccessId(adminId);
+    setIsModalOpen(true);
+  };
+  const closeModal = () => {
+    setIsModalOpen(false);
   };
 
   return (
@@ -108,6 +123,7 @@ export const Admins: React.FC = () => {
             className="bg-primary-gradient whitespace-nowrap sm:w-auto w-full font-medium flex hover:opacity-[0.85] duration-300 items-center gap-2 bg-[#46A2FF] hover:bg-blue-700 text-white font-base text-[1.0625rem] py-[0.6rem] px-4 rounded-[0.52rem]"
             onClick={() => {
               // Add admin modal logic here if needed
+              setIsOpen(true);
             }}
           >
             <span>
@@ -124,10 +140,11 @@ export const Admins: React.FC = () => {
           <AdminTable
             data={admins}
             currentPage={currentPage}
-            onEditClick={admin => {
+            onEditClick={(admin) => {
               // Add edit logic here if needed
             }}
-            onDeleteClick={adminId => setDeleteId(adminId)}
+            onDeleteClick={(adminId) => setDeleteId(adminId)}
+            handleViewClick={(adminAccess) => handleViewClick(adminAccess)}
           />
         )
       ) : (
@@ -154,6 +171,12 @@ export const Admins: React.FC = () => {
           onPageNext={() => handlePageChange(currentPage + 1)}
         />
       )}
+      <CreateAdminModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      <AdminAccessModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        adminId={adminAccessId}
+      />
     </>
   );
 };

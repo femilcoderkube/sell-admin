@@ -5,8 +5,11 @@ import AuthRoute from "./routes/AuthRoute";
 import { useMemo } from "react";
 import { RoutesProps } from "./utils";
 import { generateRoutes } from "./routes/menuItems";
+import { useSelector } from "react-redux";
 
 export const App = () => {
+  const booleanValue = useSelector((state) => state.boolean.value);
+  console.log("booleanValue", booleanValue);
   const adminSidebar = localStorage.getItem("admin");
   const jsonValue = adminSidebar ? JSON.parse(adminSidebar) : null;
   const routes: RoutesProps[] = useMemo(() => {

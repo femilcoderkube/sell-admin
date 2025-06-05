@@ -5,10 +5,13 @@ import { Link } from "react-router-dom";
 
 import { generateRoutes } from "../../routes/menuItems";
 import { RoutesProps } from "../../utils";
+import { useDispatch } from "react-redux";
+import { setTrue } from "../../app/features/sidebar/booleanSlice";
 
 export const Aside: React.FC = () => {
   const [hoveredItem, setHoveredItem] = useState<number | null>(null);
   const [openSubMenu, setOpenSubMenu] = useState<number | null>(null);
+  const dispatch = useDispatch();
 
   // Retrieve and parse admin data from localStorage
   const adminSidebar = localStorage.getItem("admin");
@@ -17,6 +20,7 @@ export const Aside: React.FC = () => {
 
   // Generate routes dynamically using adminside data
   const routes: RoutesProps[] = useMemo(() => {
+    dispatch(setTrue());
     const adminside = jsonValue?.adminAccess?.modules || [];
     return generateRoutes(adminside);
   }, [jsonValue]);
