@@ -12,7 +12,7 @@ export const App = () => {
   const routes: RoutesProps[] = useMemo(() => {
     const adminside = jsonValue?.adminAccess?.modules || [];
     return generateRoutes(adminside, jsonValue);
-  }, [jsonValue]);
+  }, [jsonValue, localStorage]);
 
   return (
     <>
