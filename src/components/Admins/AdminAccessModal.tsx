@@ -77,7 +77,6 @@ export const AdminAccessModal: React.FC<AdminAccessModalProps> = ({
   };
 
   const handleSave = () => {
-    console.log("editedModules", editedModules);
     dispatch(updateAdminAccess({ adminId, modules: editedModules }));
     setTimeout(() => {
       dispatch(fetchAdmin({ page: 1, perPage: 10, searchTerm: "" }));

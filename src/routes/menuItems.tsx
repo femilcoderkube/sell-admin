@@ -15,9 +15,14 @@ import { AllTeams } from "../pages/Allteams/AllTeams";
 import { Devices } from "../pages/Devices";
 import { Users } from "../pages/Users";
 import { Trophies } from "../pages/Trophies";
-import { AdminControlIcon, DashboardIcon, NafesLeagueIcon } from "../components/ui";
+import {
+  AdminControlIcon,
+  DashboardIcon,
+  NafesLeagueIcon,
+} from "../components/ui";
 import { Admin } from "../pages/Admin";
-
+import { NafesLeague } from "../pages/League";
+import { AddLeague } from "../pages/AddLeague";
 
 // Helper function to convert snake_case to Title Case
 const toTitleCase = (str: string) =>
@@ -54,10 +59,10 @@ const componentMap: { [key: string]: JSX.Element } = {
 const iconMap: { [key: string]: JSX.Element } = {
   USER_CONTROL: <AdminControlIcon />,
   GENRAL_CONTROL: <AdminControlIcon />,
-  AWARDS: <NafesLeagueIcon />,
-  AUDIT_LOG: <NafesLeagueIcon />,
-  TRANS_MAT: <NafesLeagueIcon />,
-  SEO: <NafesLeagueIcon />,
+  AWARDS: <DashboardIcon />,
+  AUDIT_LOG: <DashboardIcon />,
+  TRANS_MAT: <DashboardIcon />,
+  SEO: <DashboardIcon />,
 };
 
 // Function to generate routes from adminside data
@@ -114,6 +119,36 @@ export const generateRoutes = (adminside: any[]): RoutesProps[] => {
       component: <Dashboard />,
       auth: true,
       isShow: true,
+    },
+    {
+      label: "PRIME",
+      icon: <NafesLeagueIcon />,
+      path: "/prime",
+      dark_svg: downarr,
+      white_svg: white_arr,
+      component: <NafesLeague />,
+      auth: true,
+      isShow: true,
+    },
+    {
+      label: "Nafes League",
+      icon: <NafesLeagueIcon />,
+      path: "/leagues",
+      dark_svg: downarr,
+      white_svg: white_arr,
+      component: <NafesLeague />,
+      auth: true,
+      isShow: true,
+    },
+    {
+      label: "Add League",
+      icon: <NafesLeagueIcon />,
+      path: "/leagues/add",
+      dark_svg: downarr,
+      white_svg: white_arr,
+      component: <AddLeague />,
+      auth: true,
+      isShow: false,
     },
     ...dynamicRoutes,
   ];

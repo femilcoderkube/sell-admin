@@ -1,181 +1,196 @@
 html {
-    font-size: 16px;
+  font-size: 16px;
 }
 
-
-@media(min-width:1921px) {
-    html {
-        font-size: 0.856vw;
-    }
+@media (min-width: 1921px) {
+  html {
+    font-size: 0.856vw;
+  }
 }
-
 
 body {
-    background-color: #0B0D13;
-    font-family: "Roboto Condensed", serif;
-    font-weight: 400;
-    font-style: normal;
-    overflow-x: hidden;
+  background-color: #0b0d13;
+  font-family: "Roboto Condensed", serif;
+  font-weight: 400;
+  font-style: normal;
+  overflow-x: hidden;
 }
-
 
 .btn_bg.active,
 .aside_link.active {
-    background: radial-gradient(circle, rgba(79, 166, 255, 1) 0%, rgba(0, 126, 255, 1) 100%);
+  background: radial-gradient(
+    circle,
+    rgba(79, 166, 255, 1) 0%,
+    rgba(0, 126, 255, 1) 100%
+  );
+}
+
+.aside_link.leagues.secondary {
+  background: linear-gradient(
+    90deg,
+    rgba(103, 232, 134, 1) 0%,
+    rgba(43, 216, 108, 1) 100%
+  );
 }
 
 a {
-    display: inline-block;
+  display: inline-block;
 }
 
 .aside_link:hover svg path,
 .aside_link.active svg path {
-    fill: #fff;
+  fill: #fff;
 }
 
 .aside_link:hover,
 .aside_link.active {
-    color: #fff;
+  color: #fff;
 }
 
 .submenu {
-    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
 }
 
 ul.submenu {
-    background: #6b78971f;
-    border-radius: 0.52rem;
+  background: #6b78971f;
+  border-radius: 0.52rem;
 }
 
 .aside_link.active .down_arrow {
-    transform: rotate(180deg);
-    transition: .3s ease;
+  transform: rotate(180deg);
+  transition: 0.3s ease;
 }
 
 .down_arrow {
-    width: 1.1rem;
+  width: 1.1rem;
 }
 
 .yes_active span {
-    background: rgb(47 206 110 / 24%);
-    color: #2FCE6E;
+  background: rgb(47 206 110 / 24%);
+  color: #2fce6e;
 }
 
 .no_active span {
-    background: rgb(255 71 87 / 24%);
-    color: #FF4757;
+  background: rgb(255 71 87 / 24%);
+  color: #ff4757;
 }
 
 /* Custom Input */
 
 .custom-input input,
 .custom-input select {
-    border: 1px solid transparent;
+  border: 1px solid transparent;
 }
 
 .custom-input input::placeholder {
-    color: #6B7897;
+  color: #6b7897;
 }
 
 .custom-input:focus-within label,
-.custom-input input:not(:placeholder-shown)+label {
-    transform: translateY(-0.3rem);
-    font-weight: 400;
-    font-size: 0.8125rem;
-
+.custom-input input:not(:placeholder-shown) + label {
+  transform: translateY(-0.3rem);
+  font-weight: 400;
+  font-size: 0.8125rem;
 }
 
-[type='checkbox']:checked {
-    background-position: center 0.5rem;
-    background-size: 0.625rem;
+[type="checkbox"]:checked {
+  background-position: center 0.5rem;
+  background-size: 0.625rem;
 }
 
-[type='text']:focus,textarea:focus {
-    border-color: transparent;
+[type="text"]:focus,
+textarea:focus {
+  border-color: transparent;
 }
 
 /* Custom Select */
 
 .float-label-select.custom-input:focus-within label {
-    transform: translateY(-0.5rem) scale(1);
+  transform: translateY(-0.5rem) scale(1);
 }
 
-.leg_radio-btn input:checked+label {
-    position: relative;
-    background: linear-gradient(180deg, rgba(79, 166, 255, 0.16) 0%, rgba(0, 126, 255, 0.16) 100%);
-    border-radius: 0.52rem;
-    color: white;
-    height: 100%;
+.leg_radio-btn input:checked + label {
+  position: relative;
+  background: linear-gradient(
+    180deg,
+    rgba(79, 166, 255, 0.16) 0%,
+    rgba(0, 126, 255, 0.16) 100%
+  );
+  border-radius: 0.52rem;
+  color: white;
+  height: 100%;
 }
 
-
-.leg_radio-btn input:checked+label::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 0.52rem;
-    padding: 1px;
-    background: linear-gradient(180deg, rgba(79, 166, 255, 1) 0%, rgba(0, 126, 255, 1) 100%);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: destination-out;
-    mask-composite: exclude;
-    pointer-events: none;
+.leg_radio-btn input:checked + label::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 0.52rem;
+  padding: 1px;
+  background: linear-gradient(
+    180deg,
+    rgba(79, 166, 255, 1) 0%,
+    rgba(0, 126, 255, 1) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: destination-out;
+  mask-composite: exclude;
+  pointer-events: none;
 }
 
 .basic-multi-select {
-    border: 0;
-    background: #181d29;
-    border-radius: 0.52rem;
+  border: 0;
+  background: #181d29;
+  border-radius: 0.52rem;
 }
 
 .basic-multi-select .select__control {
-    border: 0;
-    background: #181d29;
-    border-radius: 0.52rem;
+  border: 0;
+  background: #181d29;
+  border-radius: 0.52rem;
 }
 
 .basic-multi-select .select__control .select__value-container {
-    padding: 0.3rem 0.7rem;
-    font-size: 0.94rem;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.94rem;
 }
 
 .select__dropdown-indicator,
 .select__indicator-separator {
-    display: none !important;
+  display: none !important;
 }
 
 .select__multi-value {
-    background-color: #262B39 !important;
-    color: #6B7897;
-    border-radius: 6px !important;
+  background-color: #262b39 !important;
+  color: #6b7897;
+  border-radius: 6px !important;
 }
 
 .select__multi-value .select__multi-value__label {
-    color: #fff;
-    font-size: 0.94rem;
-    padding-block: 5px;
+  color: #fff;
+  font-size: 0.94rem;
+  padding-block: 5px;
 }
 
 .nf_user_form form h2 {
-    text-align: center;
-    margin-bottom: 20px;
+  text-align: center;
+  margin-bottom: 20px;
 }
 
 .nf_user_form.add-event-form form {
-    border: none;
-    border-radius: 0;
-    margin: 0;
+  border: none;
+  border-radius: 0;
+  margin: 0;
 }
 
-
 .nf_user_form form {
-    background: #11141d;
-    border: 1px solid #252c3f;
-    border-radius: 8px;
-    padding: 20px 20px 40px;
-    margin: 30px auto 0;
-    max-width: 650px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+  background: #11141d;
+  border: 1px solid #252c3f;
+  border-radius: 8px;
+  padding: 20px 20px 40px;
+  margin: 30px auto 0;
+  max-width: 650px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
