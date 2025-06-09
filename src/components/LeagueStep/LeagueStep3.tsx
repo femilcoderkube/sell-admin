@@ -1,13 +1,13 @@
 import React from "react";
-import FileUpload from "../ui/UploadFile";
-import { League } from "../../app/types";
+import FileUpload from "../ui/UploadFile.tsx";
+import { League } from "../../app/types.ts";
 
-interface LeagueSteps4Props {
+interface LeagueSteps3Props {
   formData: Partial<League>;
   onChange: (data: Partial<League>) => void;
 }
 
-export const LeagueSteps4: React.FC<LeagueSteps4Props> = ({
+export const LeagueSteps3: React.FC<LeagueSteps3Props> = ({
   formData,
   onChange,
 }) => {
@@ -17,11 +17,6 @@ export const LeagueSteps4: React.FC<LeagueSteps4Props> = ({
         Media
       </h4>
 
-      <FileUpload
-        label="Logo (270*330)"
-        id="logo"
-        onChange={(file) => onChange({ logo: file })}
-      />
       <FileUpload
         label="Card image (1920*1080)"
         id="hydraulicsImage"
@@ -33,7 +28,7 @@ export const LeagueSteps4: React.FC<LeagueSteps4Props> = ({
         onChange={(file) => onChange({ mobileHeader: file })}
       />
       <FileUpload
-        label="Banner (270*330)"
+        label="Logo (270*330)"
         id="bannerImage"
         onChange={(file) => onChange({ bannerImage: file })}
       />
@@ -47,7 +42,7 @@ export const LeagueSteps4: React.FC<LeagueSteps4Props> = ({
             onChange={(e) => onChange({ isFeatured: e.target.checked })}
             className="sr-only peer"
           />
-          <div className="relative w-9 h-5 bg-custom-gray focus:outline-none rounded-full peer dark:bg-custom-gray peer-checked:after:translate-x-full rtl:peer-checked:after-translate-x-[-100%] peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-primary-gradient dark:peer-checked:bg-primary-gradient"></div>
+          <div className="relative w-9 h-5 bg-custom-gray focus:outline-none rounded-full peer dark:bg-custom-gray peer-checked:after:translate-x-full rtl:peer-checked:after:translate-x-[-100%] peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-primary-gradient dark:peer-checked:bg-primary-gradient"></div>
         </label>
       </div>
       <div className="relative float-label-input custom-input mb-4">

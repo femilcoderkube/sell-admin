@@ -15,7 +15,7 @@ export * from "./LeagueTable";
 // Define table headers (unchanged)
 export const thead = ["Name", "Job", "Employed", ""];
 
-export const League: React.FC = () => {
+export const League: React.FC = ({ title }: any) => {
   const dispatch = useDispatch();
   const {
     leagues,
@@ -67,8 +67,7 @@ export const League: React.FC = () => {
       <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-between items-center pt-3 pb-[2rem] border-b border-light-border">
         <div className="legue__head_left-con">
           <h3 className="font-bold text-[1.5rem] text-white">
-            Nafes League{" "}
-            <span className="text-custom-gray">({totalCount})</span>
+            {title} <span className="text-custom-gray">({totalCount})</span>
           </h3>
         </div>
         <div className="legue__head_right-con flex-wrap flex gap-3 flex-1 justify-end">
@@ -128,7 +127,7 @@ export const League: React.FC = () => {
           </form>
           <Link
             className="bg-primary-gradient whitespace-nowrap sm:w-auto w-full font-medium flex hover:opacity-[0.85] duration-300 items-center gap-2 bg-[#46A2FF] hover:bg-blue-700 text-white font-base text-[1.0625rem] py-[0.6rem] px-4 rounded-[0.52rem]"
-            to={"/leagues/add"}
+            to={"/prime/leagues/add"}
           >
             <span>
               <svg

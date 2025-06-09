@@ -30,7 +30,10 @@ export const Aside: React.FC = () => {
   };
 
   return (
-    <aside className="fixed left-0 bg-dark-blue px-[0.8rem] h-screen overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 pt-[6rem] w-[15rem] ">
+    <aside
+      className="fixed left-0 bg-dark-blue px-[0.8rem] h-screen overflow-y-auto pt-[6rem] w-[15rem]"
+      style={{ scrollbarWidth: "none", WebkitScrollbar: { display: "none" } }}
+    >
       {/* <aside className="fixed left-0 bg-dark-blue px-[0.8rem] min-h-full text-center pt-[6rem] w-[15rem]"> */}
       <ul className="flex flex-col gap-2">
         {routes.map((item, key) => {
@@ -39,10 +42,12 @@ export const Aside: React.FC = () => {
               <Link
                 to={item.submenu ? "#" : item.path}
                 className={`${
-                  item.path === "/leagues"
-                    ? `aside_link leagues secondary text-[1.0625rem] bg-secondary-gradient font-medium text-left block text-custom-gray flex items-center gap-2 py-[0.45rem] px-2 rounded-[0.52rem] transition-all duration-300 text-white`
-                    : item.path === "/prime"
-                    ? `aside_link text-[1.0625rem] bg-primary-gradient font-medium text-left block text-custom-gray flex items-center gap-2 py-[0.45rem] px-2 rounded-[0.52rem] transition-all duration-300 text-white`
+                  item.path === "/prime"
+                    ? `aside_link text-[1.0625rem] bg-[${
+                        item.partnerColor
+                      }] font-medium text-left block text-custom-gray text-center gap-2 py-[0.45rem] px-2 rounded-[0.52rem] transition-all duration-300  ${
+                        openSubMenu === key ? "text-white" : ""
+                      }`
                     : `aside_link text-[1.0625rem] hover:bg-primary-gradient font-medium text-left block text-custom-gray flex items-center gap-2 py-[0.45rem] px-2 rounded-[0.52rem] transition-all duration-300 
                 ${openSubMenu === key ? "bg-[#1E2233] text-white active" : ""}`
                 }`}
@@ -57,7 +62,7 @@ export const Aside: React.FC = () => {
               >
                 {item.icon}
                 {item.label}
-                {item.submenu && (
+                {item.submenu && !item.isPartner && (
                   <span className="flex-[1] flex justify-end">
                     <img
                       className="down_arrow duration-300"
@@ -85,7 +90,7 @@ export const Aside: React.FC = () => {
                     <li key={subKey}>
                       <Link
                         to={sub.path}
-                        className="text-[#AAB4D4] block py-2 px-4 hover:bg-[#1E2233] rounded-md"
+                        className="text-[#AAB4D4] block py-2 px-4 hover:bg-[#1E2233] rounded-md text-center"
                       >
                         {sub.label}
                       </Link>

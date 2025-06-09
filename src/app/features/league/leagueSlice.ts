@@ -25,7 +25,7 @@ export const fetchLeagues = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await axiosInstance.get("/league", {
+      const response = await axiosInstance.get("/leagues", {
         params: {
           page,
           limit: perPage,
@@ -59,7 +59,7 @@ export const addLeague = createAsyncThunk(
   "leagues/addLeague",
   async (league: FormData, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post("/league", league, {
+      const response = await axiosInstance.post("/Leagues", league, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -80,7 +80,7 @@ export const updateLeague = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await axiosInstance.put(`/league?id=${id}`, league, {
+      const response = await axiosInstance.put(`/leagues?id=${id}`, league, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -98,7 +98,7 @@ export const deleteLeague = createAsyncThunk(
   "leagues/deleteLeague",
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.delete(`/league?id=${id}`);
+      const response = await axiosInstance.delete(`/leagues?id=${id}`);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(

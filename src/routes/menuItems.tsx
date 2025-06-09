@@ -39,30 +39,37 @@ const toPath = (str: string) =>
     .replace(/-+/g, "-") // Ensures multiple hyphens are reduced to one
     .replace(/^-|-$/g, ""); // Removes leading or trailing hyphens
 
-// Component mapping for modules and submodules
-const componentMap: { [key: string]: JSX.Element } = {
-  ALL_USER: <Users />,
-  ALL_TEAM: <AllTeams />,
-  BANNED_USER: <Games />,
-  ADMIN_ACCESS: <Admin />,
-  GAMES: <Games />,
-  PARTNERS: <Partners />,
-  TROPHIES: <Trophies />,
-  DEVICE: <Devices />,
-  BADGES: <Badges />,
-  AUDIT_LOG: <AuditLog />,
-  TRANS_MAT: <TransMat />,
-  SEO: <SEO />,
+// Component mapping for modules and submodules (store component types)
+const componentMap: { [key: string]: React.ComponentType<any> } = {
+  LEAGUE: NafesLeague,
+  TOURNAMENT: NafesLeague,
+  ALL_USER: Users,
+  ALL_TEAM: AllTeams,
+  BANNED_USER: Games,
+  ADMIN_ACCESS: Admin,
+  GAMES: Games,
+  PARTNERS: Partners,
+  TROPHIES: Trophies,
+  DEVICE: Devices,
+  BADGES: Badges,
+  AUDIT_LOG: AuditLog,
+  TRANS_MAT: TransMat,
+  SEO: SEO,
+  PRIME: NafesLeague, // Added for PRIME module
+  USER_CONTROL: Users, // Added for USER_CONTROL module
+  GENRAL_CONTROL: Games, // Added for GENRAL_CONTROL module (assuming Games as default, adjust as needed)
+  AWARDS: Trophies, // Added for AWARDS module (assuming Trophies as default, adjust as needed)
 };
 
-// Icon mapping for modules
-const iconMap: { [key: string]: JSX.Element } = {
-  USER_CONTROL: <AdminControlIcon />,
-  GENRAL_CONTROL: <AdminControlIcon />,
-  AWARDS: <DashboardIcon />,
-  AUDIT_LOG: <DashboardIcon />,
-  TRANS_MAT: <DashboardIcon />,
-  SEO: <DashboardIcon />,
+// Icon mapping for modules (store component types)
+const iconMap: { [key: string]: React.ComponentType<any> } = {
+  PRIME: NafesLeagueIcon,
+  USER_CONTROL: AdminControlIcon,
+  GENRAL_CONTROL: AdminControlIcon,
+  AWARDS: DashboardIcon,
+  AUDIT_LOG: DashboardIcon,
+  TRANS_MAT: DashboardIcon,
+  SEO: DashboardIcon,
 };
 
 // Function to generate routes from adminside data
@@ -70,35 +77,71 @@ export const generateRoutes = (adminside: any[]): RoutesProps[] => {
   const dynamicRoutes: RoutesProps[] = adminside
     .filter((module) => module.hasAccess)
     .map((module) => {
-      const label = toTitleCase(module.nameEn); // Use nameEn for label
-      const path = `/${toPath(module.nameEn)}`; // Use nameEn for path
+      const label = toTitleCase(module.nameEn);
+      const path = `/${toPath(module.nameEn)}`;
+      const ModuleComponent = componentMap[module.key] || (() => <></>);
+      const IconComponent = iconMap[module.key] || NafesLeagueIcon;
       const submenu = module.subModules
         .filter((sub: any) => sub.hasAccess)
-        .map((sub: any) => ({
-          label: toTitleCase(sub.nameEn), // Use nameEn for submenu label
-          path: `${path}/${toPath(sub.nameEn)}`, // Use nameEn for submenu path
-          component: componentMap[sub.key] || <></>,
-          auth: true,
-          isShow: true,
-        }));
+        .map((sub: any) => {
+          const SubComponent = componentMap[sub.key] || (() => <></>);
+          return {
+            label: toTitleCase(sub.nameEn),
+            path: `${path}/${toPath(sub.nameEn)}`,
+            component: (
+              <SubComponent
+                title={toTitleCase(sub.nameEn)}
+                id={sub._id}
+                partnerId={module.isPartner ? module.partnerId : undefined}
+                partnerColor={
+                  module.isPartner ? module.partnerColor : undefined
+                }
+                key={sub._id}
+              />
+            ),
+            auth: true,
+            isShow: true,
+          };
+        });
 
       return {
         label,
-        icon: iconMap[module.key] || <NafesLeagueIcon />,
+        isPartner: module.isPartner,
+        partnerId: module.isPartner ? module.partnerId : undefined,
+        partnerColor: module.isPartner ? module.partnerColor : undefined,
+        icon: module.isPartner ? (
+          <></>
+        ) : (
+          <IconComponent
+            isPartner={module.isPartner}
+            partnerId={module.isPartner ? module.partnerId : undefined}
+            partnerColor={module.isPartner ? module.partnerColor : undefined}
+            key={module._id}
+          />
+        ),
         path: submenu.length > 0 ? path : path,
         dark_svg: downarr,
         white_svg: white_arr,
         submenu: submenu.length > 0 ? submenu : undefined,
         component:
-          submenu.length > 0
-            ? submenu[0].component
-            : componentMap[module.key] || <></>,
+          submenu.length > 0 ? (
+            submenu[0].component
+          ) : (
+            <ModuleComponent
+              title={toTitleCase(module.nameEn)}
+              id={module._id}
+              isPartner={module.isPartner}
+              partnerId={module.isPartner ? module.partnerId : undefined}
+              partnerColor={module.isPartner ? module.partnerColor : undefined}
+              key={module._id}
+            />
+          ),
         auth: true,
         isShow: true,
       };
     });
 
-  // Combine static routes (Login, Dashboard) with dynamic routes
+  // Combine static routes (Login, Dashboard, Add League) with dynamic routes
   return [
     {
       label: "Login",
@@ -121,29 +164,9 @@ export const generateRoutes = (adminside: any[]): RoutesProps[] => {
       isShow: true,
     },
     {
-      label: "PRIME",
-      icon: <NafesLeagueIcon />,
-      path: "/prime",
-      dark_svg: downarr,
-      white_svg: white_arr,
-      component: <NafesLeague />,
-      auth: true,
-      isShow: true,
-    },
-    {
-      label: "Nafes League",
-      icon: <NafesLeagueIcon />,
-      path: "/leagues",
-      dark_svg: downarr,
-      white_svg: white_arr,
-      component: <NafesLeague />,
-      auth: true,
-      isShow: true,
-    },
-    {
       label: "Add League",
       icon: <NafesLeagueIcon />,
-      path: "/leagues/add",
+      path: "/prime/leagues/add",
       dark_svg: downarr,
       white_svg: white_arr,
       component: <AddLeague />,

@@ -105,36 +105,36 @@ export interface GamesState {
   searchTerm: string;
 }
 
-export interface League {
-  _id?: string;
-  device: string;
-  game: string;
-  partner: string;
-  name: string;
-  about: string;
-  tags: string[];
-  isSolo: boolean;
-  totalPlayers: number;
-  minPlayersPerTeam?: number;
-  maxPlayersPerTeam?: number;
-  prizePool: number;
-  positions: Array<{
-    BadgeID: string;
-    position: number;
-    points: number;
-    prize: string;
-  }>;
-  isEndlessPlayers: boolean;
-  isFeatured: boolean;
-  hydraulicsImage?: string;
-  mobileHeader?: string;
-  bannerImage?: string;
-  leagueBannerLink: string;
-  endDate: string;
-  rules: string[];
-  startDate?: string;
-  existingPositionIds?: string[];
-}
+// export interface League {
+//   _id?: string;
+//   device: string;
+//   game: string;
+//   partner: string;
+//   name: string;
+//   about: string;
+//   tags: string[];
+//   isSolo: boolean;
+//   totalPlayers: number;
+//   minPlayersPerTeam?: number;
+//   maxPlayersPerTeam?: number;
+//   prizePool: number;
+//   positions: Array<{
+//     BadgeID: string;
+//     position: number;
+//     points: number;
+//     prize: string;
+//   }>;
+//   isEndlessPlayers: boolean;
+//   isFeatured: boolean;
+//   hydraulicsImage?: string;
+//   mobileHeader?: string;
+//   bannerImage?: string;
+//   leagueBannerLink: string;
+//   endDate: string;
+//   rules: string[];
+//   startDate?: string;
+//   existingPositionIds?: string[];
+// }
 
 export interface LeagueState {
   leagues: League[];
@@ -204,4 +204,56 @@ export interface TrophiesState {
 export interface BadgeNameType {
   _id: string;
   name: string;
+}
+
+export interface League {
+  title: string;
+  partner: string;
+  game: string;
+  platform: string;
+  format: string;
+  playersPerTeam: number;
+  maxMatchesPerPlayer: {
+    isActive: boolean;
+    maxMatches: number;
+  };
+  queueSettings: {
+    alwaysOn: boolean;
+    schedule?: {
+      days: string[];
+      times: string[];
+    };
+  };
+  qualifyingLine: number;
+  prizepool: number;
+  rules: File | null;
+  timeLine: Array<{
+    title: string;
+    description: string;
+  }>;
+  customRegistrationFields: Array<{
+    fieldName: string;
+    fieldType: string;
+    required: boolean;
+  }>;
+  logo: File | null;
+  // Existing fields retained for compatibility
+  isSolo?: boolean;
+  totalPlayers?: number;
+  isEndlessPlayers?: boolean;
+  isFeatured?: boolean;
+  leagueBannerLink?: string;
+  hydraulicsImage?: File | null;
+  mobileHeader?: File | null;
+  bannerImage?: File | null;
+  positions?: Winner[];
+  waitingList?: boolean;
+  verifiedAccounts?: boolean;
+}
+
+export interface Winner {
+  badgeId: string;
+  position: number;
+  points: number;
+  prize: string;
 }

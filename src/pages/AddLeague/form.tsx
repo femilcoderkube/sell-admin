@@ -1,6 +1,7 @@
 import React, { FC, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+
 import { LeagueSteps1 } from "../../components/LeagueStep/LeagueStep1";
 import { LeagueSteps2 } from "../../components/LeagueStep/LeagueStep2";
 import { LeagueSteps3 } from "../../components/LeagueStep/LeagueStep3";
@@ -16,11 +17,9 @@ export const AddLeague: FC = () => {
   const dispatch = useDispatch();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<Partial<League>>({
-    format: "party queue",
-    maxMatchesPerPlayer: { isActive: false, maxMatches: 0 },
-    queueSettings: { alwaysOn: false, schedule: { days: [], times: [] } },
-    timeLine: [],
-    customRegistrationFields: [],
+    isSolo: true, // Default to Solo
+    rules: [],
+    positions: [],
   });
   const [showModal, setShowModal] = useState(false);
 
@@ -41,7 +40,7 @@ export const AddLeague: FC = () => {
     if (step > 1) {
       setStep(step - 1);
     } else {
-      navigate("/leagues");
+      navigate("/prime/leagues");
     }
   };
 
@@ -51,62 +50,51 @@ export const AddLeague: FC = () => {
 
   const handleSubmit = () => {
     const formDataToSubmit = new FormData();
-    formDataToSubmit.append("title", formData.title || "");
-    formDataToSubmit.append("partner", formData.partner || "");
+    formDataToSubmit.append("name", formData.name || "");
     formDataToSubmit.append("game", formData.game || "");
-    formDataToSubmit.append("platform", formData.platform || "");
-    formDataToSubmit.append("format", formData.format || "");
+    formDataToSubmit.append("partner", formData.partner || "");
+    formDataToSubmit.append("about", formData.about || "");
+    formDataToSubmit.append("tags", JSON.stringify(formData.tags || []));
+    formDataToSubmit.append("isSolo", String(formData.isSolo || false));
+    formDataToSubmit.append("totalPlayers", String(formData.totalPlayers || 0));
+    if (!formData.isSolo) {
+      formDataToSubmit.append(
+        "minPlayersPerTeam",
+        String(formData.minPlayersPerTeam || 2)
+      );
+      formDataToSubmit.append(
+        "maxPlayersPerTeam",
+        String(formData.maxPlayersPerTeam || 5)
+      );
+    }
+    formDataToSubmit.append("prizePool", String(formData.prizePool || 0));
     formDataToSubmit.append(
-      "playersPerTeam",
-      String(formData.playersPerTeam || 0)
+      "positions",
+      JSON.stringify(formData.positions || [])
     );
     formDataToSubmit.append(
-      "maxMatchesPerPlayer",
-      JSON.stringify(
-        formData.maxMatchesPerPlayer || { isActive: false, maxMatches: 0 }
-      )
+      "isEndlessPlayers",
+      String(formData.isEndlessPlayers || false)
     );
-    formDataToSubmit.append(
-      "queueSettings",
-      JSON.stringify(formData.queueSettings || {})
-    );
-    formDataToSubmit.append(
-      "qualifyingLine",
-      String(formData.qualifyingLine || 0)
-    );
-    formDataToSubmit.append("prizepool", String(formData.prizepool || 0));
-    if (formData.rules) formDataToSubmit.append("rules", formData.rules);
-    formDataToSubmit.append(
-      "timeLine",
-      JSON.stringify(formData.timeLine || [])
-    );
-    formDataToSubmit.append(
-      "customRegistrationFields",
-      JSON.stringify(formData.customRegistrationFields || [])
-    );
-    if (formData.logo) formDataToSubmit.append("logo", formData.logo);
+    formDataToSubmit.append("isFeatured", String(formData.isFeatured || false));
     if (formData.hydraulicsImage)
       formDataToSubmit.append("hydraulicsImage", formData.hydraulicsImage);
     if (formData.mobileHeader)
       formDataToSubmit.append("mobileHeader", formData.mobileHeader);
     if (formData.bannerImage)
       formDataToSubmit.append("bannerImage", formData.bannerImage);
-    formDataToSubmit.append("isFeatured", String(formData.isFeatured || false));
     formDataToSubmit.append(
       "leagueBannerLink",
       formData.leagueBannerLink || ""
     );
+    formDataToSubmit.append("endDate", formData.endDate || "");
+    // formDataToSubmit.append(
+    //   "rules",
+    //   JSON.stringify(formData.rules?.map((rule) => rule.id || rule) || [])
+    // );
     formDataToSubmit.append(
-      "positions",
-      JSON.stringify(formData.positions || [])
-    );
-    formDataToSubmit.append(
-      "waitingList",
-      String(formData.waitingList || false)
-    );
-    formDataToSubmit.append(
-      "verifiedAccounts",
-      String(formData.verifiedAccounts || false)
+      "startDate",
+      formData.startDate || new Date().toISOString()
     );
 
     // dispatch(addLeague(formDataToSubmit)).then((result) => {
@@ -146,7 +134,7 @@ export const AddLeague: FC = () => {
             Back
           </a>
           <h3 className="flex-1 text-white text-center font-bold text-[1.25rem]">
-            Add New League
+            Add new league
           </h3>
         </div>
       </div>

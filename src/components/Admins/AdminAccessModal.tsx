@@ -125,12 +125,15 @@ export const AdminAccessModal: React.FC<AdminAccessModalProps> = ({
                     className="border-b pb-4 border-light-border"
                   >
                     <div className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={module.hasAccess}
-                        onChange={() => handleModuleChange(module._id)}
-                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                      />
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={module.hasAccess}
+                          onChange={() => handleModuleChange(module._id)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                      </label>
                       <h3 className="text-[1.2rem] font-semibold text-white">
                         {module.nameEn} ({module.nameAr})
                       </h3>
@@ -144,20 +147,23 @@ export const AdminAccessModal: React.FC<AdminAccessModalProps> = ({
                           {module.subModules.map((subModule) => (
                             <li
                               key={subModule._id}
-                              className="flex items-center gap-2"
+                              className="flex items-center gap-2 mb-1"
                             >
-                              <input
-                                type="checkbox"
-                                checked={subModule.hasAccess}
-                                onChange={() =>
-                                  handleSubModuleChange(
-                                    module._id,
-                                    subModule._id
-                                  )
-                                }
-                                disabled={!module.hasAccess}
-                                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 disabled:opacity-50"
-                              />
+                              <label className="relative inline-flex items-center cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={subModule.hasAccess}
+                                  onChange={() =>
+                                    handleSubModuleChange(
+                                      module._id,
+                                      subModule._id
+                                    )
+                                  }
+                                  disabled={!module.hasAccess}
+                                  className="sr-only peer"
+                                />
+                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600 peer-disabled:opacity-50"></div>
+                              </label>
                               {subModule.nameEn} ({subModule.nameAr})
                             </li>
                           ))}
