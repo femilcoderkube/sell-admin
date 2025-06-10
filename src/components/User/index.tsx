@@ -145,7 +145,7 @@ export const User: React.FC = () => {
               </button>
             </div>
           </form>
-          <a
+          {/* <a
             className="bg-primary-gradient whitespace-nowrap sm:w-auto w-full font-medium flex hover:opacity-[0.85] duration-300 items-center gap-2 bg-[#46A2FF] hover:bg-blue-700 text-white font-base text-[1.0625rem] py-[0.6rem] px-4 rounded-[0.52rem]"
             href="#"
           >
@@ -166,7 +166,7 @@ export const User: React.FC = () => {
               </svg>
             </span>
             Add new user
-          </a>
+          </a> */}
         </div>
       </div>
       {loading ? (       

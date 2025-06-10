@@ -3,17 +3,18 @@ import { useState, useEffect } from 'react';
 const HandLogoLoader = () => {
   const [animationKey, setAnimationKey] = useState(0);
 
-  // Reset animation every 2.5 seconds
+  // Reset animation every 1.5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setAnimationKey(prev => prev + 1);
-    }, 2500);
+    }, 1500);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="text-center flex justify-center items-center min-h-[700px]">
-      <div className="w-20 h-20 mx-auto mb-6 rounded-xl p-4 shadow-2xl relative overflow-hidden">
+    <div className="fixed inset-0 flex items-center justify-center bg-transparent z-50">
+      <div className="text-center">
+        <div className="w-24 h-24 mx-auto mb-6 rounded-xl p-4 shadow-2xl relative overflow-hidden">
         {/* Background glow effect */}
         <div className="absolute inset-0 opacity-20 blur-xl rounded-xl"></div>
         
@@ -32,7 +33,7 @@ const HandLogoLoader = () => {
             fill="white"
             className="opacity-0"
             style={{
-              animation: 'slideUp 0.3s ease-out 0.1s forwards'
+              animation: 'slideUp 0.15s ease-out 0.05s forwards'
             }}
           />
           
@@ -42,7 +43,7 @@ const HandLogoLoader = () => {
             fill="white"
             className="opacity-0"
             style={{
-              animation: 'growUp 0.4s ease-out 0.3s forwards'
+              animation: 'growUp 0.2s ease-out 0.15s forwards'
             }}
           />
           
@@ -52,7 +53,7 @@ const HandLogoLoader = () => {
             fill="white"
             className="opacity-0"
             style={{
-              animation: 'growUp 0.4s ease-out 0.5s forwards'
+              animation: 'growUp 0.2s ease-out 0.25s forwards'
             }}
           />
           
@@ -62,7 +63,7 @@ const HandLogoLoader = () => {
             fill="white"
             className="opacity-0"
             style={{
-              animation: 'slideRight 0.3s ease-out 0.7s forwards'
+              animation: 'slideRight 0.15s ease-out 0.35s forwards'
             }}
           />
           
@@ -72,7 +73,7 @@ const HandLogoLoader = () => {
             fill="white"
             className="opacity-0"
             style={{
-              animation: 'growUp 0.35s ease-out 0.9s forwards'
+              animation: 'growUp 0.18s ease-out 0.45s forwards'
             }}
           />
           
@@ -81,7 +82,7 @@ const HandLogoLoader = () => {
             fill="white"
             className="opacity-0"
             style={{
-              animation: 'growUp 0.25s ease-out 1.1s forwards'
+              animation: 'growUp 0.12s ease-out 0.55s forwards'
             }}
           />
           
@@ -91,7 +92,7 @@ const HandLogoLoader = () => {
             fill="white"
             className="opacity-0"
             style={{
-              animation: 'growUp 0.35s ease-out 1.3s forwards'
+              animation: 'growUp 0.18s ease-out 0.65s forwards'
             }}
           />
           
@@ -100,13 +101,15 @@ const HandLogoLoader = () => {
             fill="white"
             className="opacity-0"
             style={{
-              animation: 'growUp 0.3s ease-out 1.5s forwards'
+              animation: 'growUp 0.15s ease-out 0.75s forwards'
             }}
           />
         </svg>
       </div>
+    </div>
+  );
 
-      <style>{`
+      <style >{`
         @keyframes slideUp {
           from {
             opacity: 0;
