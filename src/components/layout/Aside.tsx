@@ -43,16 +43,14 @@ export const Aside: React.FC = () => {
               <Link
                 to={item.submenu ? "#" : item.path}
                 className={`${
-                  item.path === "/prime"
-                    ? `aside_link text-[1.0625rem] bg-[${item.partnerColor.replace(
-                        /"/g,
-                        ""
-                      )}] font-medium text-left block text-white text-center gap-2 py-[0.45rem] px-2 rounded-[0.52rem] transition-all duration-300  ${
+                  item.isPartner 
+                    ? `aside_link text-[1.0625rem] font-medium text-left block text-white text-center gap-2 py-[0.45rem] px-2 rounded-[0.52rem] transition-all duration-300 ${
                         openSubMenu === key ? "text-white" : ""
                       }`
                     : `aside_link text-[1.0625rem] hover:bg-primary-gradient font-medium text-left block text-custom-gray flex items-center gap-2 py-[0.45rem] px-2 rounded-[0.52rem] transition-all duration-300 
                 ${openSubMenu === key ? "bg-[#1E2233] text-white active" : ""}`
                 }`}
+                style={item.isPartner  ? { backgroundColor: item.partnerColor.replace(/"/g, "") } : {}}
                 onMouseEnter={() => setHoveredItem(key)}
                 onMouseLeave={() => setHoveredItem(null)}
                 onClick={(e) => {
