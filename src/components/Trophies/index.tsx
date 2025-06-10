@@ -18,6 +18,7 @@ import TrophiesModal from "./TrophiesModal";
 import { fetchBadges, fetchBadgeNames } from "../../app/features/badge/badgeSlice";
 import { TrophieType } from "../../app/types";
 import { BadgeNameType } from "../../app/types";
+import HandLogoLoader from "../Loader/Loader";
 export * from "./TrophiessTable";
 
 export const Trophie: React.FC = () => {
@@ -131,10 +132,10 @@ export const Trophie: React.FC = () => {
           </button>
         </div>
       </div>
-      {trophies.length > 0 ? (
-        loading ? (
-          <></>
-        ) : (
+        { loading ? (
+          <HandLogoLoader />
+        ) : trophies.length > 0 ? (
+       (
           <TrophiesTable
             data={trophies}
             currentPage={currentPage}
@@ -160,7 +161,7 @@ export const Trophie: React.FC = () => {
         onDelete={handleDeleteDevice}
       />
 
-      {totalPages > 1 && (
+      {!loading && totalPages > 1 && (
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}

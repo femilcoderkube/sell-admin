@@ -15,6 +15,7 @@ import { Link, useNavigate } from "react-router-dom";
 import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
 import PartnerModal from "./PartnerModal";
 import { PartnerType } from "../../app/types";
+import HandLogoLoader from "../Loader/Loader";
 export * from "./PartnersTable";
 
 export const Partner: React.FC = () => {
@@ -127,10 +128,10 @@ export const Partner: React.FC = () => {
           </button>
         </div>
       </div>
-      {partners.length > 0 ? (
-        loading ? (
-          <></>
-        ) : (
+      { loading ? (
+          <HandLogoLoader />
+        ) : partners.length > 0 ? (
+       (
           <PartnersTable
             data={partners}
             currentPage={currentPage}
@@ -156,7 +157,7 @@ export const Partner: React.FC = () => {
         onDelete={handleDeletePartner}
       />
 
-      {totalPages > 1 && (
+      {!loading && totalPages > 1 && (
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}

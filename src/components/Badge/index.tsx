@@ -15,6 +15,7 @@ import {
   setSearchTerm,
 } from "../../app/features/badge/badgeSlice";
 import BadgeModal from "./BadgeModal";
+import HandLogoLoader from "../Loader/Loader";
 export * from "./BadgesTable";
 
 export const Badge: React.FC = () => {
@@ -125,10 +126,10 @@ export const Badge: React.FC = () => {
           </button>
         </div>
       </div>
-      {badges.length > 0 ? (
-        loading ? (
-          <></>
-        ) : (
+      {loading ? (
+          <HandLogoLoader />
+        ) :badges.length > 0 ? (
+         (
           <PartnersTable
             data={badges}
             currentPage={currentPage}
@@ -154,7 +155,7 @@ export const Badge: React.FC = () => {
         onDelete={handleDeleteDevice}
       />
 
-      {totalPages > 1 && (
+      {!loading && totalPages > 1 && (
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}

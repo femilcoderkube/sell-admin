@@ -12,7 +12,7 @@ const HandLogoLoader = () => {
   }, []);
 
   return (
-    <div className="text-center">
+    <div className="text-center flex justify-center items-center min-h-[700px]">
       <div className="w-20 h-20 mx-auto mb-6 rounded-xl p-4 shadow-2xl relative overflow-hidden">
         {/* Background glow effect */}
         <div className="absolute inset-0 opacity-20 blur-xl rounded-xl"></div>

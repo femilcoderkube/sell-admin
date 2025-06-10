@@ -7,6 +7,7 @@ import { setPage, setPerPage, setSearchTerm, fetchUsers, deleteUser, updateUser 
 import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
 import { User as UserType } from "../../app/types";
 import UsersModel from "./UsersModel";
+import HandLogoLoader from "../Loader/Loader";
 
 export * from "./UsersTable";
 
@@ -29,127 +30,6 @@ const ROLES = [
   "Club Owner",
 ];
 
-const UserModal = ({ show, onClose, selectedUser, onSave }: any) => {
-  const [form, setForm] = useState({
-    firstName: selectedUser?.firstName || "",
-    lastName: selectedUser?.lastName || "",
-    dateOfBirth: selectedUser?.dateOfBirth || "",
-    gender: selectedUser?.gender || "",
-    phone: selectedUser?.phone || "",
-    nationality: selectedUser?.nationality || "",
-    role: selectedUser?.role || ROLES[0],
-    profilePicture: undefined as File | undefined,
-    favoriteGame: selectedUser?.favoriteGame || "",
-    socialMediaHandles: selectedUser?.socialMediaHandles || {},
-    isBanned: selectedUser?.isBanned || false,
-  });
-  useEffect(() => {
-    setForm({
-      firstName: selectedUser?.firstName || "",
-      lastName: selectedUser?.lastName || "",
-      dateOfBirth: selectedUser?.dateOfBirth || "",
-      gender: selectedUser?.gender || "",
-      phone: selectedUser?.phone || "",
-      nationality: selectedUser?.nationality || "",
-      role: selectedUser?.role || ROLES[0],
-      profilePicture: undefined as File | undefined,
-      favoriteGame: selectedUser?.favoriteGame || "",
-      socialMediaHandles: selectedUser?.socialMediaHandles || {},
-      isBanned: selectedUser?.isBanned || false,
-    });
-  }, [selectedUser]);
-  if (!show) return null;
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-dark-blue p-6 rounded-lg w-full max-w-md">
-        <h3 className="text-lg font-bold text-white mb-4">Edit User</h3>
-        <div className="space-y-2">
-          <input
-            className="w-full p-2 rounded"
-            value={form.firstName}
-            onChange={e => setForm({ ...form, firstName: e.target.value })}
-            placeholder="First Name"
-          />
-          <input
-            className="w-full p-2 rounded"
-            value={form.lastName}
-            onChange={e => setForm({ ...form, lastName: e.target.value })}
-            placeholder="Last Name"
-          />
-          <input
-            className="w-full p-2 rounded"
-            type="date"
-            value={form.dateOfBirth ? form.dateOfBirth.slice(0, 10) : ""}
-            onChange={e => setForm({ ...form, dateOfBirth: e.target.value })}
-            placeholder="Date of Birth"
-          />
-          <select
-            className="w-full p-2 rounded"
-            value={form.gender}
-            onChange={e => setForm({ ...form, gender: e.target.value })}
-          >
-            <option value="">Select Gender</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-            <option value="Other">Other</option>
-          </select>
-          <input
-            className="w-full p-2 rounded"
-            value={form.phone}
-            onChange={e => setForm({ ...form, phone: e.target.value })}
-            placeholder="Phone"
-          />
-          <input
-            className="w-full p-2 rounded"
-            value={form.nationality}
-            onChange={e => setForm({ ...form, nationality: e.target.value })}
-            placeholder="Nationality"
-          />
-          <select
-            className="w-full p-2 rounded"
-            value={form.role}
-            onChange={e => setForm({ ...form, role: e.target.value })}
-          >
-            {ROLES.map(role => (
-              <option key={role} value={role}>{role}</option>
-            ))}
-          </select>
-          <input
-            className="w-full p-2 rounded"
-            type="file"
-            accept="image/*"
-            onChange={e => setForm({ ...form, profilePicture: e.target.files?.[0] || undefined })}
-          />
-          <input
-            className="w-full p-2 rounded"
-            value={form.favoriteGame}
-            onChange={e => setForm({ ...form, favoriteGame: e.target.value })}
-            placeholder="Favorite Game"
-          />
-          <input
-            className="w-full p-2 rounded"
-            value={form.socialMediaHandles?.twitter || ""}
-            onChange={e => setForm({ ...form, socialMediaHandles: { ...form.socialMediaHandles, twitter: e.target.value } })}
-            placeholder="Twitter Handle"
-          />
-          {/* Add more social fields as needed */}
-          <label className="flex items-center gap-2 text-white">
-            <input
-              type="checkbox"
-              checked={form.isBanned}
-              onChange={e => setForm({ ...form, isBanned: e.target.checked })}
-            />
-            Is Banned
-          </label>
-        </div>
-        <div className="flex gap-2 justify-end mt-4">
-          <button className="bg-gray-gradient px-4 py-2 rounded text-white" onClick={onClose}>Cancel</button>
-          <button className="bg-primary-gradient px-4 py-2 rounded text-white" onClick={() => onSave(form)}>Save</button>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 export const User: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -289,7 +169,21 @@ export const User: React.FC = () => {
           </a>
         </div>
       </div>
-      <UsersTable users={users} loading={loading} error={error} onEditClick={handleEditClick} onDeleteClick={handleDeleteClick} />
+      {loading ? (       
+          <HandLogoLoader />
+      ) : users.length > 0 ? (
+        <UsersTable 
+          users={users} 
+          loading={loading} 
+          error={error} 
+          onEditClick={handleEditClick} 
+          onDeleteClick={handleDeleteClick} 
+        />
+      ) : (
+        <div className="text-custom-gray flex items-center justify-center h-20">
+          No data found.
+        </div>
+      )}
       <DeleteConfirmationModal
         show={isDeleteModalOpen}
         onClose={() => {
@@ -306,7 +200,7 @@ export const User: React.FC = () => {
           onSave={handleEditSave}
         />
       )}
-      {totalPages > 1 && (
+      {!loading && totalPages > 1 && (
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}

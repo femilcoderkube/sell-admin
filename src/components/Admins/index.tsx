@@ -15,6 +15,7 @@ import {
 import { fetchAdminAccess } from "../../app/features/admins/adminAccessSlice";
 import { AdminAccessModal } from "./AdminAccessModal";
 import CreateAdminModal from "./CreateAdminModal";
+import HandLogoLoader from "../Loader/Loader";
 
 export const Admins: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -133,10 +134,10 @@ export const Admins: React.FC = () => {
           </button>
         </div>
       </div>
-      {admins.length > 0 ? (
-        loading ? (
-          <></>
-        ) : (
+      {loading ? (
+          <HandLogoLoader />
+        ) : admins.length > 0 ? (
+         (
           <AdminTable
             data={admins}
             currentPage={currentPage}
@@ -162,7 +163,7 @@ export const Admins: React.FC = () => {
         onDelete={handleDeleteAdmin}
       />
 
-      {totalPages > 1 && (
+      {!loading && totalPages > 1 && (
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}

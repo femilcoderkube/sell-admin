@@ -13,6 +13,7 @@ import { PlusIcon, SearchIcon } from "../ui";
 import { Pagination } from "../ui/Pagination";
 import { DeviceType } from "../../app/types";
 import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
+import HandLogoLoader from "../Loader/Loader";
 
 export * from "./DeviceTable";
 
@@ -99,10 +100,10 @@ export const Device: React.FC = () => {
           </div>
         </div>
       </div>
-      {devices.length > 0 ? (
-        loading ? (
-          <></>
-        ) : (
+      { loading ? (
+          <HandLogoLoader />
+        ) :devices.length > 0 ? (
+        (
           <DeviceTable
             data={devices}
             currentPage={currentPage}
@@ -134,7 +135,7 @@ export const Device: React.FC = () => {
         onDelete={handleDeleteDevice}
       />
 
-      {totalPages > 1 && (
+      {!loading && totalPages > 1 && (
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}

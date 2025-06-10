@@ -14,6 +14,7 @@ import { Pagination } from "../ui/Pagination";
 import { GameType } from "../../app/types";
 import { PlusIcon, SearchIcon } from "../ui";
 import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
+import HandLogoLoader from "../Loader/Loader";
 
 export * from "./GamesTable";
 
@@ -108,10 +109,10 @@ export const Game: React.FC = () => {
           </div>
         </div>
       </div>
-      {games.length > 0 ? (
-        loading ? (
-          <></>
-        ) : (
+      {loading ? (
+          <HandLogoLoader />
+        ) :games.length > 0 ? (
+         (
           <GamesTable
             data={games}
             currentPage={currentPage}
@@ -134,7 +135,7 @@ export const Game: React.FC = () => {
         onDelete={handleDeleteGame}
       />
 
-      {totalPages > 1 && (
+      {!loading && totalPages > 1 && (
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
