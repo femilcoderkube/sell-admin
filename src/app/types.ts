@@ -107,8 +107,8 @@ export interface GamesState {
 
 export interface League {
   _id?: string;
-  device: string;
-  game: string;
+  device: any;
+  game: any;
   partner: string;
   name: string;
   about: string;
@@ -206,7 +206,6 @@ export interface BadgeNameType {
   name: string;
 }
 
-
 // User type based on provided model
 export interface User {
   _id: string;
@@ -230,7 +229,6 @@ export interface User {
   updatedAt: string;
 }
 
-
 export interface UsersState {
   users: User[];
   loading: boolean;
@@ -240,5 +238,5 @@ export interface UsersState {
   totalPages: number;
   searchTerm: string;
   userDetail: User | null;
-  bannedUsers : User[];
+  bannedUsers: User[];
 }

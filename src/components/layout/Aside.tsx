@@ -36,26 +36,32 @@ export const Aside: React.FC = () => {
       {/* <aside className="fixed left-0 bg-dark-blue px-[0.8rem] min-h-full text-center pt-[6rem] w-[15rem]"> */}
       <ul className="flex flex-col gap-2">
         {routes.map((item, key) => {
-          console.log("item.partnerColor", item.partnerColor);
           return item.isShow ? (
             <li key={key} className="flex flex-col gap-2">
               <Link
                 to={item.submenu ? "#" : item.path}
                 className={`${
-                  item.isPartner 
+                  item.isPartner
                     ? `aside_link text-[1.0625rem] font-medium text-left block text-white text-center gap-2 py-[0.45rem] px-2 rounded-[0.52rem] transition-all duration-300 ${
                         openSubMenu === key ? "text-white" : ""
                       }`
                     : `aside_link text-[1.0625rem] hover:bg-primary-gradient font-medium text-left block text-custom-gray flex items-center gap-2 py-[0.45rem] px-2 rounded-[0.52rem] transition-all duration-300 
                 ${openSubMenu === key ? "bg-[#1E2233] text-white active" : ""}`
                 }`}
-                style={item.isPartner  ? { backgroundColor: item.partnerColor.replace(/"/g, "") } : {}}
+                style={
+                  item.isPartner
+                    ? { backgroundColor: item.partnerColor.replace(/"/g, "") }
+                    : {}
+                }
                 onMouseEnter={() => setHoveredItem(key)}
                 onMouseLeave={() => setHoveredItem(null)}
                 onClick={(e) => {
                   if (item.submenu) {
                     e.preventDefault(); // Prevent navigation for parent with submenu
                     handleSubMenuToggle(key);
+                    if (item.isPartner) {
+                      localStorage.setItem("partnerId", item.partnerId);
+                    }
                   }
                 }}
               >

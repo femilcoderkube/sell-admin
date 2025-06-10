@@ -179,7 +179,7 @@ export const generateRoutes = (adminside: any[]): RoutesProps[] => {
     {
       label: "Edit League",
       icon: <NafesLeagueIcon />,
-      path: "/prime/leagues/add",
+      path: "/prime/leagues/edit/:id",
       dark_svg: downarr,
       white_svg: white_arr,
       component: <AddLeague />,

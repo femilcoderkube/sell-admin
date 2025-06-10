@@ -81,9 +81,9 @@ export const updateLeague = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await axiosInstance.put(`/leagues?id=${id}`, league, {
+      const response = await axiosInstance.put(`/Leagues?id=${id}`, league, {
         headers: {
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "application/json",
         },
       });
       return response.data;

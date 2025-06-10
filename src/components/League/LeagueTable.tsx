@@ -18,8 +18,6 @@ interface LeagueTableProps {
 }
 
 export const LeagueTable: React.FC<LeagueTableProps> = ({ leagues }) => {
-  console.log("leagues", leagues);
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -118,7 +116,7 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({ leagues }) => {
                 </span>
               </td>
               {/* <td className="text-[1.0625rem] py-3">{league.platform}</td> */}
-              <td className="text-[1.0625rem] py-3">{league.game}</td>
+              <td className="text-[1.0625rem] py-3">{league?.game?.name}</td>
               <td className="text-[1.0625rem] py-3">{league.format}</td>
               <td className="text-[1.0625rem] py-3">
                 {league.totalRegistrations}
@@ -142,7 +140,8 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({ leagues }) => {
               </td>
               <td className="text-[1.0625rem] py-3 flex space-x-3 justify-center">
                 <Link
-                  to={`/leagues/edit/${league._id}`}
+                  to={`/prime/leagues/edit/${league._id}`}
+                  state={league}
                   style={{
                     background:
                       "radial-gradient(circle, #39415C 0%, #555F83 100%)",

@@ -1,13 +1,13 @@
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { AsyncPaginate } from "react-select-async-paginate";
 import { Formik, Form, Field, FieldArray, useFormikContext } from "formik";
 import * as Yup from "yup";
 import { Layout } from "../../components/layout";
 import ModalPopUp from "../../components/ui/ModalPopUp";
 import FileUpload from "../../components/ui/UploadFile";
-import { addLeague } from "../../app/features/league/leagueSlice";
+import { addLeague, updateLeague } from "../../app/features/league/leagueSlice";
 import { fetchGames } from "../../app/features/games/gameSlice";
 import { fetchPartners } from "../../app/features/partners/partnerSlice";
 import { fetchDevices } from "../../app/features/devices/deviceSlice";
@@ -30,7 +30,7 @@ interface League {
   partner: { value: string; label: string } | null;
   game: { value: string; label: string } | null;
   device: { value: string; label: string } | null;
-  platform: string;
+  // platform: string;
   format: string;
   playersPerTeam: number;
   maxMatchesPerPlayer: {
@@ -82,13 +82,13 @@ const validationSchema = Yup.object().shape({
     })
     .nullable()
     .required("Game is required"),
-  partner: Yup.object()
-    .shape({
-      value: Yup.string().required(),
-      label: Yup.string().required(),
-    })
-    .nullable()
-    .required("Partner is required"),
+  // partner: Yup.object()
+  //   .shape({
+  //     value: Yup.string().required(),
+  //     label: Yup.string().required(),
+  //   })
+  //   .nullable()
+  //   .required("Partner is required"),
   device: Yup.object()
     .shape({
       value: Yup.string().required(),
@@ -202,27 +202,27 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
     };
   };
 
-  const loadPartnerOptions = async (
-    search: string,
-    loadedOptions: any,
-    { page }: any
-  ) => {
-    const perPage = 10;
-    const response: any = await dispatch(
-      fetchPartners({ page, perPage, searchTerm: search })
-    );
-    const data = response.payload;
-    const options: any[] = data?.data.result.map((game: any) => ({
-      value: game._id,
-      label: game.nameEn,
-    }));
+  // const loadPartnerOptions = async (
+  //   search: string,
+  //   loadedOptions: any,
+  //   { page }: any
+  // ) => {
+  //   const perPage = 10;
+  //   const response: any = await dispatch(
+  //     fetchPartners({ page, perPage, searchTerm: search })
+  //   );
+  //   const data = response.payload;
+  //   const options: any[] = data?.data.result.map((game: any) => ({
+  //     value: game._id,
+  //     label: game.nameEn,
+  //   }));
 
-    return {
-      options,
-      hasMore: page * perPage < data.data.totalItem,
-      additional: { page: page + 1 },
-    };
-  };
+  //   return {
+  //     options,
+  //     hasMore: page * perPage < data.data.totalItem,
+  //     additional: { page: page + 1 },
+  //   };
+  // };
 
   const loadDevicesOptions = async (
     search: string,
@@ -354,7 +354,7 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
         )}
       </div>
 
-      <div className="relative flex-1 custom-input mb-4">
+      {/* <div className="relative flex-1 custom-input mb-4">
         <AsyncPaginate
           id="partner"
           name="partner"
@@ -430,7 +430,7 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
             {errors.partner}
           </div>
         )}
-      </div>
+      </div> */}
 
       <div className="relative flex-1 custom-input mb-4">
         <AsyncPaginate
@@ -1006,7 +1006,7 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
 };
 
 // Step 3: Media and Rules
-const LeagueStep3: FC<StepProps> = ({ step }) => {
+const LeagueStep3: FC<StepProps> = ({ step, leagueData }: any) => {
   const dispatch = useDispatch();
   const { values, errors, touched, setFieldValue } = useFormikContext<League>();
 
@@ -1061,7 +1061,13 @@ const LeagueStep3: FC<StepProps> = ({ step }) => {
 
       <div className="mb-4">
         <FileUpload
-          previewUrl={imgFile}
+          previewUrl={
+            imgFile
+              ? imgFile
+              : leagueData?.logo
+              ? `${baseURL}/api/v1/${leagueData?.logo}`
+              : ""
+          }
           label="Logo (270*330)"
           id="logo"
           onChange={handleFileUploadForImage("logo")}
@@ -1074,7 +1080,13 @@ const LeagueStep3: FC<StepProps> = ({ step }) => {
 
       <div className="mb-4">
         <FileUpload
-          previewUrl={pdfFile ? "/pdf-2127829_640.webp" : ""}
+          previewUrl={
+            pdfFile
+              ? "/pdf-2127829_640.webp"
+              : leagueData?.logo
+              ? `/pdf-2127829_640.webp`
+              : ""
+          }
           label="Rules (PDF)"
           id="rules"
           onChange={handleFileUploadForPDf("rules")}
@@ -1090,36 +1102,58 @@ const LeagueStep3: FC<StepProps> = ({ step }) => {
 
 // Main AddLeague Component
 export const AddLeague: FC = () => {
+  const location = useLocation();
+  const leagueData = location.state;
+  console.log("leagueData", leagueData);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [step, setStep] = useState(1);
   const [showModal, setShowModal] = useState(false);
+  let pID = localStorage.getItem("partnerId");
 
-  const initialValues: League = {
-    title: "",
-    partner: null,
-    game: null,
-    device: null,
-    platform: "",
-    format: "party queue",
-    playersPerTeam: 0,
-    maxMatchesPerPlayer: { isActive: false, maxMatches: 0 },
-    queueSettings: {
-      alwaysOn: false,
-      schedule: { days: [], startTime: "", endTime: "" },
-    },
-    qualifyingLine: 0,
-    prizepool: 0,
-    rules: null,
-    timeLine: [{ title: "", description: "" }],
-    customRegistrationFields: [],
-    logo: null,
-  };
+  // Initialize form values
+  const [initialValues, setInitialValues] = useState<League>({
+    title: leagueData?.title ? leagueData.title : "",
+    partner: leagueData?.partner ? leagueData.partner : pID,
+    game: leagueData?.game?._id
+      ? { value: leagueData?.game?._id, label: leagueData?.game?.name }
+      : "",
+    device: leagueData?.platform?._id
+      ? {
+          value: leagueData?.platform?._id,
+          label: leagueData?.platform?.name,
+        }
+      : "",
+    // platform: "",
+    format: leagueData?.format ? leagueData?.format : "party queue",
+    playersPerTeam: leagueData?.playersPerTeam ? leagueData?.playersPerTeam : 0,
+    maxMatchesPerPlayer: leagueData?.maxMatchesPerPlayer
+      ? leagueData?.maxMatchesPerPlayer
+      : { isActive: false, maxMatches: 0 },
+    queueSettings: leagueData?.queueSettings
+      ? leagueData?.queueSettings
+      : {
+          alwaysOn: false,
+          schedule: { days: [], startTime: "", endTime: "" },
+        },
+    qualifyingLine: leagueData?.qualifyingLine ? leagueData.qualifyingLine : 0,
+    prizepool: leagueData?.prizepool ? leagueData?.prizepool : 0,
+    rules: leagueData?.rules ? leagueData?.rules : null,
+    timeLine:
+      leagueData?.timeLine.length > 0
+        ? leagueData?.timeLine
+        : [{ title: "", description: "" }],
+    customRegistrationFields:
+      leagueData?.customRegistrationFields.length > 0
+        ? leagueData?.customRegistrationFields
+        : [],
+    logo: leagueData?.logo ? leagueData?.logo : null,
+  });
 
   const handleSubmit = (values: League) => {
     const bodyData = {
       title: values.title,
-      partner: values.partner?.value || "",
+      partner: leagueData?.partner || pID,
       game: values.game?.value || "",
       platform: values.device?.value || "",
       format: values.format,
@@ -1134,12 +1168,23 @@ export const AddLeague: FC = () => {
       logo: values.logo,
     };
 
-    dispatch(addLeague(bodyData)).then((result) => {
-      if (addLeague.fulfilled.match(result)) {
-        navigate("/prime/leagues");
-      }
-      setShowModal(false);
-    });
+    if (location.state._id) {
+      dispatch(updateLeague({ id: location.state._id, league: bodyData })).then(
+        (result) => {
+          if (updateLeague.fulfilled.match(result)) {
+            navigate("/prime/leagues");
+          }
+          setShowModal(false);
+        }
+      );
+    } else {
+      dispatch(addLeague(bodyData)).then((result) => {
+        if (addLeague.fulfilled.match(result)) {
+          navigate("/prime/leagues");
+        }
+        setShowModal(false);
+      });
+    }
   };
 
   const nextStep = (
@@ -1286,7 +1331,7 @@ export const AddLeague: FC = () => {
 
             {step === 1 && <LeagueStep1 step={step} />}
             {step === 2 && <LeagueStep2 step={step} />}
-            {step === 3 && <LeagueStep3 step={step} />}
+            {step === 3 && <LeagueStep3 step={step} leagueData={leagueData} />}
 
             <div className="max-w-[42.5rem] mx-auto genral_form-info mb-4">
               <div className="flex items-center justify-end gap-2 mt-[1.8rem]">
@@ -1308,7 +1353,12 @@ export const AddLeague: FC = () => {
               </div>
             </div>
 
-            {showModal && <ModalPopUp onCancel={() => setShowModal(false)} />}
+            {showModal && (
+              <ModalPopUp
+                onCancel={() => setShowModal(false)}
+                isUpdate={location.state ? true : false}
+              />
+            )}
           </Form>
         )}
       </Formik>
