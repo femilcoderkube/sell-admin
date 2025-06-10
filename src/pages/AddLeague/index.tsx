@@ -66,6 +66,8 @@ interface League {
   positions?: Winner[];
   waitingList?: boolean;
   verifiedAccounts?: boolean;
+  startDate: string;
+  endDate: string;
 }
 
 interface StepProps {
@@ -1104,7 +1106,7 @@ const LeagueStep3: FC<StepProps> = ({ step, leagueData }: any) => {
 export const AddLeague: FC = () => {
   const location = useLocation();
   const leagueData = location.state;
-  console.log("leagueData", leagueData);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [step, setStep] = useState(1);
@@ -1168,7 +1170,7 @@ export const AddLeague: FC = () => {
       logo: values.logo,
     };
 
-    if (location.state._id) {
+    if (location?.state?._id) {
       dispatch(updateLeague({ id: location.state._id, league: bodyData })).then(
         (result) => {
           if (updateLeague.fulfilled.match(result)) {
@@ -1296,7 +1298,7 @@ export const AddLeague: FC = () => {
                   Back
                 </a>
                 <h3 className="flex-1 text-white text-center font-bold text-[1.25rem]">
-                  Add New League
+                  {leagueData?._id ? "Update League" : "Add New League"}
                 </h3>
               </div>
             </div>
