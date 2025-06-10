@@ -41,7 +41,7 @@ export const AdminTable: React.FC<IAdminProps> = ({
     adminAccess: admin.adminAccess,
     isActive: admin.isActive ? "Yes" : "No",
     actions: {
-      // edit: <img src={edit} alt="Edit" style={{ width: "1.26rem" }} />,
+      edit: <img src={edit} alt="Edit" style={{ width: "1.26rem" }} />,
       delete: (
         <img src={deleteIcon} alt="Delete" style={{ width: "1.26rem" }} />
       ),
@@ -103,7 +103,7 @@ export const AdminTable: React.FC<IAdminProps> = ({
               <td className="text-[1.0625rem] py-3">{tdetail.adminAccess}</td>
               <td className="text-[1.0625rem] py-3">{tdetail.lastLoginDate}</td> */}
               <td className="text-[1.0625rem] py-3 flex space-x-3 justify-center">
-                {/* <button
+               {tdetail.role != "Superadmin" &&  <button
                   style={{
                     background:
                       "radial-gradient(circle, #39415C 0%, #555F83 100%)",
@@ -112,7 +112,7 @@ export const AdminTable: React.FC<IAdminProps> = ({
                   onClick={() => onEditClick(data[index])}
                 >
                   {tdetail.actions.edit}
-                </button> */}
+                </button>}
                 <button
                   style={{
                     background:

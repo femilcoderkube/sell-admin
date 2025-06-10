@@ -240,4 +240,5 @@ export interface UsersState {
   totalPages: number;
   searchTerm: string;
   userDetail: User | null;
+  bannedUsers : User[];
 }

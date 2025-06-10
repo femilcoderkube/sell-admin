@@ -40,13 +40,13 @@ export const fetchAdmin = createAsyncThunk(
   }
 );
 
-export const addGame = createAsyncThunk(
-  "admin/addGame",
-  async (device: FormData, { rejectWithValue }) => {
+export const addAdmin = createAsyncThunk(
+  "admin/addAdmin",
+  async (admin: any, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post("/admin", device, {
+      const response = await axiosInstance.post("/admin", admin, {
         headers: {
-          "Content-Type": "multipart/form-data",
+         "Content-Type": "application/json",
         },
       });
       return response.data;
@@ -58,16 +58,16 @@ export const addGame = createAsyncThunk(
   }
 );
 
-export const updateGame = createAsyncThunk(
-  "admin/updateGame",
+export const updateAdmin = createAsyncThunk(
+  "admin/updateAdmin",
   async (
-    { id, device }: { id: string; device: FormData },
+    { id, admin }: { id: string; admin: any },
     { rejectWithValue }
   ) => {
     try {
-      const response = await axiosInstance.put(`/admin?id=${id}`, device, {
+      const response = await axiosInstance.put(`/admin?id=${id}`, admin, {
         headers: {
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "application/json",
         },
       });
       return response.data;
@@ -79,8 +79,8 @@ export const updateGame = createAsyncThunk(
   }
 );
 
-export const deleteGame = createAsyncThunk(
-  "admin/deleteGame",
+export const deleteAdmin = createAsyncThunk(
+  "admin/deleteAdmin",
   async (id: string, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.delete(`/admin?id=${id}`);
@@ -133,23 +133,23 @@ const adminSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-      .addCase(addGame.pending, (state) => {
+      .addCase(addAdmin.pending, (state) => {
         state.loading = true;
       })
-      .addCase(addGame.fulfilled, (state) => {
+      .addCase(addAdmin.fulfilled, (state) => {
         state.loading = false;
       })
-      .addCase(addGame.rejected, (state, action) => {
+      .addCase(addAdmin.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
-      .addCase(updateGame.pending, (state) => {
+      .addCase(updateAdmin.pending, (state) => {
         state.loading = true;
       })
-      .addCase(updateGame.fulfilled, (state) => {
+      .addCase(updateAdmin.fulfilled, (state) => {
         state.loading = false;
       })
-      .addCase(updateGame.rejected, (state, action) => {
+      .addCase(updateAdmin.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
@@ -164,13 +164,13 @@ const adminSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-      .addCase(deleteGame.pending, (state) => {
+      .addCase(deleteAdmin.pending, (state) => {
         state.loading = true;
       })
-      .addCase(deleteGame.fulfilled, (state) => {
+      .addCase(deleteAdmin.fulfilled, (state) => {
         state.loading = false;
       })
-      .addCase(deleteGame.rejected, (state, action) => {
+      .addCase(deleteAdmin.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

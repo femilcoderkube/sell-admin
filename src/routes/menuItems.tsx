@@ -23,6 +23,7 @@ import {
 import { Admin } from "../pages/Admin";
 import { NafesLeague } from "../pages/League";
 import { AddLeague } from "../pages/AddLeague";
+import { BannedUsers } from "../pages/BannedUsers";
 
 // Helper function to convert snake_case to Title Case
 const toTitleCase = (str: string) =>
@@ -45,7 +46,7 @@ const componentMap: { [key: string]: React.ComponentType<any> } = {
   TOURNAMENT: NafesLeague,
   ALL_USER: Users,
   ALL_TEAM: AllTeams,
-  BANNED_USER: Games,
+  BANNED_USER: BannedUsers,
   ADMIN_ACCESS: Admin,
   GAMES: Games,
   PARTNERS: Partners,

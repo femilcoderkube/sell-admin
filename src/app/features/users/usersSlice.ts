@@ -14,6 +14,7 @@ const initialState: UsersState = {
   totalPages: 0,
   searchTerm: "",
   userDetail: null,
+  bannedUsers: [],
 };
 
 export const fetchUsers = createAsyncThunk(
@@ -38,7 +39,28 @@ export const fetchUsers = createAsyncThunk(
     }
   }
 );
-
+export const fetchBannedUsers = createAsyncThunk(
+  "users/fetchBannedUsers",
+  async (
+    { page, perPage, searchTerm }: { page: number; perPage: number; searchTerm: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axiosInstance.get("/users/banned", {
+        params: {
+          page,
+          limit: perPage,
+          searchKey: searchTerm,
+        },
+      });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error fetching users"
+      );
+    }
+  }
+);
 export const fetchUserById = createAsyncThunk(
   "users/fetchUserById",
   async (id: string, { rejectWithValue }) => {
@@ -130,6 +152,18 @@ const usersSlice = createSlice({
         state.totalPages = action.payload.data.totalPages;
       })
       .addCase(fetchUsers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchBannedUsers.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchBannedUsers.fulfilled, (state, action) => {
+        state.loading = false;
+        state.bannedUsers = action.payload.data?.result;
+        state.totalPages = action.payload.data.totalPages;
+      })
+      .addCase(fetchBannedUsers.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })

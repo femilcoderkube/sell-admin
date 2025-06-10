@@ -6,8 +6,8 @@ import { Pagination } from "../ui/Pagination";
 import { PlusIcon, SearchIcon } from "../ui";
 import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
 import {
+  deleteAdmin,
   fetchAdmin,
-  deleteGame,
   setPage,
   setPerPage,
   setSearchTerm,
@@ -16,6 +16,8 @@ import { fetchAdminAccess } from "../../app/features/admins/adminAccessSlice";
 import { AdminAccessModal } from "./AdminAccessModal";
 import CreateAdminModal from "./CreateAdminModal";
 import HandLogoLoader from "../Loader/Loader";
+import EditAdminModal from "./EditAdminModal";
+import { AdminType } from "../../app/types";
 
 export const Admins: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -59,8 +61,8 @@ export const Admins: React.FC = () => {
   const totalPages = Math.ceil(totalCount / perPage);
 
   const handleDeleteAdmin = async () => {
-    const resultAction = await dispatch(deleteGame(deleteId));
-    if (deleteGame.fulfilled.match(resultAction)) {
+    const resultAction = await dispatch(deleteAdmin(deleteId));
+    if (deleteAdmin.fulfilled.match(resultAction)) {
       setDeleteId("");
       setIsDeleteModalOpen(false);
       dispatch(fetchAdmin({ page: currentPage, perPage: 10, searchTerm: "" }));
@@ -74,6 +76,14 @@ export const Admins: React.FC = () => {
   };
   const closeModal = () => {
     setIsModalOpen(false);
+  };
+  const [selectedAdmin, setSelectedAdmin] = useState<AdminType | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+  
+  // Add this function to handle edit button click
+  const handleEditClick = (admin: AdminType) => {
+    setSelectedAdmin(admin);
+    setIsEditModalOpen(true);
   };
 
   return (
@@ -141,9 +151,7 @@ export const Admins: React.FC = () => {
           <AdminTable
             data={admins}
             currentPage={currentPage}
-            onEditClick={(admin) => {
-              // Add edit logic here if needed
-            }}
+            onEditClick={handleEditClick} // Update this line
             onDeleteClick={(adminId) => setDeleteId(adminId)}
             handleViewClick={(adminAccess) => handleViewClick(adminAccess)}
           />
@@ -177,6 +185,11 @@ export const Admins: React.FC = () => {
         isOpen={isModalOpen}
         onClose={closeModal}
         adminId={adminAccessId}
+      />
+      <EditAdminModal 
+        show={isEditModalOpen} 
+        onClose={() => setIsEditModalOpen(false)} 
+        selectedAdmin={selectedAdmin} 
       />
     </>
   );
