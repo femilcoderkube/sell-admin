@@ -37,15 +37,17 @@ export const Aside: React.FC = () => {
       {/* <aside className="fixed left-0 bg-dark-blue px-[0.8rem] min-h-full text-center pt-[6rem] w-[15rem]"> */}
       <ul className="flex flex-col gap-2">
         {routes.map((item, key) => {
+          console.log("item.partnerColor", item.partnerColor);
           return item.isShow ? (
             <li key={key} className="flex flex-col gap-2">
               <Link
                 to={item.submenu ? "#" : item.path}
                 className={`${
                   item.path === "/prime"
-                    ? `aside_link text-[1.0625rem] bg-[${
-                        item.partnerColor
-                      }] font-medium text-left block text-custom-gray text-center gap-2 py-[0.45rem] px-2 rounded-[0.52rem] transition-all duration-300  ${
+                    ? `aside_link text-[1.0625rem] bg-[${item.partnerColor.replace(
+                        /"/g,
+                        ""
+                      )}] font-medium text-left block text-white text-center gap-2 py-[0.45rem] px-2 rounded-[0.52rem] transition-all duration-300  ${
                         openSubMenu === key ? "text-white" : ""
                       }`
                     : `aside_link text-[1.0625rem] hover:bg-primary-gradient font-medium text-left block text-custom-gray flex items-center gap-2 py-[0.45rem] px-2 rounded-[0.52rem] transition-all duration-300 

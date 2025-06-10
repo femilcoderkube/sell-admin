@@ -57,11 +57,12 @@ export const fetchLeagueById = createAsyncThunk(
 
 export const addLeague = createAsyncThunk(
   "leagues/addLeague",
-  async (league: FormData, { rejectWithValue }) => {
+  async (league: any, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post("/Leagues", league, {
         headers: {
-          "Content-Type": "multipart/form-data",
+          // "Content-Type": "multipart/form-data",
+          "Content-Type": "application/json",
         },
       });
       return response.data;

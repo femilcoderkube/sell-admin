@@ -149,8 +149,8 @@ export const League: React.FC = ({ title }: any) => {
           </Link>
         </div>
       </div>
-      {loading && <p className="text-white">Loading...</p>}
-      {error && <p className="text-red-500">{error}</p>}
+      {/* {loading && <p className="text-white">Loading...</p>} */}
+      {/* {error && <p className="text-red-500">{error}</p>} */}
       <LeagueTable leagues={leagues} />
       <div className="nf_leg-pagination flex justify-between items-center text-white mt-5">
         <button

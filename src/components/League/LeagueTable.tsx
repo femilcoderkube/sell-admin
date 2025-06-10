@@ -11,12 +11,15 @@ import deleteIcon from "../../assets/images/trash_can.svg";
 import viewIcon from "../../assets/images/setting_icon.svg";
 import leagueUser from "../../assets/images/league_use.png";
 import { League } from "../../app/types";
+import { baseURL } from "../../axios";
 
 interface LeagueTableProps {
   leagues: League[];
 }
 
 export const LeagueTable: React.FC<LeagueTableProps> = ({ leagues }) => {
+  console.log("leagues", leagues);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -39,14 +42,14 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({ leagues }) => {
       </svg>
     ),
     league: "LEAGUE NAME",
-    public: "PUBLIC",
-    device: "DEVICE",
+    public: "ACTIVE",
+    platform: "PLATFORM",
     game: "GAME",
-    setting: "SETTING",
-    players: "PLAYERS",
+    format: "FORMAT",
+    players: "REGISTRATIONS",
     status: "STATUS",
     date: "Ending Date",
-    image: "Image",
+    image: "Logo",
     actions: "Actions",
   };
 
@@ -55,15 +58,6 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({ leagues }) => {
     if (window.confirm("Are you sure you want to delete this league?")) {
       dispatch(deleteLeague(id));
     }
-  };
-
-  // Handle view action
-  const handleView = (id: string) => {
-    dispatch(fetchLeagueById(id)).then((result) => {
-      if (fetchLeagueById.fulfilled.match(result)) {
-        navigate(`/leagues/${id}`);
-      }
-    });
   };
 
   return (
@@ -80,14 +74,14 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({ leagues }) => {
             <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
               {thead.public}
             </th>
-            <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
-              {thead.device}
-            </th>
+            {/* <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
+              {thead.platform}
+            </th> */}
             <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
               {thead.game}
             </th>
             <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
-              {thead.setting}
+              {thead.format}
             </th>
             <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
               {thead.players}
@@ -113,22 +107,22 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({ leagues }) => {
               className="border-b border-light-border"
             >
               <td className="text-[1.0625rem] py-3">{index + 1}</td>
-              <td className="text-[1.0625rem] py-3">{league.name}</td>
+              <td className="text-[1.0625rem] py-3">{league.title}</td>
               <td
                 className={`text-[1.0625rem] py-3 ${
-                  league.isFeatured ? "yes_active" : "no_active"
+                  league.isActive ? "yes_active" : "no_active"
                 }`}
               >
                 <span className="py-[0.35rem] px-[0.55rem] rounded-[0.54rem] inline-block">
-                  {league.isFeatured ? "Yes" : "No"}
+                  {league.isActive ? "Yes" : "No"}
                 </span>
               </td>
-              <td className="text-[1.0625rem] py-3">{league.device}</td>
+              {/* <td className="text-[1.0625rem] py-3">{league.platform}</td> */}
               <td className="text-[1.0625rem] py-3">{league.game}</td>
+              <td className="text-[1.0625rem] py-3">{league.format}</td>
               <td className="text-[1.0625rem] py-3">
-                {league.isSolo ? "Solo" : "Team"}
+                {league.totalRegistrations}
               </td>
-              <td className="text-[1.0625rem] py-3">{league.totalPlayers}</td>
               <td className="text-[1.0625rem] py-3">
                 {new Date(league.endDate) > new Date()
                   ? "Not finished"
@@ -140,8 +134,8 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({ leagues }) => {
               <td className="text-[1.0625rem] py-3">
                 <span className="inline-block bg-input-color p-[0.4rem] rounded-[0.42rem]">
                   <img
-                    src={league.bannerImage || leagueUser}
-                    alt={league.name}
+                    src={`${baseURL}/api/v1/${league.logo}`}
+                    alt={league.title}
                     style={{ width: "2rem", height: "2rem" }}
                   />
                 </span>
@@ -170,16 +164,6 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({ leagues }) => {
                     alt="Delete"
                     style={{ width: "1.26rem" }}
                   />
-                </button>
-                <button
-                  onClick={() => handleView(league._id!)}
-                  style={{
-                    background:
-                      "radial-gradient(circle, #39415C 0%, #555F83 100%)",
-                  }}
-                  className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
-                >
-                  <img src={viewIcon} alt="View" style={{ width: "1.26rem" }} />
                 </button>
               </td>
             </tr>

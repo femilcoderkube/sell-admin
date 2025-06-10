@@ -162,6 +162,7 @@ export const generateRoutes = (adminside: any[]): RoutesProps[] => {
       component: <Dashboard />,
       auth: true,
       isShow: true,
+      partnerColor: undefined,
     },
     {
       label: "Add League",
@@ -172,6 +173,18 @@ export const generateRoutes = (adminside: any[]): RoutesProps[] => {
       component: <AddLeague />,
       auth: true,
       isShow: false,
+      partnerColor: undefined,
+    },
+    {
+      label: "Edit League",
+      icon: <NafesLeagueIcon />,
+      path: "/prime/leagues/add",
+      dark_svg: downarr,
+      white_svg: white_arr,
+      component: <AddLeague />,
+      auth: true,
+      isShow: false,
+      partnerColor: undefined,
     },
     ...dynamicRoutes,
   ];

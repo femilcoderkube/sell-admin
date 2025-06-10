@@ -127,7 +127,7 @@ interface ModalPopUpProps {
   onCancel: () => void;
 }
 
-const ModalPopUp: React.FC<ModalPopUpProps> = ({ onConfirm, onCancel }) => {
+const ModalPopUp: React.FC<ModalPopUpProps> = ({ onCancel }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       <div className="bg-primary-color p-6 rounded-[0.52rem] text-white">
@@ -141,7 +141,7 @@ const ModalPopUp: React.FC<ModalPopUpProps> = ({ onConfirm, onCancel }) => {
             Cancel
           </button>
           <button
-            onClick={onConfirm}
+            type="submit"
             className="bg-primary-gradient px-4 py-2 rounded-[0.52rem] text-white hover:opacity-75"
           >
             Confirm
