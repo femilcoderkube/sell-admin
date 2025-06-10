@@ -10,6 +10,7 @@ import adminReducer from "./features/admins/adminSlice";
 import newadminReducer from "./features/admins/newadminSlice";
 import adminAccessReducer from "./features/admins/adminAccessSlice";
 import booleanReducer from "./features/sidebar/booleanSlice";
+import usersReducer from "./features/users/usersSlice";
 
 export const store = configureStore({
   reducer: {
@@ -24,6 +25,7 @@ export const store = configureStore({
     newadmin: newadminReducer,
     boolean: booleanReducer,
     adminAccess: adminAccessReducer,
+    users: usersReducer,
   },
 });
 

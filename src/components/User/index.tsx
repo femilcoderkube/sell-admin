@@ -1,15 +1,218 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { UsersTable } from "./UsersTable";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../app/store";
+import { Pagination } from "../ui/Pagination";
+import { setPage, setPerPage, setSearchTerm, fetchUsers, deleteUser, updateUser } from "../../app/features/users/usersSlice";
+import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
+import { User as UserType } from "../../app/types";
+import UsersModel from "./UsersModel";
+
 export * from "./UsersTable";
 
-export const thead = ["Name", "Job", "Employed", ""];
+const ROLES = [
+  "Player",
+  "Referee",
+  "Couch",
+  "Team Manager",
+  "Club admin",
+  "Analyst",
+  "Caster",
+  "Host",
+  "Media outlet",
+  "Video Editor",
+  "Grapich Disinger",
+  "Streamer",
+  "Frontend creator",
+  "Game developer",
+  "Tournament Organizer",
+  "Club Owner",
+];
+
+const UserModal = ({ show, onClose, selectedUser, onSave }: any) => {
+  const [form, setForm] = useState({
+    firstName: selectedUser?.firstName || "",
+    lastName: selectedUser?.lastName || "",
+    dateOfBirth: selectedUser?.dateOfBirth || "",
+    gender: selectedUser?.gender || "",
+    phone: selectedUser?.phone || "",
+    nationality: selectedUser?.nationality || "",
+    role: selectedUser?.role || ROLES[0],
+    profilePicture: undefined as File | undefined,
+    favoriteGame: selectedUser?.favoriteGame || "",
+    socialMediaHandles: selectedUser?.socialMediaHandles || {},
+    isBanned: selectedUser?.isBanned || false,
+  });
+  useEffect(() => {
+    setForm({
+      firstName: selectedUser?.firstName || "",
+      lastName: selectedUser?.lastName || "",
+      dateOfBirth: selectedUser?.dateOfBirth || "",
+      gender: selectedUser?.gender || "",
+      phone: selectedUser?.phone || "",
+      nationality: selectedUser?.nationality || "",
+      role: selectedUser?.role || ROLES[0],
+      profilePicture: undefined as File | undefined,
+      favoriteGame: selectedUser?.favoriteGame || "",
+      socialMediaHandles: selectedUser?.socialMediaHandles || {},
+      isBanned: selectedUser?.isBanned || false,
+    });
+  }, [selectedUser]);
+  if (!show) return null;
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-dark-blue p-6 rounded-lg w-full max-w-md">
+        <h3 className="text-lg font-bold text-white mb-4">Edit User</h3>
+        <div className="space-y-2">
+          <input
+            className="w-full p-2 rounded"
+            value={form.firstName}
+            onChange={e => setForm({ ...form, firstName: e.target.value })}
+            placeholder="First Name"
+          />
+          <input
+            className="w-full p-2 rounded"
+            value={form.lastName}
+            onChange={e => setForm({ ...form, lastName: e.target.value })}
+            placeholder="Last Name"
+          />
+          <input
+            className="w-full p-2 rounded"
+            type="date"
+            value={form.dateOfBirth ? form.dateOfBirth.slice(0, 10) : ""}
+            onChange={e => setForm({ ...form, dateOfBirth: e.target.value })}
+            placeholder="Date of Birth"
+          />
+          <select
+            className="w-full p-2 rounded"
+            value={form.gender}
+            onChange={e => setForm({ ...form, gender: e.target.value })}
+          >
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+          <input
+            className="w-full p-2 rounded"
+            value={form.phone}
+            onChange={e => setForm({ ...form, phone: e.target.value })}
+            placeholder="Phone"
+          />
+          <input
+            className="w-full p-2 rounded"
+            value={form.nationality}
+            onChange={e => setForm({ ...form, nationality: e.target.value })}
+            placeholder="Nationality"
+          />
+          <select
+            className="w-full p-2 rounded"
+            value={form.role}
+            onChange={e => setForm({ ...form, role: e.target.value })}
+          >
+            {ROLES.map(role => (
+              <option key={role} value={role}>{role}</option>
+            ))}
+          </select>
+          <input
+            className="w-full p-2 rounded"
+            type="file"
+            accept="image/*"
+            onChange={e => setForm({ ...form, profilePicture: e.target.files?.[0] || undefined })}
+          />
+          <input
+            className="w-full p-2 rounded"
+            value={form.favoriteGame}
+            onChange={e => setForm({ ...form, favoriteGame: e.target.value })}
+            placeholder="Favorite Game"
+          />
+          <input
+            className="w-full p-2 rounded"
+            value={form.socialMediaHandles?.twitter || ""}
+            onChange={e => setForm({ ...form, socialMediaHandles: { ...form.socialMediaHandles, twitter: e.target.value } })}
+            placeholder="Twitter Handle"
+          />
+          {/* Add more social fields as needed */}
+          <label className="flex items-center gap-2 text-white">
+            <input
+              type="checkbox"
+              checked={form.isBanned}
+              onChange={e => setForm({ ...form, isBanned: e.target.checked })}
+            />
+            Is Banned
+          </label>
+        </div>
+        <div className="flex gap-2 justify-end mt-4">
+          <button className="bg-gray-gradient px-4 py-2 rounded text-white" onClick={onClose}>Cancel</button>
+          <button className="bg-primary-gradient px-4 py-2 rounded text-white" onClick={() => onSave(form)}>Save</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const User: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { users, loading, error, currentPage, perPage, totalPages, searchTerm } = useSelector((state: RootState) => state.users);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<string>("");
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
+
+  useEffect(() => {
+    dispatch(fetchUsers({ page: currentPage, perPage, searchTerm }));
+  }, [dispatch, currentPage, perPage, searchTerm]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(setSearchTerm(e.target.value));
+  };
+
+  const handlePageChange = (page: number) => {
+    dispatch(setPage(page));
+  };
+
+  const handlePerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    dispatch(setPerPage(Number(e.target.value)));
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setDeleteId(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteUser = async () => {
+    if (deleteId) {
+      const resultAction = await dispatch(deleteUser(deleteId));
+      if (deleteUser.fulfilled.match(resultAction)) {
+        setDeleteId("");
+        setIsDeleteModalOpen(false);
+        dispatch(fetchUsers({ page: currentPage, perPage, searchTerm }));
+      }
+    }
+  };
+
+  const handleEditClick = (user: UserType) => {
+    setSelectedUser(user);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSave = async (form: any) => {
+    if (selectedUser) {
+      const resultAction = await dispatch(updateUser({ id: selectedUser._id, user: form }));
+      if (updateUser.fulfilled.match(resultAction)) {
+        setIsEditModalOpen(false);
+        setSelectedUser(null);
+        dispatch(fetchUsers({ page: currentPage, perPage, searchTerm }));
+      }
+    }
+  };
+
   return (
     <>
       <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-between items-center pt-3 pb-[2rem] border-b border-light-border">
         <div className="legue__head_left-con">
           <h3 className="font-bold text-[1.25rem] text-white">
-            All users <span className="text-custom-gray">(18)</span>
+            All users <span className="text-custom-gray">({users.length})</span>
           </h3>
         </div>
         <div className="legue__head_right-con flex-wrap flex gap-3 flex-1 justify-end">
@@ -20,10 +223,12 @@ export const User: React.FC = () => {
             <select
               name="selectedFruit"
               className=" font-medium focus:outline-0 bg-[#242B3C] text-white py-[0.4rem] px-2 rounded-[0.52rem] text-[1.0625rem]"
+              value={perPage}
+              onChange={handlePerPageChange}
             >
-              <option value="apple">1</option>
-              <option value="banana">2</option>
-              <option value="orange">3</option>
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={30}>30</option>
             </select>
           </div>
           <form action="" className=" w-full sm:w-[20.8rem]">
@@ -33,6 +238,8 @@ export const User: React.FC = () => {
                 placeholder="Search Users,Email or IP"
                 type="text"
                 name="search"
+                value={searchTerm}
+                onChange={handleSearchChange}
               />
               <button
                 className="absolute left-[0.52rem] top-[0.6rem]"
@@ -48,11 +255,11 @@ export const User: React.FC = () => {
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
                     d="M11.6667 3.5C7.15634 3.5 3.5 7.15634 3.5 11.6667C3.5 16.177 7.15634 19.8333 11.6667 19.8333C13.5011 19.8333 15.1942 19.2285 16.5575 18.2074L22.5084 24.1583C22.964 24.6139 23.7027 24.6139 24.1583 24.1583C24.6139 23.7027 24.6139 22.964 24.1583 22.5084L18.2074 16.5575C19.2285 15.1942 19.8333 13.5011 19.8333 11.6667C19.8333 7.15634 16.177 3.5 11.6667 3.5ZM5.83333 11.6667C5.83333 8.445 8.445 5.83333 11.6667 5.83333C14.8883 5.83333 17.5 8.445 17.5 11.6667C17.5 14.8883 14.8883 17.5 11.6667 17.5C8.445 17.5 5.83333 14.8883 5.83333 11.6667Z"
                     fill="white"
-                    fill-opacity="0.3"
+                    fillOpacity="0.3"
                   />
                 </svg>
               </button>
@@ -82,62 +289,32 @@ export const User: React.FC = () => {
           </a>
         </div>
       </div>
-      <UsersTable />
-      <div className="nf_leg-pagination flex justify-between items-center text-white mt-5 ">
-        <button className="inline-flex hover:opacity-80 duration-300 gap-2 py-1 px-2 prev_btn font-medium text-[1.0625rem] text-custom-gray">
-          <span>
-            <svg
-              width="1.25rem"
-              height="1.25rem"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M6.75 8.25L3 12M3 12L6.75 15.75M3 12H21"
-                stroke="#6B7897"
-                stroke-width="1.75"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </span>
-          Previous
-        </button>
-        <div className="num_of-pagination inline-flex gap-2">
-          <button
-            style={{
-              background: "radial-gradient(circle, #39415C 0%, #555F83 100%)",
-            }}
-            className="inline-block font-medium duration-300 text-[1.0625rem] hover:opacity-80 px-[0.62rem] py-[0.18rem] rounded-[0.42rem]"
-          >
-            1
-          </button>
-          <button className="inline-block py-1 px-2 font-medium text-[1.0625rem]">
-            2
-          </button>
-        </div>
-        <button className="inline-flex hover:opacity-80 duration-300 gap-2 py-1 px-2 next-btn font-medium text-[1.0625rem] text-custom-gray">
-          Next
-          <span>
-            <svg
-              width="1.25rem"
-              height="1.25rem"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M17.25 8.25L21 12M21 12L17.25 15.75M21 12H3"
-                stroke="#6B7897"
-                stroke-width="1.75"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </span>
-        </button>
-      </div>
+      <UsersTable users={users} loading={loading} error={error} onEditClick={handleEditClick} onDeleteClick={handleDeleteClick} />
+      <DeleteConfirmationModal
+        show={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setDeleteId("");
+        }}
+        onDelete={handleDeleteUser}
+      />
+      {isEditModalOpen && (
+        <UsersModel
+          show={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          selectedUser={selectedUser}
+          onSave={handleEditSave}
+        />
+      )}
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          onPagePrvious={() => handlePageChange(currentPage - 1)}
+          onPageNext={() => handlePageChange(currentPage + 1)}
+        />
+      )}
     </>
   );
 };

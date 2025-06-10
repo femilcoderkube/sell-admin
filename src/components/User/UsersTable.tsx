@@ -2,9 +2,29 @@ import React from "react";
 import edit from "../../assets/images/Edit.svg";
 import deleteIcon from "../../assets/images/trash_can.svg";
 import viewIcon from "../../assets/images/setting_icon.svg";
-import leagueUser from "../../assets/images/league_use.png";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../app/store";
+import { deleteUser, updateUser } from "../../app/features/users/usersSlice";
 
-export const UsersTable: React.FC = () => {
+interface UsersTableProps {
+  users: any[];
+  loading: boolean;
+  error: string | null;
+  onEditClick: (user: any) => void;
+  onDeleteClick: (id: string) => void;
+}
+
+export const UsersTable: React.FC<UsersTableProps> = ({ users, loading, error, onEditClick, onDeleteClick }) => {
+  const dispatch = useDispatch<AppDispatch>();
+
+  const handleDelete = (id: string) => {
+    onDeleteClick(id);
+  };
+
+  const handleEdit = (user: any) => {
+    onEditClick(user);
+  };
+
   const thead = {
     id: (
       <svg
@@ -25,52 +45,17 @@ export const UsersTable: React.FC = () => {
     ),
     username: "Username",
     email: "Email",
-    playstation_id: "Playstation ID",
-    activision_id: "Activision ID",
+    role: "Role",
+    lastLoginDate: "Last Login Date",
     mobile: "Mobile",
     ip_address: "IP Address",
     actions: "Actions",
   };
 
-  //   const titles1 = [titles];
-
-  const tdetail = [
-    {
-      id: 1,
-      username: "SultanCafar",
-      email: "llsmm@ejkcloud.com",
-      playstation_id: "-",
-      activision_id: "whitexoid",
-      mobile: "+906-586007240",
-      ip_address: "49.16.81.174",
-      actions: {
-        edit: <img src={edit} alt="Edit" style={{ width: "1.26rem" }} />,
-        delete: (
-          <img src={deleteIcon} alt="Delete" style={{ width: "1.26rem" }} />
-        ),
-        view: <img src={viewIcon} alt="View" style={{ width: "1.26rem" }} />,
-      },
-    },
-    {
-      id: 2,
-      username: "Mordock",
-      email: "hgoon@gmail.com",
-      playstation_id: "driplayer",
-      activision_id: "-",
-      mobile: "-",
-      ip_address: "-",
-      actions: {
-        edit: <img src={edit} alt="Edit" style={{ width: "1.26rem" }} />,
-        delete: (
-          <img src={deleteIcon} alt="Delete" style={{ width: "1.26rem" }} />
-        ),
-        view: <img src={viewIcon} alt="View" style={{ width: "1.26rem" }} />,
-      },
-    },
-  ];
-
   return (
     <div id="league_table" className="pt-3 overflow-y-auto">
+      {/* {loading && <div className="text-white">Loading users...</div>}
+      {error && <div className="text-red-500">{error}</div>} */}
       <table className="table-auto text-white w-[1180px] lg:w-full ">
         <thead>
           <tr className="border-b border-light-border">
@@ -84,10 +69,10 @@ export const UsersTable: React.FC = () => {
               {thead.email}
             </th>
             <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
-              {thead.playstation_id}
+              {thead.role}
             </th>
             <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
-              {thead.activision_id}
+              {thead.lastLoginDate}
             </th>
             <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
               {thead.mobile}
@@ -95,61 +80,57 @@ export const UsersTable: React.FC = () => {
             <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
               {thead.ip_address}
             </th>
-
             <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem] text-center">
               {thead.actions}
             </th>
-            {/* {Object.values(thead).map((title, index) => (
-                            <th key={index} className='text-left py-3 text-custom-gray uppercase text-[1.0625rem]'>{title}</th>
-                        ))} */}
           </tr>
         </thead>
         <tbody>
-          {tdetail.map((tdetail) => (
-            <tr key={tdetail.id} className="border-b border-light-border">
-              <td className="text-[1.0625rem] py-3">{tdetail.id}</td>
-              <td className="text-[1.0625rem] py-3">{tdetail.username}</td>
-
-              <td className="text-[1.0625rem] py-3">{tdetail.email}</td>
-              <td className="text-[1.0625rem] py-3">{tdetail.playstation_id}</td>
-              <td className="text-[1.0625rem] py-3">{tdetail.activision_id}</td>
-              <td className="text-[1.0625rem] py-3">{tdetail.mobile}</td>
-              <td className="text-[1.0625rem] py-3">{tdetail.ip_address}</td>
-
-              <td className="text-[1.0625rem] py-3 flex space-x-3 justify-center">
-                <a
-                  href="#"
-                  style={{
-                    background:
-                      "radial-gradient(circle, #39415C 0%, #555F83 100%)",
-                  }}
-                  className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
-                >
-                  {tdetail.actions.edit}
-                </a>
-                <a
-                  href="#"
-                  style={{
-                    background:
-                      "radial-gradient(circle, #39415C 0%, #555F83 100%)",
-                  }}
-                  className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
-                >
-                  {tdetail.actions.delete}
-                </a>
-                <a
-                  href="#"
-                  style={{
-                    background:
-                      "radial-gradient(circle, #39415C 0%, #555F83 100%)",
-                  }}
-                  className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
-                >
-                  {tdetail.actions.view}
-                </a>
+          {users && users.length > 0 ? (
+            users.map((user, idx) => (
+              <tr key={user._id} className="border-b border-light-border">
+                <td className="text-[1.0625rem] py-3">{idx + 1}</td>
+                <td className="text-[1.0625rem] py-3">{user.username}</td>
+                <td className="text-[1.0625rem] py-3">{user.email}</td>
+                <td className="text-[1.0625rem] py-3">{user.role}</td>
+                <td className="text-[1.0625rem] py-3">
+                  {user.lastLoginDate 
+                    ? new Date(user.lastLoginDate).toLocaleString() 
+                    : "-"}
+                </td>
+                <td className="text-[1.0625rem] py-3">{user.phone || "-"}</td>
+                <td className="text-[1.0625rem] py-3">{user.ipAddress || "-"}</td>
+                <td className="text-[1.0625rem] py-3 flex space-x-3 justify-center">
+                  <button
+                    onClick={() => handleEdit(user)}
+                    style={{ background: "radial-gradient(circle, #39415C 0%, #555F83 100%)" }}
+                    className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
+                  >
+                    <img src={edit} alt="Edit" style={{ width: "1.26rem" }} />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(user._id)}
+                    style={{ background: "radial-gradient(circle, #39415C 0%, #555F83 100%)" }}
+                    className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
+                  >
+                    <img src={deleteIcon} alt="Delete" style={{ width: "1.26rem" }} />
+                  </button>
+                  <button
+                    style={{ background: "radial-gradient(circle, #39415C 0%, #555F83 100%)" }}
+                    className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
+                  >
+                    <img src={viewIcon} alt="View" style={{ width: "1.26rem" }} />
+                  </button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={8} className="text-center text-white py-4">
+                No users found.
               </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </div>

@@ -1,9 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import FileUpload from "../ui/UploadFile";
 import { CancelIcon } from "../ui";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../app/store";
-import { fetchGameIds } from "../../app/features/gameId/gameIdSlice";
 import { useFormik } from "formik";
 import { gameSchema } from "../../validation";
 import {
@@ -12,6 +11,7 @@ import {
   updateGame,
 } from "../../app/features/games/gameSlice";
 import { GameType } from "../../app/types";
+import { baseURL } from "../../axios";
 
 interface ModalProps {
   show: boolean;
@@ -25,27 +25,28 @@ export const GameModal: React.FC<ModalProps> = ({
   selectedGame,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
-  // const { gameIds } = useSelector((state: RootState) => state.gameId);
-
-  // useEffect(() => {
-  //   if (show) {
-  //     dispatch(fetchGameIds());
-  //   }
-  // }, [show]);
+  const [logoPreview, setLogoPreview] = useState<string | undefined>(undefined);
+  const [logoFileName, setLogoFileName] = useState<string>("");
 
   const formik = useFormik({
     initialValues: {
-      name: "",
-      shortName: "",
-      logo: null,
-      color: "",
+      name: selectedGame?.name || "",
+      shortName: selectedGame?.shortName || "",
+      logo: null as File | null,
+      color: selectedGame?.color || "",
+      logoUrl: selectedGame?.logo || "",
     },
     validationSchema: gameSchema,
+    enableReinitialize: true,
     onSubmit: async (values, { resetForm }) => {
       const formData = new FormData();
       formData.append("name", values.name);
       formData.append("shortName", values.shortName);
-      formData.append("logo", values.logo ?? "");
+      if (values.logo) {
+        formData.append("logo", values.logo);
+      } else if (values.logoUrl && typeof values.logoUrl === 'string') {
+        formData.append("logo", values.logoUrl);
+      }
       formData.append("color", values.color);
 
       if (selectedGame) {
@@ -54,6 +55,8 @@ export const GameModal: React.FC<ModalProps> = ({
         );
         resetForm();
         onClose();
+        setLogoPreview(undefined);
+        setLogoFileName("");
         if (updateGame.fulfilled.match(resultAction)) {
           dispatch(fetchGames({ page: 1, perPage: 10, searchTerm: "" }));
         }
@@ -61,6 +64,8 @@ export const GameModal: React.FC<ModalProps> = ({
         const resultAction = await dispatch(addGame(formData));
         resetForm();
         onClose();
+        setLogoPreview(undefined);
+        setLogoFileName("");
         if (addGame.fulfilled.match(resultAction)) {
           dispatch(fetchGames({ page: 1, perPage: 10, searchTerm: "" }));
         }
@@ -71,13 +76,32 @@ export const GameModal: React.FC<ModalProps> = ({
   });
 
   useEffect(() => {
-    if (selectedGame) {
-      formik.setFieldValue("name", selectedGame.name);
-      formik.setFieldValue("shortName", selectedGame.shortName);
-      formik.setFieldValue("logo", selectedGame.logo);
-      formik.setFieldValue("color", selectedGame.color);
+    if (selectedGame?.logo) {
+      if (typeof selectedGame.logo === 'string') {
+        setLogoPreview(baseURL + "/api/v1/" + selectedGame.logo);
+        const urlParts = selectedGame.logo.split('/');
+        setLogoFileName(urlParts[urlParts.length - 1]);
+      }
+    } else {
+      setLogoPreview(undefined);
+      setLogoFileName("");
     }
   }, [selectedGame]);
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      formik.setFieldValue("logo", file);
+      setLogoFileName(file.name);
+      const objectUrl = URL.createObjectURL(file);
+      setLogoPreview(objectUrl);
+      return () => URL.revokeObjectURL(objectUrl);
+    } else {
+      formik.setFieldValue("logo", null);
+      setLogoPreview(undefined);
+      setLogoFileName("");
+    }
+  };
 
   return (
     <>
@@ -103,6 +127,8 @@ export const GameModal: React.FC<ModalProps> = ({
                 data-modal-hide="default-modal"
                 onClick={() => {
                   formik.resetForm();
+                  setLogoPreview(undefined);
+                  setLogoFileName("");
                   onClose();
                 }}
               >
@@ -127,7 +153,7 @@ export const GameModal: React.FC<ModalProps> = ({
                   Game title
                 </label>
                 {formik.touched.name && formik.errors.name && (
-                  <p className="text-red-600 !m-0 mt-1">{formik.errors.name}</p>
+                  <p className="text-red-600 !m-0 mt-1">{formik.errors.name as string}</p>
                 )}
               </div>
               <div className="relative float-label-input custom-input mb-4">
@@ -146,20 +172,22 @@ export const GameModal: React.FC<ModalProps> = ({
                 </label>
                 {formik.touched.shortName && formik.errors.shortName && (
                   <p className="text-red-600 !m-0 mt-1">
-                    {formik.errors.shortName}
+                    {formik.errors.shortName as string}
                   </p>
                 )}
               </div>
 
-              <FileUpload
-                label="Game Logo"
-                id="head_img"
-                onChange={(e) =>
-                  formik.setFieldValue("logo", e.target.files?.[0])
-                }
-              />
+              <div className="flex flex-col items-center gap-2 mb-4">
+                <FileUpload
+                  label="Game Logo"
+                  id="head_img"
+                  onChange={handleLogoChange}
+                  fileName={logoFileName}
+                  previewUrl={logoPreview}
+                />
+              </div>
               {formik.touched.logo && formik.errors.logo && (
-                <p className="text-red-600 !m-0 mt-1">{formik.errors.logo}</p>
+                <p className="text-red-600 !m-0 mt-1">{formik.errors.logo as string}</p>
               )}
 
               <div className="relative float-label-input custom-input mb-4">
@@ -201,7 +229,7 @@ export const GameModal: React.FC<ModalProps> = ({
                 </div>
                 {formik.touched.color && formik.errors.color && (
                   <p className="text-red-600 !m-0 mt-1">
-                    {formik.errors.color}
+                    {formik.errors.color as string}
                   </p>
                 )}
               </div>
@@ -212,6 +240,8 @@ export const GameModal: React.FC<ModalProps> = ({
                 type="button"
                 onClick={() => {
                   formik.resetForm();
+                  setLogoPreview(undefined);
+                  setLogoFileName("");
                   onClose();
                 }}
                 className="bg-gray-gradient w-1/2 text-white bg-blue-700 hover:opacity-[0.75] font-medium rounded-lg text-[0.94rem] px-5 py-[0.795rem] me-2 mb-2 duration-300 focus:outline-none"

@@ -205,3 +205,39 @@ export interface BadgeNameType {
   _id: string;
   name: string;
 }
+
+
+// User type based on provided model
+export interface User {
+  _id: string;
+  ipAddress: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  gender: string;
+  email: string;
+  phone: string;
+  nationality: string;
+  role: string;
+  profilePicture: string;
+  favoriteGame: string;
+  socialMediaHandles: Record<string, any>;
+  deviceType: string;
+  isBanned: boolean;
+  lastLoginDate: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+
+export interface UsersState {
+  users: User[];
+  loading: boolean;
+  error: string | null;
+  currentPage: number;
+  perPage: number;
+  totalPages: number;
+  searchTerm: string;
+  userDetail: User | null;
+}
