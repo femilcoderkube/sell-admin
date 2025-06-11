@@ -5,6 +5,7 @@ import {
   deleteLeague,
   fetchLeagueById,
   fetchLeagues,
+  setPage,
 } from "../../app/features/league/leagueSlice";
 
 import edit from "../../assets/images/Edit.svg";
@@ -60,7 +61,8 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({
   const handleDelete = (id: string) => {
     if (window.confirm("Are you sure you want to delete this league?")) {
       dispatch(deleteLeague(id));
-      dispatch(fetchLeagues({ page: currentPage }));
+      dispatch(fetchLeagues({ page: 1 }));
+      dispatch(setPage(1));
     }
   };
 
