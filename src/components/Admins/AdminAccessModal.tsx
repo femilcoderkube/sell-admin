@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../app/store";
 import { CancelIcon } from "../ui";
@@ -36,10 +36,21 @@ export const AdminAccessModal: React.FC<AdminAccessModalProps> = ({
     (state: RootState) => state.adminAccess
   );
 
-  const [editedModules, setEditedModules] = useState<Module[]>(modules);
+  const [editedModules, setEditedModules] = useState<Module[]>([]);
+  const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
 
-  React.useEffect(() => {
-    setEditedModules(modules);
+  useEffect(() => {
+    if (modules && modules.length > 0) {
+      setEditedModules(modules);
+      // Auto-expand modules that have access
+      const expanded = new Set<string>();
+      modules.forEach(module => {
+        if (module.hasAccess) {
+          expanded.add(module._id);
+        }
+      });
+      setExpandedModules(expanded);
+    }
   }, [modules]);
 
   const handleModuleChange = (moduleId: string) => {
@@ -57,6 +68,17 @@ export const AdminAccessModal: React.FC<AdminAccessModalProps> = ({
           : module
       )
     );
+
+    // Toggle expanded state
+    setExpandedModules(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(moduleId)) {
+        newSet.delete(moduleId);
+      } else {
+        newSet.add(moduleId);
+      }
+      return newSet;
+    });
   };
 
   const handleSubModuleChange = (moduleId: string, subModuleId: string) => {
@@ -76,6 +98,18 @@ export const AdminAccessModal: React.FC<AdminAccessModalProps> = ({
     );
   };
 
+  const toggleModuleExpansion = (moduleId: string) => {
+    setExpandedModules(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(moduleId)) {
+        newSet.delete(moduleId);
+      } else {
+        newSet.add(moduleId);
+      }
+      return newSet;
+    });
+  };
+
   const handleSave = () => {
     dispatch(updateAdminAccess({ adminId, modules: editedModules }));
     setTimeout(() => {
@@ -88,13 +122,11 @@ export const AdminAccessModal: React.FC<AdminAccessModalProps> = ({
 
   return (
     <div
-      id="default-modal"
-      aria-hidden={!isOpen}
       className={`fixed top-0 left-0 right-0 z-50 flex justify-center items-center w-full h-screen bg-black bg-opacity-50 transition-opacity ${
         isOpen ? "opacity-100 visible" : "opacity-0 invisible"
       }`}
     >
-      <div className="relative p-4 w-full max-w-2xl max-h-full mx-auto">
+      <div className="relative p-4 w-full max-w-4xl max-h-full mx-auto">
         <div className="relative bg-dark-blue rounded-lg shadow-sm dark:bg-gray-700">
           <div className="relative p-4 md:p-5 border-b rounded-t border-light-border">
             <h3 className="text-[1.5rem] font-semibold text-white text-center">
@@ -103,7 +135,6 @@ export const AdminAccessModal: React.FC<AdminAccessModalProps> = ({
             <button
               type="button"
               className="absolute top-1/2 right-2 -translate-y-1/2 text-gray-400 bg-transparent rounded-lg hover:opacity-50 duration-300 text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-              data-modal-hide="default-modal"
               onClick={onClose}
             >
               <CancelIcon />
@@ -111,63 +142,125 @@ export const AdminAccessModal: React.FC<AdminAccessModalProps> = ({
             </button>
           </div>
 
-          <div className="p-4 md:p-5 space-y-4 max-h-[60vh] overflow-y-auto">
+          <div className="p-4 md:p-5 space-y-4 max-h-[70vh] overflow-y-auto">
+            <div className="mb-6">
+              <h4 className="text-xl font-semibold text-white mb-2">Admin Access Permissions</h4>
+              <p className="text-gray-400 text-sm">
+                Configure module access permissions for the admin. Click on modules to expand and configure submodule permissions.
+              </p>
+            </div>
+
             {loading && (
-              <p className="text-gray-400 text-[0.94rem]">Loading...</p>
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                <span className="ml-3 text-gray-400">Loading modules...</span>
+              </div>
             )}
-            {error && <p className="text-red-600 text-[0.94rem]">{error}</p>}
+            
+            {error && (
+              <div className="bg-red-900/20 border border-red-500 rounded-lg p-4 mb-4">
+                <p className="text-red-400 text-sm">{error}</p>
+              </div>
+            )}
 
             {!loading && !error && editedModules.length > 0 && (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {editedModules.map((module) => (
                   <div
                     key={module._id}
-                    className="border-b pb-4 border-light-border"
+                    className="bg-gray-800/50 rounded-lg border border-gray-700 overflow-hidden transition-all duration-200 hover:border-gray-600"
                   >
-                    <div className="flex items-center gap-2">
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={module.hasAccess}
-                          onChange={() => handleModuleChange(module._id)}
-                          className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                      </label>
-                      <h3 className="text-[1.2rem] font-semibold text-white">
-                        {module.nameEn} ({module.nameAr})
-                      </h3>
-                    </div>
-                    {module.subModules.length > 0 && (
-                      <div className="ml-4 mt-2">
-                        <h4 className="text-[1rem] font-medium text-gray-400">
-                          Submodules:
-                        </h4>
-                        <ul className="list-disc ml-6 text-gray-400 text-[0.94rem]">
-                          {module.subModules.map((subModule) => (
-                            <li
-                              key={subModule._id}
-                              className="flex items-center gap-2 mb-1"
+                    {/* Module Header */}
+                    <div className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={module.hasAccess}
+                              onChange={() => handleModuleChange(module._id)}
+                              className="sr-only peer"
+                            />
+                            <div className="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all duration-200"></div>
+                          </label>
+                          <div>
+                            <h3 className="text-lg font-medium text-white">
+                              {module.nameEn}
+                            </h3>
+                            <p className="text-sm text-gray-400">{module.nameAr}</p>
+                          </div>
+                        </div>
+                        
+                        {module.subModules && module.subModules.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => toggleModuleExpansion(module._id)}
+                            className="p-2 text-gray-400 hover:text-white transition-colors duration-200"
+                          >
+                            <svg
+                              className={`w-5 h-5 transform transition-transform duration-200 ${
+                                expandedModules.has(module._id) ? 'rotate-180' : ''
+                              }`}
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
                             >
-                              <label className="relative inline-flex items-center cursor-pointer">
-                                <input
-                                  type="checkbox"
-                                  checked={subModule.hasAccess}
-                                  onChange={() =>
-                                    handleSubModuleChange(
-                                      module._id,
-                                      subModule._id
-                                    )
-                                  }
-                                  disabled={!module.hasAccess}
-                                  className="sr-only peer"
-                                />
-                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600 peer-disabled:opacity-50"></div>
-                              </label>
-                              {subModule.nameEn} ({subModule.nameAr})
-                            </li>
-                          ))}
-                        </ul>
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </button>
+                        )}
+                      </div>
+                      
+                      {module.subModules && module.subModules.length > 0 && (
+                        <div className="mt-2 text-xs text-gray-500">
+                          {module.subModules.filter(sub => sub.hasAccess).length} of {module.subModules.length} submodules enabled
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Submodules */}
+                    {module.subModules && 
+                     module.subModules.length > 0 && 
+                     expandedModules.has(module._id) && (
+                      <div className="border-t border-gray-700 bg-gray-900/30">
+                        <div className="p-4 space-y-3">
+                          <h4 className="text-sm font-medium text-gray-300 mb-3">
+                            Submodule Permissions
+                          </h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {module.subModules.map((subModule) => (
+                              <div
+                                key={subModule._id}
+                                className={`flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${
+                                  module.hasAccess 
+                                    ? 'bg-gray-800 border-gray-600 hover:border-gray-500' 
+                                    : 'bg-gray-800/50 border-gray-700 opacity-50'
+                                }`}
+                              >
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={subModule.hasAccess && module.hasAccess}
+                                    onChange={() =>
+                                      handleSubModuleChange(module._id, subModule._id)
+                                    }
+                                    disabled={!module.hasAccess}
+                                    className="sr-only peer"
+                                  />
+                                  <div className="w-9 h-5 bg-gray-600 rounded-full peer peer-checked:bg-green-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all duration-200 peer-disabled:opacity-50"></div>
+                                </label>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-white truncate">
+                                    {subModule.nameEn}
+                                  </p>
+                                  <p className="text-xs text-gray-400 truncate">
+                                    {subModule.nameAr}
+                                  </p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -176,27 +269,29 @@ export const AdminAccessModal: React.FC<AdminAccessModalProps> = ({
             )}
 
             {!loading && !error && editedModules.length === 0 && (
-              <p className="text-gray-400 text-[0.94rem]">
-                No access data available
-              </p>
+              <div className="text-center py-8">
+                <div className="text-gray-400 text-4xl mb-4">📋</div>
+                <p className="text-gray-400 text-lg">No access modules available</p>
+                <p className="text-gray-500 text-sm mt-2">Contact your administrator to configure access modules.</p>
+              </div>
             )}
-          </div>
 
-          <div className="flex items-center p-4 md:p-5 border-t border-light-border rounded-b gap-2">
-            <button
-              type="button"
-              onClick={handleSave}
-              className="bg-blue-700 w-full text-white hover:opacity-[0.75] font-medium rounded-lg text-[0.94rem] px-5 py-[0.795rem] duration-300 focus:outline-none"
-            >
-              Save
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="bg-gray-500 w-full text-white hover:opacity-[0.75] font-medium rounded-lg text-[0.94rem] px-5 py-[0.795rem] duration-300 focus:outline-none"
-            >
-              Cancel
-            </button>
+            <div className="flex items-center p-4 md:p-5 border-t border-light-border rounded-b gap-3">
+              <button
+                type="button"
+                onClick={handleSave}
+                className="bg-gradient-to-r from-green-600 to-green-700 w-full text-white hover:from-green-700 hover:to-green-800 font-medium rounded-lg text-sm px-5 py-3 duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
+              >
+                Save Changes
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                className="bg-gray-600 w-full text-white hover:bg-gray-700 font-medium rounded-lg text-sm px-5 py-3 duration-300 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       </div>

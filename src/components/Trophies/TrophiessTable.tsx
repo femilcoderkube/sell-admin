@@ -20,7 +20,7 @@ export const TrophiesTable: React.FC<ITrophiesProps> = ({
 }) => {
   const thead = {
     id: <TableHashIcon />,
-    badgeID: "BadgeID",
+    badgeID: "Badge",
     position: "Position",
     points: "Points",
     prize: "Prize",
@@ -30,7 +30,7 @@ export const TrophiesTable: React.FC<ITrophiesProps> = ({
   const tdetail = data.map((trophie, key) => ({
     id: trophie._id,
     key: (currentPage - 1) * 10 + key + 1,
-    badgeID: trophie.BadgeID.valueOf,
+    badgeID: trophie.BadgeID.name,
     position: trophie.position,
     points: trophie.points,
     prize: trophie.prize,
@@ -70,7 +70,7 @@ export const TrophiesTable: React.FC<ITrophiesProps> = ({
           {tdetail.map((tdetail, index) => (
             <tr key={tdetail.key} className="border-b border-light-border">
               <td className="text-[1.0625rem] py-3">{tdetail.key}</td>
-              <td className="text-[1.0625rem] py-3">{tdetail.badgeID.name.toString()}</td>
+              <td className="text-[1.0625rem] py-3">{tdetail.badgeID}</td>
               <td className="text-[1.0625rem] py-3">{tdetail.position}</td>
               <td className="text-[1.0625rem] py-3">{tdetail.points}</td>
               <td className="text-[1.0625rem] py-3">{tdetail.prize}</td>

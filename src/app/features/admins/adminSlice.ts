@@ -103,6 +103,24 @@ export const fetchAdminById = createAsyncThunk(
     }
   }
 );
+
+export const checkAdminExists = createAsyncThunk(
+  "admin/checkAdminExists",
+  async ({ email, userName }: { email?: string; userName?: string }, { rejectWithValue }) => {
+    try {
+      const params = new URLSearchParams();
+      if (email) params.append("email", email);
+      if (userName) params.append("userName", userName);
+      const response = await axiosInstance.get(`/admin/check?${params.toString()}`);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error checking admin existence"
+      );
+    }
+  }
+);
+
 const adminSlice = createSlice({
   name: "admins",
   initialState,
@@ -171,6 +189,16 @@ const adminSlice = createSlice({
         state.loading = false;
       })
       .addCase(deleteAdmin.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(checkAdminExists.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(checkAdminExists.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(checkAdminExists.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

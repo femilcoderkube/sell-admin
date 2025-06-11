@@ -184,7 +184,7 @@ export interface BadgeState {
 
 export interface TrophieType {
   _id: string;
-  BadgeID: string | BadgeType;
+  BadgeID: any;
   position: number;
   points: number;
   prize: string;

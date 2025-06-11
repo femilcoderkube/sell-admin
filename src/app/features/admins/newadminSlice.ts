@@ -17,11 +17,16 @@ interface AdminAccessModule {
   nameEn: string;
   nameAr: string;
   key: string;
+  partnerColor: string | null,
+  isPartner: boolean | false,
+  partnerId: string | null,
+  hasAccess: boolean,
   subModules?: {
     _id?: string;
     nameEn: string;
     nameAr: string;
     key: string;
+    hasAccess: boolean,
   }[];
 }
 
