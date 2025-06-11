@@ -23,7 +23,8 @@ const deviceSchema = Yup.object().shape({
   name: Yup.string()
     .min(3, "Name must be at least 3 characters")
     .max(50, "Name cannot exceed 50 characters")
-    .required("Device name is required"),
+    .required("Device name is required")
+    .matches(/^\S.*\S$/, "Name cannot start or end with spaces"),
   logo: Yup.mixed()
     .test("logo-required", "A logo is required", function (value) {
       return value !== null && value !== undefined;
