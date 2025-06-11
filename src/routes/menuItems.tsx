@@ -24,6 +24,8 @@ import { Admin } from "../pages/Admin";
 import { NafesLeague } from "../pages/League";
 import { AddLeague } from "../pages/AddLeague";
 import { BannedUsers } from "../pages/BannedUsers";
+import LeagueDetails from "../components/League/LeagueDetails";
+import { LeagueDetail } from "../pages/League/leagueDetail";
 
 // Helper function to convert snake_case to Title Case
 const toTitleCase = (str: string) =>
@@ -79,7 +81,12 @@ export const generateRoutes = (adminside: any[]): RoutesProps[] => {
     .filter((module) => module.hasAccess)
     .map((module) => {
       const label = toTitleCase(module.nameEn);
-      const path = `/${toPath(module.nameEn)}`;
+      let path;
+      if (module.isPartner) {
+        path = `/${toPath(module.partnerId)}`;
+      } else {
+        path = `/${toPath(module.nameEn)}`;
+      }
       const ModuleComponent = componentMap[module.key] || (() => <></>);
       const IconComponent = iconMap[module.key] || NafesLeagueIcon;
       const submenu = module.subModules
@@ -168,7 +175,7 @@ export const generateRoutes = (adminside: any[]): RoutesProps[] => {
     {
       label: "Add League",
       icon: <NafesLeagueIcon />,
-      path: "/prime/leagues/add",
+      path: "/:id/leagues/add",
       dark_svg: downarr,
       white_svg: white_arr,
       component: <AddLeague />,
@@ -179,10 +186,21 @@ export const generateRoutes = (adminside: any[]): RoutesProps[] => {
     {
       label: "Edit League",
       icon: <NafesLeagueIcon />,
-      path: "/prime/leagues/edit/:id",
+      path: "/:id/leagues/edit/:lid",
       dark_svg: downarr,
       white_svg: white_arr,
       component: <AddLeague />,
+      auth: true,
+      isShow: false,
+      partnerColor: undefined,
+    },
+    {
+      label: "League Details",
+      icon: <NafesLeagueIcon />,
+      path: "/:id/leagues/:lid",
+      dark_svg: downarr,
+      white_svg: white_arr,
+      component: <LeagueDetail />,
       auth: true,
       isShow: false,
       partnerColor: undefined,

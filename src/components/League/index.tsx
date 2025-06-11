@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { data, Link, useParams } from "react-router-dom";
 import {
   fetchLeagues,
   setSearchTerm,
@@ -9,7 +9,9 @@ import {
 } from "../../app/features/league/leagueSlice";
 import { LeagueTable } from "./LeagueTable";
 import { RootState } from "../../app/store";
-export * from "./LeagueSteps";
+import { Pagination } from "../ui/Pagination";
+import HandLogoLoader from "../Loader/Loader";
+
 export * from "./LeagueTable";
 
 // Define table headers (unchanged)
@@ -26,10 +28,12 @@ export const League: React.FC = ({ title }: any) => {
     totalCount,
     searchTerm,
   } = useSelector((state: RootState) => state.leagues);
+const partnerId = window.location.pathname.split("/")[1];
 
-  // Fetch leagues when component mounts or when pagination/search changes
+
+// Fetch leagues when component mounts or when pagination/search changes
   useEffect(() => {
-    dispatch(fetchLeagues({ page: currentPage, perPage, searchTerm }));
+    dispatch(fetchLeagues({partnerId: partnerId,page: currentPage, perPage, searchTerm }));
   }, [dispatch, currentPage, perPage, searchTerm]);
 
   // Handle search input change
@@ -127,7 +131,7 @@ export const League: React.FC = ({ title }: any) => {
           </form>
           <Link
             className="bg-primary-gradient whitespace-nowrap sm:w-auto w-full font-medium flex hover:opacity-[0.85] duration-300 items-center gap-2 bg-[#46A2FF] hover:bg-blue-700 text-white font-base text-[1.0625rem] py-[0.6rem] px-4 rounded-[0.52rem]"
-            to={"/prime/leagues/add"}
+            to={`/${partnerId}/leagues/add`}
           >
             <span>
               <svg
@@ -149,76 +153,27 @@ export const League: React.FC = ({ title }: any) => {
           </Link>
         </div>
       </div>
-      {/* {loading && <p className="text-white">Loading...</p>} */}
-      {/* {error && <p className="text-red-500">{error}</p>} */}
-      <LeagueTable currentPage={currentPage} leagues={leagues} />
-      <div className="nf_leg-pagination flex justify-between items-center text-white mt-5">
-        <button
-          className="inline-flex hover:opacity-80 duration-300 gap-2 py-1 px-2 prev_btn font-medium text-[1.0625rem] text-custom-gray"
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-        >
-          <span>
-            <svg
-              width="1.5rem"
-              height="1.5rem"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M6.75 8.25L3 12M3 12L6.75 15.75M3 12H21"
-                stroke="#6B7897"
-                strokeWidth="1.75"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </span>
-          Previous
-        </button>
-        <div className="num_of-pagination inline-flex gap-2">
-          {pageNumbers.map((page) => (
-            <button
-              key={page}
-              style={{
-                background:
-                  page === currentPage
-                    ? "radial-gradient(circle, #39415C 0%, #555F83 100%)"
-                    : "transparent",
-              }}
-              className="inline-block font-medium duration-300 text-[1.0625rem] hover:opacity-80 px-[0.62rem] py-[0.18rem] rounded-[0.42rem]"
-              onClick={() => handlePageChange(page)}
-            >
-              {page}
-            </button>
-          ))}
+      {loading ? (
+        <HandLogoLoader />
+      ) : leagues.length > 0 ? (
+        <LeagueTable
+        currentPage={currentPage} leagues={leagues}
+        />
+      ) : (
+        <div className="text-custom-gray flex items-center justify-center h-20">
+          No data found.
         </div>
-        <button
-          className="inline-flex hover:opacity-80 duration-300 gap-2 py-1 px-2 next-btn font-medium text-[1.0625rem] text-custom-gray"
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-        >
-          Next
-          <span>
-            <svg
-              width="1.5rem"
-              height="1.5rem"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M17.25 8.25L21 12M21 12L17.25 15.75M21 12H3"
-                stroke="#6B7897"
-                strokeWidth="1.75"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </span>
-        </button>
-      </div>
+      )}
+
+      {!loading && totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => handlePageChange(page)}
+          onPagePrvious={() => handlePageChange(currentPage - 1)}
+          onPageNext={() => handlePageChange(currentPage + 1)}
+        />
+      )}
     </>
   );
 };

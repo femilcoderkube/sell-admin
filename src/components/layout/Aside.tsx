@@ -36,6 +36,7 @@ export const Aside: React.FC = () => {
       {/* <aside className="fixed left-0 bg-dark-blue px-[0.8rem] min-h-full text-center pt-[6rem] w-[15rem]"> */}
       <ul className="flex flex-col gap-2">
         {routes.map((item, key) => {
+          // console.log("routes--", item)
           return item.isShow ? (
             <li key={key} className="flex flex-col gap-2">
               <Link

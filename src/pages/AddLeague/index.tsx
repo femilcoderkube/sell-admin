@@ -1166,7 +1166,7 @@ export const AddLeague: FC = () => {
   const dispatch = useDispatch();
   const [step, setStep] = useState(1);
   const [showModal, setShowModal] = useState(false);
-  let pID = localStorage.getItem("partnerId");
+  let pID = window.location.pathname.split("/")[1];;
 
   // Initialize form values
   const [initialValues, setInitialValues] = useState<League>({
@@ -1237,7 +1237,7 @@ export const AddLeague: FC = () => {
       dispatch(updateLeague({ id: location.state._id, league: bodyData })).then(
         (result) => {
           if (updateLeague.fulfilled.match(result)) {
-            navigate("/prime/leagues");
+            navigate(`/${pID}/leagues`);
           }
           setShowModal(false);
         }
@@ -1245,7 +1245,7 @@ export const AddLeague: FC = () => {
     } else {
       dispatch(addLeague(bodyData)).then((result) => {
         if (addLeague.fulfilled.match(result)) {
-          navigate("/prime/leagues");
+          navigate(`/${pID}/leagues`);
         }
         setShowModal(false);
       });
@@ -1301,7 +1301,7 @@ export const AddLeague: FC = () => {
     if (step > 1) {
       setStep(step - 1);
     } else {
-      navigate("/prime/leagues");
+      navigate(`/${pID}/leagues`);
     }
   };
 

@@ -26,7 +26,7 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({
 }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const partnerId = window.location.pathname.split("/")[1];
   const thead = {
     id: (
       <svg
@@ -148,7 +148,7 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({
               </td>
               <td className="text-[1.0625rem] py-3 flex space-x-3 justify-center">
                 <Link
-                  to={`/prime/leagues/edit/${league._id}`}
+                  to={`/${partnerId}/leagues/edit/${league._id}`}
                   state={league}
                   style={{
                     background:

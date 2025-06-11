@@ -18,15 +18,17 @@ export const fetchLeagues = createAsyncThunk(
   "leagues/fetchLeagues",
   async (
     {
+      partnerId,
       page,
       perPage,
       searchTerm,
-    }: { page: number; perPage: number; searchTerm: string },
+    }: {partnerId: string, page: number; perPage: number; searchTerm: string },
     { rejectWithValue }
   ) => {
     try {
       const response = await axiosInstance.get("/leagues", {
         params: {
+          partnerId : partnerId,
           page,
           limit: perPage,
           searchKey: searchTerm,
@@ -45,7 +47,7 @@ export const fetchLeagueById = createAsyncThunk(
   "leagues/fetchLeagueById",
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`/league?id=${id}`);
+      const response = await axiosInstance.get(`/leagues?id=${id}`);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
