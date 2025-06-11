@@ -63,7 +63,7 @@ export const Game: React.FC = () => {
     if (deleteGame.fulfilled.match(resultAction)) {
       setDeleteId("");
       setIsDeleteModalOpen(false);
-      dispatch(fetchGames({ page: 1, perPage: 10, searchTerm: "" }));
+      dispatch(fetchGames({ page: 1, perPage: perPage, searchTerm: searchTerm }));
     }
   };
 

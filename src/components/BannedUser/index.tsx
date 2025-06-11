@@ -35,21 +35,17 @@ export const BannedUser: React.FC = () => {
     dispatch(setPerPage(Number(e.target.value)));
   };
 
-  const handleDeleteClick = (id: string) => {
-    setDeleteId(id);
-    setIsDeleteModalOpen(true);
-  };
 
-  const handleDeleteUser = async () => {
-    if (deleteId) {
-      const resultAction = await dispatch(deleteUser(deleteId));
-      if (deleteUser.fulfilled.match(resultAction)) {
-        setDeleteId("");
-        setIsDeleteModalOpen(false);
-        dispatch(fetchBannedUsers({ page: currentPage, perPage, searchTerm }));
-      }
-    }
-  };
+  // const handleDeleteUser = async () => {
+  //   if (deleteId) {
+  //     const resultAction = await dispatch(deleteUser(deleteId));
+  //     if (deleteUser.fulfilled.match(resultAction)) {
+  //       setDeleteId("");
+  //       setIsDeleteModalOpen(false);
+  //       dispatch(fetchBannedUsers({ page: currentPage, perPage, searchTerm }));
+  //     }
+  //   }
+  // };
 
   // const handleEditClick = (user: UserType) => {
   //   setSelectedUser(user);
@@ -62,7 +58,7 @@ export const BannedUser: React.FC = () => {
       if (updateUser.fulfilled.match(resultAction)) {
         setIsEditModalOpen(false);
         setSelectedUser(null);
-        dispatch(fetchBannedUsers({ page: currentPage, perPage, searchTerm }));
+        dispatch(fetchBannedUsers({ page: 1, perPage, searchTerm }));
       }
     }
   };
@@ -142,14 +138,14 @@ export const BannedUser: React.FC = () => {
           No data found.
         </div>
       )}
-      <DeleteConfirmationModal
+      {/* <DeleteConfirmationModal
         show={isDeleteModalOpen}
         onClose={() => {
           setIsDeleteModalOpen(false);
           setDeleteId("");
         }}
         onDelete={handleDeleteUser}
-      />
+      /> */}
       {!loading && totalPages > 1 && (
         <Pagination
           currentPage={currentPage}

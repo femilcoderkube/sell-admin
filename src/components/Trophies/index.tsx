@@ -70,7 +70,7 @@ export const Trophie: React.FC = () => {
     if (deleteTrophie.fulfilled.match(resultAction)) {
       setDeleteId("");
       setIsDeleteModalOpen(false);
-      dispatch(fetchTrophies({ page: currentPage, perPage: 10, searchTerm: "" }));
+      dispatch(fetchTrophies({ page: 1, perPage: 10, searchTerm: "" }));
     }
   };
 

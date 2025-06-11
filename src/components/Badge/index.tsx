@@ -64,7 +64,7 @@ export const Badge: React.FC = () => {
     if (deleteBadges.fulfilled.match(resultAction)) {
       setDeleteId("");
       setIsDeleteModalOpen(false);
-      dispatch(fetchBadges({ page: currentPage, perPage: 10, searchTerm: "" }));
+      dispatch(fetchBadges({ page: 1, perPage: perPage, searchTerm: searchTerm}));
     }
   };
 

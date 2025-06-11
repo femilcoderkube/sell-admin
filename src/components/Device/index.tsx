@@ -55,7 +55,7 @@ export const Device: React.FC = () => {
     if (deleteDevice.fulfilled.match(resultAction)) {
       setDeleteId("");
       setIsDeleteModalOpen(false);
-      dispatch(fetchDevices({ page: 1, perPage: 10, searchTerm: "" }));
+      dispatch(fetchDevices({ page: 1, perPage: perPage, searchTerm: searchTerm }));
     }
   };
 

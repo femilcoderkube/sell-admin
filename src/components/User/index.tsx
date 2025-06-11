@@ -82,7 +82,7 @@ export const User: React.FC = () => {
       if (deleteUser.fulfilled.match(resultAction)) {
         setDeleteId("");
         setIsDeleteModalOpen(false);
-        dispatch(fetchUsers({ page: currentPage, perPage, searchTerm }));
+        dispatch(fetchUsers({ page: 1, perPage, searchTerm }));
       }
     }
   };
@@ -100,7 +100,7 @@ export const User: React.FC = () => {
       if (updateUser.fulfilled.match(resultAction)) {
         setIsEditModalOpen(false);
         setSelectedUser(null);
-        dispatch(fetchUsers({ page: currentPage, perPage, searchTerm }));
+        dispatch(fetchUsers({ page: 1, perPage, searchTerm }));
       }
     }
   };

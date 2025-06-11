@@ -82,7 +82,7 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       dispatch(
-        fetchAccessModules({ email: "admin@gmail.com", password: "12345678" })
+        fetchAccessModules() as any
       );
     } else {
       // Reset form when modal closes

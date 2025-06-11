@@ -64,7 +64,7 @@ export const Partner: React.FC = () => {
     if (deletePartner.fulfilled.match(resultAction)) {
       setDeleteId("");
       setIsDeleteModalOpen(false);
-      dispatch(fetchPartners({ page: currentPage, perPage: 10, searchTerm: "" }));
+      dispatch(fetchPartners({ page: 1, perPage: perPage, searchTerm: "" }));
     }
   };
 
