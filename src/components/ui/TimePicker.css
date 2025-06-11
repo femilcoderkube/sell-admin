@@ -1,0 +1,87 @@
+/* src/components/TimePicker.css */
+/* Make sure this file is imported in your main App.tsx or index.tsx */
+
+/* Main pop-up container */
+.react-datepicker-popper {
+    z-index: 1000 !important; /* Ensure it's on top */
+  }
+  
+  .react-datepicker {
+    font-family: inherit !important;
+    background-color: #1e2433 !important; /* Dark background for the picker */
+    border: 1px solid #4a5568 !important;
+    border-radius: 0.52rem !important;
+  }
+  
+  /* The little triangle arrow */
+  .react-datepicker__triangle::before,
+  .react-datepicker__triangle::after {
+    /* This makes the arrow match the picker's background */
+    border-bottom-color: #1e2433 !important;
+  }
+  
+  /* Header section ("Time") */
+  .react-datepicker__header,
+  .react-datepicker-time__header {
+    background-color: #1a202c !important; /* Even darker header */
+   
+    color: #ffffff !important;
+    font-size: 0.9rem !important;
+    font-weight: bold !important;
+  }
+  
+  /* Time selection list container */
+  .react-datepicker__time-container {
+    width: 130px !important; /* A bit wider for better spacing */
+    background-color :  #1e2433 !important; 
+  }
+    /* Time selection list container */
+    .react-datepicker__time {
+        width: 130px !important; /* A bit wider for better spacing */
+        background-color :  #1e2433 !important; 
+      }
+  
+  .react-datepicker__time-list {
+    /* Custom scrollbar for a modern look */
+    scrollbar-width: thin;
+    scrollbar-color: #2792ff #1a202c; /* thumb and track color */
+  }
+  
+  /* Custom scrollbar for Chrome/Safari/Edge */
+  .react-datepicker__time-list::-webkit-scrollbar {
+    width: 8px;
+  }
+  .react-datepicker__time-list::-webkit-scrollbar-track {
+    background: #1a202c;
+  }
+  .react-datepicker__time-list::-webkit-scrollbar-thumb {
+    background-color: #2792ff; /* Your primary blue */
+    border-radius: 20px;
+    border: 2px solid #1a202c;
+  }
+  
+  /* Each individual time item (e.g., "5:30 PM") */
+  .react-datepicker__time-list-item {
+    color: #cbd5e0 !important; /* Light gray text */
+    background-color :  #1e2433 !important; 
+    padding: 10px 12px !important;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  
+  /* Item on hover */
+  .react-datepicker__time-list-item:hover {
+    background-color: #2b3245 !important; /* Hover background from your inputs */
+    color: #ffffff !important;
+  }
+  
+  /* The currently selected time item */
+  .react-datepicker__time-list-item--selected {
+    background-color: #2792ff !important; /* Your primary blue for selection */
+    color: #ffffff !important;
+    font-weight: bold !important;
+  }
+  
+  /* Ensure selected item stays styled on hover */
+  .react-datepicker__time-list-item--selected:hover {
+    background-color: #2792ff !important;
+  }

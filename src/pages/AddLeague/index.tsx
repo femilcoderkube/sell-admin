@@ -7,6 +7,8 @@ import * as Yup from "yup";
 import { Layout } from "../../components/layout";
 import ModalPopUp from "../../components/ui/ModalPopUp";
 import FileUpload from "../../components/ui/UploadFile";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { addLeague, updateLeague } from "../../app/features/league/leagueSlice";
 import { fetchGames } from "../../app/features/games/gameSlice";
 import { fetchPartners } from "../../app/features/partners/partnerSlice";
@@ -15,6 +17,7 @@ import { uploadFile } from "../../app/features/fileupload/fileUploadSlice";
 import downarr from "../../assets/images/down_arr.svg";
 import deleteIcon from "../../assets/images/trash_can.svg";
 import { baseURL } from "../../axios";
+import { TimePickerField } from "../../components/ui/TimePickerField";
 
 // Type Definitions
 interface Winner {
@@ -83,13 +86,6 @@ const validationSchema = Yup.object().shape({
     })
     .nullable()
     .required("Game is required"),
-  // partner: Yup.object()
-  //   .shape({
-  //     value: Yup.string().required(),
-  //     label: Yup.string().required(),
-  //   })
-  //   .nullable()
-  //   .required("Partner is required"),
   device: Yup.object()
     .shape({
       value: Yup.string().required(),
@@ -175,27 +171,20 @@ const validationSchema = Yup.object().shape({
   rules: Yup.mixed().required("Rules PDF is required"),
   startDate: Yup.date()
     .required("Start date is required")
-    .min(new Date(), "Start date cannot be in the past"),
+    .min(new Date().setTime(0), "Start date cannot be in the past"),
   endDate: Yup.date()
     .required("End date is required")
     .min(Yup.ref("startDate"), "End date must be after start date"),
 });
 
-// Step 1: General Information
+
 const LeagueStep1: FC<StepProps> = ({ step }) => {
   const dispatch = useDispatch();
-  const { values, errors, touched, setFieldValue, handleChange } =
-    useFormikContext<League>();
+  const { values, errors, touched, setFieldValue, handleChange } = useFormikContext();
 
-  const loadGameOptions = async (
-    search: string,
-    loadedOptions: any,
-    { page }: any
-  ) => {
+  const loadGameOptions = async (search: string, loadedOptions: any, { page }: any) => {
     const perPage = 10;
-    const response: any = await dispatch(
-      fetchGames({ page, perPage, searchTerm: search })
-    );
+    const response: any = await dispatch(fetchGames({ page, perPage, searchTerm: search }));
     const data = response.payload;
     const options: any[] = data?.data.result.map((game: any) => ({
       value: game._id,
@@ -209,37 +198,9 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
     };
   };
 
-  // const loadPartnerOptions = async (
-  //   search: string,
-  //   loadedOptions: any,
-  //   { page }: any
-  // ) => {
-  //   const perPage = 10;
-  //   const response: any = await dispatch(
-  //     fetchPartners({ page, perPage, searchTerm: search })
-  //   );
-  //   const data = response.payload;
-  //   const options: any[] = data?.data.result.map((game: any) => ({
-  //     value: game._id,
-  //     label: game.nameEn,
-  //   }));
-
-  //   return {
-  //     options,
-  //     hasMore: page * perPage < data.data.totalItem,
-  //     additional: { page: page + 1 },
-  //   };
-  // };
-
-  const loadDevicesOptions = async (
-    search: string,
-    loadedOptions: any,
-    { page }: any
-  ) => {
+  const loadDevicesOptions = async (search: string, loadedOptions: any, { page }: any) => {
     const perPage = 10;
-    const response: any = await dispatch(
-      fetchDevices({ page, perPage, search })
-    );
+    const response: any = await dispatch(fetchDevices({ page, perPage, search }));
     const data = response.payload;
     const options: any[] = data?.data.result.map((game: any) => ({
       value: game._id,
@@ -259,6 +220,14 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
       setFieldValue("playersPerTeam", 1);
     }
   }, [values.format, setFieldValue]);
+
+  // Set default StartDate to today if not already set
+  React.useEffect(() => {
+    if (!values.startDate) {
+      const today = new Date().toISOString().split("T")[0];
+      setFieldValue("startDate", today);
+    }
+  }, [setFieldValue, values.startDate]);
 
   return (
     <div className="max-w-[42.5rem] mx-auto genral_form-info mb-4">
@@ -300,8 +269,7 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
             control: (base) => ({
               ...base,
               backgroundColor: "#212739",
-              border:
-                touched.game && errors.game ? "1px solid #ef4444" : "none",
+              border: touched.game && errors.game ? "1px solid #ef4444" : "none",
               borderRadius: "0.52rem",
               paddingLeft: "0.75rem",
               color: "#fff",
@@ -331,11 +299,7 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
             }),
             option: (base, { isFocused, isSelected }) => ({
               ...base,
-              backgroundColor: isSelected
-                ? "#007EFF"
-                : isFocused
-                ? "#2B3245"
-                : "#212739",
+              backgroundColor: isSelected ? "#007EFF" : isFocused ? "#2B3245" : "#212739",
               color: "#fff",
               fontSize: "0.78125rem",
               padding: "0.5rem 0.75rem",
@@ -348,11 +312,7 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
           }}
           components={{
             DropdownIndicator: () => (
-              <img
-                src={downarr}
-                alt="dropdown"
-                style={{ width: "16px", marginRight: "10px" }}
-              />
+              <img src={downarr} alt="dropdown" style={{ width: "16px", marginRight: "10px" }} />
             ),
           }}
         />
@@ -360,85 +320,6 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
           <div className="text-red-500 text-[0.7rem] mt-1">{errors.game}</div>
         )}
       </div>
-
-      {/* <div className="relative flex-1 custom-input mb-4">
-        <AsyncPaginate
-          id="partner"
-          name="partner"
-          value={values.partner}
-          loadOptions={loadPartnerOptions}
-          onChange={(selected: any) => setFieldValue("partner", selected)}
-          additional={{ page: 1 }}
-          placeholder="Select the partner"
-          styles={{
-            control: (base) => ({
-              ...base,
-              backgroundColor: "#212739",
-              border:
-                touched.partner && errors.partner
-                  ? "1px solid #ef4444"
-                  : "none",
-              borderRadius: "0.52rem",
-              paddingLeft: "0.75rem",
-              color: "#fff",
-              boxShadow: "none",
-              "&:hover": { borderColor: "#2792FF" },
-              "&:focus": { borderColor: "#2792FF" },
-            }),
-            input: (base) => ({
-              ...base,
-              color: "#fff",
-              fontSize: "0.78125rem",
-            }),
-            singleValue: (base) => ({
-              ...base,
-              color: "#fff",
-              fontSize: "0.78125rem",
-            }),
-            placeholder: (base) => ({
-              ...base,
-              color: "#6B7280",
-              fontSize: "0.78125rem",
-            }),
-            menu: (base) => ({
-              ...base,
-              backgroundColor: "#212739",
-              borderRadius: "0.52rem",
-            }),
-            option: (base, { isFocused, isSelected }) => ({
-              ...base,
-              backgroundColor: isSelected
-                ? "#007EFF"
-                : isFocused
-                ? "#2B3245"
-                : "#212739",
-              color: "#fff",
-              fontSize: "0.78125rem",
-              padding: "0.5rem 0.75rem",
-            }),
-            dropdownIndicator: (base) => ({
-              ...base,
-              color: "#6B7280",
-              "&:hover": { color: "#fff" },
-            }),
-          }}
-          components={{
-            DropdownIndicator: () => (
-              <img
-                src={downarr}
-                alt="dropdown"
-                style={{ width: "16px", marginRight: "10px" }}
-              />
-            ),
-          }}
-        />
-        {touched.partner && errors.partner && (
-          <div className="text-red-500 text-[0.7rem] mt-1">
-            {errors.partner}
-          </div>
-        )}
-      </div> */}
-
       <div className="relative flex-1 custom-input mb-4">
         <AsyncPaginate
           id="device"
@@ -452,8 +333,7 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
             control: (base) => ({
               ...base,
               backgroundColor: "#212739",
-              border:
-                touched.device && errors.device ? "1px solid #ef4444" : "none",
+              border: touched.device && errors.device ? "1px solid #ef4444" : "none",
               borderRadius: "0.52rem",
               paddingLeft: "0.75rem",
               color: "#fff",
@@ -483,11 +363,7 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
             }),
             option: (base, { isFocused, isSelected }) => ({
               ...base,
-              backgroundColor: isSelected
-                ? "#007EFF"
-                : isFocused
-                ? "#2B3245"
-                : "#212739",
+              backgroundColor: isSelected ? "#007EFF" : isFocused ? "#2B3245" : "#212739",
               color: "#fff",
               fontSize: "0.78125rem",
               padding: "0.5rem 0.75rem",
@@ -500,11 +376,7 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
           }}
           components={{
             DropdownIndicator: () => (
-              <img
-                src={downarr}
-                alt="dropdown"
-                style={{ width: "16px", marginRight: "10px" }}
-              />
+              <img src={downarr} alt="dropdown" style={{ width: "16px", marginRight: "10px" }} />
             ),
           }}
         />
@@ -560,9 +432,7 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
           placeholder=" "
           disabled={values.format === "1v1"}
           className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
-            touched.playersPerTeam && errors.playersPerTeam
-              ? "border border-red-500"
-              : ""
+            touched.playersPerTeam && errors.playersPerTeam ? "border border-red-500" : ""
           } ${values.format === "1v1" ? "opacity-50 cursor-not-allowed" : ""}`}
         />
         <label
@@ -572,24 +442,26 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
           Players Per Team
         </label>
         {touched.playersPerTeam && errors.playersPerTeam && (
-          <div className="text-red-500 text-[0.7rem] mt-1">
-            {errors.playersPerTeam}
-          </div>
+          <div className="text-red-500 text-[0.7rem] mt-1">{errors.playersPerTeam}</div>
         )}
       </div>
       <div className="grid grid-cols-2 gap-3 mb-4">
         <div className="relative float-label-input custom-input">
-          <Field
-            type="date"
-            // value={values.startDate}
+          <DatePicker
+            selected={values.startDate ? new Date(values.startDate) : null}
+            onChange={(date: Date) => setFieldValue("startDate", date.toISOString().split("T")[0])}
+            dateFormat="yyyy-MM-dd"
+            className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+              touched.startDate && errors.startDate ? "border border-red-500" : ""
+            }`}
             id="startDate"
             name="startDate"
-            placeholder=" "
-            className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
-              touched.startDate && errors.startDate
-                ? "border border-red-500"
-                : ""
-            }`}
+            placeholderText="Select start date"
+            autoComplete="off"
+            minDate={new Date()}
+            popperPlacement="bottom-start"
+            wrapperClassName="w-full"
+            calendarClassName="custom-datepicker"
           />
           <label
             htmlFor="startDate"
@@ -598,21 +470,25 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
             Start Date
           </label>
           {touched.startDate && errors.startDate && (
-            <div className="text-red-500 text-[0.7rem] mt-1">
-              {errors.startDate}
-            </div>
+            <div className="text-red-500 text-[0.7rem] mt-1">{errors.startDate}</div>
           )}
         </div>
         <div className="relative float-label-input custom-input">
-          <Field
-            type="date"
-            id="endDate"
-            name="endDate"
-            value={values.endDate}
-            placeholder=" "
+          <DatePicker
+            selected={values.endDate ? new Date(values.endDate) : null}
+            onChange={(date: Date) => setFieldValue("endDate", date.toISOString().split("T")[0])}
+            dateFormat="yyyy-MM-dd"
             className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
               touched.endDate && errors.endDate ? "border border-red-500" : ""
             }`}
+            id="endDate"
+            name="endDate"
+            placeholderText="Select end date"
+            autoComplete="off"
+            minDate={values.startDate ? new Date(values.startDate) : new Date()}
+            popperPlacement="bottom-start"
+            wrapperClassName="w-full"
+            calendarClassName="custom-datepicker"
           />
           <label
             htmlFor="endDate"
@@ -621,17 +497,414 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
             End Date
           </label>
           {touched.endDate && errors.endDate && (
-            <div className="text-red-500 text-[0.7rem] mt-1">
-              {errors.endDate}
-            </div>
+            <div className="text-red-500 text-[0.7rem] mt-1">{errors.endDate}</div>
           )}
         </div>
       </div>
+
+      <style jsx>{`
+        .custom-datepicker {
+          background-color: #212739;
+          border: none;
+          border-radius: 0.52rem;
+          padding: 0.5rem;
+          font-size: 0.78125rem;
+          color: #fff;
+          font-family: inherit;
+        }
+        .custom-datepicker .react-datepicker__header {
+          background-color: #2B3245;
+          border-bottom: none;
+          padding: 0.5rem;
+        }
+        .custom-datepicker .react-datepicker__current-month,
+        .custom-datepicker .react-datepicker__day-name {
+          color: #fff;
+          font-size: 0.78125rem;
+        }
+        .custom-datepicker .react-datepicker__day {
+          color: #fff;
+          border-radius: 0.3rem;
+          padding: 0.3rem;
+        }
+        .custom-datepicker .react-datepicker__day:hover {
+          background-color: #2B3245;
+        }
+        .custom-datepicker .react-datepicker__day--selected,
+        .custom-datepicker .react-datepicker__day--keyboard-selected {
+          background-color: #007EFF;
+          color: #fff;
+        }
+        .custom-datepicker .react-datepicker__day--disabled {
+          color: #6B7280;
+          opacity: 0.5;
+        }
+        .custom-datepicker .react-datepicker__navigation {
+          top: 0.75rem;
+        }
+        .custom-datepicker .react-datepicker__navigation-icon::before {
+          border-color: #fff;
+        }
+        .custom-datepicker .react-datepicker__triangle {
+          display: none;
+        }
+      `}</style>
     </div>
   );
 };
 
-// Step 2: League Details
+
+
+
+// // Step 1: General Information
+// const LeagueStep1: FC<StepProps> = ({ step }) => {
+//   const dispatch = useDispatch();
+//   const { values, errors, touched, setFieldValue, handleChange } =
+//     useFormikContext<League>();
+
+//   const loadGameOptions = async (
+//     search: string,
+//     loadedOptions: any,
+//     { page }: any
+//   ) => {
+//     const perPage = 10;
+//     const response: any = await dispatch(
+//       fetchGames({ page, perPage, searchTerm: search })
+//     );
+//     const data = response.payload;
+//     const options: any[] = data?.data.result.map((game: any) => ({
+//       value: game._id,
+//       label: game.name,
+//     }));
+
+//     return {
+//       options,
+//       hasMore: page * perPage < data.data.totalItem,
+//       additional: { page: page + 1 },
+//     };
+//   };
+
+//   const loadDevicesOptions = async (
+//     search: string,
+//     loadedOptions: any,
+//     { page }: any
+//   ) => {
+//     const perPage = 10;
+//     const response: any = await dispatch(
+//       fetchDevices({ page, perPage, search })
+//     );
+//     const data = response.payload;
+//     const options: any[] = data?.data.result.map((game: any) => ({
+//       value: game._id,
+//       label: game.name,
+//     }));
+
+//     return {
+//       options,
+//       hasMore: page * perPage < data.data.totalItem,
+//       additional: { page: page + 1 },
+//     };
+//   };
+
+//   // Update playersPerTeam when format changes to 1v1
+//   React.useEffect(() => {
+//     if (values.format === "1v1") {
+//       setFieldValue("playersPerTeam", 1);
+//     }
+//   }, [values.format, setFieldValue]);
+
+//   return (
+//     <div className="max-w-[42.5rem] mx-auto genral_form-info mb-4">
+//       <h4 className="text-white mb-5 text-base font-medium text-center">
+//         General Information
+//       </h4>
+
+//       <div className="relative float-label-input custom-input mb-4">
+//         <Field
+//           type="text"
+//           id="title"
+//           name="title"
+//           placeholder=" "
+//           className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+//             touched.title && errors.title ? "border border-red-500" : ""
+//           }`}
+//         />
+//         <label
+//           htmlFor="title"
+//           className="absolute top-3 left-0 translate-y-[0.2rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
+//         >
+//           League Title
+//         </label>
+//         {touched.title && errors.title && (
+//           <div className="text-red-500 text-[0.7rem] mt-1">{errors.title}</div>
+//         )}
+//       </div>
+
+//       <div className="relative flex-1 custom-input mb-4">
+//         <AsyncPaginate
+//           id="game"
+//           name="game"
+//           value={values.game}
+//           loadOptions={loadGameOptions}
+//           onChange={(selected: any) => setFieldValue("game", selected)}
+//           additional={{ page: 1 }}
+//           placeholder="Select the game"
+//           styles={{
+//             control: (base) => ({
+//               ...base,
+//               backgroundColor: "#212739",
+//               border:
+//                 touched.game && errors.game ? "1px solid #ef4444" : "none",
+//               borderRadius: "0.52rem",
+//               paddingLeft: "0.75rem",
+//               color: "#fff",
+//               boxShadow: "none",
+//               "&:hover": { borderColor: "#2792FF" },
+//               "&:focus": { borderColor: "#2792FF" },
+//             }),
+//             input: (base) => ({
+//               ...base,
+//               color: "#fff",
+//               fontSize: "0.78125rem",
+//             }),
+//             singleValue: (base) => ({
+//               ...base,
+//               color: "#fff",
+//               fontSize: "0.78125rem",
+//             }),
+//             placeholder: (base) => ({
+//               ...base,
+//               color: "#6B7280",
+//               fontSize: "0.78125rem",
+//             }),
+//             menu: (base) => ({
+//               ...base,
+//               backgroundColor: "#212739",
+//               borderRadius: "0.52rem",
+//             }),
+//             option: (base, { isFocused, isSelected }) => ({
+//               ...base,
+//               backgroundColor: isSelected
+//                 ? "#007EFF"
+//                 : isFocused
+//                 ? "#2B3245"
+//                 : "#212739",
+//               color: "#fff",
+//               fontSize: "0.78125rem",
+//               padding: "0.5rem 0.75rem",
+//             }),
+//             dropdownIndicator: (base) => ({
+//               ...base,
+//               color: "#6B7280",
+//               "&:hover": { color: "#fff" },
+//             }),
+//           }}
+//           components={{
+//             DropdownIndicator: () => (
+//               <img
+//                 src={downarr}
+//                 alt="dropdown"
+//                 style={{ width: "16px", marginRight: "10px" }}
+//               />
+//             ),
+//           }}
+//         />
+//         {touched.game && errors.game && (
+//           <div className="text-red-500 text-[0.7rem] mt-1">{errors.game}</div>
+//         )}
+//       </div>
+//       <div className="relative flex-1 custom-input mb-4">
+//         <AsyncPaginate
+//           id="device"
+//           name="device"
+//           value={values.device}
+//           loadOptions={loadDevicesOptions}
+//           onChange={(selected: any) => setFieldValue("device", selected)}
+//           additional={{ page: 1 }}
+//           placeholder="Select the device"
+//           styles={{
+//             control: (base) => ({
+//               ...base,
+//               backgroundColor: "#212739",
+//               border:
+//                 touched.device && errors.device ? "1px solid #ef4444" : "none",
+//               borderRadius: "0.52rem",
+//               paddingLeft: "0.75rem",
+//               color: "#fff",
+//               boxShadow: "none",
+//               "&:hover": { borderColor: "#2792FF" },
+//               "&:focus": { borderColor: "#2792FF" },
+//             }),
+//             input: (base) => ({
+//               ...base,
+//               color: "#fff",
+//               fontSize: "0.78125rem",
+//             }),
+//             singleValue: (base) => ({
+//               ...base,
+//               color: "#fff",
+//               fontSize: "0.78125rem",
+//             }),
+//             placeholder: (base) => ({
+//               ...base,
+//               color: "#6B7280",
+//               fontSize: "0.78125rem",
+//             }),
+//             menu: (base) => ({
+//               ...base,
+//               backgroundColor: "#212739",
+//               borderRadius: "0.52rem",
+//             }),
+//             option: (base, { isFocused, isSelected }) => ({
+//               ...base,
+//               backgroundColor: isSelected
+//                 ? "#007EFF"
+//                 : isFocused
+//                 ? "#2B3245"
+//                 : "#212739",
+//               color: "#fff",
+//               fontSize: "0.78125rem",
+//               padding: "0.5rem 0.75rem",
+//             }),
+//             dropdownIndicator: (base) => ({
+//               ...base,
+//               color: "#6B7280",
+//               "&:hover": { color: "#fff" },
+//             }),
+//           }}
+//           components={{
+//             DropdownIndicator: () => (
+//               <img
+//                 src={downarr}
+//                 alt="dropdown"
+//                 style={{ width: "16px", marginRight: "10px" }}
+//               />
+//             ),
+//           }}
+//         />
+//         {touched.device && errors.device && (
+//           <div className="text-red-500 text-[0.7rem] mt-1">{errors.device}</div>
+//         )}
+//       </div>
+
+//       <div className="relative flex-1 custom-input mb-4">
+//         <label
+//           htmlFor="format"
+//           className="absolute top-3 left-0 translate-y-[-0.3rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
+//         >
+//           Format
+//         </label>
+//         <Field
+//           as="select"
+//           id="format"
+//           name="format"
+//           className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+//             touched.format && errors.format ? "border border-red-500" : ""
+//           }`}
+//           style={{
+//             backgroundImage: `url(${downarr})`,
+//             backgroundRepeat: "no-repeat",
+//             backgroundPosition: "right 10px center",
+//             backgroundSize: "16px 16px",
+//           }}
+//           onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+//             handleChange(e);
+//             if (e.target.value === "1v1") {
+//               setFieldValue("playersPerTeam", 1);
+//             }
+//           }}
+//         >
+//           <option value="" disabled>
+//             Select format
+//           </option>
+//           <option value="party queue">Party Queue</option>
+//           <option value="solo queue">Solo Queue</option>
+//           <option value="1v1">1v1</option>
+//         </Field>
+//         {touched.format && errors.format && (
+//           <div className="text-red-500 text-[0.7rem] mt-1">{errors.format}</div>
+//         )}
+//       </div>
+
+//       <div className="relative float-label-input custom-input mb-4">
+//         <Field
+//           type="number"
+//           id="playersPerTeam"
+//           name="playersPerTeam"
+//           placeholder=" "
+//           disabled={values.format === "1v1"}
+//           className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+//             touched.playersPerTeam && errors.playersPerTeam
+//               ? "border border-red-500"
+//               : ""
+//           } ${values.format === "1v1" ? "opacity-50 cursor-not-allowed" : ""}`}
+//         />
+//         <label
+//           htmlFor="playersPerTeam"
+//           className="absolute top-3 left-0 translate-y-[0.2rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
+//         >
+//           Players Per Team
+//         </label>
+//         {touched.playersPerTeam && errors.playersPerTeam && (
+//           <div className="text-red-500 text-[0.7rem] mt-1">
+//             {errors.playersPerTeam}
+//           </div>
+//         )}
+//       </div>
+//       <div className="grid grid-cols-2 gap-3 mb-4">
+//         <div className="relative float-label-input custom-input">
+//           <Field
+//             type="date"
+//             id="startDate"
+//             name="startDate"
+//             placeholder=" "
+//             className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+//               touched.startDate && errors.startDate
+//                 ? "border border-red-500"
+//                 : ""
+//             }`}
+//           />
+//           <label
+//             htmlFor="startDate"
+//             className="absolute top-3 left-0 translate-y-[0.2rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
+//           >
+//             Start Date
+//           </label>
+//           {touched.startDate && errors.startDate && (
+//             <div className="text-red-500 text-[0.7rem] mt-1">
+//               {errors.startDate}
+//             </div>
+//           )}
+//         </div>
+//         <div className="relative float-label-input custom-input">
+//           <Field
+//             type="date"
+//             id="endDate"
+//             name="endDate"
+//             value={values.endDate}
+//             placeholder=" "
+//             className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+//               touched.endDate && errors.endDate ? "border border-red-500" : ""
+//             }`}
+//           />
+//           <label
+//             htmlFor="endDate"
+//             className="absolute top-3 left-0 translate-y-[0.2rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
+//           >
+//             End Date
+//           </label>
+//           {touched.endDate && errors.endDate && (
+//             <div className="text-red-500 text-[0.7rem] mt-1">
+//               {errors.endDate}
+//             </div>
+//           )}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// // Step 2: League Details
 const LeagueStep2: FC<StepProps> = ({ step }) => {
   const { values, errors, touched, setFieldValue, handleChange } =
     useFormikContext<League>();
@@ -749,7 +1022,18 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                 {errors.queueSettings.schedule.days}
               </div>
             )}
-          <div className="grid grid-cols-2 gap-3 mt-10">
+                <div className="grid grid-cols-2 gap-3 mt-4">
+            <TimePickerField
+              label="Start Time"
+              name="queueSettings.schedule.startTime"
+
+            />
+            <TimePickerField
+              label="End Time"
+              name="queueSettings.schedule.endTime"
+            />
+          </div>
+          {/* <div className="grid grid-cols-2 gap-3 mt-10">
             <div className="relative">
               <Field
                 type="time"
@@ -792,7 +1076,7 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                   </div>
                 )}
             </div>
-          </div>
+          </div> */}
         </div>
       )}
 
