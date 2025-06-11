@@ -15,7 +15,10 @@ import {
   setSearchTerm,
 } from "../../app/features/trophies/trophiesSlice";
 import TrophiesModal from "./TrophiesModal";
-import { fetchBadges, fetchBadgeNames } from "../../app/features/badge/badgeSlice";
+import {
+  fetchBadges,
+  fetchBadgeNames,
+} from "../../app/features/badge/badgeSlice";
 import { TrophieType } from "../../app/types";
 import { BadgeNameType } from "../../app/types";
 import HandLogoLoader from "../Loader/Loader";
@@ -36,13 +39,14 @@ export const Trophie: React.FC = () => {
     searchTerm,
   } = useSelector((state: RootState) => state.trophy);
   const [showTrophieModal, setShowTrophieModal] = useState(false);
-  const [selectedTrophie, setSelectedTrophie] = useState<TrophieType | null>(null);
+  const [selectedTrophie, setSelectedTrophie] = useState<TrophieType | null>(
+    null
+  );
   const { badgeNames } = useSelector((state: RootState) => state.badge);
 
   useEffect(() => {
     dispatch(fetchTrophies({ page: currentPage, perPage, searchTerm }));
     dispatch(fetchBadgeNames());
-
   }, [dispatch, currentPage, perPage, searchTerm]);
 
   useEffect(() => {
@@ -79,7 +83,8 @@ export const Trophie: React.FC = () => {
       <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-between items-center pt-3 pb-[2rem] border-b border-light-border">
         <div className="legue__head_left-con">
           <h3 className="font-bold text-[1.25rem] text-white">
-            Trophies <span className="text-custom-gray">({trophies.length})</span>
+            Trophies{" "}
+            <span className="text-custom-gray">({trophies.length})</span>
           </h3>
         </div>
         <div className="legue__head_right-con flex-wrap flex gap-3 flex-1 justify-end">
@@ -102,7 +107,7 @@ export const Trophie: React.FC = () => {
             <div className="relative">
               <input
                 className="text-white font-medium block  bg-input-color w-full sm:w-[20.8rem] text-gray-700 border rounded-[0.625rem] py-[0.6rem] pl-[2.5rem] pr-3 text-[1.0625rem] focus:outline-none border-0"
-                placeholder="Search rules"
+                placeholder="Search trophies"
                 type="text"
                 name="search"
                 value={searchTerm}
@@ -132,20 +137,18 @@ export const Trophie: React.FC = () => {
           </button>
         </div>
       </div>
-        { loading ? (
-          <HandLogoLoader />
-        ) : trophies.length > 0 ? (
-       (
-          <TrophiesTable
-            data={trophies}
-            currentPage={currentPage}
-            onEditClick={(trophy) => {
-              setSelectedTrophie(trophy);
-              setShowTrophieModal(true);
-            }}
-            onDeleteClick={(trophyId) => setDeleteId(trophyId)}
-          />
-        )
+      {loading ? (
+        <HandLogoLoader />
+      ) : trophies.length > 0 ? (
+        <TrophiesTable
+          data={trophies}
+          currentPage={currentPage}
+          onEditClick={(trophy) => {
+            setSelectedTrophie(trophy);
+            setShowTrophieModal(true);
+          }}
+          onDeleteClick={(trophyId) => setDeleteId(trophyId)}
+        />
       ) : (
         <div className="text-custom-gray flex items-center justify-center h-20">
           No data found.

@@ -91,7 +91,7 @@ export const DeviceTable: React.FC<IDevicesProps> = ({
                     onEditClick({
                       _id: tdetail.id,
                       name: tdetail.name,
-                      logo: baseURL + "/" + tdetail.picture,
+                      logo: tdetail.picture,
                     })
                   }
                 >

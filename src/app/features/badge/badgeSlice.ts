@@ -189,6 +189,18 @@ const badgesSlice = createSlice({
         state.error = action.payload as string;
         toast.error("Failed to update badge!");
       })
+      .addCase(deleteBadges.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(deleteBadges.fulfilled, (state) => {
+        state.loading = false;
+        toast.success("Badge deleted succesfully!");
+      })
+      .addCase(deleteBadges.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        toast.error("Failed to deleted badge!");
+      })
       .addCase(fetchBadgeNames.pending, (state) => {
         state.loading = true;
       })

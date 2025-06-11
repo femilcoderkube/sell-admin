@@ -127,19 +127,17 @@ export const Badge: React.FC = () => {
         </div>
       </div>
       {loading ? (
-          <HandLogoLoader />
-        ) :badges.length > 0 ? (
-         (
-          <PartnersTable
-            data={badges}
-            currentPage={currentPage}
-            onEditClick={(badge) => {
-              setSelectedBadge(badge);
-              setShowBadgeModal(true);
-            }}
-            onDeleteClick={(badgeId) => setDeleteId(badgeId)}
-          />
-        )
+        <HandLogoLoader />
+      ) : badges.length > 0 ? (
+        <PartnersTable
+          data={badges}
+          currentPage={currentPage}
+          onEditClick={(badge) => {
+            setSelectedBadge(badge);
+            setShowBadgeModal(true);
+          }}
+          onDeleteClick={(badgeId) => setDeleteId(badgeId)}
+        />
       ) : (
         <div className="text-custom-gray flex items-center justify-center h-20">
           No data found.
