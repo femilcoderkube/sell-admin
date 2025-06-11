@@ -61,7 +61,7 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({
   const handleDelete = (id: string) => {
     if (window.confirm("Are you sure you want to delete this league?")) {
       dispatch(deleteLeague(id));
-      dispatch(fetchLeagues({ page: 1 }));
+      dispatch(fetchLeagues({ partnerId :partnerId , page: 1 }));
       dispatch(setPage(1));
     }
   };
