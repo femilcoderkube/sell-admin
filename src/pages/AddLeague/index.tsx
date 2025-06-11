@@ -12,7 +12,6 @@ import { fetchGames } from "../../app/features/games/gameSlice";
 import { fetchPartners } from "../../app/features/partners/partnerSlice";
 import { fetchDevices } from "../../app/features/devices/deviceSlice";
 import { uploadFile } from "../../app/features/fileupload/fileUploadSlice";
-
 import downarr from "../../assets/images/down_arr.svg";
 import deleteIcon from "../../assets/images/trash_can.svg";
 import { baseURL } from "../../axios";
@@ -174,6 +173,12 @@ const validationSchema = Yup.object().shape({
   ),
   logo: Yup.mixed().required("Logo is required"),
   rules: Yup.mixed().required("Rules PDF is required"),
+  startDate: Yup.date()
+    .required("Start date is required")
+    .min(new Date(), "Start date cannot be in the past"),
+  endDate: Yup.date()
+    .required("End date is required")
+    .min(Yup.ref("startDate"), "End date must be after start date"),
 });
 
 // Step 1: General Information
@@ -571,6 +576,56 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
             {errors.playersPerTeam}
           </div>
         )}
+      </div>
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="relative float-label-input custom-input">
+          <Field
+            type="date"
+            // value={values.startDate}
+            id="startDate"
+            name="startDate"
+            placeholder=" "
+            className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+              touched.startDate && errors.startDate
+                ? "border border-red-500"
+                : ""
+            }`}
+          />
+          <label
+            htmlFor="startDate"
+            className="absolute top-3 left-0 translate-y-[0.2rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
+          >
+            Start Date
+          </label>
+          {touched.startDate && errors.startDate && (
+            <div className="text-red-500 text-[0.7rem] mt-1">
+              {errors.startDate}
+            </div>
+          )}
+        </div>
+        <div className="relative float-label-input custom-input">
+          <Field
+            type="date"
+            id="endDate"
+            name="endDate"
+            value={values.endDate}
+            placeholder=" "
+            className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+              touched.endDate && errors.endDate ? "border border-red-500" : ""
+            }`}
+          />
+          <label
+            htmlFor="endDate"
+            className="absolute top-3 left-0 translate-y-[0.2rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
+          >
+            End Date
+          </label>
+          {touched.endDate && errors.endDate && (
+            <div className="text-red-500 text-[0.7rem] mt-1">
+              {errors.endDate}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -1150,6 +1205,12 @@ export const AddLeague: FC = () => {
         ? leagueData?.customRegistrationFields
         : [],
     logo: leagueData?.logo ? leagueData?.logo : null,
+    startDate: leagueData?.startDate
+      ? new Date(leagueData?.startDate).toISOString().split("T")[0]
+      : "",
+    endDate: leagueData?.endDate
+      ? new Date(leagueData?.endDate).toISOString().split("T")[0]
+      : "",
   });
 
   const handleSubmit = (values: League) => {
@@ -1168,6 +1229,8 @@ export const AddLeague: FC = () => {
       timeLine: values.timeLine,
       customRegistrationFields: values.customRegistrationFields,
       logo: values.logo,
+      startDate: values.startDate,
+      endDate: values.endDate,
     };
 
     if (location?.state?._id) {
@@ -1195,7 +1258,16 @@ export const AddLeague: FC = () => {
   ) => {
     validateForm().then((errors) => {
       const stepFields = {
-        1: ["title", "game", "partner", "device", "format", "playersPerTeam"],
+        1: [
+          "title",
+          "game",
+          "partner",
+          "device",
+          "format",
+          "playersPerTeam",
+          "startDate",
+          "endDate",
+        ],
         2: [
           "maxMatchesPerPlayer",
           "queueSettings",
@@ -1240,7 +1312,16 @@ export const AddLeague: FC = () => {
   ) => {
     validateForm().then((errors) => {
       const stepFields = {
-        1: ["title", "game", "partner", "device", "format", "playersPerTeam"],
+        1: [
+          "title",
+          "game",
+          "partner",
+          "device",
+          "format",
+          "playersPerTeam",
+          "startDate",
+          "endDate",
+        ],
         2: [
           "maxMatchesPerPlayer",
           "queueSettings",

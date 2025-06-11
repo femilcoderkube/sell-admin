@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   deleteLeague,
   fetchLeagueById,
+  fetchLeagues,
 } from "../../app/features/league/leagueSlice";
 
 import edit from "../../assets/images/Edit.svg";
@@ -14,10 +15,14 @@ import { League } from "../../app/types";
 import { baseURL } from "../../axios";
 
 interface LeagueTableProps {
+  currentPage: any;
   leagues: League[];
 }
 
-export const LeagueTable: React.FC<LeagueTableProps> = ({ leagues }) => {
+export const LeagueTable: React.FC<LeagueTableProps> = ({
+  currentPage,
+  leagues,
+}) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -55,6 +60,7 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({ leagues }) => {
   const handleDelete = (id: string) => {
     if (window.confirm("Are you sure you want to delete this league?")) {
       dispatch(deleteLeague(id));
+      dispatch(fetchLeagues({ page: currentPage }));
     }
   };
 

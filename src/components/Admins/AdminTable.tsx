@@ -103,16 +103,18 @@ export const AdminTable: React.FC<IAdminProps> = ({
               <td className="text-[1.0625rem] py-3">{tdetail.adminAccess}</td>
               <td className="text-[1.0625rem] py-3">{tdetail.lastLoginDate}</td> */}
               <td className="text-[1.0625rem] py-3 flex space-x-3 justify-center">
-               {tdetail.role != "Superadmin" &&  <button
-                  style={{
-                    background:
-                      "radial-gradient(circle, #39415C 0%, #555F83 100%)",
-                  }}
-                  className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
-                  onClick={() => onEditClick(data[index])}
-                >
-                  {tdetail.actions.edit}
-                </button>}
+                {tdetail.role != "Superadmin" && (
+                  <button
+                    style={{
+                      background:
+                        "radial-gradient(circle, #39415C 0%, #555F83 100%)",
+                    }}
+                    className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
+                    onClick={() => onEditClick(data[index])}
+                  >
+                    {tdetail.actions.edit}
+                  </button>
+                )}
                 <button
                   style={{
                     background:

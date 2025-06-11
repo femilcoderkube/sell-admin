@@ -4,7 +4,6 @@ import axiosInstance from "../../../axios";
 import toast from "react-hot-toast";
 import { User, UsersState } from "../../types";
 
-
 const initialState: UsersState = {
   users: [],
   loading: false,
@@ -12,6 +11,7 @@ const initialState: UsersState = {
   currentPage: 1,
   perPage: 10,
   totalPages: 0,
+  totalItem: 0,
   searchTerm: "",
   userDetail: null,
   bannedUsers: [],
@@ -20,7 +20,11 @@ const initialState: UsersState = {
 export const fetchUsers = createAsyncThunk(
   "users/fetchUsers",
   async (
-    { page, perPage, searchTerm }: { page: number; perPage: number; searchTerm: string },
+    {
+      page,
+      perPage,
+      searchTerm,
+    }: { page: number; perPage: number; searchTerm: string },
     { rejectWithValue }
   ) => {
     try {
@@ -42,7 +46,11 @@ export const fetchUsers = createAsyncThunk(
 export const fetchBannedUsers = createAsyncThunk(
   "users/fetchBannedUsers",
   async (
-    { page, perPage, searchTerm }: { page: number; perPage: number; searchTerm: string },
+    {
+      page,
+      perPage,
+      searchTerm,
+    }: { page: number; perPage: number; searchTerm: string },
     { rejectWithValue }
   ) => {
     try {
@@ -95,7 +103,10 @@ export const addUser = createAsyncThunk(
 
 export const updateUser = createAsyncThunk(
   "users/updateUser",
-  async ({ id, user }: { id: string; user: Partial<User> }, { rejectWithValue }) => {
+  async (
+    { id, user }: { id: string; user: Partial<User> },
+    { rejectWithValue }
+  ) => {
     try {
       const response = await axiosInstance.put(`/users?id=${id}`, user, {
         headers: {
@@ -150,6 +161,7 @@ const usersSlice = createSlice({
         state.loading = false;
         state.users = action.payload.data?.result;
         state.totalPages = action.payload.data.totalPages;
+        state.totalItem = action.payload.data.totalItem;
       })
       .addCase(fetchUsers.rejected, (state, action) => {
         state.loading = false;
@@ -162,6 +174,7 @@ const usersSlice = createSlice({
         state.loading = false;
         state.bannedUsers = action.payload.data?.result;
         state.totalPages = action.payload.data.totalPages;
+        state.totalItem = action.payload.data.totalItem;
       })
       .addCase(fetchBannedUsers.rejected, (state, action) => {
         state.loading = false;
@@ -201,6 +214,18 @@ const usersSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
         toast.error("Failed to update user!");
+      })
+      .addCase(deleteUser.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(deleteUser.fulfilled, (state) => {
+        state.loading = false;
+        toast.success("User deleted successfully!");
+      })
+      .addCase(deleteUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        toast.error("Failed to deleted user!");
       });
   },
 });

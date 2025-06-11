@@ -3,7 +3,14 @@ import { UsersTable } from "./UsersTable";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../app/store";
 import { Pagination } from "../ui/Pagination";
-import { setPage, setPerPage, setSearchTerm, fetchUsers, deleteUser, updateUser } from "../../app/features/users/usersSlice";
+import {
+  setPage,
+  setPerPage,
+  setSearchTerm,
+  fetchUsers,
+  deleteUser,
+  updateUser,
+} from "../../app/features/users/usersSlice";
 import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
 import { User as UserType } from "../../app/types";
 import UsersModel from "./UsersModel";
@@ -30,10 +37,19 @@ const ROLES = [
   "Club Owner",
 ];
 
-
 export const User: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { users, loading, error, currentPage, perPage, totalPages, searchTerm } = useSelector((state: RootState) => state.users);
+  const {
+    users,
+    loading,
+    error,
+    currentPage,
+    perPage,
+    totalPages,
+    searchTerm,
+    totalItem,
+  } = useSelector((state: RootState) => state.users);
+
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string>("");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -78,7 +94,9 @@ export const User: React.FC = () => {
 
   const handleEditSave = async (form: any) => {
     if (selectedUser) {
-      const resultAction = await dispatch(updateUser({ id: selectedUser._id, user: form }));
+      const resultAction = await dispatch(
+        updateUser({ id: selectedUser._id, user: form })
+      );
       if (updateUser.fulfilled.match(resultAction)) {
         setIsEditModalOpen(false);
         setSelectedUser(null);
@@ -92,7 +110,7 @@ export const User: React.FC = () => {
       <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-between items-center pt-3 pb-[2rem] border-b border-light-border">
         <div className="legue__head_left-con">
           <h3 className="font-bold text-[1.25rem] text-white">
-            All users <span className="text-custom-gray">({users.length})</span>
+            All users <span className="text-custom-gray">({totalItem})</span>
           </h3>
         </div>
         <div className="legue__head_right-con flex-wrap flex gap-3 flex-1 justify-end">
@@ -169,15 +187,15 @@ export const User: React.FC = () => {
           </a> */}
         </div>
       </div>
-      {loading ? (       
-          <HandLogoLoader />
+      {loading ? (
+        <HandLogoLoader />
       ) : users.length > 0 ? (
-        <UsersTable 
-          users={users} 
-          loading={loading} 
-          error={error} 
-          onEditClick={handleEditClick} 
-          onDeleteClick={handleDeleteClick} 
+        <UsersTable
+          users={users}
+          loading={loading}
+          error={error}
+          onEditClick={handleEditClick}
+          onDeleteClick={handleDeleteClick}
         />
       ) : (
         <div className="text-custom-gray flex items-center justify-center h-20">

@@ -236,6 +236,7 @@ export interface UsersState {
   currentPage: number;
   perPage: number;
   totalPages: number;
+  totalItem: number;
   searchTerm: string;
   userDetail: User | null;
   bannedUsers: User[];

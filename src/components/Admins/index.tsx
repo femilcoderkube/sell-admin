@@ -79,7 +79,7 @@ export const Admins: React.FC = () => {
   };
   const [selectedAdmin, setSelectedAdmin] = useState<AdminType | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
-  
+
   // Add this function to handle edit button click
   const handleEditClick = (admin: AdminType) => {
     setSelectedAdmin(admin);
@@ -91,7 +91,7 @@ export const Admins: React.FC = () => {
       <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-between items-center pt-3 pb-[2rem] border-b border-light-border">
         <div className="legue__head_left-con">
           <h3 className="font-bold text-[1.25rem] text-white">
-            Admins <span className="text-custom-gray">({admins.length})</span>
+            Admins <span className="text-custom-gray">({totalCount})</span>
           </h3>
         </div>
         <div className="legue__head_right-con flex-wrap flex gap-3 flex-1 justify-end">
@@ -145,17 +145,15 @@ export const Admins: React.FC = () => {
         </div>
       </div>
       {loading ? (
-          <HandLogoLoader />
-        ) : admins.length > 0 ? (
-         (
-          <AdminTable
-            data={admins}
-            currentPage={currentPage}
-            onEditClick={handleEditClick} // Update this line
-            onDeleteClick={(adminId) => setDeleteId(adminId)}
-            handleViewClick={(adminAccess) => handleViewClick(adminAccess)}
-          />
-        )
+        <HandLogoLoader />
+      ) : admins.length > 0 ? (
+        <AdminTable
+          data={admins}
+          currentPage={currentPage}
+          onEditClick={handleEditClick} // Update this line
+          onDeleteClick={(adminId) => setDeleteId(adminId)}
+          handleViewClick={(adminAccess) => handleViewClick(adminAccess)}
+        />
       ) : (
         <div className="text-custom-gray flex items-center justify-center h-20">
           No data found.
@@ -186,10 +184,10 @@ export const Admins: React.FC = () => {
         onClose={closeModal}
         adminId={adminAccessId}
       />
-      <EditAdminModal 
-        show={isEditModalOpen} 
-        onClose={() => setIsEditModalOpen(false)} 
-        selectedAdmin={selectedAdmin} 
+      <EditAdminModal
+        show={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        selectedAdmin={selectedAdmin}
       />
     </>
   );
