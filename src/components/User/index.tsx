@@ -193,6 +193,7 @@ export const User: React.FC = () => {
         <UsersTable
           users={users}
           loading={loading}
+          currentPage={currentPage}
           error={error}
           onEditClick={handleEditClick}
           onDeleteClick={handleDeleteClick}

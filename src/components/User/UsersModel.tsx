@@ -73,10 +73,12 @@ const Switch = ({
 const validationSchema = Yup.object({
   firstName: Yup.string()
     .required("First name is required")
-    .min(2, "First name must be at least 2 characters"),
+    .min(2, "First name must be at least 2 characters")
+    .matches(/^\S.*\S$/, "Name cannot start or end with spaces"),
   lastName: Yup.string()
     .required("Last name is required")
-    .min(2, "Last name must be at least 2 characters"),
+    .min(2, "Last name must be at least 2 characters")
+    .matches(/^\S.*\S$/, "Name cannot start or end with spaces"),
   role: Yup.string().required("Role is required"),
   gender: Yup.string().required("Gender is required"),
 });

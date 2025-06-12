@@ -12,9 +12,17 @@ interface UsersTableProps {
   error: string | null;
   onEditClick: (user: any) => void;
   onDeleteClick: (id: string) => void;
+  currentPage: any;
 }
 
-export const UsersTable: React.FC<UsersTableProps> = ({ users, loading, error, onEditClick, onDeleteClick }) => {
+export const UsersTable: React.FC<UsersTableProps> = ({
+  users,
+  loading,
+  error,
+  onEditClick,
+  onDeleteClick,
+  currentPage,
+}) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const handleDelete = (id: string) => {
@@ -89,37 +97,58 @@ export const UsersTable: React.FC<UsersTableProps> = ({ users, loading, error, o
           {users && users.length > 0 ? (
             users.map((user, idx) => (
               <tr key={user._id} className="border-b border-light-border">
-                <td className="text-[1.0625rem] py-3">{idx + 1}</td>
+                <td className="text-[1.0625rem] py-3">
+                  {(currentPage - 1) * 10 + idx + 1}
+                </td>
                 <td className="text-[1.0625rem] py-3">{user.username}</td>
                 <td className="text-[1.0625rem] py-3">{user.email}</td>
                 <td className="text-[1.0625rem] py-3">{user.role}</td>
                 <td className="text-[1.0625rem] py-3">
-                  {user.lastLoginDate 
-                    ? new Date(user.lastLoginDate).toLocaleString() 
+                  {user.lastLoginDate
+                    ? new Date(user.lastLoginDate).toLocaleString()
                     : "-"}
                 </td>
                 <td className="text-[1.0625rem] py-3">{user.phone || "-"}</td>
-                <td className="text-[1.0625rem] py-3">{user.ipAddress || "-"}</td>
+                <td className="text-[1.0625rem] py-3">
+                  {user.ipAddress || "-"}
+                </td>
                 <td className="text-[1.0625rem] py-3 flex space-x-3 justify-center">
                   <button
                     onClick={() => handleEdit(user)}
-                    style={{ background: "radial-gradient(circle, #39415C 0%, #555F83 100%)" }}
+                    style={{
+                      background:
+                        "radial-gradient(circle, #39415C 0%, #555F83 100%)",
+                    }}
                     className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
                   >
                     <img src={edit} alt="Edit" style={{ width: "1.26rem" }} />
                   </button>
                   <button
                     onClick={() => handleDelete(user._id)}
-                    style={{ background: "radial-gradient(circle, #39415C 0%, #555F83 100%)" }}
+                    style={{
+                      background:
+                        "radial-gradient(circle, #39415C 0%, #555F83 100%)",
+                    }}
                     className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
                   >
-                    <img src={deleteIcon} alt="Delete" style={{ width: "1.26rem" }} />
+                    <img
+                      src={deleteIcon}
+                      alt="Delete"
+                      style={{ width: "1.26rem" }}
+                    />
                   </button>
                   <button
-                    style={{ background: "radial-gradient(circle, #39415C 0%, #555F83 100%)" }}
+                    style={{
+                      background:
+                        "radial-gradient(circle, #39415C 0%, #555F83 100%)",
+                    }}
                     className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
                   >
-                    <img src={viewIcon} alt="View" style={{ width: "1.26rem" }} />
+                    <img
+                      src={viewIcon}
+                      alt="View"
+                      style={{ width: "1.26rem" }}
+                    />
                   </button>
                 </td>
               </tr>
