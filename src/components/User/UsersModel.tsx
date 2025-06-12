@@ -81,6 +81,9 @@ const validationSchema = Yup.object({
     .matches(/^\S.*\S$/, "Name cannot start or end with spaces"),
   role: Yup.string().required("Role is required"),
   gender: Yup.string().required("Gender is required"),
+  phone :Yup.string().required("Phone is required"),
+  nationality: Yup.string().required("Nationality is required"),
+  
 });
 
 const UsersModel: React.FC<UsersModelProps> = ({
