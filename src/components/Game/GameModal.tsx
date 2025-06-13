@@ -24,11 +24,13 @@ const gameSchema = Yup.object().shape({
   name: Yup.string()
     // .min(3, "Name must be at least 3 characters")
     .max(50, "Name cannot exceed 50 characters")
-    .required("Game name is required"),
+    .required("Game name is required")
+    .matches(/^\S.*\S$/, "Name cannot start or end with spaces"),
   shortName: Yup.string()
     .min(2, "Short name must be at least 2 characters")
     .max(20, "Short name cannot exceed 20 characters")
-    .required("Short name is required"),
+    .required("Short name is required")
+    .matches(/^\S.*\S$/, "Name cannot start or end with spaces"),
   color: Yup.string()
     .matches(/^#[0-9A-F]{6}$/i, "Invalid hex color code")
     .required("Color is required"),
