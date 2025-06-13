@@ -22,7 +22,7 @@ interface ModalProps {
 // Validation schema
 const gameSchema = Yup.object().shape({
   name: Yup.string()
-    .min(3, "Name must be at least 3 characters")
+    // .min(3, "Name must be at least 3 characters")
     .max(50, "Name cannot exceed 50 characters")
     .required("Game name is required"),
   shortName: Yup.string()
