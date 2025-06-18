@@ -189,8 +189,8 @@ textarea:focus {
   border-radius: 8px;
   padding: 20px 20px 40px;
   margin: 30px auto 0;
-  max-width: 650px;
-  display: flex;
+  max-width: 350px;
+  /* display: flex; */
   flex-direction: column;
   gap: 15px;
 }

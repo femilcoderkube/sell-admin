@@ -89,7 +89,7 @@ export const addUser = createAsyncThunk(
     try {
       const response = await axiosInstance.post("/users", user, {
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
         },
       });
       return response.data;

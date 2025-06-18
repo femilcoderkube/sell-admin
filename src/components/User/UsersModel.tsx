@@ -81,9 +81,8 @@ const validationSchema = Yup.object({
     .matches(/^\S.*\S$/, "Name cannot start or end with spaces"),
   role: Yup.string().required("Role is required"),
   gender: Yup.string().required("Gender is required"),
-  phone :Yup.string().required("Phone is required"),
+  phone: Yup.string().required("Phone is required"),
   nationality: Yup.string().required("Nationality is required"),
-  
 });
 
 const UsersModel: React.FC<UsersModelProps> = ({
@@ -171,7 +170,7 @@ const UsersModel: React.FC<UsersModelProps> = ({
         <div className="relative bg-dark-blue rounded-lg shadow-sm dark:bg-gray-700">
           <div className="relative p-4 md:p-5 border-b rounded-t border-light-border">
             <h3 className="text-[1.5rem] font-semibold text-white text-center">
-              Edit User
+              {selectedUser ? "Edit User" : "Add User"}
             </h3>
             <button
               type="button"

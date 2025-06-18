@@ -29,6 +29,7 @@ interface Winner {
 
 interface League {
   title: string;
+  titleAr: string;
   partner: { value: string; label: string } | null;
   game: { value: string; label: string } | null;
   device: { value: string; label: string } | null;
@@ -52,7 +53,10 @@ interface League {
   rules: File | null;
   timeLine: Array<{
     title: string;
+    titleAr: string;
     description: string;
+    startDate: string;
+    endDate: string;
   }>;
   customRegistrationFields: Array<{
     fieldName: string;
@@ -79,6 +83,7 @@ interface StepProps {
 // Validation Schema
 const validationSchema = Yup.object().shape({
   title: Yup.string().required("League Title is required"),
+  titleAr: Yup.string().required("League Title (Arabic) is required"),
   game: Yup.object()
     .shape({
       value: Yup.string().required(),
@@ -156,7 +161,12 @@ const validationSchema = Yup.object().shape({
     .of(
       Yup.object().shape({
         title: Yup.string().required("Timeline title is required"),
-        description: Yup.string().required("Timeline description is required"),
+        titleAr: Yup.string().required("Timeline title is required"),
+        startDate: Yup.date().required("Start date is required"),
+        endDate: Yup.date()
+          .required("End date is required")
+          .min(Yup.ref("startDate"), "End date must be after start date"),
+        // description: Yup.string().required("Timeline description is required"),
       })
     )
     .min(1, "At least one timeline entry is required"),
@@ -265,6 +275,26 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
         </label>
         {touched.title && errors.title && (
           <div className="text-red-500 text-[0.7rem] mt-1">{errors.title}</div>
+        )}
+      </div>
+      <div className="relative float-label-input custom-input mb-4">
+        <Field
+          type="text"
+          id="titleAr"
+          name="titleAr"
+          placeholder=" "
+          className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal`}
+        />
+        <label
+          htmlFor="titleAr"
+          className="absolute top-3 left-0 translate-y-[0.2rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
+        >
+          لقب الدوري
+        </label>
+        {touched.titleAr && errors.titleAr && (
+          <div className="text-red-500 text-[0.7rem] mt-1">
+            {errors.titleAr}
+          </div>
         )}
       </div>
 
@@ -597,355 +627,6 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
   );
 };
 
-// // Step 1: General Information
-// const LeagueStep1: FC<StepProps> = ({ step }) => {
-//   const dispatch = useDispatch();
-//   const { values, errors, touched, setFieldValue, handleChange } =
-//     useFormikContext<League>();
-
-//   const loadGameOptions = async (
-//     search: string,
-//     loadedOptions: any,
-//     { page }: any
-//   ) => {
-//     const perPage = 10;
-//     const response: any = await dispatch(
-//       fetchGames({ page, perPage, searchTerm: search })
-//     );
-//     const data = response.payload;
-//     const options: any[] = data?.data.result.map((game: any) => ({
-//       value: game._id,
-//       label: game.name,
-//     }));
-
-//     return {
-//       options,
-//       hasMore: page * perPage < data.data.totalItem,
-//       additional: { page: page + 1 },
-//     };
-//   };
-
-//   const loadDevicesOptions = async (
-//     search: string,
-//     loadedOptions: any,
-//     { page }: any
-//   ) => {
-//     const perPage = 10;
-//     const response: any = await dispatch(
-//       fetchDevices({ page, perPage, search })
-//     );
-//     const data = response.payload;
-//     const options: any[] = data?.data.result.map((game: any) => ({
-//       value: game._id,
-//       label: game.name,
-//     }));
-
-//     return {
-//       options,
-//       hasMore: page * perPage < data.data.totalItem,
-//       additional: { page: page + 1 },
-//     };
-//   };
-
-//   // Update playersPerTeam when format changes to 1v1
-//   React.useEffect(() => {
-//     if (values.format === "1v1") {
-//       setFieldValue("playersPerTeam", 1);
-//     }
-//   }, [values.format, setFieldValue]);
-
-//   return (
-//     <div className="max-w-[42.5rem] mx-auto genral_form-info mb-4">
-//       <h4 className="text-white mb-5 text-base font-medium text-center">
-//         General Information
-//       </h4>
-
-//       <div className="relative float-label-input custom-input mb-4">
-//         <Field
-//           type="text"
-//           id="title"
-//           name="title"
-//           placeholder=" "
-//           className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
-//             touched.title && errors.title ? "border border-red-500" : ""
-//           }`}
-//         />
-//         <label
-//           htmlFor="title"
-//           className="absolute top-3 left-0 translate-y-[0.2rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
-//         >
-//           League Title
-//         </label>
-//         {touched.title && errors.title && (
-//           <div className="text-red-500 text-[0.7rem] mt-1">{errors.title}</div>
-//         )}
-//       </div>
-
-//       <div className="relative flex-1 custom-input mb-4">
-//         <AsyncPaginate
-//           id="game"
-//           name="game"
-//           value={values.game}
-//           loadOptions={loadGameOptions}
-//           onChange={(selected: any) => setFieldValue("game", selected)}
-//           additional={{ page: 1 }}
-//           placeholder="Select the game"
-//           styles={{
-//             control: (base) => ({
-//               ...base,
-//               backgroundColor: "#212739",
-//               border:
-//                 touched.game && errors.game ? "1px solid #ef4444" : "none",
-//               borderRadius: "0.52rem",
-//               paddingLeft: "0.75rem",
-//               color: "#fff",
-//               boxShadow: "none",
-//               "&:hover": { borderColor: "#2792FF" },
-//               "&:focus": { borderColor: "#2792FF" },
-//             }),
-//             input: (base) => ({
-//               ...base,
-//               color: "#fff",
-//               fontSize: "0.78125rem",
-//             }),
-//             singleValue: (base) => ({
-//               ...base,
-//               color: "#fff",
-//               fontSize: "0.78125rem",
-//             }),
-//             placeholder: (base) => ({
-//               ...base,
-//               color: "#6B7280",
-//               fontSize: "0.78125rem",
-//             }),
-//             menu: (base) => ({
-//               ...base,
-//               backgroundColor: "#212739",
-//               borderRadius: "0.52rem",
-//             }),
-//             option: (base, { isFocused, isSelected }) => ({
-//               ...base,
-//               backgroundColor: isSelected
-//                 ? "#007EFF"
-//                 : isFocused
-//                 ? "#2B3245"
-//                 : "#212739",
-//               color: "#fff",
-//               fontSize: "0.78125rem",
-//               padding: "0.5rem 0.75rem",
-//             }),
-//             dropdownIndicator: (base) => ({
-//               ...base,
-//               color: "#6B7280",
-//               "&:hover": { color: "#fff" },
-//             }),
-//           }}
-//           components={{
-//             DropdownIndicator: () => (
-//               <img
-//                 src={downarr}
-//                 alt="dropdown"
-//                 style={{ width: "16px", marginRight: "10px" }}
-//               />
-//             ),
-//           }}
-//         />
-//         {touched.game && errors.game && (
-//           <div className="text-red-500 text-[0.7rem] mt-1">{errors.game}</div>
-//         )}
-//       </div>
-//       <div className="relative flex-1 custom-input mb-4">
-//         <AsyncPaginate
-//           id="device"
-//           name="device"
-//           value={values.device}
-//           loadOptions={loadDevicesOptions}
-//           onChange={(selected: any) => setFieldValue("device", selected)}
-//           additional={{ page: 1 }}
-//           placeholder="Select the device"
-//           styles={{
-//             control: (base) => ({
-//               ...base,
-//               backgroundColor: "#212739",
-//               border:
-//                 touched.device && errors.device ? "1px solid #ef4444" : "none",
-//               borderRadius: "0.52rem",
-//               paddingLeft: "0.75rem",
-//               color: "#fff",
-//               boxShadow: "none",
-//               "&:hover": { borderColor: "#2792FF" },
-//               "&:focus": { borderColor: "#2792FF" },
-//             }),
-//             input: (base) => ({
-//               ...base,
-//               color: "#fff",
-//               fontSize: "0.78125rem",
-//             }),
-//             singleValue: (base) => ({
-//               ...base,
-//               color: "#fff",
-//               fontSize: "0.78125rem",
-//             }),
-//             placeholder: (base) => ({
-//               ...base,
-//               color: "#6B7280",
-//               fontSize: "0.78125rem",
-//             }),
-//             menu: (base) => ({
-//               ...base,
-//               backgroundColor: "#212739",
-//               borderRadius: "0.52rem",
-//             }),
-//             option: (base, { isFocused, isSelected }) => ({
-//               ...base,
-//               backgroundColor: isSelected
-//                 ? "#007EFF"
-//                 : isFocused
-//                 ? "#2B3245"
-//                 : "#212739",
-//               color: "#fff",
-//               fontSize: "0.78125rem",
-//               padding: "0.5rem 0.75rem",
-//             }),
-//             dropdownIndicator: (base) => ({
-//               ...base,
-//               color: "#6B7280",
-//               "&:hover": { color: "#fff" },
-//             }),
-//           }}
-//           components={{
-//             DropdownIndicator: () => (
-//               <img
-//                 src={downarr}
-//                 alt="dropdown"
-//                 style={{ width: "16px", marginRight: "10px" }}
-//               />
-//             ),
-//           }}
-//         />
-//         {touched.device && errors.device && (
-//           <div className="text-red-500 text-[0.7rem] mt-1">{errors.device}</div>
-//         )}
-//       </div>
-
-//       <div className="relative flex-1 custom-input mb-4">
-//         <label
-//           htmlFor="format"
-//           className="absolute top-3 left-0 translate-y-[-0.3rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
-//         >
-//           Format
-//         </label>
-//         <Field
-//           as="select"
-//           id="format"
-//           name="format"
-//           className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
-//             touched.format && errors.format ? "border border-red-500" : ""
-//           }`}
-//           style={{
-//             backgroundImage: `url(${downarr})`,
-//             backgroundRepeat: "no-repeat",
-//             backgroundPosition: "right 10px center",
-//             backgroundSize: "16px 16px",
-//           }}
-//           onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-//             handleChange(e);
-//             if (e.target.value === "1v1") {
-//               setFieldValue("playersPerTeam", 1);
-//             }
-//           }}
-//         >
-//           <option value="" disabled>
-//             Select format
-//           </option>
-//           <option value="party queue">Party Queue</option>
-//           <option value="solo queue">Solo Queue</option>
-//           <option value="1v1">1v1</option>
-//         </Field>
-//         {touched.format && errors.format && (
-//           <div className="text-red-500 text-[0.7rem] mt-1">{errors.format}</div>
-//         )}
-//       </div>
-
-//       <div className="relative float-label-input custom-input mb-4">
-//         <Field
-//           type="number"
-//           id="playersPerTeam"
-//           name="playersPerTeam"
-//           placeholder=" "
-//           disabled={values.format === "1v1"}
-//           className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
-//             touched.playersPerTeam && errors.playersPerTeam
-//               ? "border border-red-500"
-//               : ""
-//           } ${values.format === "1v1" ? "opacity-50 cursor-not-allowed" : ""}`}
-//         />
-//         <label
-//           htmlFor="playersPerTeam"
-//           className="absolute top-3 left-0 translate-y-[0.2rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
-//         >
-//           Players Per Team
-//         </label>
-//         {touched.playersPerTeam && errors.playersPerTeam && (
-//           <div className="text-red-500 text-[0.7rem] mt-1">
-//             {errors.playersPerTeam}
-//           </div>
-//         )}
-//       </div>
-//       <div className="grid grid-cols-2 gap-3 mb-4">
-//         <div className="relative float-label-input custom-input">
-//           <Field
-//             type="date"
-//             id="startDate"
-//             name="startDate"
-//             placeholder=" "
-//             className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
-//               touched.startDate && errors.startDate
-//                 ? "border border-red-500"
-//                 : ""
-//             }`}
-//           />
-//           <label
-//             htmlFor="startDate"
-//             className="absolute top-3 left-0 translate-y-[0.2rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
-//           >
-//             Start Date
-//           </label>
-//           {touched.startDate && errors.startDate && (
-//             <div className="text-red-500 text-[0.7rem] mt-1">
-//               {errors.startDate}
-//             </div>
-//           )}
-//         </div>
-//         <div className="relative float-label-input custom-input">
-//           <Field
-//             type="date"
-//             id="endDate"
-//             name="endDate"
-//             value={values.endDate}
-//             placeholder=" "
-//             className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
-//               touched.endDate && errors.endDate ? "border border-red-500" : ""
-//             }`}
-//           />
-//           <label
-//             htmlFor="endDate"
-//             className="absolute top-3 left-0 translate-y-[0.2rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
-//           >
-//             End Date
-//           </label>
-//           {touched.endDate && errors.endDate && (
-//             <div className="text-red-500 text-[0.7rem] mt-1">
-//               {errors.endDate}
-//             </div>
-//           )}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// // Step 2: League Details
 const LeagueStep2: FC<StepProps> = ({ step }) => {
   const { values, errors, touched, setFieldValue, handleChange } =
     useFormikContext<League>();
@@ -1220,37 +901,129 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                         </div>
                       )}
                   </div>
-                  <div className="relative float-label-input custom-input">
+                  <div className="relative float-label-input custom-input mt-4 mb-4">
                     <Field
                       type="text"
-                      id={`timeLine[${index}].description`}
-                      name={`timeLine[${index}].description`}
+                      id={`timeLine[${index}].titleAr`}
+                      name={`timeLine[${index}].titleAr`}
                       placeholder=" "
                       className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${
-                        touched.timeLine?.[index]?.description &&
-                        errors.timeLine?.[index]?.description
+                        touched.timeLine?.[index]?.titleAr &&
+                        errors.timeLine?.[index]?.titleAr
                           ? "border border-red-500"
                           : ""
                       }`}
                     />
                     <label
-                      htmlFor={`timeLine[${index}].description`}
+                      htmlFor={`timeLine[${index}].titleAr`}
                       className="absolute top-3 left-0 translate-y-[0.2rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
                     >
-                      Description
+                      عنوان
                     </label>
-                    {touched.timeLine?.[index]?.description &&
-                      errors.timeLine?.[index]?.description && (
+                    {touched.timeLine?.[index]?.titleAr &&
+                      errors.timeLine?.[index]?.titleAr && (
                         <div className="text-red-500 text-[0.7rem] mt-1">
-                          {errors.timeLine[index].description}
+                          {errors.timeLine[index].titleAr}
                         </div>
                       )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div className="relative float-label-input custom-input">
+                      <DatePicker
+                        selected={
+                          values.timeLine[index]?.startDate
+                            ? new Date(values.timeLine[index].startDate)
+                            : null
+                        }
+                        onChange={(date: Date) =>
+                          setFieldValue(
+                            `timeLine[${index}].startDate`,
+                            date ? date.toISOString().split("T")[0] : ""
+                          )
+                        }
+                        dateFormat="yyyy-MM-dd"
+                        className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+                          touched.timeLine?.[index]?.startDate &&
+                          errors.timeLine?.[index]?.startDate
+                            ? "border border-red-500"
+                            : ""
+                        }`}
+                        id={`timeLine[${index}].startDate`}
+                        name={`timeLine[${index}].startDate`}
+                        placeholderText="Select start date"
+                        autoComplete="off"
+                        minDate={new Date()}
+                        popperPlacement="bottom-start"
+                        wrapperClassName="w-full"
+                        calendarClassName="custom-datepicker"
+                      />
+                      <label
+                        htmlFor={`timeLine[${index}].startDate`}
+                        className="absolute top-3 left-0 translate-y-[0.2rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
+                      >
+                        Start Date
+                      </label>
+                      {touched.timeLine?.[index]?.startDate &&
+                        errors.timeLine?.[index]?.startDate && (
+                          <div className="text-red-500 text-[0.7rem] mt-1">
+                            {errors.timeLine[index].startDate}
+                          </div>
+                        )}
+                    </div>
+                    <div className="relative float-label-input custom-input">
+                      <DatePicker
+                        selected={
+                          values.timeLine[index]?.endDate
+                            ? new Date(values.timeLine[index].endDate)
+                            : null
+                        }
+                        onChange={(date: Date) =>
+                          setFieldValue(
+                            `timeLine[${index}].endDate`,
+                            date ? date.toISOString().split("T")[0] : ""
+                          )
+                        }
+                        dateFormat="yyyy-MM-dd"
+                        className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+                          touched.timeLine?.[index]?.endDate &&
+                          errors.timeLine?.[index]?.endDate
+                            ? "border border-red-500"
+                            : ""
+                        }`}
+                        id={`timeLine[${index}].endDate`}
+                        name={`timeLine[${index}].endDate`}
+                        placeholderText="Select end date"
+                        autoComplete="off"
+                        minDate={
+                          values.timeLine[index]?.startDate
+                            ? new Date(values.timeLine[index].startDate)
+                            : new Date()
+                        }
+                        popperPlacement="bottom-start"
+                        wrapperClassName="w-full"
+                        calendarClassName="custom-datepicker"
+                      />
+                      <label
+                        htmlFor={`timeLine[${index}].endDate`}
+                        className="absolute top-3 left-0 translate-y-[0.2rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
+                      >
+                        End Date
+                      </label>
+                      {touched.timeLine?.[index]?.endDate &&
+                        errors.timeLine?.[index]?.endDate && (
+                          <div className="text-red-500 text-[0.7rem] mt-1">
+                            {errors.timeLine[index].endDate}
+                          </div>
+                        )}
+                    </div>
                   </div>
                 </div>
               ))}
               <button
                 type="button"
-                onClick={() => push({ title: "", description: "" })}
+                onClick={() =>
+                  push({ title: "", titleAr: "", startDate: "", endDate: "" })
+                }
                 className="w-full py-[0.45rem] border bg-input-color bg-opacity-40 rounded-[0.52rem] border-dashed border-custom-gray border-opacity-40 text-custom-gray text-[0.78125rem] font-medium"
               >
                 + Add Timeline Entry
@@ -1614,6 +1387,7 @@ export const AddLeague: FC = () => {
   // Initialize form values
   const [initialValues, setInitialValues] = useState<League>({
     title: leagueData?.title ? leagueData.title : "",
+    titleAr: leagueData?.titleAr ? leagueData.titleAr : "",
     partner: leagueData?.partner ? leagueData.partner : pID,
     game: leagueData?.game?._id
       ? { value: leagueData?.game?._id, label: leagueData?.game?.name }
@@ -1642,7 +1416,15 @@ export const AddLeague: FC = () => {
     timeLine:
       leagueData?.timeLine.length > 0
         ? leagueData?.timeLine
-        : [{ title: "", description: "" }],
+        : [
+            {
+              title: "",
+              titleAr: "",
+              startDate: "",
+              endDate: "",
+              // description: ""
+            },
+          ],
     customRegistrationFields:
       leagueData?.customRegistrationFields.length > 0
         ? leagueData?.customRegistrationFields
@@ -1659,6 +1441,7 @@ export const AddLeague: FC = () => {
   const handleSubmit = (values: League) => {
     const bodyData = {
       title: values.title,
+      titleAr: values.titleAr,
       partner: leagueData?.partner || pID,
       game: values.game?.value || "",
       platform: values.device?.value || "",

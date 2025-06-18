@@ -23,15 +23,18 @@ const addBadgeSchema = Yup.object().shape({
   name: Yup.string()
     .min(3, "Name must be at least 3 characters")
     .max(50, "Name cannot exceed 50 characters")
-    .required("Badge name is required"),
+    .required("Badge name is required")
+    .matches(/^\S.*\S$/, "Name cannot start or end with spaces"),
   descriptionEN: Yup.string()
     .min(10, "English description must be at least 10 characters")
     .max(500, "English description cannot exceed 500 characters")
-    .required("English description is required"),
+    .required("English description is required")
+    .matches(/^\S.*\S$/, "English description cannot start or end with spaces"),
   descriptionAR: Yup.string()
     .min(10, "Arabic description must be at least 10 characters")
     .max(500, "Arabic description cannot exceed 500 characters")
-    .required("Arabic description is required"),
+    .required("Arabic description is required")
+    .matches(/^\S.*\S$/, "Arabic description cannot start or end with spaces"),
   logo: Yup.mixed()
     .required("A logo is required")
     .test("fileSize", "File size must be less than 2MB", (value) => {

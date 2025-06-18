@@ -10,7 +10,7 @@ import {
 
 import edit from "../../assets/images/Edit.svg";
 import deleteIcon from "../../assets/images/trash_can.svg";
-import viewIcon from "../../assets/images/setting_icon.svg";
+import viewIcon from "../../assets/images/eye_icon.svg";
 import leagueUser from "../../assets/images/league_use.png";
 import { League } from "../../app/types";
 import { baseURL } from "../../axios";
@@ -61,7 +61,7 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({
   const handleDelete = (id: string) => {
     if (window.confirm("Are you sure you want to delete this league?")) {
       dispatch(deleteLeague(id));
-      dispatch(fetchLeagues({ partnerId :partnerId , page: 1 }));
+      dispatch(fetchLeagues({ partnerId: partnerId, page: 1 }));
       dispatch(setPage(1));
     }
   };
@@ -172,6 +172,21 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({
                     style={{ width: "1.26rem" }}
                   />
                 </button>
+                <Link
+                  to={`/${partnerId}/leagues/${league._id}`}
+                  state={league}
+                  style={{
+                    background:
+                      "radial-gradient(circle, #39415C 0%, #555F83 100%)",
+                  }}
+                  className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
+                >
+                  <img
+                    src={viewIcon}
+                    alt="Delete"
+                    style={{ width: "1.26rem" }}
+                  />
+                </Link>
               </td>
             </tr>
           ))}

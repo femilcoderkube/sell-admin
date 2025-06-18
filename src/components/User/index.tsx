@@ -10,6 +10,7 @@ import {
   fetchUsers,
   deleteUser,
   updateUser,
+  addUser,
 } from "../../app/features/users/usersSlice";
 import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
 import { User as UserType } from "../../app/types";
@@ -102,6 +103,14 @@ export const User: React.FC = () => {
         setSelectedUser(null);
         dispatch(fetchUsers({ page: 1, perPage, searchTerm }));
       }
+    } else {
+      console.log("form", form);
+      const resultAction = await dispatch(addUser(form));
+      if (addUser.fulfilled.match(resultAction)) {
+        setIsEditModalOpen(false);
+        setSelectedUser(null);
+        dispatch(fetchUsers({ page: 1, perPage, searchTerm }));
+      }
     }
   };
 
@@ -163,9 +172,12 @@ export const User: React.FC = () => {
               </button>
             </div>
           </form>
-          {/* <a
+          <button
+            onClick={() => {
+              setIsEditModalOpen(true);
+              setSelectedUser(null);
+            }}
             className="bg-primary-gradient whitespace-nowrap sm:w-auto w-full font-medium flex hover:opacity-[0.85] duration-300 items-center gap-2 bg-[#46A2FF] hover:bg-blue-700 text-white font-base text-[1.0625rem] py-[0.6rem] px-4 rounded-[0.52rem]"
-            href="#"
           >
             <span>
               <svg
@@ -184,7 +196,7 @@ export const User: React.FC = () => {
               </svg>
             </span>
             Add new user
-          </a> */}
+          </button>
         </div>
       </div>
       {loading ? (
