@@ -69,21 +69,37 @@ const Switch = ({
   </button>
 );
 
-// Validation schema for firstName, lastName, role, and gender
-const validationSchema = Yup.object({
-  firstName: Yup.string()
-    .required("First name is required")
-    .min(2, "First name must be at least 2 characters")
-    .matches(/^\S.*\S$/, "Name cannot start or end with spaces"),
-  lastName: Yup.string()
-    .required("Last name is required")
-    .min(2, "Last name must be at least 2 characters")
-    .matches(/^\S.*\S$/, "Name cannot start or end with spaces"),
-  role: Yup.string().required("Role is required"),
-  gender: Yup.string().required("Gender is required"),
-  phone: Yup.string().required("Phone is required"),
-  nationality: Yup.string().required("Nationality is required"),
-});
+// Validation schema for firstName, lastName, role, gender, and conditionally email, username, and password
+const getValidationSchema = (isAddUser: boolean) =>
+  Yup.object({
+    firstName: Yup.string()
+      .required("First name is required")
+      .min(2, "First name must be at least 2 characters")
+      .matches(/^\S.*\S$/, "Name cannot start or end with spaces"),
+    lastName: Yup.string()
+      .required("Last name is required")
+      .min(2, "Last name must be at least 2 characters")
+      .matches(/^\S.*\S$/, "Name cannot start or end with spaces"),
+    role: Yup.string().required("Role is required"),
+    gender: Yup.string().required("Gender is required"),
+    phone: Yup.string().required("Phone is required"),
+    nationality: Yup.string().required("Nationality is required"),
+    ...(isAddUser && {
+      email: Yup.string()
+        .email("Invalid email address")
+        .required("Email is required"),
+      username: Yup.string()
+        .required("Username is required")
+        .min(3, "Username must be at least 3 characters")
+        .matches(
+          /^[a-zA-Z0-9_]+$/,
+          "Username can only contain letters, numbers, and underscores"
+        ),
+      password: Yup.string()
+        .required("Password is required")
+        .min(6, "Password must be at least 6 characters"),
+    }),
+  });
 
 const UsersModel: React.FC<UsersModelProps> = ({
   show,
@@ -95,6 +111,8 @@ const UsersModel: React.FC<UsersModelProps> = ({
     string | undefined
   >(undefined);
   const [profilePicFileName, setProfilePicFileName] = useState<string>("");
+
+  const isAddUser = !selectedUser; // Determine if adding a new user
 
   const formik = useFormik({
     initialValues: {
@@ -111,9 +129,12 @@ const UsersModel: React.FC<UsersModelProps> = ({
       socialMediaHandles: selectedUser?.socialMediaHandles || {},
       isBanned: selectedUser?.isBanned || false,
       profilePictureUrl: selectedUser?.profilePicture || "",
+      email: selectedUser?.email || "",
+      username: selectedUser?.username || "",
+      password: "", // Added password
     },
     enableReinitialize: true,
-    validationSchema,
+    validationSchema: getValidationSchema(isAddUser),
     onSubmit: (values) => {
       onSave(values);
     },
@@ -188,6 +209,82 @@ const UsersModel: React.FC<UsersModelProps> = ({
 
           <div className="p-4 md:p-5 space-y-4 max-h-[70vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {isAddUser && (
+                <>
+                  <div className="relative float-label-input custom-input mb-4">
+                    <input
+                      type="email"
+                      id="email"
+                      placeholder=" "
+                      className={`w-full text-[0.94rem] text-white focus:outline-0 pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+                        formik.touched.email && formik.errors.email
+                          ? "border border-red-500"
+                          : "focus:!border focus:!border-highlight-color"
+                      }`}
+                      {...formik.getFieldProps("email")}
+                    />
+                    <label
+                      htmlFor="email"
+                      className="absolute top-3 left-0 translate-y-[0.2rem] font-bold text-[0.94rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
+                    >
+                      Email
+                    </label>
+                    {formik.touched.email && formik.errors.email && (
+                      <div className="text-red-500 text-xs mt-1">
+                        {formik.errors.email}
+                      </div>
+                    )}
+                  </div>
+                  <div className="relative float-label-input custom-input mb-4">
+                    <input
+                      type="text"
+                      id="username"
+                      placeholder=" "
+                      className={`w-full text-[0.94rem] text-white focus:outline-0 pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+                        formik.touched.username && formik.errors.username
+                          ? "border border-red-500"
+                          : "focus:!border focus:!border-highlight-color"
+                      }`}
+                      {...formik.getFieldProps("username")}
+                    />
+                    <label
+                      htmlFor="username"
+                      className="absolute top-3 left-0 translate-y-[0.2rem] font-bold text-[0.94rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
+                    >
+                      Username
+                    </label>
+                    {formik.touched.username && formik.errors.username && (
+                      <div className="text-red-500 text-xs mt-1">
+                        {formik.errors.username}
+                      </div>
+                    )}
+                  </div>
+                  <div className="relative float-label-input custom-input mb-4">
+                    <input
+                      type="password"
+                      id="password"
+                      placeholder=" "
+                      className={`w-full text-[0.94rem] text-white focus:outline-0 pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+                        formik.touched.password && formik.errors.password
+                          ? "border border-red-500"
+                          : "focus:!border focus:!border-highlight-color"
+                      }`}
+                      {...formik.getFieldProps("password")}
+                    />
+                    <label
+                      htmlFor="password"
+                      className="absolute top-3 left-0 translate-y-[0.2rem] font-bold text-[0.94rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
+                    >
+                      Password
+                    </label>
+                    {formik.touched.password && formik.errors.password && (
+                      <div className="text-red-500 text-xs mt-1">
+                        {formik.errors.password}
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
               <div className="relative float-label-input custom-input mb-4">
                 <input
                   type="text"

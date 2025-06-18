@@ -87,7 +87,7 @@ export const addUser = createAsyncThunk(
   "users/addUser",
   async (user: Partial<User>, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post("/users", user, {
+      const response = await axiosInstance.post("/users/register", user, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
