@@ -23,7 +23,7 @@ export const Header: FC = () => {
           <a href="#">
             <img className="w-[2.083rem]" src={logo} alt="logo" />
           </a>
-          <a
+          {/* <a
             href="#"
             className="toggle_menu bg-[#46A2FF] absolute left-[11rem] p-2 rounded-lg"
           >
@@ -42,7 +42,7 @@ export const Header: FC = () => {
                 strokeLinejoin="round"
               />
             </svg>
-          </a>
+          </a> */}
         </div>
         <div className="nf_head_right-con flex gap-4">
           <a

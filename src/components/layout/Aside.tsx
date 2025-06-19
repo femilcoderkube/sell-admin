@@ -30,9 +30,7 @@ export const Aside: React.FC = () => {
   };
 
   return (
-    <aside
-      className="fixed left-0 bg-dark-blue px-[0.8rem] h-screen overflow-y-auto pt-[6rem] w-[15rem] hide-scrollbar"
-    >
+    <aside className="fixed left-0 bg-dark-blue px-[0.8rem] h-screen overflow-y-auto pt-[6rem] w-[15rem] hide-scrollbar">
       {/* <aside className="fixed left-0 bg-dark-blue px-[0.8rem] min-h-full text-center pt-[6rem] w-[15rem]"> */}
       <ul className="flex flex-col gap-2">
         {routes.map((item, key) => {

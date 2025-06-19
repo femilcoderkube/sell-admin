@@ -104,7 +104,13 @@ export const leagueValidationSchema = Yup.object().shape({
 
 export const addTrophieSchema = Yup.object().shape({
   BadgeID: Yup.string().required("BadgeID is required"),
-  position: Yup.number().required("Position is required").min(1, "Position must be at least 1"),
-  points: Yup.number().required("Points are required").min(0, "Points cannot be negative"),
-  prize: Yup.string().required("Prize is required"),
+  position: Yup.number()
+    .required("Position is required")
+    .min(1, "Position must be at least 1"),
+  points: Yup.number()
+    .required("Points are required")
+    .min(0, "Points cannot be negative"),
+  prize: Yup.string()
+    .required("Prize is required")
+    .matches(/^\S.*\S$/, "Prize cannot start or end with spaces"),
 });

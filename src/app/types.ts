@@ -145,6 +145,9 @@ export interface LeagueState {
   totalCount: number;
   searchTerm: string;
   leagueDetail: League | null;
+  participants: any[]; // Adjust type based on API response
+  participantsLoading: boolean;
+  participantsError: string | null;
 }
 
 export interface Rule {

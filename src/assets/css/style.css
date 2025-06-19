@@ -194,3 +194,24 @@ textarea:focus {
   flex-direction: column;
   gap: 15px;
 }
+.css-glcv5m-MuiPickersLayout-contentWrapper {
+  background: #181d29 !important;
+  /* color: white !important; */
+}
+.css-1x57bai-MuiDialogActions-root-MuiPickersLayout-actionBar {
+  background: #181d29 !important;
+  /* color: white !important; */
+}
+.css-1fb7els-MuiPickersSectionList-root-MuiPickersInputBase-sectionsContainer-MuiPickersOutlinedInput-sectionsContainer {
+  color: #6b7897 !important;
+}
+/* Firefox */
+.css-1wvbbxw-MuiList-root-MuiMultiSectionDigitalClockSection-root {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+/* Chrome, Safari, Edge */
+.css-1wvbbxw-MuiList-root-MuiMultiSectionDigitalClockSection-root::-webkit-scrollbar {
+  display: none !important;
+}

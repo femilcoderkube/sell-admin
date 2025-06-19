@@ -2,7 +2,11 @@ import React, { useEffect } from "react";
 import { useFormik } from "formik";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../app/store";
-import { addTrophie, updateTrophie, fetchTrophies } from "../../app/features/trophies/trophiesSlice";
+import {
+  addTrophie,
+  updateTrophie,
+  fetchTrophies,
+} from "../../app/features/trophies/trophiesSlice";
 import { addTrophieSchema } from "../../validation";
 import { TrophieType, BadgeNameType } from "../../app/types";
 import { CancelIcon } from "../ui";
@@ -14,7 +18,12 @@ interface TrophiesModalProps {
   badges: BadgeNameType[];
 }
 
-const TrophiesModal: React.FC<TrophiesModalProps> = ({ show, onClose, selectedTrophie, badges }) => {
+const TrophiesModal: React.FC<TrophiesModalProps> = ({
+  show,
+  onClose,
+  selectedTrophie,
+  badges,
+}) => {
   const dispatch = useDispatch<AppDispatch>();
   console.log(badges);
   const formik = useFormik({
@@ -34,7 +43,9 @@ const TrophiesModal: React.FC<TrophiesModalProps> = ({ show, onClose, selectedTr
         prize: values.prize,
       };
       if (selectedTrophie) {
-        const result = await dispatch(updateTrophie({ id: selectedTrophie._id, trophie: payload }));
+        const result = await dispatch(
+          updateTrophie({ id: selectedTrophie._id, trophie: payload })
+        );
         if (updateTrophie.fulfilled.match(result)) {
           resetForm();
           onClose();
@@ -54,7 +65,10 @@ const TrophiesModal: React.FC<TrophiesModalProps> = ({ show, onClose, selectedTr
   useEffect(() => {
     if (selectedTrophie) {
       formik.setValues({
-        BadgeID: typeof selectedTrophie.BadgeID === "string" ? selectedTrophie.BadgeID : selectedTrophie.BadgeID._id,
+        BadgeID:
+          typeof selectedTrophie.BadgeID === "string"
+            ? selectedTrophie.BadgeID
+            : selectedTrophie.BadgeID._id,
         position: selectedTrophie.position,
         points: selectedTrophie.points,
         prize: selectedTrophie.prize,
@@ -68,7 +82,9 @@ const TrophiesModal: React.FC<TrophiesModalProps> = ({ show, onClose, selectedTr
   return (
     <div
       aria-hidden={!show}
-      className={`fixed top-0 left-0 right-0 z-50 flex justify-center items-center w-full h-screen bg-black bg-opacity-50 transition-opacity ${show ? "opacity-100 visible" : "opacity-0 invisible"}`}
+      className={`fixed top-0 left-0 right-0 z-50 flex justify-center items-center w-full h-screen bg-black bg-opacity-50 transition-opacity ${
+        show ? "opacity-100 visible" : "opacity-0 invisible"
+      }`}
     >
       <form
         onSubmit={formik.handleSubmit}
@@ -94,7 +110,9 @@ const TrophiesModal: React.FC<TrophiesModalProps> = ({ show, onClose, selectedTr
 
           <div className="p-4 md:p-5 space-y-4">
             <div className="mb-4">
-              <label className="block text-white text-sm font-medium mb-2">Badge <span className="text-red-500">*</span></label>
+              <label className="block text-white text-sm font-medium mb-2">
+                Badge <span className="text-red-500">*</span>
+              </label>
               <select
                 name="BadgeID"
                 className="w-full text-[0.94rem] text-white focus:outline-0 bg-input-color rounded-[0.52rem] px-3 py-2"
@@ -113,7 +131,9 @@ const TrophiesModal: React.FC<TrophiesModalProps> = ({ show, onClose, selectedTr
               )}
             </div>
             <div className="mb-4">
-              <label className="block text-white text-sm font-medium mb-2">Position <span className="text-red-500">*</span></label>
+              <label className="block text-white text-sm font-medium mb-2">
+                Position <span className="text-red-500">*</span>
+              </label>
               <input
                 type="number"
                 className="w-full text-[0.94rem] text-white focus:outline-0 bg-input-color rounded-[0.52rem] px-3 py-2"
@@ -124,7 +144,9 @@ const TrophiesModal: React.FC<TrophiesModalProps> = ({ show, onClose, selectedTr
               )}
             </div>
             <div className="mb-4">
-              <label className="block text-white text-sm font-medium mb-2">Points <span className="text-red-500">*</span></label>
+              <label className="block text-white text-sm font-medium mb-2">
+                Points <span className="text-red-500">*</span>
+              </label>
               <input
                 type="number"
                 className="w-full text-[0.94rem] text-white focus:outline-0 bg-input-color rounded-[0.52rem] px-3 py-2"
@@ -135,7 +157,9 @@ const TrophiesModal: React.FC<TrophiesModalProps> = ({ show, onClose, selectedTr
               )}
             </div>
             <div className="mb-4">
-              <label className="block text-white text-sm font-medium mb-2">Prize <span className="text-red-500">*</span></label>
+              <label className="block text-white text-sm font-medium mb-2">
+                Prize <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 className="w-full text-[0.94rem] text-white focus:outline-0 bg-input-color rounded-[0.52rem] px-3 py-2"
@@ -171,4 +195,4 @@ const TrophiesModal: React.FC<TrophiesModalProps> = ({ show, onClose, selectedTr
   );
 };
 
-export default TrophiesModal; 
+export default TrophiesModal;

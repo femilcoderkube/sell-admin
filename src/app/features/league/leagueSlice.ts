@@ -12,7 +12,27 @@ const initialState: LeagueState = {
   totalCount: 0,
   searchTerm: "",
   leagueDetail: null,
+  participants: [],
+  participantsLoading: false,
+  participantsError: null,
 };
+
+// New async thunk
+export const fetchLeagueParticipants = createAsyncThunk(
+  "leagues/fetchLeagueParticipants",
+  async (leagueId: string, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(
+        `/LeaguesParticipants?leagueId=${leagueId}`
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error fetching league participants"
+      );
+    }
+  }
+);
 
 export const fetchLeagues = createAsyncThunk(
   "leagues/fetchLeagues",
@@ -22,13 +42,13 @@ export const fetchLeagues = createAsyncThunk(
       page,
       perPage,
       searchTerm,
-    }: {partnerId: string, page: number; perPage: number; searchTerm: string },
+    }: { partnerId: string; page: number; perPage: number; searchTerm: string },
     { rejectWithValue }
   ) => {
     try {
       const response = await axiosInstance.get("/leagues", {
         params: {
-          partnerId : partnerId,
+          partnerId: partnerId,
           page,
           limit: perPage,
           searchKey: searchTerm,
@@ -225,6 +245,17 @@ const leagueSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
         toast.error("Failed to register for league!");
+      })
+      .addCase(fetchLeagueParticipants.pending, (state) => {
+        state.participantsLoading = true;
+      })
+      .addCase(fetchLeagueParticipants.fulfilled, (state, action) => {
+        state.participantsLoading = false;
+        state.participants = action.payload.data.result; // Adjust based on actual API response structure
+      })
+      .addCase(fetchLeagueParticipants.rejected, (state, action) => {
+        state.participantsLoading = false;
+        state.participantsError = action.payload as string;
       });
   },
 });

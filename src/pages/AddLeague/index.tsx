@@ -18,6 +18,12 @@ import downarr from "../../assets/images/down_arr.svg";
 import deleteIcon from "../../assets/images/trash_can.svg";
 import { baseURL } from "../../axios";
 import { TimePickerField } from "../../components/ui/TimePickerField";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { TextField } from "@mui/material";
+import dayjs from "dayjs";
+import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
 
 // Type Definitions
 interface Winner {
@@ -188,6 +194,11 @@ const validationSchema = Yup.object().shape({
 });
 
 const LeagueStep1: FC<StepProps> = ({ step }) => {
+  const darkTheme = createTheme({
+    palette: {
+      mode: "dark", // 🔥 this enables dark mode
+    },
+  });
   const dispatch = useDispatch();
   const { values, errors, touched, setFieldValue, handleChange } =
     useFormikContext();
@@ -246,7 +257,7 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
   // Set default StartDate to today if not already set
   React.useEffect(() => {
     if (!values.startDate) {
-      const today = new Date().toISOString().split("T")[0];
+      const today = new Date().toISOString();
       setFieldValue("startDate", today);
     }
   }, [setFieldValue, values.startDate]);
@@ -475,9 +486,9 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
           <option value="" disabled>
             Select format
           </option>
-          <option value="party queue">Party Queue</option>
+          {/* <option value="party queue">Party Queue</option> */}
           <option value="solo queue">Solo Queue</option>
-          <option value="1v1">1v1</option>
+          {/* <option value="1v1">1v1</option> */}
         </Field>
         {touched.format && errors.format && (
           <div className="text-red-500 text-[0.7rem] mt-1">{errors.format}</div>
@@ -490,6 +501,8 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
           id="playersPerTeam"
           name="playersPerTeam"
           placeholder=" "
+          min="1"
+          max="5"
           disabled={values.format === "1v1"}
           className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
             touched.playersPerTeam && errors.playersPerTeam
@@ -514,9 +527,11 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
           <DatePicker
             selected={values.startDate ? new Date(values.startDate) : null}
             onChange={(date: Date) =>
-              setFieldValue("startDate", date.toISOString().split("T")[0])
+              setFieldValue("startDate", date.toISOString())
             }
-            dateFormat="yyyy-MM-dd"
+            showTimeSelect
+            timeFormat="h:mm aa"
+            dateFormat="yyyy-MM-dd h:mm aa"
             className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
               touched.startDate && errors.startDate
                 ? "border border-red-500"
@@ -547,9 +562,11 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
           <DatePicker
             selected={values.endDate ? new Date(values.endDate) : null}
             onChange={(date: Date) =>
-              setFieldValue("endDate", date.toISOString().split("T")[0])
+              setFieldValue("endDate", date.toISOString())
             }
-            dateFormat="yyyy-MM-dd"
+            showTimeSelect
+            timeFormat="h:mm aa"
+            dateFormat="yyyy-MM-dd h:mm aa"
             className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
               touched.endDate && errors.endDate ? "border border-red-500" : ""
             }`}
@@ -576,7 +593,7 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .custom-datepicker {
           background-color: #212739;
           border: none;
@@ -585,6 +602,8 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
           font-size: 0.78125rem;
           color: #fff;
           font-family: inherit;
+          display: flex
+
         }
         .custom-datepicker .react-datepicker__header {
           background-color: #2b3245;
@@ -622,6 +641,10 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
         .custom-datepicker .react-datepicker__triangle {
           display: none;
         }
+          e {
+    display: flex;
+    height: 300px;
+}
       `}</style>
     </div>
   );
@@ -754,50 +777,6 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
               name="queueSettings.schedule.endTime"
             />
           </div>
-          {/* <div className="grid grid-cols-2 gap-3 mt-10">
-            <div className="relative">
-              <Field
-                type="time"
-                name="queueSettings.schedule.startTime"
-                className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] py-[0.92rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
-                  touched.queueSettings?.schedule?.startTime &&
-                  errors.queueSettings?.schedule?.startTime
-                    ? "border border-red-500"
-                    : ""
-                }`}
-              />
-              <label className="absolute top-[-1.5rem] left-0 text-[0.78125rem] text-white font-medium">
-                Start Time
-              </label>
-              {touched.queueSettings?.schedule?.startTime &&
-                errors.queueSettings?.schedule?.startTime && (
-                  <div className="text-red-500 text-[0.7rem] mt-1">
-                    {errors.queueSettings.schedule.startTime}
-                  </div>
-                )}
-            </div>
-            <div className="relative">
-              <Field
-                type="time"
-                name="queueSettings.schedule.endTime"
-                className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] py-[0.92rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
-                  touched.queueSettings?.schedule?.endTime &&
-                  errors.queueSettings?.schedule?.endTime
-                    ? "border border-red-500"
-                    : ""
-                }`}
-              />
-              <label className="absolute top-[-1.5rem] left-0 text-[0.78125rem] text-white font-medium">
-                End Time
-              </label>
-              {touched.queueSettings?.schedule?.endTime &&
-                errors.queueSettings?.schedule?.endTime && (
-                  <div className="text-red-500 text-[0.7rem] mt-1">
-                    {errors.queueSettings.schedule.endTime}
-                  </div>
-                )}
-            </div>
-          </div> */}
         </div>
       )}
 
@@ -938,10 +917,12 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                         onChange={(date: Date) =>
                           setFieldValue(
                             `timeLine[${index}].startDate`,
-                            date ? date.toISOString().split("T")[0] : ""
+                            date ? date.toISOString() : ""
                           )
                         }
-                        dateFormat="yyyy-MM-dd"
+                        showTimeSelect
+                        timeFormat="h:mm aa"
+                        dateFormat="yyyy-MM-dd h:mm aa"
                         className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${
                           touched.timeLine?.[index]?.startDate &&
                           errors.timeLine?.[index]?.startDate
@@ -980,10 +961,12 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                         onChange={(date: Date) =>
                           setFieldValue(
                             `timeLine[${index}].endDate`,
-                            date ? date.toISOString().split("T")[0] : ""
+                            date ? date.toISOString() : ""
                           )
                         }
-                        dateFormat="yyyy-MM-dd"
+                        showTimeSelect
+                        timeFormat="h:mm aa"
+                        dateFormat="yyyy-MM-dd h:mm aa"
                         className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${
                           touched.timeLine?.[index]?.endDate &&
                           errors.timeLine?.[index]?.endDate
@@ -1039,122 +1022,7 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
           )}
         </FieldArray>
       </div>
-      {/* 
-      <div className="mb-4">
-        <h5 className="text-white mb-2 text-base font-medium">
-          Custom Registration Fields
-        </h5>
-        <FieldArray name="customRegistrationFields">
-          {({ push, remove }) => (
-            <>
-              {values.customRegistrationFields.map((field, index) => (
-                <div
-                  key={index}
-                  className="mb-4 bg-input-color p-4 rounded-[0.52rem]"
-                >
-                  <div className="flex justify-between items-center mb-2">
-                    <h6 className="text-white text-[0.78125rem] font-medium">
-                      Field #{index + 1}
-                    </h6>
-                    <button
-                      type="button"
-                      onClick={() => remove(index)}
-                      className="bg-gray-gradient hover:opacity-80 p-[0.625rem] rounded-[0.52rem] duration-300"
-                    >
-                      <img
-                        src={deleteIcon}
-                        alt="Delete"
-                        style={{ width: "1.25rem" }}
-                      />
-                    </button>
-                  </div>
-                  <div className="relative float-label-input custom-input mb-4">
-                    <Field
-                      type="text"
-                      id={`customRegistrationFields[${index}].fieldName`}
-                      name={`customRegistrationFields[${index}].fieldName`}
-                      placeholder=" "
-                      className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${
-                        touched.customRegistrationFields?.[index]?.fieldName &&
-                        errors.customRegistrationFields?.[index]?.fieldName
-                          ? "border border-red-500"
-                          : ""
-                      }`}
-                    />
-                    <label
-                      htmlFor={`customRegistrationFields[${index}].fieldName`}
-                      className="absolute top-3 left-0 translate-y-[0.2rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
-                    >
-                      Game ID
-                    </label>
-                    {touched.customRegistrationFields?.[index]?.fieldName &&
-                      errors.customRegistrationFields?.[index]?.fieldName && (
-                        <div className="text-red-500 text-[0.7rem] mt-1">
-                          {errors.customRegistrationFields[index].fieldName}
-                        </div>
-                      )}
-                  </div>
-                  <div className="relative flex-1 custom-input mb-4">
-                    <label
-                      htmlFor={`customRegistrationFields[${index}].fieldType`}
-                      className="absolute top-3 left-0 translate-y-[-0.3rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
-                    >
-                      Field Type
-                    </label>
-                    <Field
-                      as="select"
-                      id={`customRegistrationFields[${index}].fieldType`}
-                      name={`customRegistrationFields[${index}].fieldType`}
-                      className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${
-                        touched.customRegistrationFields?.[index]?.fieldType &&
-                        errors.customRegistrationFields?.[index]?.fieldType
-                          ? "border border-red-500"
-                          : ""
-                      }`}
-                      style={{
-                        backgroundImage: `url(${downarr})`,
-                        backgroundRepeat: "no-repeat",
-                        backgroundPosition: "right 10px center",
-                        backgroundSize: "16px 16px",
-                      }}
-                    >
-                      <option value="text">Text</option>
-                      <option value="number">Number</option>
-                      <option value="select">Select</option>
-                    </Field>
-                    {touched.customRegistrationFields?.[index]?.fieldType &&
-                      errors.customRegistrationFields?.[index]?.fieldType && (
-                        <div className="text-red-500 text-[0.7rem] mt-1">
-                          {errors.customRegistrationFields[index].fieldType}
-                        </div>
-                      )}
-                  </div>
-                  <div className="check_setting flex items-center justify-between w-full text-[0.78125rem] text-custom-gray focus:outline-0 focus:!border focus:!border-[#2792FF] py-[0.92rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal">
-                    <span className="text-white font-medium">Required</span>
-                    <label className="inline-flex items-center cursor-pointer">
-                      <Field
-                        type="checkbox"
-                        name={`customRegistrationFields[${index}].required`}
-                        className="sr-only peer"
-                      />
-                      <div className="relative w-9 h-5 bg-custom-gray focus:outline-none rounded-full peer dark:bg-custom-gray peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-primary-gradient dark:peer-checked:bg-primary-gradient"></div>
-                    </label>
-                  </div>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={() =>
-                  push({ fieldName: "", fieldType: "text", required: false })
-                }
-                className="w-full py-[0.45rem] border bg-input-color bg-opacity-40 rounded-[0.52rem] border-dashed border-custom-gray border-opacity-40 text-custom-gray text-[0.78125rem] font-medium"
-              >
-                + Add Custom Field
-              </button>
-            </>
-          )}
-        </FieldArray>
-      </div> */}
+
       <div className="mb-4">
         <h5 className="text-white mb-2 text-base font-medium">
           Custom Registration Fields
@@ -1185,25 +1053,33 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                       </button>
                     )}
                   </div>
-                  <div className="relative float-label-input custom-input mb-4">
+
+                  <div className="relative flex-1 custom-input mb-4">
+                    <label
+                      htmlFor={`customRegistrationFields[${index}].fieldName`}
+                      className="absolute top-3 left-0 translate-y-[-0.3rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
+                    >
+                      Field Name
+                    </label>
                     <Field
-                      type="text"
+                      as="select"
                       id={`customRegistrationFields[${index}].fieldName`}
                       name={`customRegistrationFields[${index}].fieldName`}
-                      placeholder=" "
                       className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${
                         touched.customRegistrationFields?.[index]?.fieldName &&
                         errors.customRegistrationFields?.[index]?.fieldName
                           ? "border border-red-500"
                           : ""
                       }`}
-                    />
-                    <label
-                      htmlFor={`customRegistrationFields[${index}].fieldName`}
-                      className="absolute top-3 left-0 translate-y-[0.2rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
+                      style={{
+                        backgroundImage: `url(${downarr})`,
+                        backgroundRepeat: "no-repeat",
+                        backgroundPosition: "right 10px center",
+                        backgroundSize: "16px 16px",
+                      }}
                     >
-                      Game ID
-                    </label>
+                      <option value="gameid">Game ID</option>
+                    </Field>
                     {touched.customRegistrationFields?.[index]?.fieldName &&
                       errors.customRegistrationFields?.[index]?.fieldName && (
                         <div className="text-red-500 text-[0.7rem] mt-1">
@@ -1264,7 +1140,11 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
               <button
                 type="button"
                 onClick={() =>
-                  push({ fieldName: "", fieldType: "text", required: false })
+                  push({
+                    fieldName: "gameid",
+                    fieldType: "text",
+                    required: false,
+                  })
                 }
                 className="w-full py-[0.45rem] border bg-input-color bg-opacity-40 rounded-[0.52rem] border-dashed border-custom-gray border-opacity-40 text-custom-gray text-[0.78125rem] font-medium"
               >
@@ -1274,6 +1154,59 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
           )}
         </FieldArray>
       </div>
+      <style>{`
+        .custom-datepicker {
+          background-color: #212739;
+          border: none;
+          border-radius: 0.52rem;
+          padding: 0.5rem;
+          font-size: 0.78125rem;
+          color: #fff;
+          font-family: inherit;
+          display: flex
+
+        }
+        .custom-datepicker .react-datepicker__header {
+          background-color: #2b3245;
+          border-bottom: none;
+          padding: 0.5rem;
+        }
+        .custom-datepicker .react-datepicker__current-month,
+        .custom-datepicker .react-datepicker__day-name {
+          color: #fff;
+          font-size: 0.78125rem;
+        }
+        .custom-datepicker .react-datepicker__day {
+          color: #fff;
+          border-radius: 0.3rem;
+          padding: 0.3rem;
+        }
+        .custom-datepicker .react-datepicker__day:hover {
+          background-color: #2b3245;
+        }
+        .custom-datepicker .react-datepicker__day--selected,
+        .custom-datepicker .react-datepicker__day--keyboard-selected {
+          background-color: #007eff;
+          color: #fff;
+        }
+        .custom-datepicker .react-datepicker__day--disabled {
+          color: #6b7280;
+          opacity: 0.5;
+        }
+        .custom-datepicker .react-datepicker__navigation {
+          top: 0.75rem;
+        }
+        .custom-datepicker .react-datepicker__navigation-icon::before {
+          border-color: #fff;
+        }
+        .custom-datepicker .react-datepicker__triangle {
+          display: none;
+        }
+          e {
+    display: flex;
+    height: 300px;
+}
+      `}</style>
     </div>
   );
 };
@@ -1428,13 +1361,19 @@ export const AddLeague: FC = () => {
     customRegistrationFields:
       leagueData?.customRegistrationFields.length > 0
         ? leagueData?.customRegistrationFields
-        : [],
+        : [
+            {
+              fieldName: "gameid",
+              fieldType: "text",
+              required: true, // First field is required by default
+            },
+          ],
     logo: leagueData?.logo ? leagueData?.logo : null,
     startDate: leagueData?.startDate
-      ? new Date(leagueData?.startDate).toISOString().split("T")[0]
+      ? new Date(leagueData?.startDate).toISOString()
       : "",
     endDate: leagueData?.endDate
-      ? new Date(leagueData?.endDate).toISOString().split("T")[0]
+      ? new Date(leagueData?.endDate).toISOString()
       : "",
   });
 
