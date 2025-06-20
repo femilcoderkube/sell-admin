@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { data, Link, useParams } from "react-router-dom";
 import {
@@ -6,11 +6,13 @@ import {
   setSearchTerm,
   setPerPage,
   setPage,
+  deleteLeague,
 } from "../../app/features/league/leagueSlice";
 import { LeagueTable } from "./LeagueTable";
 import { RootState } from "../../app/store";
 import { Pagination } from "../ui/Pagination";
 import HandLogoLoader from "../Loader/Loader";
+import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
 
 export * from "./LeagueTable";
 
@@ -28,12 +30,26 @@ export const League: React.FC = ({ title }: any) => {
     totalCount,
     searchTerm,
   } = useSelector((state: RootState) => state.leagues);
-const partnerId = window.location.pathname.split("/")[1];
+  const partnerId = window.location.pathname.split("/")[1];
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const [deleteId, setDeleteId] = useState<string>("");
 
-
-// Fetch leagues when component mounts or when pagination/search changes
   useEffect(() => {
-    dispatch(fetchLeagues({partnerId: partnerId,page: currentPage, perPage, searchTerm }));
+    if (deleteId) {
+      setIsDeleteModalOpen(true);
+    }
+  }, [deleteId]);
+
+  // Fetch leagues when component mounts or when pagination/search changes
+  useEffect(() => {
+    dispatch(
+      fetchLeagues({
+        partnerId: partnerId,
+        page: currentPage,
+        perPage,
+        searchTerm,
+      })
+    );
   }, [dispatch, currentPage, perPage, searchTerm]);
 
   // Handle search input change
@@ -65,6 +81,13 @@ const partnerId = window.location.pathname.split("/")[1];
   // Calculate total pages
   const totalPages = Math.ceil(totalCount / perPage);
   const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+
+  const handleDeleteLeague = async () => {
+    dispatch(deleteLeague(deleteId));
+    dispatch(fetchLeagues({ partnerId: partnerId, page: 1 }));
+    dispatch(setPage(1));
+    setIsDeleteModalOpen(false);
+  };
 
   return (
     <>
@@ -149,7 +172,7 @@ const partnerId = window.location.pathname.split("/")[1];
                 />
               </svg>
             </span>
-            Add new league
+            Add New League
           </Link>
         </div>
       </div>
@@ -157,7 +180,9 @@ const partnerId = window.location.pathname.split("/")[1];
         <HandLogoLoader />
       ) : leagues.length > 0 ? (
         <LeagueTable
-        currentPage={currentPage} leagues={leagues}
+          currentPage={currentPage}
+          leagues={leagues}
+          onDeleteClick={(leagueId) => setDeleteId(leagueId)}
         />
       ) : (
         <div className="text-custom-gray flex items-center justify-center h-20">
@@ -174,6 +199,14 @@ const partnerId = window.location.pathname.split("/")[1];
           onPageNext={() => handlePageChange(currentPage + 1)}
         />
       )}
+      <DeleteConfirmationModal
+        show={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setDeleteId("");
+        }}
+        onDelete={handleDeleteLeague}
+      />
     </>
   );
 };

@@ -7,7 +7,7 @@ import { format } from "date-fns";
 // Import the CSS for the datepicker
 import "react-datepicker/dist/react-datepicker.css";
 // We will create this custom CSS file in the next step
-import "./TimePicker.css"; 
+import "./TimePicker.css";
 
 interface TimePickerFieldProps {
   label: string;
@@ -18,7 +18,8 @@ export const TimePickerField: React.FC<TimePickerFieldProps> = ({
   label,
   name,
 }) => {
-  const { values, setFieldValue, touched, errors } = useFormikContext<any>();
+  const { values, setFieldValue, touched, errors, setFieldTouched } =
+    useFormikContext<any>();
 
   // Safely get nested values and errors using Formik's `getIn` helper
   const fieldValue = getIn(values, name);
@@ -38,6 +39,11 @@ export const TimePickerField: React.FC<TimePickerFieldProps> = ({
     }
   };
 
+  // Handle blur to ensure touched state is set when user leaves the picker
+  const handleBlur = () => {
+    setFieldTouched(name, true);
+  };
+
   // This is a custom input component that matches your form's styling.
   // react-datepicker will pass props like `value` and `onClick` to it.
   const CustomTimeInput = React.forwardRef<
@@ -47,6 +53,7 @@ export const TimePickerField: React.FC<TimePickerFieldProps> = ({
     <input
       value={value}
       onClick={onClick}
+      onBlur={handleBlur}
       ref={ref}
       readOnly // Make it read-only to force using the picker
       placeholder=" " // Important for the floating label
@@ -58,16 +65,13 @@ export const TimePickerField: React.FC<TimePickerFieldProps> = ({
 
   return (
     <div className="relative float-label-input custom-input">
-       <label
-          
-          className=" top-2 left-0 font-bold text-[0.78125rem] bg-transparent px-3 text-custom-gray"
-        >
-          {label}
-        </label>
+      <label className=" top-2 left-0 font-bold text-[0.78125rem] bg-transparent px-3 text-custom-gray">
+        {label}
+      </label>
       <DatePicker
         selected={selectedTime}
-
         onChange={handleTimeChange}
+        onBlur={handleBlur} // Add onBlur handler
         customInput={<CustomTimeInput />}
         // Time picker specific props
         showTimeSelect

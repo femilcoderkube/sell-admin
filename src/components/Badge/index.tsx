@@ -64,7 +64,9 @@ export const Badge: React.FC = () => {
     if (deleteBadges.fulfilled.match(resultAction)) {
       setDeleteId("");
       setIsDeleteModalOpen(false);
-      dispatch(fetchBadges({ page: 1, perPage: perPage, searchTerm: searchTerm}));
+      dispatch(
+        fetchBadges({ page: 1, perPage: perPage, searchTerm: searchTerm })
+      );
     }
   };
 
@@ -73,7 +75,7 @@ export const Badge: React.FC = () => {
       <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-between items-center pt-3 pb-[2rem] border-b border-light-border">
         <div className="legue__head_left-con">
           <h3 className="font-bold text-[1.25rem] text-white">
-            Badge <span className="text-custom-gray">({badges.length})</span>
+            Badges <span className="text-custom-gray">({badges.length})</span>
           </h3>
         </div>
         <div className="legue__head_right-con flex-wrap flex gap-3 flex-1 justify-end">
@@ -122,7 +124,7 @@ export const Badge: React.FC = () => {
             <span>
               <PlusIcon />
             </span>
-            Add new Badge
+            Add New Badge
           </button>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { GamesState } from "../../types";
 import axiosInstance from "../../../axios";
+import toast from "react-hot-toast";
 
 const initialState: GamesState = {
   games: [],
@@ -51,7 +52,7 @@ export const addGame = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error adding device"
+        error.response?.data?.message || "Error adding game"
       );
     }
   }
@@ -72,7 +73,7 @@ export const updateGame = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error adding device"
+        error.response?.data?.message || "Error updateing game"
       );
     }
   }
@@ -86,7 +87,7 @@ export const deleteGame = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error adding device"
+        error.response?.data?.message || "Error deleteing game"
       );
     }
   }
@@ -127,30 +128,37 @@ const gamesSlice = createSlice({
       })
       .addCase(addGame.fulfilled, (state) => {
         state.loading = false;
+        // toast.success("Game added successfully!");
+        toast.success("New game is created and displayed in the game list.");
       })
       .addCase(addGame.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+        toast.error(action.payload as string);
       })
       .addCase(updateGame.pending, (state) => {
         state.loading = true;
       })
       .addCase(updateGame.fulfilled, (state) => {
         state.loading = false;
+        toast.success("Changes are saved and updated in the list.");
       })
       .addCase(updateGame.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+        toast.error(action.payload as string);
       })
       .addCase(deleteGame.pending, (state) => {
         state.loading = true;
       })
       .addCase(deleteGame.fulfilled, (state) => {
         state.loading = false;
+        toast.success("Game is removed from the list.");
       })
       .addCase(deleteGame.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+        toast.error(action.payload as string);
       });
   },
 });

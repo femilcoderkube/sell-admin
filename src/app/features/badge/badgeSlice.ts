@@ -104,7 +104,7 @@ export const deleteBadges = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error adding device"
+        error.response?.data?.message || "Error deleteing badge"
       );
     }
   }
@@ -170,7 +170,7 @@ const badgesSlice = createSlice({
       })
       .addCase(addBadges.fulfilled, (state) => {
         state.loading = false;
-        toast.success("Badge added succesfully!");
+        toast.success("Badge is added successfully and listed.");
       })
       .addCase(addBadges.rejected, (state, action) => {
         state.loading = false;
@@ -182,7 +182,7 @@ const badgesSlice = createSlice({
       })
       .addCase(updateBadges.fulfilled, (state) => {
         state.loading = false;
-        toast.success("Badge updated succesfully!");
+        toast.success("Changes are saved and updated in the list.");
       })
       .addCase(updateBadges.rejected, (state, action) => {
         state.loading = false;
@@ -194,12 +194,12 @@ const badgesSlice = createSlice({
       })
       .addCase(deleteBadges.fulfilled, (state) => {
         state.loading = false;
-        toast.success("Badge deleted succesfully!");
+        toast.success("Badge is removed from the list.");
       })
       .addCase(deleteBadges.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-        toast.error("Failed to deleted badge!");
+        toast.error(action.payload as string);
       })
       .addCase(fetchBadgeNames.pending, (state) => {
         state.loading = true;

@@ -76,7 +76,10 @@ export const addTrophie = createAsyncThunk(
 
 export const updateTrophie = createAsyncThunk(
   "trophies/updateTrophie",
-  async ({ id, trophie }: { id: string; trophie: any }, { rejectWithValue }) => {
+  async (
+    { id, trophie }: { id: string; trophie: any },
+    { rejectWithValue }
+  ) => {
     try {
       const response = await axiosInstance.put(`/trophies?id=${id}`, trophie, {
         headers: {
@@ -152,7 +155,7 @@ const trophiesSlice = createSlice({
       })
       .addCase(addTrophie.fulfilled, (state) => {
         state.loading = false;
-        toast.success("Trophie added succesfully!");
+        toast.success("Trophy is created and listed successfully.");
       })
       .addCase(addTrophie.rejected, (state, action) => {
         state.loading = false;
@@ -164,12 +167,24 @@ const trophiesSlice = createSlice({
       })
       .addCase(updateTrophie.fulfilled, (state) => {
         state.loading = false;
-        toast.success("Trophie updated succesfully!");
+        toast.success("Trophy details are updated.");
       })
       .addCase(updateTrophie.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
         toast.error("Failed to update trophie!");
+      })
+      .addCase(deleteTrophie.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(deleteTrophie.fulfilled, (state) => {
+        state.loading = false;
+        toast.success("Trophy is removed from the list.");
+      })
+      .addCase(deleteTrophie.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        toast.error(action.payload as string);
       });
   },
 });

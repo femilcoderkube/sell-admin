@@ -23,7 +23,9 @@ const DeleteConfirmationModal: React.FC<ModalProps> = ({
       >
         <div className="relative p-4 w-full max-w-sm max-h-full mx-auto">
           <div className="relative bg-dark-blue rounded-lg shadow-sm dark:bg-gray-700 flex flex-col items-center text-white">
-            <CircleAlert />
+            <div className="p-2">
+              <CircleAlert />
+            </div>
             <label className="text-lg">Are you sure?</label>
 
             <div className="flex items-center p-4 md:p-5 border-t border-light-border rounded-b ">
@@ -39,7 +41,8 @@ const DeleteConfirmationModal: React.FC<ModalProps> = ({
                 className="bg-primary-gradient w-1/2 text-white bg-blue-700 hover:opacity-[0.75] duration-300 font-medium rounded-lg text-[0.94rem] px-5 py-[0.795rem] me-2 mb-2 focus:outline-none "
                 onClick={onDelete}
               >
-                Yes, delete it!
+                {/* Yes, delete it! */}
+                Delete
               </button>
             </div>
           </div>

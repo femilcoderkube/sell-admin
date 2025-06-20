@@ -107,7 +107,7 @@ export const Trophie: React.FC = () => {
             <div className="relative">
               <input
                 className="text-white font-medium block  bg-input-color w-full sm:w-[20.8rem] text-gray-700 border rounded-[0.625rem] py-[0.6rem] pl-[2.5rem] pr-3 text-[1.0625rem] focus:outline-none border-0"
-                placeholder="Search trophies"
+                placeholder="Search Trophy"
                 type="text"
                 name="search"
                 value={searchTerm}
@@ -133,7 +133,7 @@ export const Trophie: React.FC = () => {
             <span>
               <PlusIcon />
             </span>
-            Add new Trophy
+            Add New Trophy
           </button>
         </div>
       </div>
@@ -151,7 +151,7 @@ export const Trophie: React.FC = () => {
         />
       ) : (
         <div className="text-custom-gray flex items-center justify-center h-20">
-          No data found.
+          No trophies found.
         </div>
       )}
 

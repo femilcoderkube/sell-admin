@@ -88,19 +88,26 @@ interface StepProps {
 
 // Validation Schema
 const validationSchema = Yup.object().shape({
-  title: Yup.string().required("League Title is required"),
-  titleAr: Yup.string().required("League Title (Arabic) is required"),
+  title: Yup.string()
+    .required("League Title is required")
+    .matches(/^\S.*\S$/, "League Title cannot start or end with spaces"),
+  titleAr: Yup.string()
+    .required("League Title (Arabic) is required")
+    .matches(
+      /^\S.*\S$/,
+      "League Title (Arabic) cannot start or end with spaces"
+    ),
   game: Yup.object()
     .shape({
       value: Yup.string().required(),
-      label: Yup.string().required(),
+      label: Yup.string().required("Game is required"),
     })
     .nullable()
     .required("Game is required"),
   device: Yup.object()
     .shape({
       value: Yup.string().required(),
-      label: Yup.string().required(),
+      label: Yup.string().required("Device is required"),
     })
     .nullable()
     .required("Device is required"),
@@ -166,8 +173,18 @@ const validationSchema = Yup.object().shape({
   timeLine: Yup.array()
     .of(
       Yup.object().shape({
-        title: Yup.string().required("Timeline title is required"),
-        titleAr: Yup.string().required("Timeline title is required"),
+        title: Yup.string()
+          .required("Timeline title is required")
+          .matches(
+            /^\S.*\S$/,
+            "Timeline title cannot start or end with spaces"
+          ),
+        titleAr: Yup.string()
+          .required("Timeline(AR) title is required")
+          .matches(
+            /^\S.*\S$/,
+            "Timeline title(AR) cannot start or end with spaces"
+          ),
         startDate: Yup.date().required("Start date is required"),
         endDate: Yup.date()
           .required("End date is required")
@@ -200,8 +217,14 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
     },
   });
   const dispatch = useDispatch();
-  const { values, errors, touched, setFieldValue, handleChange } =
-    useFormikContext();
+  const {
+    values,
+    errors,
+    touched,
+    setFieldValue,
+    handleChange,
+    setFieldTouched,
+  } = useFormikContext();
 
   const loadGameOptions = async (
     search: string,
@@ -316,6 +339,7 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
           value={values.game}
           loadOptions={loadGameOptions}
           onChange={(selected: any) => setFieldValue("game", selected)}
+          onBlur={() => setFieldTouched("game", true)}
           additional={{ page: 1 }}
           placeholder="Select the game"
           styles={{
@@ -379,7 +403,9 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
           }}
         />
         {touched.game && errors.game && (
-          <div className="text-red-500 text-[0.7rem] mt-1">{errors.game}</div>
+          <div className="text-red-500 text-[0.7rem] mt-1">
+            {errors.game.label}
+          </div>
         )}
       </div>
       <div className="relative flex-1 custom-input mb-4">
@@ -389,6 +415,7 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
           value={values.device}
           loadOptions={loadDevicesOptions}
           onChange={(selected: any) => setFieldValue("device", selected)}
+          onBlur={() => setFieldTouched("device", true)}
           additional={{ page: 1 }}
           placeholder="Select the device"
           styles={{
@@ -452,7 +479,9 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
           }}
         />
         {touched.device && errors.device && (
-          <div className="text-red-500 text-[0.7rem] mt-1">{errors.device}</div>
+          <div className="text-red-500 text-[0.7rem] mt-1">
+            {errors.device.label}
+          </div>
         )}
       </div>
 
@@ -529,6 +558,7 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
             onChange={(date: Date) =>
               setFieldValue("startDate", date.toISOString())
             }
+            onBlur={() => setFieldTouched("startDate", true)}
             showTimeSelect
             timeFormat="h:mm aa"
             dateFormat="yyyy-MM-dd h:mm aa"
@@ -564,6 +594,7 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
             onChange={(date: Date) =>
               setFieldValue("endDate", date.toISOString())
             }
+            onBlur={() => setFieldTouched("endDate", true)}
             showTimeSelect
             timeFormat="h:mm aa"
             dateFormat="yyyy-MM-dd h:mm aa"
@@ -651,8 +682,14 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
 };
 
 const LeagueStep2: FC<StepProps> = ({ step }) => {
-  const { values, errors, touched, setFieldValue, handleChange } =
-    useFormikContext<League>();
+  const {
+    values,
+    errors,
+    touched,
+    setFieldValue,
+    handleChange,
+    setFieldTouched,
+  } = useFormikContext<League>();
 
   return (
     <div className="max-w-[42.5rem] mx-auto genral_form-info mb-4">
@@ -920,6 +957,9 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                             date ? date.toISOString() : ""
                           )
                         }
+                        onBlur={() =>
+                          setFieldTouched(`timeLine[${index}].startDate`, true)
+                        }
                         showTimeSelect
                         timeFormat="h:mm aa"
                         dateFormat="yyyy-MM-dd h:mm aa"
@@ -963,6 +1003,9 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                             `timeLine[${index}].endDate`,
                             date ? date.toISOString() : ""
                           )
+                        }
+                        onBlur={() =>
+                          setFieldTouched(`timeLine[${index}].endDate`, true)
                         }
                         showTimeSelect
                         timeFormat="h:mm aa"
@@ -1297,6 +1340,7 @@ const LeagueStep3: FC<StepProps> = ({ step, leagueData }: any) => {
           id="rules"
           onChange={handleFileUploadForPDf("rules")}
           accept="application/pdf"
+          ispdf={true}
         />
         {touched.rules && errors.rules && (
           <div className="text-red-500 text-[0.7rem] mt-1">{errors.rules}</div>

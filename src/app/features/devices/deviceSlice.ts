@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { DevicesState } from "../../types";
 import axiosInstance from "../../../axios";
+import toast from "react-hot-toast";
 
 const initialState: DevicesState = {
   devices: [],
@@ -72,7 +73,26 @@ export const updateDevice = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error adding device"
+        error.response?.data?.message || "Error updateing device"
+      );
+    }
+  }
+);
+
+export const checkDeviceExists = createAsyncThunk(
+  "devices/checkDeviceExists",
+  async ({ device }, { rejectWithValue }) => {
+    try {
+      const params = new URLSearchParams();
+      if (device) params.append("name", device);
+
+      const response = await axiosInstance.get(
+        `/platforms/check?${params.toString()}`
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error checking devices existence"
       );
     }
   }
@@ -86,7 +106,7 @@ export const deleteDevice = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error adding device"
+        error.response?.data?.message || "Error deleteing device"
       );
     }
   }
@@ -127,30 +147,46 @@ const devicesSlice = createSlice({
       })
       .addCase(addDevice.fulfilled, (state) => {
         state.loading = false;
+        toast.success("Device is added successfully and listed.");
       })
       .addCase(addDevice.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+        toast.error(action.payload as string);
       })
       .addCase(updateDevice.pending, (state) => {
         state.loading = true;
       })
       .addCase(updateDevice.fulfilled, (state) => {
         state.loading = false;
+        toast.success("Changes are saved and updated in the list.");
       })
       .addCase(updateDevice.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+        toast.error(action.payload as string);
       })
       .addCase(deleteDevice.pending, (state) => {
         state.loading = true;
       })
       .addCase(deleteDevice.fulfilled, (state) => {
         state.loading = false;
+        toast.success("Device is removed from the list.");
       })
       .addCase(deleteDevice.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+        toast.error(action.payload as string);
+      })
+      .addCase(checkDeviceExists.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(checkDeviceExists.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(checkDeviceExists.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

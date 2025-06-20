@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { CancelIcon } from "../ui";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -6,51 +6,18 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../app/store";
 import {
   addDevice,
+  checkDeviceExists,
   fetchDevices,
   updateDevice,
 } from "../../app/features/devices/deviceSlice";
 import { DeviceType } from "../../app/types";
 import { baseURL } from "../../axios";
-
+import { debounce } from "lodash";
 interface ModalProps {
   show: boolean;
   onClose: () => void;
   selectedDevice: DeviceType | null;
 }
-
-// Validation schema
-const deviceSchema = Yup.object().shape({
-  name: Yup.string()
-    .min(3, "Name must be at least 3 characters")
-    .max(50, "Name cannot exceed 50 characters")
-    .required("Device name is required")
-    .matches(/^\S.*\S$/, "Name cannot start or end with spaces"),
-  logo: Yup.mixed()
-    .test("logo-required", "A logo is required", function (value) {
-      return value !== null && value !== undefined;
-    })
-    .test("fileSize", "File size must be less than 2MB", function (value) {
-      if (value instanceof File) {
-        return value.size <= 2 * 1024 * 1024;
-      }
-      return true;
-    })
-    .test(
-      "fileType",
-      "Only image files are allowed (PNG, JPG, GIF, SVG)",
-      function (value) {
-        if (value instanceof File) {
-          return [
-            "image/png",
-            "image/jpeg",
-            "image/gif",
-            "image/svg+xml",
-          ].includes(value.type);
-        }
-        return true;
-      }
-    ),
-});
 
 export const DeviceModal: React.FC<ModalProps> = ({
   show,
@@ -61,6 +28,62 @@ export const DeviceModal: React.FC<ModalProps> = ({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+
+  const debouncedCheckDevice = useCallback(
+    debounce(async (value, resolve) => {
+      console.log(`Checking device: ${value}`);
+      if (value) {
+        const result = await dispatch(checkDeviceExists({ device: value }));
+        console.log(`Result for ${value}:`, result.payload);
+        resolve(result.payload.exists ? "Device already exists" : undefined);
+      } else {
+        resolve(undefined);
+      }
+    }, 500),
+    [dispatch]
+  );
+
+  // Validation schema
+  const deviceSchema = Yup.object().shape({
+    name: Yup.string()
+      .min(3, "Name must be at least 3 characters")
+      .max(50, "Name cannot exceed 50 characters")
+      .required("Device name is required")
+      .test(
+        "check-device-exists",
+        "Device already exists",
+        (value) =>
+          new Promise((resolve) => {
+            debouncedCheckDevice(value, resolve);
+          })
+      )
+      .matches(/^\S.*\S$/, "Name cannot start or end with spaces"),
+    logo: Yup.mixed()
+      .test("logo-required", "A logo is required", function (value) {
+        return value !== null && value !== undefined;
+      })
+      .test("fileSize", "File size must be less than 2MB", function (value) {
+        if (value instanceof File) {
+          return value.size <= 2 * 1024 * 1024;
+        }
+        return true;
+      })
+      .test(
+        "fileType",
+        "Only image files are allowed (PNG, JPG, GIF, SVG)",
+        function (value) {
+          if (value instanceof File) {
+            return [
+              "image/png",
+              "image/jpeg",
+              "image/gif",
+              "image/svg+xml",
+            ].includes(value.type);
+          }
+          return true;
+        }
+      ),
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -196,6 +219,13 @@ export const DeviceModal: React.FC<ModalProps> = ({
       }
     }
   };
+
+  // Clean up debounce on component unmount
+  useEffect(() => {
+    return () => {
+      debouncedCheckDevice.cancel();
+    };
+  }, []);
 
   return (
     <div

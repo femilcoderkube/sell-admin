@@ -18,11 +18,13 @@ import { baseURL } from "../../axios";
 interface LeagueTableProps {
   currentPage: any;
   leagues: League[];
+  onDeleteClick: any;
 }
 
 export const LeagueTable: React.FC<LeagueTableProps> = ({
   currentPage,
   leagues,
+  onDeleteClick,
 }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -59,11 +61,12 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({
 
   // Handle delete action
   const handleDelete = (id: string) => {
-    if (window.confirm("Are you sure you want to delete this league?")) {
-      dispatch(deleteLeague(id));
-      dispatch(fetchLeagues({ partnerId: partnerId, page: 1 }));
-      dispatch(setPage(1));
-    }
+    // if (window.confirm("Are you sure you want to delete this league?")) {
+    // dispatch(deleteLeague(id));
+    // dispatch(fetchLeagues({ partnerId: partnerId, page: 1 }));
+    // dispatch(setPage(1));
+    // }
+    onDeleteClick(id);
   };
 
   return (

@@ -6,6 +6,8 @@ interface FileUploadProps {
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   fileName?: string;
   previewUrl?: string;
+  ispdf: boolean;
+  ismandatory: boolean;
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({
@@ -15,13 +17,15 @@ const FileUpload: React.FC<FileUploadProps> = ({
   fileName,
   previewUrl,
   accept,
+  ispdf = false,
+  ismandatory = true,
 }) => {
   const displayFileName = fileName || "No file chosen";
 
   return (
     <div className="mb-4">
       <label className="block text-white text-sm font-medium mb-2">
-        {label} <span className="text-red-500">*</span>
+        {label} <span className="text-red-500">{ismandatory ? "*" : ""}</span>
       </label>
       <div className="relative">
         <div className="flex items-center justify-center w-full">
@@ -62,7 +66,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
                   and drop
                 </p>
                 <p className="text-xs text-gray-400">
-                  {accept ? "PDF" : "SVG, PNG, JPG or GIF"}
+                  {ispdf ? "PDF" : "SVG, PNG, JPG or GIF"}
                 </p>
               </div>
             )}

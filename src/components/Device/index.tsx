@@ -55,7 +55,9 @@ export const Device: React.FC = () => {
     if (deleteDevice.fulfilled.match(resultAction)) {
       setDeleteId("");
       setIsDeleteModalOpen(false);
-      dispatch(fetchDevices({ page: 1, perPage: perPage, searchTerm: searchTerm }));
+      dispatch(
+        fetchDevices({ page: 1, perPage: perPage, searchTerm: searchTerm })
+      );
     }
   };
 
@@ -73,7 +75,7 @@ export const Device: React.FC = () => {
             <div className="relative">
               <input
                 className="text-white font-medium block  bg-input-color w-full sm:w-[20.8rem] text-gray-700 border rounded-[0.625rem] py-[0.6rem] pl-[2.5rem] pr-3 text-[1.0625rem] focus:outline-none border-0"
-                placeholder="Search devices"
+                placeholder="Search Device"
                 type="text"
                 name="search"
                 value={searchTerm}
@@ -96,24 +98,22 @@ export const Device: React.FC = () => {
             <span>
               <PlusIcon />
             </span>
-            Add a device
+            Add Device
           </div>
         </div>
       </div>
-      { loading ? (
-          <HandLogoLoader />
-        ) :devices.length > 0 ? (
-        (
-          <DeviceTable
-            data={devices}
-            currentPage={currentPage}
-            onEditClick={(device) => setSelectedDevice(device)}
-            onDeleteClick={(deviceId) => setDeleteId(deviceId)}
-          />
-        )
+      {loading ? (
+        <HandLogoLoader />
+      ) : devices.length > 0 ? (
+        <DeviceTable
+          data={devices}
+          currentPage={currentPage}
+          onEditClick={(device) => setSelectedDevice(device)}
+          onDeleteClick={(deviceId) => setDeleteId(deviceId)}
+        />
       ) : (
         <div className="text-custom-gray flex items-center justify-center h-20">
-          No data found.
+          No device found.
         </div>
       )}
 

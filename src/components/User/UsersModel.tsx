@@ -448,6 +448,7 @@ const UsersModel: React.FC<UsersModelProps> = ({
                   onChange={handleProfilePicChange}
                   fileName={profilePicFileName}
                   previewUrl={profilePicPreview}
+                  ismandatory={false}
                 />
               </div>
               <div className="flex items-center gap-2 mb-4">
