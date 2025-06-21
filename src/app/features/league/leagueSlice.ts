@@ -12,18 +12,70 @@ const initialState: LeagueState = {
   totalCount: 0,
   searchTerm: "",
   leagueDetail: null,
+  matcheDetail: null,
   participants: [],
   participantsLoading: false,
   participantsError: null,
+  participantsCurrentPage: 1,
+  participantsPerPage: 5,
+  participantsTotalCount: 0,
+  matches: [],
+  matchesLoading: false,
+  matchesError: null,
+  matchesCurrentPage: 1,
+  matchesPerPage: 5,
+  matchesTotalCount: 0,
 };
 
-// New async thunk
-export const fetchLeagueParticipants = createAsyncThunk(
-  "leagues/fetchLeagueParticipants",
-  async (leagueId: string, { rejectWithValue }) => {
+export const fetchLeagueMatches = createAsyncThunk(
+  "leagues/fetchLeagueMatches",
+  async (
+    {
+      leagueId,
+      page,
+      perPage,
+    }: { leagueId: string; page: number; perPage: number },
+    { rejectWithValue }
+  ) => {
     try {
       const response = await axiosInstance.get(
-        `/LeaguesParticipants?leagueId=${leagueId}`
+        `/LeagueMatch?leagueId=${leagueId}&page=${page}&limit=${perPage}`
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error fetching league matches"
+      );
+    }
+  }
+);
+export const fetchLeagueMatchesByID = createAsyncThunk(
+  "leagues/fetchLeagueMatchesByID",
+  async ({ matcheId }: { matcheId: string }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(`/LeagueMatch?id=${matcheId}`);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error fetching league matches"
+      );
+    }
+  }
+);
+
+export const fetchLeagueParticipants = createAsyncThunk(
+  "leagues/fetchLeagueParticipants",
+  async (
+    {
+      leagueId,
+      page,
+      perPage,
+    }: { leagueId: string; page: number; perPage: number },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axiosInstance.get(
+        `/LeaguesParticipants?leagueId=${leagueId}&page=${page}&limit=${perPage}`
       );
       return response.data;
     } catch (error: any) {
@@ -172,9 +224,40 @@ const leagueSlice = createSlice({
     setPage: (state, action: PayloadAction<number>) => {
       state.currentPage = action.payload;
     },
+    setParticipantsPage: (state, action: PayloadAction<number>) => {
+      state.participantsCurrentPage = action.payload;
+    },
+    setMatchesPage: (state, action: PayloadAction<number>) => {
+      state.matchesCurrentPage = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
+      .addCase(fetchLeagueMatches.pending, (state) => {
+        state.matchesLoading = true;
+      })
+      .addCase(fetchLeagueMatches.fulfilled, (state, action) => {
+        state.matchesLoading = false;
+        state.matches = action.payload.data.result;
+        state.matchesTotalCount = action.payload.data.totalItem;
+      })
+      .addCase(fetchLeagueMatches.rejected, (state, action) => {
+        state.matchesLoading = false;
+        state.matchesError = action.payload as string;
+      })
+      .addCase(fetchLeagueParticipants.pending, (state) => {
+        state.participantsLoading = true;
+      })
+      .addCase(fetchLeagueParticipants.fulfilled, (state, action) => {
+        state.participantsLoading = false;
+        state.participants = action.payload.data.result;
+        state.participantsTotalCount = action.payload.data.totalItem;
+      })
+      .addCase(fetchLeagueParticipants.rejected, (state, action) => {
+        state.participantsLoading = false;
+        state.participantsError = action.payload as string;
+      })
+      // ... other extraReducers remain unchanged
       .addCase(fetchLeagues.pending, (state) => {
         state.loading = true;
       })
@@ -195,6 +278,17 @@ const leagueSlice = createSlice({
         state.leagueDetail = action.payload.data;
       })
       .addCase(fetchLeagueById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchLeagueMatchesByID.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchLeagueMatchesByID.fulfilled, (state, action) => {
+        state.loading = false;
+        state.matcheDetail = action.payload.data;
+      })
+      .addCase(fetchLeagueMatchesByID.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
@@ -245,21 +339,16 @@ const leagueSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
         toast.error("Failed to register for league!");
-      })
-      .addCase(fetchLeagueParticipants.pending, (state) => {
-        state.participantsLoading = true;
-      })
-      .addCase(fetchLeagueParticipants.fulfilled, (state, action) => {
-        state.participantsLoading = false;
-        state.participants = action.payload.data.result; // Adjust based on actual API response structure
-      })
-      .addCase(fetchLeagueParticipants.rejected, (state, action) => {
-        state.participantsLoading = false;
-        state.participantsError = action.payload as string;
       });
   },
 });
 
-export const { setSearchTerm, setPerPage, setPage } = leagueSlice.actions;
+export const {
+  setSearchTerm,
+  setPerPage,
+  setPage,
+  setParticipantsPage,
+  setMatchesPage,
+} = leagueSlice.actions;
 
 export default leagueSlice.reducer;

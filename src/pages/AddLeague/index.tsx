@@ -1376,7 +1376,7 @@ export const AddLeague: FC = () => {
         }
       : "",
     // platform: "",
-    format: leagueData?.format ? leagueData?.format : "party queue",
+    format: leagueData?.format ? leagueData?.format : "solo queue",
     playersPerTeam: leagueData?.playersPerTeam ? leagueData?.playersPerTeam : 0,
     maxMatchesPerPlayer: leagueData?.maxMatchesPerPlayer
       ? leagueData?.maxMatchesPerPlayer

@@ -1,13 +1,19 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, Link } from "react-router-dom";
 import {
   fetchLeagueById,
+  fetchLeagueMatches,
   fetchLeagueParticipants,
+  setParticipantsPage,
+  setMatchesPage,
+  fetchLeagueMatchesByID,
 } from "../../app/features/league/leagueSlice";
 import { RootState } from "../../app/store";
 import HandLogoLoader from "../Loader/Loader";
+import viewIcon from "../../assets/images/eye_icon.svg";
 import { baseURL } from "../../axios";
+import CommonModal from "./CommonModal";
 
 const LeagueDetails: React.FC = () => {
   const { lid } = useParams<{ lid: string }>();
@@ -15,23 +21,55 @@ const LeagueDetails: React.FC = () => {
   const dispatch = useDispatch();
   const {
     leagueDetail,
+    matcheDetail,
     loading,
     error,
     participants,
     participantsLoading,
     participantsError,
+    participantsCurrentPage,
+    participantsPerPage,
+    participantsTotalCount,
+    matches,
+    matchesLoading,
+    matchesError,
+    matchesCurrentPage,
+    matchesPerPage,
+    matchesTotalCount,
   } = useSelector((state: RootState) => state.leagues);
 
   // State for active tab
   const [activeTab, setActiveTab] = React.useState("Participants");
+  // State for modal visibility
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Fetch league details when component mounts
+  // Fetch league details and paginated data when component mounts or page changes
   useEffect(() => {
     if (lid) {
       dispatch(fetchLeagueById(lid));
-      dispatch(fetchLeagueParticipants(lid));
+      dispatch(
+        fetchLeagueParticipants({
+          leagueId: lid,
+          page: participantsCurrentPage,
+          perPage: participantsPerPage,
+        })
+      );
+      dispatch(
+        fetchLeagueMatches({
+          leagueId: lid,
+          page: matchesCurrentPage,
+          perPage: matchesPerPage,
+        })
+      );
     }
-  }, [dispatch, lid]);
+  }, [
+    dispatch,
+    lid,
+    participantsCurrentPage,
+    participantsPerPage,
+    matchesCurrentPage,
+    matchesPerPage,
+  ]);
 
   if (loading) {
     return <HandLogoLoader />;
@@ -53,7 +91,50 @@ const LeagueDetails: React.FC = () => {
     );
   }
 
-  const tabs = ["Participants"];
+  const tabs = ["Participants", "Matches"];
+
+  // Pagination handlers
+  const handleParticipantsPageChange = (page: number) => {
+    if (
+      page >= 1 &&
+      page <= Math.ceil(participantsTotalCount / participantsPerPage)
+    ) {
+      dispatch(setParticipantsPage(page));
+    }
+  };
+
+  const handleMatchesPageChange = (page: number) => {
+    if (page >= 1 && page <= Math.ceil(matchesTotalCount / matchesPerPage)) {
+      dispatch(setMatchesPage(page));
+    }
+  };
+
+  // Modal handlers
+  const openModal = (matchId: string) => {
+    dispatch(fetchLeagueMatchesByID({ matcheId: matchId }));
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  // Dynamic team data for modal
+  const getTeamsData = () => {
+    if (!matcheDetail) return [];
+    return [
+      {
+        name: "Team 1",
+        participants: matcheDetail?.team1 || [],
+        scoreDetails: matcheDetail?.team1ScoreDetails || {},
+      },
+      {
+        name: "Team 2",
+        participants: matcheDetail?.team2 || [],
+        scoreDetails: matcheDetail?.team2ScoreDetails || {},
+      },
+    ];
+  };
 
   return (
     <div className="p-4">
@@ -61,16 +142,16 @@ const LeagueDetails: React.FC = () => {
       <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-between items-center pt-3 pb-[2rem] border-b border-light-border">
         <div className="legue__head_left-con flex items-center gap-4">
           <img
-            src={`${baseURL}/api/v1/${leagueDetail.logo}`}
-            alt={leagueDetail.title}
+            src={`${baseURL}/api/v1/${leagueDetail?.logo}`}
+            alt={leagueDetail?.title}
             className="w-16 h-16 rounded-[0.42rem]"
           />
           <div>
             <h3 className="font-bold text-[1.5rem] text-white">
-              {leagueDetail.title}
+              {leagueDetail?.title}
             </h3>
             <p className="text-custom-gray text-[1.0625rem]">
-              {leagueDetail.game?.name} | {leagueDetail.format}
+              {leagueDetail?.game?.name} | {leagueDetail?.format}
             </p>
           </div>
         </div>
@@ -114,46 +195,307 @@ const LeagueDetails: React.FC = () => {
               <HandLogoLoader />
             ) : participantsError ? (
               <div className="text-custom-gray">Error: {participantsError}</div>
-            ) : participants.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full text-[1.0625rem] text-white border-collapse">
-                  <thead>
-                    <tr className="bg-[#2A2E3F] text-custom-gray">
-                      <th className="py-3 px-4 text-left rounded-tl-[0.52rem]">
-                        User ID
-                      </th>
-                      <th className="py-3 px-4 text-left">Game ID</th>
-                      <th className="py-3 px-4 text-left">Team Join</th>
-                      <th className="py-3 px-4 text-left rounded-tr-[0.52rem]">
-                        Registration Date
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {participants.map((participant: any) => (
-                      <tr
-                        key={participant._id}
-                        className="border-b border-light-border hover:bg-[#2A2E3F]"
-                      >
-                        <td className="py-3 px-4">{participant.userId}</td>
-                        <td className="py-3 px-4">{participant.gameId}</td>
-                        <td className="py-3 px-4">
-                          {participant.isTeamJoin ? "Yes" : "No"}
-                        </td>
-                        <td className="py-3 px-4">
-                          {new Date(participant.createdAt).toLocaleDateString()}
-                        </td>
+            ) : participants?.length > 0 ? (
+              <>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-[1.0625rem] text-white border-collapse">
+                    <thead>
+                      <tr className="bg-[#2A2E3F] text-custom-gray">
+                        <th className="py-3 px-4 text-left rounded-tl-[0.52rem]">
+                          User Name
+                        </th>
+                        <th className="py-3 px-4 text-left">Game ID</th>
+                        <th className="py-3 px-4 text-left">Team Join</th>
+                        <th className="py-3 px-4 text-left rounded-tr-[0.52rem]">
+                          Registration Date
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {participants?.map((participant: any) => (
+                        <tr
+                          key={participant?._id}
+                          className="border-b border-light-border hover:bg-[#2A2E3F]"
+                        >
+                          <td className="py-3 px-4">
+                            {participant?.userId?.username}
+                          </td>
+                          <td className="py-3 px-4">{participant?.gameId}</td>
+                          <td className="py-3 px-4">
+                            {participant?.isTeamJoin ? "Yes" : "No"}
+                          </td>
+                          <td className="py-3 px-4">
+                            {new Date(
+                              participant?.createdAt
+                            ).toLocaleDateString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {/* Participants Pagination */}
+                <div className="flex justify-between items-center mt-4">
+                  <div className="text-custom-gray">
+                    Showing {participants.length} of {participantsTotalCount}{" "}
+                    participants
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() =>
+                        handleParticipantsPageChange(
+                          participantsCurrentPage - 1
+                        )
+                      }
+                      disabled={participantsCurrentPage === 1}
+                      className="py-1 px-3 bg-[#2A2E3F] text-white rounded-[0.52rem] disabled:opacity-50"
+                    >
+                      Previous
+                    </button>
+                    <span className="py-1 px-3 text-white">
+                      Page {participantsCurrentPage} of{" "}
+                      {Math.ceil(participantsTotalCount / participantsPerPage)}
+                    </span>
+                    <button
+                      onClick={() =>
+                        handleParticipantsPageChange(
+                          participantsCurrentPage + 1
+                        )
+                      }
+                      disabled={
+                        participantsCurrentPage >=
+                        Math.ceil(participantsTotalCount / participantsPerPage)
+                      }
+                      className="py-1 px-3 bg-[#2A2E3F] text-white rounded-[0.52rem] disabled:opacity-50"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              </>
             ) : (
               <div className="text-custom-gray">No participants found.</div>
             )}
           </div>
         )}
+
+        {activeTab === "Matches" && (
+          <div>
+            <h4 className="font-bold text-[1.25rem] text-white mb-4">
+              Matches
+            </h4>
+            {matchesLoading ? (
+              <HandLogoLoader />
+            ) : matchesError ? (
+              <div className="text-custom-gray">Error: {matchesError}</div>
+            ) : matches?.length > 0 ? (
+              <>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-[1.0625rem] text-white border-collapse">
+                    <thead>
+                      <tr className="bg-[#2A2E3F] text-custom-gray">
+                        <th className="py-3 px-4 text-left rounded-tl-[0.52rem]">
+                          Team 1
+                        </th>
+                        <th className="py-3 px-4 text-left">Team 2</th>
+                        <th className="py-3 px-4 text-left">Status</th>
+                        <th className="py-3 px-4 text-left">Start Time</th>
+                        <th className="py-3 px-4 text-left">Winner</th>
+                        <th className="py-3 px-4 text-left rounded-tr-[0.52rem]">
+                          Action
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {matches?.map((match: any) => (
+                        <tr
+                          key={match?._id}
+                          className="border-b border-light-border hover:bg-[#2A2E3F]"
+                        >
+                          <td className="py-3 px-4">
+                            {match?.team1
+                              ?.map((p: any) => p.participant.userId.username)
+                              .join(", ")}
+                          </td>
+                          <td className="py-3 px-4">
+                            {match?.team2
+                              ?.map((p: any) => p.participant.userId.username)
+                              .join(", ")}
+                          </td>
+                          <td className="py-3 px-4">{match?.status}</td>
+                          <td className="py-3 px-4">
+                            {new Date(match?.startTime).toLocaleString()}
+                          </td>
+                          <td className="py-3 px-4">
+                            {match?.winner ? match.winner : "---"}
+                          </td>
+                          <td className="py-3 px-4">
+                            <button
+                              onClick={() => openModal(match?._id)}
+                              style={{
+                                background:
+                                  "radial-gradient(circle, #39415C 0%, #555F83 100%)",
+                              }}
+                              className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
+                            >
+                              <img
+                                src={viewIcon}
+                                alt="View"
+                                style={{ width: "1.26rem" }}
+                              />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {/* Matches Pagination */}
+                <div className="flex justify-between items-center mt-4">
+                  <div className="text-custom-gray">
+                    Showing {matches.length} of {matchesTotalCount} matches
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() =>
+                        handleMatchesPageChange(matchesCurrentPage - 1)
+                      }
+                      disabled={matchesCurrentPage === 1}
+                      className="py-1 px-3 bg-[#2A2E3F] text-white rounded-[0.52rem] disabled:opacity-50"
+                    >
+                      Previous
+                    </button>
+                    <span className="py-1 px-3 text-white">
+                      Page {matchesCurrentPage} of{" "}
+                      {Math.ceil(matchesTotalCount / matchesPerPage)}
+                    </span>
+                    <button
+                      onClick={() =>
+                        handleMatchesPageChange(matchesCurrentPage + 1)
+                      }
+                      disabled={
+                        matchesCurrentPage >=
+                        Math.ceil(matchesTotalCount / matchesPerPage)
+                      }
+                      className="py-1 px-3 bg-[#2A2E3F] text-white rounded-[0.52rem] disabled:opacity-50"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="text-custom-gray">No matches found.</div>
+            )}
+          </div>
+        )}
       </div>
+
+      {/* Modal for Match Details */}
+      <CommonModal
+        isOpen={isModalOpen && !!matcheDetail}
+        onClose={closeModal}
+        title="Match Details"
+      >
+        <div className="space-y-4">
+          {/* General Match Info */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="bg-[#2A2E3F] p-4 rounded-lg">
+              <span className="text-gray-400 font-medium">Status</span>
+              <p className="text-white mt-1">{matcheDetail?.status ?? "N/A"}</p>
+            </div>
+            <div className="bg-[#2A2E3F] p-4 rounded-lg">
+              <span className="text-gray-400 font-medium">Start Time</span>
+              <p className="text-white mt-1">
+                {matcheDetail?.startTime
+                  ? new Date(matcheDetail.startTime).toLocaleString()
+                  : "N/A"}
+              </p>
+            </div>
+            <div className="bg-[#2A2E3F] p-4 rounded-lg">
+              <span className="text-gray-400 font-medium">Winner</span>
+              <p className="text-white mt-1">{matcheDetail?.winner || "---"}</p>
+            </div>
+            <div className="bg-[#2A2E3F] p-4 rounded-lg">
+              <span className="text-gray-400 font-medium">Score Verified</span>
+              <p className="text-white mt-1">
+                {matcheDetail?.isScoreVerified ? "Yes" : "No"}
+              </p>
+            </div>
+          </div>
+
+          {/* Dynamic Team Sections */}
+          {getTeamsData().map((team, index) => (
+            <div
+              key={index}
+              className="bg-[#2A2E3F] p-4 sm:p-6 rounded-lg space-y-4"
+            >
+              <h4 className="text-white text-lg font-bold">{team?.name}</h4>
+              <div>
+                <span className="text-gray-400 font-medium">Participants</span>
+                <ul className="mt-2 space-y-1">
+                  {team?.participants?.length > 0 ? (
+                    team?.participants?.map((p: any) => (
+                      <li
+                        key={p?._id}
+                        className="text-white flex justify-between items-center"
+                      >
+                        <span>
+                          {p?.participant?.userId?.username ?? "Unknown"}
+                        </span>
+                        <span className="text-gray-400">
+                          Score: {p?.score ?? "N/A"}
+                        </span>
+                      </li>
+                    ))
+                  ) : (
+                    <li className="text-gray-400">No participants</li>
+                  )}
+                </ul>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <span className="text-gray-400 font-medium">Team Score</span>
+                  <p className="text-white mt-1">
+                    {team?.scoreDetails?.yourScore ?? "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <span className="text-gray-400 font-medium">
+                    Opponent Score
+                  </span>
+                  <p className="text-white mt-1">
+                    {team?.scoreDetails?.opponentScore ?? "N/A"}
+                  </p>
+                </div>
+                <div className="sm:col-span-2">
+                  <span className="text-gray-400 font-medium">Description</span>
+                  <p className="text-white mt-1">
+                    {team?.scoreDetails?.description || "N/A"}
+                  </p>
+                </div>
+                <div className="sm:col-span-2">
+                  <span className="text-gray-400 font-medium">Attachment</span>
+                  <p className="text-white mt-1">
+                    {team?.scoreDetails?.attachment ? (
+                      <a
+                        href={`${baseURL}/api/v1/${team?.scoreDetails?.attachment}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#46A2FF] hover:underline"
+                      >
+                        View Attachment
+                      </a>
+                    ) : (
+                      "None"
+                    )}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </CommonModal>
 
       {/* League Info Section */}
       <div className="mt-6 bg-input-color p-6 rounded-[0.52rem]">
@@ -163,7 +505,7 @@ const LeagueDetails: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[1.0625rem] text-white">
           <div>
             <span className="text-custom-gray">Status: </span>
-            {new Date(leagueDetail.endDate) > new Date()
+            {new Date(leagueDetail?.endDate) > new Date()
               ? "Not finished"
               : "Finished"}
           </div>
@@ -171,27 +513,27 @@ const LeagueDetails: React.FC = () => {
             <span className="text-custom-gray">Active: </span>
             <span
               className={`py-[0.35rem] px-[0.55rem] rounded-[0.54rem] inline-block ${
-                leagueDetail.isActive ? "yes_active" : "no_active"
+                leagueDetail?.isActive ? "yes_active" : "no_active"
               }`}
             >
-              {leagueDetail.isActive ? "Yes" : "No"}
+              {leagueDetail?.isActive ? "Yes" : "No"}
             </span>
           </div>
           <div>
             <span className="text-custom-gray">Start Date: </span>
-            {new Date(leagueDetail.startDate).toLocaleDateString()}
+            {new Date(leagueDetail?.startDate).toLocaleDateString()}
           </div>
           <div>
             <span className="text-custom-gray">End Date: </span>
-            {new Date(leagueDetail.endDate).toLocaleDateString()}
+            {new Date(leagueDetail?.endDate).toLocaleDateString()}
           </div>
           <div>
             <span className="text-custom-gray">Registrations: </span>
-            {leagueDetail.totalRegistrations}
+            {leagueDetail?.totalRegistrations}
           </div>
           <div>
             <span className="text-custom-gray">Prize Pool: </span>
-            {leagueDetail.prizepool.toLocaleString()}
+            {leagueDetail?.prizepool.toLocaleString()}
           </div>
         </div>
       </div>
