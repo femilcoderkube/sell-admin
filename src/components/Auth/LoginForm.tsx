@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { Formik, Form, Field, ErrorMessage } from "formik";
@@ -38,8 +38,11 @@ export const LoginForm: FC = () => {
         <Formik
           initialValues={{ email: "", password: "" }}
           validationSchema={validationSchema}
-          onSubmit={(values: LoginRequest) => {
+          onSubmit={(values: LoginRequest, { resetForm }) => {
             dispatch(login(values));
+            setTimeout(() => {
+              resetForm();
+            }, 1000);
           }}
         >
           {({ isSubmitting }) => (
