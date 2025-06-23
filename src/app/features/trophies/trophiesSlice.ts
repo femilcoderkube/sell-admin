@@ -155,7 +155,7 @@ const trophiesSlice = createSlice({
       })
       .addCase(addTrophie.fulfilled, (state) => {
         state.loading = false;
-        toast.success("Trophy is created and listed successfully.");
+        toast.success("Trophy is created successfully.");
       })
       .addCase(addTrophie.rejected, (state, action) => {
         state.loading = false;

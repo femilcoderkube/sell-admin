@@ -170,7 +170,7 @@ const badgesSlice = createSlice({
       })
       .addCase(addBadges.fulfilled, (state) => {
         state.loading = false;
-        toast.success("Badge is added successfully and listed.");
+        toast.success("Badge is added successfully.");
       })
       .addCase(addBadges.rejected, (state, action) => {
         state.loading = false;
@@ -182,7 +182,7 @@ const badgesSlice = createSlice({
       })
       .addCase(updateBadges.fulfilled, (state) => {
         state.loading = false;
-        toast.success("Changes are saved and updated in the list.");
+        toast.success("Changes are saved and updated.");
       })
       .addCase(updateBadges.rejected, (state, action) => {
         state.loading = false;
