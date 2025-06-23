@@ -21,7 +21,6 @@ const LeagueDetails: React.FC = () => {
   const dispatch = useDispatch();
   const {
     leagueDetail,
-    matcheDetail,
     loading,
     error,
     participants,
@@ -40,8 +39,6 @@ const LeagueDetails: React.FC = () => {
 
   // State for active tab
   const [activeTab, setActiveTab] = React.useState("Participants");
-  // State for modal visibility
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Fetch league details and paginated data when component mounts or page changes
   useEffect(() => {
@@ -107,33 +104,6 @@ const LeagueDetails: React.FC = () => {
     if (page >= 1 && page <= Math.ceil(matchesTotalCount / matchesPerPage)) {
       dispatch(setMatchesPage(page));
     }
-  };
-
-  // Modal handlers
-  const openModal = (matchId: string) => {
-    dispatch(fetchLeagueMatchesByID({ matcheId: matchId }));
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
-
-  // Dynamic team data for modal
-  const getTeamsData = () => {
-    if (!matcheDetail) return [];
-    return [
-      {
-        name: "Team 1",
-        participants: matcheDetail?.team1 || [],
-        scoreDetails: matcheDetail?.team1ScoreDetails || {},
-      },
-      {
-        name: "Team 2",
-        participants: matcheDetail?.team2 || [],
-        scoreDetails: matcheDetail?.team2ScoreDetails || {},
-      },
-    ];
   };
 
   return (
@@ -330,8 +300,8 @@ const LeagueDetails: React.FC = () => {
                             {match?.winner ? match.winner : "---"}
                           </td>
                           <td className="py-3 px-4">
-                            <button
-                              onClick={() => openModal(match?._id)}
+                            <Link
+                              to={`/${partnerId}/leagues/${lid}/${match?._id}`}
                               style={{
                                 background:
                                   "radial-gradient(circle, #39415C 0%, #555F83 100%)",
@@ -343,7 +313,7 @@ const LeagueDetails: React.FC = () => {
                                 alt="View"
                                 style={{ width: "1.26rem" }}
                               />
-                            </button>
+                            </Link>
                           </td>
                         </tr>
                       ))}
@@ -390,112 +360,6 @@ const LeagueDetails: React.FC = () => {
           </div>
         )}
       </div>
-
-      {/* Modal for Match Details */}
-      <CommonModal
-        isOpen={isModalOpen && !!matcheDetail}
-        onClose={closeModal}
-        title="Match Details"
-      >
-        <div className="space-y-4">
-          {/* General Match Info */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-[#2A2E3F] p-4 rounded-lg">
-              <span className="text-gray-400 font-medium">Status</span>
-              <p className="text-white mt-1">{matcheDetail?.status ?? "N/A"}</p>
-            </div>
-            <div className="bg-[#2A2E3F] p-4 rounded-lg">
-              <span className="text-gray-400 font-medium">Start Time</span>
-              <p className="text-white mt-1">
-                {matcheDetail?.startTime
-                  ? new Date(matcheDetail.startTime).toLocaleString()
-                  : "N/A"}
-              </p>
-            </div>
-            <div className="bg-[#2A2E3F] p-4 rounded-lg">
-              <span className="text-gray-400 font-medium">Winner</span>
-              <p className="text-white mt-1">{matcheDetail?.winner || "---"}</p>
-            </div>
-            <div className="bg-[#2A2E3F] p-4 rounded-lg">
-              <span className="text-gray-400 font-medium">Score Verified</span>
-              <p className="text-white mt-1">
-                {matcheDetail?.isScoreVerified ? "Yes" : "No"}
-              </p>
-            </div>
-          </div>
-
-          {/* Dynamic Team Sections */}
-          {getTeamsData().map((team, index) => (
-            <div
-              key={index}
-              className="bg-[#2A2E3F] p-4 sm:p-6 rounded-lg space-y-4"
-            >
-              <h4 className="text-white text-lg font-bold">{team?.name}</h4>
-              <div>
-                <span className="text-gray-400 font-medium">Participants</span>
-                <ul className="mt-2 space-y-1">
-                  {team?.participants?.length > 0 ? (
-                    team?.participants?.map((p: any) => (
-                      <li
-                        key={p?._id}
-                        className="text-white flex justify-between items-center"
-                      >
-                        <span>
-                          {p?.participant?.userId?.username ?? "Unknown"}
-                        </span>
-                        <span className="text-gray-400">
-                          Score: {p?.score ?? "N/A"}
-                        </span>
-                      </li>
-                    ))
-                  ) : (
-                    <li className="text-gray-400">No participants</li>
-                  )}
-                </ul>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <span className="text-gray-400 font-medium">Team Score</span>
-                  <p className="text-white mt-1">
-                    {team?.scoreDetails?.yourScore ?? "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <span className="text-gray-400 font-medium">
-                    Opponent Score
-                  </span>
-                  <p className="text-white mt-1">
-                    {team?.scoreDetails?.opponentScore ?? "N/A"}
-                  </p>
-                </div>
-                <div className="sm:col-span-2">
-                  <span className="text-gray-400 font-medium">Description</span>
-                  <p className="text-white mt-1">
-                    {team?.scoreDetails?.description || "N/A"}
-                  </p>
-                </div>
-                <div className="sm:col-span-2">
-                  <span className="text-gray-400 font-medium">Attachment</span>
-                  <p className="text-white mt-1">
-                    {team?.scoreDetails?.attachment ? (
-                      <a
-                        href={`${baseURL}/api/v1/${team?.scoreDetails?.attachment}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[#46A2FF] hover:underline"
-                      >
-                        View Attachment
-                      </a>
-                    ) : (
-                      "None"
-                    )}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </CommonModal>
 
       {/* League Info Section */}
       <div className="mt-6 bg-input-color p-6 rounded-[0.52rem]">

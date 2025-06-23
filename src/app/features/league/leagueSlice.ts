@@ -62,6 +62,33 @@ export const fetchLeagueMatchesByID = createAsyncThunk(
     }
   }
 );
+export const updateLeagueMatchesByID = createAsyncThunk(
+  "leagues/updateLeagueMatchesByID", // Updated action type for clarity
+  async (
+    {
+      matcheId,
+      team1ScoreDetails,
+      team2ScoreDetails,
+    }: {
+      matcheId: string;
+      team1ScoreDetails: object;
+      team2ScoreDetails: object;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axiosInstance.put(`/LeagueMatch?id=${matcheId}`, {
+        team1ScoreDetails,
+        team2ScoreDetails,
+      });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error updating league match"
+      );
+    }
+  }
+);
 
 export const fetchLeagueParticipants = createAsyncThunk(
   "leagues/fetchLeagueParticipants",
@@ -339,6 +366,23 @@ const leagueSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
         toast.error("Failed to register for league!");
+      })
+      .addCase(updateLeagueMatchesByID.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateLeagueMatchesByID.fulfilled, (state, action) => {
+        state.loading = false;
+        state.matcheDetail = action.payload.data;
+        // Optionally update matches array if needed
+        state.matches = state.matches.map((match) =>
+          match.id === action.payload.data.id ? action.payload.data : match
+        );
+        toast.success("Match updated successfully!");
+      })
+      .addCase(updateLeagueMatchesByID.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        toast.error("Failed to update match!");
       });
   },
 });

@@ -48,7 +48,7 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({
       </svg>
     ),
     league: "LEAGUE NAME",
-    public: "ACTIVE",
+    public: "PLAYERS PER TEAM",
     platform: "PLATFORM",
     game: "GAME",
     format: "FORMAT",
@@ -82,6 +82,7 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({
             </th>
             <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
               {thead.public}
+              {/* {thead.public} */}
             </th>
             {/* <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
               {thead.platform}
@@ -117,7 +118,7 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({
             >
               <td className="text-[1.0625rem] py-3">{index + 1}</td>
               <td className="text-[1.0625rem] py-3">{league.title}</td>
-              <td
+              {/* <td
                 className={`text-[1.0625rem] py-3 ${
                   league.isActive ? "yes_active" : "no_active"
                 }`}
@@ -125,8 +126,8 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({
                 <span className="py-[0.35rem] px-[0.55rem] rounded-[0.54rem] inline-block">
                   {league.isActive ? "Yes" : "No"}
                 </span>
-              </td>
-              {/* <td className="text-[1.0625rem] py-3">{league.platform}</td> */}
+              </td> */}
+              <td className="text-[1.0625rem] py-3">{`${league.playersPerTeam} vs ${league.playersPerTeam}`}</td>
               <td className="text-[1.0625rem] py-3">{league?.game?.name}</td>
               <td className="text-[1.0625rem] py-3">{league.format}</td>
               <td className="text-[1.0625rem] py-3">
