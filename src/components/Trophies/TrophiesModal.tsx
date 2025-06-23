@@ -86,6 +86,36 @@ const TrophiesModal: React.FC<TrophiesModalProps> = ({
     formik.handleChange(e);
   };
 
+  const handlePointInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+      .replace(/[^0-9.]/g, "")
+      .replace(/(\..*)\./g, "$1");
+    e.target.value = value;
+    formik.handleChange(e);
+  };
+
+  const handlePointKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const allowedKeys = [
+      "Backspace",
+      "Delete",
+      "Tab",
+      "Escape",
+      "Enter",
+      "ArrowLeft",
+      "ArrowRight",
+      ".", // Allow decimal point
+    ];
+    if (
+      allowedKeys.includes(e.key) ||
+      // Allow Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+      (e.ctrlKey && ["a", "c", "v", "x"].includes(e.key.toLowerCase())) ||
+      // Allow only digits (0-9), block minus sign
+      (/^\d$/.test(e.key) && e.key !== "-")
+    ) {
+      return;
+    }
+    e.preventDefault();
+  };
   // Restrict prize input to digits only, block negative sign
   const handlePrizeKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const allowedKeys = [
@@ -183,6 +213,8 @@ const TrophiesModal: React.FC<TrophiesModalProps> = ({
                 type="text"
                 className="w-full text-[0.94rem] text-white focus:outline-0 bg-input-color rounded-[0.52rem] px-3 py-2"
                 {...formik.getFieldProps("points")}
+                onKeyDown={handlePointKeyDown}
+                onInput={handlePointInput}
               />
               {formik.touched.points && formik.errors.points && (
                 <p className="text-red-600 text-sm">{formik.errors.points}</p>

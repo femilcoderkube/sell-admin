@@ -107,7 +107,9 @@ export const addTrophieSchema = Yup.object().shape({
   position: Yup.number()
     .required("Position is required")
     .min(1, "Position must be at least 1"),
-  points: Yup.string().required("Points are required"),
+  points: Yup.string()
+    .required("Points are required")
+    .matches(/^\S.*\S$/, "Points cannot start or end with spaces"),
   // .min(0, "Points cannot be negative"),
   prize: Yup.string()
     .required("Prize is required")
