@@ -81,10 +81,11 @@ export const updateDevice = createAsyncThunk(
 
 export const checkDeviceExists = createAsyncThunk(
   "devices/checkDeviceExists",
-  async ({ device }, { rejectWithValue }) => {
+  async ({ device, id }, { rejectWithValue }) => {
     try {
       const params = new URLSearchParams();
       if (device) params.append("name", device);
+      if (id) params.append("id", id);
 
       const response = await axiosInstance.get(
         `/platforms/check?${params.toString()}`

@@ -43,6 +43,7 @@ export const fetchLeagueMatches = createAsyncThunk(
       );
       return response.data;
     } catch (error: any) {
+      console.log("err", error);
       return rejectWithValue(
         error.response?.data?.message || "Error fetching league matches"
       );
@@ -56,6 +57,8 @@ export const fetchLeagueMatchesByID = createAsyncThunk(
       const response = await axiosInstance.get(`/LeagueMatch?id=${matcheId}`);
       return response.data;
     } catch (error: any) {
+      console.log("err 1", error);
+
       return rejectWithValue(
         error.response?.data?.message || "Error fetching league matches"
       );
@@ -109,6 +112,8 @@ export const fetchLeagueParticipants = createAsyncThunk(
       );
       return response.data;
     } catch (error: any) {
+      console.log("err 2", error);
+
       return rejectWithValue(
         error.response?.data?.message || "Error fetching league participants"
       );
@@ -138,6 +143,8 @@ export const fetchLeagues = createAsyncThunk(
       });
       return response.data;
     } catch (error: any) {
+      console.log("err 3", error);
+
       return rejectWithValue(
         error.response?.data?.message || "Error fetching leagues"
       );
@@ -152,6 +159,8 @@ export const fetchLeagueById = createAsyncThunk(
       const response = await axiosInstance.get(`/leagues?id=${id}`);
       return response.data;
     } catch (error: any) {
+      console.log("err 4", error);
+
       return rejectWithValue(
         error.response?.data?.message || "Error fetching league"
       );

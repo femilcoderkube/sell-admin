@@ -30,12 +30,12 @@ export const DeviceModal: React.FC<ModalProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   const debouncedCheckDevice = useCallback(
-    debounce(async (value, resolve) => {
+    debounce(async (value, id, resolve) => {
       console.log(`Checking device: ${value}`);
       if (value) {
-        const result = await dispatch(checkDeviceExists({ device: value }));
+        const result = await dispatch(checkDeviceExists({ device: value, id }));
         console.log(`Result for ${value}:`, result.payload);
-        resolve(result.payload.exists ? "Device already exists" : undefined);
+        resolve(result.payload.data ? "Device already exists" : undefined);
       } else {
         resolve(undefined);
       }
@@ -54,7 +54,7 @@ export const DeviceModal: React.FC<ModalProps> = ({
         "Device already exists",
         (value) =>
           new Promise((resolve) => {
-            debouncedCheckDevice(value, resolve);
+            debouncedCheckDevice(value, selectedDevice?._id, resolve);
           })
       )
       .matches(/^\S.*\S$/, "Name cannot start or end with spaces"),

@@ -36,7 +36,7 @@ const LeagueDetails: React.FC = () => {
     matchesPerPage,
     matchesTotalCount,
   } = useSelector((state: RootState) => state.leagues);
-
+  console.log("error", error);
   // State for active tab
   const [activeTab, setActiveTab] = React.useState("Participants");
 
