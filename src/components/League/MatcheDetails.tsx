@@ -48,6 +48,120 @@ interface MatchDetails {
   startTime: string;
 }
 
+const MatchStatusSwitch = ({ matcheDetail }) => {
+  const [status, setStatus] = useState(matcheDetail?.status);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState<string | null>(null);
+  const dispatch = useDispatch();
+
+  const statusOptions = ["in_progress", "completed"];
+  const statusColors = {
+    in_progress: "bg-yellow-600",
+    completed: "bg-green-600",
+  };
+  const statusTextColors = {
+    in_progress: "text-yellow-100",
+    completed: "text-green-100",
+  };
+
+  const handleStatusChange = () => {
+    const newStatus = status === "in_progress" ? "completed" : "in_progress";
+    setPendingStatus(newStatus);
+    setShowModal(true);
+  };
+
+  const confirmStatusChange = async () => {
+    if (!pendingStatus) return;
+    setIsLoading(true);
+    setShowModal(false);
+
+    try {
+      const result = await dispatch(
+        updateLeagueMatchesByID({
+          matcheId: matcheDetail?._id,
+          team1ScoreDetails: matcheDetail?.team1ScoreDetails || {},
+          team2ScoreDetails: matcheDetail?.team2ScoreDetails || {},
+          status: pendingStatus,
+        })
+      );
+      if (updateLeagueMatchesByID.fulfilled.match(result)) {
+        setStatus(pendingStatus);
+        dispatch(fetchLeagueMatchesByID({ matcheId: matcheDetail?._id }));
+      }
+    } catch (error) {
+      console.log("Error updating status:", error);
+    } finally {
+      setIsLoading(false);
+      setPendingStatus(null);
+    }
+  };
+
+  const cancelStatusChange = () => {
+    setShowModal(false);
+    setPendingStatus(null);
+  };
+
+  return (
+    <>
+      <button
+        onClick={handleStatusChange}
+        disabled={isLoading}
+        className={`inline-flex items-center px-4 py-2 rounded-full text-base font-medium ${
+          statusColors[status]
+        } ${
+          statusTextColors[status]
+        } transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+          isLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+        }`}
+      >
+        <span className="mr-2">{status.replace("_", " ").toUpperCase()}</span>
+        <div
+          className={`w-8 h-4 rounded-full ${statusColors[status]} relative transition-all duration-300`}
+        >
+          <div
+            className={`w-3 h-3 bg-white rounded-full absolute top-0.5 transition-all duration-300 ${
+              status === "completed" ? "left-4" : "left-0.5"
+            }`}
+          ></div>
+        </div>
+        {isLoading && <span className="ml-2 text-sm">Updating...</span>}
+      </button>
+
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm w-full">
+            <h3 className="text-xl font-semibold text-white mb-4">
+              Confirm Status Change
+            </h3>
+            <p className="text-gray-300 mb-6">
+              Are you sure you want to change the match status to{" "}
+              <span className="font-medium text-[#46A2FF]">
+                {pendingStatus?.replace("_", " ").toUpperCase()}
+              </span>
+              ?
+            </p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={cancelStatusChange}
+                className="py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 text-base transition duration-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmStatusChange}
+                className="py-2 px-4 bg-[#46A2FF] text-white rounded-lg hover:bg-[#3b8ce6] text-base transition duration-300"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
 const MatchDetails = () => {
   const { mid } = useParams<{ mid: string }>();
   const navigate = useNavigate();
@@ -118,8 +232,6 @@ const MatchDetails = () => {
         if (updateLeagueMatchesByID.fulfilled.match(result)) {
           setEditingTeam1(false);
           dispatch(fetchLeagueMatchesByID({ matcheId: mid }));
-        } else if (updateLeagueMatchesByID.rejected.match(result)) {
-          toast.error(result.payload as string);
         }
       });
     }
@@ -141,8 +253,6 @@ const MatchDetails = () => {
         if (updateLeagueMatchesByID.fulfilled.match(result)) {
           setEditingTeam2(false);
           dispatch(fetchLeagueMatchesByID({ matcheId: mid }));
-        } else if (updateLeagueMatchesByID.rejected.match(result)) {
-          toast.error(result.payload as string);
         }
       });
     }
@@ -213,17 +323,7 @@ const MatchDetails = () => {
       {/* Match Status */}
       <div className="py-6 border-b border-gray-700">
         <div className="flex justify-between items-center">
-          <span
-            className={`inline-flex items-center px-3 py-1 rounded-full text-base font-medium ${
-              matcheDetail?.status === "in_progress"
-                ? "bg-yellow-600 text-yellow-100"
-                : matcheDetail?.status === "completed"
-                ? "bg-green-600 text-green-100"
-                : "bg-red-600 text-red-100"
-            }`}
-          >
-            {matcheDetail?.status?.replace("_", " ").toUpperCase()}
-          </span>
+          <MatchStatusSwitch matcheDetail={matcheDetail} />
           {matcheDetail?.isScoreVerified && (
             <span className="text-green-400 font-medium text-base flex items-center gap-1">
               ✓ Score Verified

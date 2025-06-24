@@ -69,10 +69,12 @@ export const updateLeagueMatchesByID = createAsyncThunk(
       matcheId,
       team1ScoreDetails,
       team2ScoreDetails,
+      status,
     }: {
       matcheId: string;
       team1ScoreDetails: object;
       team2ScoreDetails: object;
+      status?: string;
     },
     { rejectWithValue }
   ) => {
@@ -80,6 +82,7 @@ export const updateLeagueMatchesByID = createAsyncThunk(
       const response = await axiosInstance.put(`/LeagueMatch?id=${matcheId}`, {
         team1ScoreDetails,
         team2ScoreDetails,
+        ...(status && { status }),
       });
       return response.data;
     } catch (error: any) {

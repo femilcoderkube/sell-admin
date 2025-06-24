@@ -284,12 +284,12 @@ const LeagueDetails: React.FC = () => {
                         >
                           <td className="py-3 px-4">
                             {match?.team1
-                              ?.map((p: any) => p.participant.userId.username)
+                              ?.map((p: any) => p.participant?.userId?.username)
                               .join(", ")}
                           </td>
                           <td className="py-3 px-4">
                             {match?.team2
-                              ?.map((p: any) => p.participant.userId.username)
+                              ?.map((p: any) => p.participant?.userId?.username)
                               .join(", ")}
                           </td>
                           <td className="py-3 px-4">{match?.status}</td>
