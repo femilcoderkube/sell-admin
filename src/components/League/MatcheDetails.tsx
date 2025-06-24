@@ -589,13 +589,7 @@ const MatchDetails = () => {
             <div>
               <span className="text-gray-400">Winner: </span>
               <span className="text-green-400">
-                {matcheDetail.team1?.find(
-                  (t) => t?._id === matcheDetail?.winner
-                )?.participant?.userId?.username ||
-                  matcheDetail.team2?.find(
-                    (t) => t?._id === matcheDetail?.winner
-                  )?.participant?.userId?.username ||
-                  "Unknown"}
+                {matcheDetail?.winner ? matcheDetail?.winner : "Unknown"}
               </span>
             </div>
           )}

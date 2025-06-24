@@ -42,32 +42,32 @@ interface UsersModelProps {
   onSave: (form: any) => void;
 }
 
-const Switch = ({
-  checked,
-  onChange,
-  id,
-}: {
-  checked: boolean;
-  onChange: (v: boolean) => void;
-  id: string;
-}) => (
-  <button
-    type="button"
-    id={id}
-    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none ${
-      checked ? "bg-blue-600" : "bg-gray-400"
-    }`}
-    onClick={() => onChange(!checked)}
-    aria-pressed={checked}
-  >
-    <span className="sr-only">Toggle</span>
-    <span
-      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
-        checked ? "translate-x-6" : "translate-x-1"
-      }`}
-    />
-  </button>
-);
+// const Switch = ({
+//   checked,
+//   onChange,
+//   id,
+// }: {
+//   checked: boolean;
+//   onChange: (v: boolean) => void;
+//   id: string;
+// }) => (
+//   <button
+//     type="button"
+//     id={id}
+//     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none ${
+//       checked ? "bg-blue-600" : "bg-gray-400"
+//     }`}
+//     onClick={() => onChange(!checked)}
+//     aria-pressed={checked}
+//   >
+//     <span className="sr-only">Toggle</span>
+//     <span
+//       className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
+//         checked ? "translate-x-6" : "translate-x-1"
+//       }`}
+//     />
+//   </button>
+// );
 
 // Validation schema for firstName, lastName, role, gender, and conditionally email, username, and password
 const getValidationSchema = (isAddUser: boolean) =>
@@ -127,7 +127,7 @@ const UsersModel: React.FC<UsersModelProps> = ({
       role: selectedUser?.role || ROLES[0],
       profilePicture: null as File | null,
       socialMediaHandles: selectedUser?.socialMediaHandles || {},
-      isBanned: selectedUser?.isBanned || false,
+      // isBanned: selectedUser?.isBanned || false,
       profilePictureUrl: selectedUser?.profilePicture || "",
       email: selectedUser?.email || "",
       username: selectedUser?.username || "",
@@ -451,7 +451,7 @@ const UsersModel: React.FC<UsersModelProps> = ({
                   ismandatory={false}
                 />
               </div>
-              <div className="flex items-center gap-2 mb-4">
+              {/* <div className="flex items-center gap-2 mb-4">
                 <Switch
                   checked={formik.values.isBanned}
                   onChange={(v) => formik.setFieldValue("isBanned", v)}
@@ -460,7 +460,7 @@ const UsersModel: React.FC<UsersModelProps> = ({
                 <label htmlFor="isBanned" className="text-white">
                   Is Banned
                 </label>
-              </div>
+              </div> */}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
               {SOCIAL_FIELDS.map(({ key, label }) => (

@@ -3,21 +3,32 @@ import { BannedUsersTable } from "./BannedUsersTable";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../app/store";
 import { Pagination } from "../ui/Pagination";
-import { setPage, setPerPage, setSearchTerm, deleteUser, updateUser, fetchBannedUsers } from "../../app/features/users/usersSlice";
-import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
-import { User, User as UserType } from "../../app/types";
-
+import {
+  setPage,
+  setPerPage,
+  setSearchTerm,
+  fetchBannedUsers,
+} from "../../app/features/users/usersSlice";
+import { Formik, Form, Field, ErrorMessage } from "formik";
 import HandLogoLoader from "../Loader/Loader";
 
-export * from "./BannedUsersTable";
+import { PlusIcon } from "lucide-react";
+import BanModal from "./BanModal";
+
+// Ban Modal
 
 export const BannedUser: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { bannedUsers, loading, error, currentPage, perPage, totalPages, searchTerm } = useSelector((state: RootState) => state.users);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [deleteId, setDeleteId] = useState<string>("");
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
+  const {
+    bannedUsers,
+    loading,
+    error,
+    currentPage,
+    perPage,
+    totalPages,
+    searchTerm,
+  } = useSelector((state: RootState) => state.users);
+  const [isBanModalOpen, setIsBanModalOpen] = useState(false);
 
   useEffect(() => {
     dispatch(fetchBannedUsers({ page: currentPage, perPage, searchTerm }));
@@ -35,50 +46,30 @@ export const BannedUser: React.FC = () => {
     dispatch(setPerPage(Number(e.target.value)));
   };
 
-
-  // const handleDeleteUser = async () => {
-  //   if (deleteId) {
-  //     const resultAction = await dispatch(deleteUser(deleteId));
-  //     if (deleteUser.fulfilled.match(resultAction)) {
-  //       setDeleteId("");
-  //       setIsDeleteModalOpen(false);
-  //       dispatch(fetchBannedUsers({ page: currentPage, perPage, searchTerm }));
-  //     }
-  //   }
-  // };
-
-  // const handleEditClick = (user: UserType) => {
-  //   setSelectedUser(user);
-  //   setIsEditModalOpen(true);
-  // };
-
-  const handleEditSave = async (user: User) => {
-    if (user) {
-      const resultAction = await dispatch(updateUser({ id: user._id, user: user }));
-      if (updateUser.fulfilled.match(resultAction)) {
-        setIsEditModalOpen(false);
-        setSelectedUser(null);
-        dispatch(fetchBannedUsers({ page: 1, perPage, searchTerm }));
-      }
-    }
+  const handleBanSubmit = (values, { setSubmitting }) => {
+    setSubmitting(false);
+    setIsBanModalOpen(false);
+    setIsUnderDevModalOpen(true);
+    // Add actual ban logic here when developed
   };
 
   return (
     <>
-      <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-between items-center pt-3 pb-[2rem] border-b border-light-border">
+      <div className="nf_legue_head--con gap-4 flex-col sm:flex-row flex-wrap justify-between items-center pt-3 pb-[2rem] border-b border-light-border px-4 sm:px-6">
         <div className="legue__head_left-con">
           <h3 className="font-bold text-[1.25rem] text-white">
-            All Banned users <span className="text-custom-gray">({bannedUsers.length})</span>
+            All Banned users{" "}
+            <span className="text-custom-gray">({bannedUsers.length})</span>
           </h3>
         </div>
         <div className="legue__head_right-con flex-wrap flex gap-3 flex-1 justify-end">
-          <div className="nf_max-al bg-input-color gap-2 flex items-center pl-2 pr-1 rounded-[0.625rem]">
-            <span className="text-[1.0625rem] text-custom-gray whitespace-nowrap ">
+          <div className="nf_max-al bg-[#242B3C] gap-2 flex items-center pl-2 pr-1 rounded-[0.625rem]">
+            <span className="text-[1.0625rem] text-custom-gray whitespace-nowrap">
               Show max:
             </span>
             <select
               name="selectedFruit"
-              className=" font-medium focus:outline-0 bg-[#242B3C] text-white py-[0.4rem] px-2 rounded-[0.52rem] text-[1.0625rem]"
+              className="font-medium focus:outline-0 bg-[#242B3C] text-white py-[0.4rem] px-2 rounded-[0.52rem] text-[1.0625rem]"
               value={perPage}
               onChange={handlePerPageChange}
             >
@@ -87,10 +78,10 @@ export const BannedUser: React.FC = () => {
               <option value={30}>30</option>
             </select>
           </div>
-          <form action="" className=" w-full sm:w-[20.8rem]">
+          <form action="" className="w-full sm:w-[20.8rem]">
             <div className="relative">
               <input
-                className="text-white font-medium block  bg-input-color w-full sm:w-[20.8rem] text-gray-700 border rounded-[0.625rem] py-[0.6rem] pl-[2.5rem] pr-3 text-[1.0625rem] focus:outline-none border-0"
+                className="text-white font-medium block bg-[#242B3C] w-full sm:w-[20.8rem] text-gray-700 border rounded-[0.625rem] py-[0.6rem] pl-[2.5rem] pr-3 text-[1.0625rem] focus:outline-none border-0"
                 placeholder="Search Users,Email or IP"
                 type="text"
                 name="search"
@@ -121,31 +112,35 @@ export const BannedUser: React.FC = () => {
               </button>
             </div>
           </form>
-  
+
+          <div
+            className="bg-primary-gradient whitespace-nowrap sm:w-auto w-full font-medium flex hover:opacity-[0.85] duration-300 items-center gap-2 bg-[#46A2FF] hover:bg-blue-700 text-white font-base text-[1.0625rem] py-[0.6rem] px-4 rounded-[0.52rem]"
+            onClick={() => {
+              setIsBanModalOpen(true);
+            }}
+          >
+            <span>
+              <PlusIcon />
+            </span>
+            Ban User
+          </div>
         </div>
       </div>
-      {loading ? (       
-          <HandLogoLoader />
+      {loading ? (
+        <HandLogoLoader />
       ) : bannedUsers.length > 0 ? (
-        <BannedUsersTable 
-          users={bannedUsers} 
-          loading={loading} 
-          error={error} 
-          onEditClick={handleEditSave}
-        />
+        <BannedUsersTable users={bannedUsers} loading={loading} error={error} />
       ) : (
         <div className="text-custom-gray flex items-center justify-center h-20">
           No data found.
         </div>
       )}
-      {/* <DeleteConfirmationModal
-        show={isDeleteModalOpen}
-        onClose={() => {
-          setIsDeleteModalOpen(false);
-          setDeleteId("");
-        }}
-        onDelete={handleDeleteUser}
-      /> */}
+      <BanModal
+        isOpen={isBanModalOpen}
+        onClose={() => setIsBanModalOpen(false)}
+        onSubmit={handleBanSubmit}
+      />
+
       {!loading && totalPages > 1 && (
         <Pagination
           currentPage={currentPage}
