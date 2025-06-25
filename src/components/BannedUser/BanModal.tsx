@@ -37,9 +37,8 @@ const BanModal = ({ isOpen, onClose }) => {
     // ipAddress: Yup.string()
     //   .matches(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/, "Invalid IP address format")
     //   .required("IP address is required"),
-    date: Yup.date()
-      .required("Ban date is required")
-      .min(new Date(), "Ban date cannot be in the past"),
+    date: Yup.date().required("Ban date is required"),
+    // .min(new Date(), "Ban date cannot be in the past"),
     comment: Yup.string()
       .required("Reason for ban is required")
       .max(500, "Comment must be 500 characters or less"),

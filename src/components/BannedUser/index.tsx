@@ -13,7 +13,10 @@ import HandLogoLoader from "../Loader/Loader";
 
 import { PlusIcon } from "lucide-react";
 import BanModal from "./BanModal";
-import { fetchBannedUsers } from "../../app/features/bannedusers/bannedUsersSlice";
+import {
+  deleteBannedUser,
+  fetchBannedUsers,
+} from "../../app/features/bannedusers/bannedUsersSlice";
 
 // Ban Modal
 
@@ -129,7 +132,21 @@ export const BannedUser: React.FC = () => {
       {loading ? (
         <HandLogoLoader />
       ) : bannedUsers.length > 0 ? (
-        <BannedUsersTable users={bannedUsers} loading={loading} error={error} />
+        <BannedUsersTable
+          users={bannedUsers}
+          loading={loading}
+          error={error}
+          handleUnbanUser={async (user) => {
+            try {
+              await dispatch(deleteBannedUser(user._id)).unwrap();
+              await dispatch(
+                fetchBannedUsers({ page: currentPage, perPage, searchTerm })
+              );
+            } catch (error) {
+              console.error("Failed to unban user:", error);
+            }
+          }}
+        />
       ) : (
         <div className="text-custom-gray flex items-center justify-center h-20">
           No data found.
