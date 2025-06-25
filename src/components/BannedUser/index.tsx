@@ -27,7 +27,7 @@ export const BannedUser: React.FC = () => {
     perPage,
     totalPages,
     searchTerm,
-  } = useSelector((state: RootState) => state.users);
+  } = useSelector((state: RootState) => state.bannedUsers);
   const [isBanModalOpen, setIsBanModalOpen] = useState(false);
 
   useEffect(() => {

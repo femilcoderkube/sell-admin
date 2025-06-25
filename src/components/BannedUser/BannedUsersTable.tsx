@@ -108,8 +108,8 @@ export const BannedUsersTable: React.FC<BannedUsersTableProps> = ({
                 <td className="text-[1.0625rem] py-3">{user.email}</td>
                 <td className="text-[1.0625rem] py-3">{user.role}</td>
                 <td className="text-[1.0625rem] py-3">
-                  {user.lastLoginDate
-                    ? new Date(user.lastLoginDate).toLocaleString()
+                  {user.updatedAt
+                    ? new Date(user.updatedAt).toLocaleString()
                     : "-"}
                 </td>
                 <td className="text-[1.0625rem] py-3">{user.phone || "-"}</td>
