@@ -81,17 +81,15 @@ const TrophiesModal: React.FC<TrophiesModalProps> = ({
 
   // Handle pasted or programmatic input
   const handlePrizeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9]/g, "");
-    e.target.value = value;
-    formik.handleChange(e);
+    const value = e.target.value.replace(/[^0-9]/g, ""); // Allow only digits
+    formik.setFieldValue(e, value); // Update Formik state
   };
 
   const handlePointInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
-      .replace(/[^0-9.]/g, "")
-      .replace(/(\..*)\./g, "$1");
-    e.target.value = value;
-    formik.handleChange(e);
+      .replace(/[^0-9.]/g, "") // Allow digits and decimal point
+      .replace(/(\..*)\./g, "$1"); // Allow only one decimal point
+    formik.setFieldValue("points", value); // Update Formik state
   };
 
   const handlePointKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
