@@ -73,11 +73,13 @@ export const updateLeagueMatchesByID = createAsyncThunk(
       team1ScoreDetails,
       team2ScoreDetails,
       status,
+      winner,
     }: {
       matcheId: string;
-      team1ScoreDetails: object;
-      team2ScoreDetails: object;
+      team1ScoreDetails?: object;
+      team2ScoreDetails?: object;
       status?: string;
+      winner?: string;
     },
     { rejectWithValue }
   ) => {
@@ -86,6 +88,7 @@ export const updateLeagueMatchesByID = createAsyncThunk(
         team1ScoreDetails,
         team2ScoreDetails,
         ...(status && { status }),
+        ...(winner && { winner }),
       });
       return response.data;
     } catch (error: any) {
