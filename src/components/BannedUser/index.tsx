@@ -7,13 +7,13 @@ import {
   setPage,
   setPerPage,
   setSearchTerm,
-  fetchBannedUsers,
 } from "../../app/features/users/usersSlice";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import HandLogoLoader from "../Loader/Loader";
 
 import { PlusIcon } from "lucide-react";
 import BanModal from "./BanModal";
+import { fetchBannedUsers } from "../../app/features/bannedusers/bannedUsersSlice";
 
 // Ban Modal
 

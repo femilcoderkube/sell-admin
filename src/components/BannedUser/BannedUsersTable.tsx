@@ -11,25 +11,31 @@ interface BannedUsersTableProps {
   onEditClick: (user: User) => void;
 }
 
-export const BannedUsersTable: React.FC<BannedUsersTableProps> = ({ users, loading, error, onEditClick }) => {
+export const BannedUsersTable: React.FC<BannedUsersTableProps> = ({
+  users,
+  loading,
+  error,
+  onEditClick,
+}) => {
+  console.log("users", users);
 
   const [updatingUsers, setUpdatingUsers] = useState<string[]>([]);
 
   const handleUnbanUser = async (user: User) => {
     try {
       // Add user ID to updatingUsers before making the API call
-      setUpdatingUsers(prev => [...prev, user._id]);
-      
+      setUpdatingUsers((prev) => [...prev, user._id]);
+
       // Set isBanned to false to unban the user
       const updatedUser = { ...user, isBanned: false };
-      
+
       // Call the onEditClick function with the updated user
       onEditClick(updatedUser);
     } catch (err) {
-      console.error('Failed to update user ban status:', err);
+      console.error("Failed to update user ban status:", err);
     } finally {
       // Remove user ID from updatingUsers after the API call completes
-      setUpdatingUsers(prev => prev.filter(id => id !== user._id));
+      setUpdatingUsers((prev) => prev.filter((id) => id !== user._id));
     }
   };
 
@@ -57,7 +63,7 @@ export const BannedUsersTable: React.FC<BannedUsersTableProps> = ({ users, loadi
     lastLoginDate: "Last Login Date",
     mobile: "Mobile",
     ip_address: "IP Address",
-    status: "Action",  // Changed from "Ban Status" to "Action"
+    status: "Action", // Changed from "Ban Status" to "Action"
   };
 
   return (
@@ -102,19 +108,27 @@ export const BannedUsersTable: React.FC<BannedUsersTableProps> = ({ users, loadi
                 <td className="text-[1.0625rem] py-3">{user.email}</td>
                 <td className="text-[1.0625rem] py-3">{user.role}</td>
                 <td className="text-[1.0625rem] py-3">
-                  {user.lastLoginDate 
-                    ? new Date(user.lastLoginDate).toLocaleString() 
+                  {user.lastLoginDate
+                    ? new Date(user.lastLoginDate).toLocaleString()
                     : "-"}
                 </td>
                 <td className="text-[1.0625rem] py-3">{user.phone || "-"}</td>
-                <td className="text-[1.0625rem] py-3">{user.ipAddress || "-"}</td>
+                <td className="text-[1.0625rem] py-3">
+                  {user.ipAddress || "-"}
+                </td>
                 <td className="text-[1.0625rem] py-3 text-center">
                   <button
-                    className={`bg-red-600 hover:bg-red-700 text-white font-medium py-1 px-3 rounded-md ${updatingUsers.includes(user._id) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`bg-red-600 hover:bg-red-700 text-white font-medium py-1 px-3 rounded-md ${
+                      updatingUsers.includes(user._id)
+                        ? "opacity-50 cursor-not-allowed"
+                        : ""
+                    }`}
                     disabled={updatingUsers.includes(user._id)}
                     onClick={() => handleUnbanUser(user)}
                   >
-                    {updatingUsers.includes(user._id) ? 'Processing...' : 'Unban'}
+                    {updatingUsers.includes(user._id)
+                      ? "Processing..."
+                      : "Unban"}
                   </button>
                 </td>
               </tr>
