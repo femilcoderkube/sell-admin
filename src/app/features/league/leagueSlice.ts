@@ -88,7 +88,8 @@ export const updateLeagueMatchesByID = createAsyncThunk(
         team1ScoreDetails,
         team2ScoreDetails,
         ...(status && { status }),
-        ...(winner && { winner }),
+        winner,
+        // ...(winner && { winner }),
       });
       return response.data;
     } catch (error: any) {

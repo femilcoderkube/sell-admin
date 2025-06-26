@@ -351,6 +351,46 @@ const MatchDetails = () => {
         matcheDetail.team1ScoreDetails.opponentScore ===
           matcheDetail.team2ScoreDetails.opponentScore));
 
+  const deleteScore = (team: any) => {
+    if (mid) {
+      if (team === "team1") {
+        dispatch(
+          updateLeagueMatchesByID({
+            matcheId: mid,
+            status: "in_progress",
+            team1ScoreDetails: {
+              opponentScore: null,
+              yourScore: null,
+              submittedAt: null,
+            },
+            winner: null,
+          })
+        ).then((result) => {
+          if (updateLeagueMatchesByID.fulfilled.match(result)) {
+            dispatch(fetchLeagueMatchesByID({ matcheId: mid }));
+          }
+        });
+      } else {
+        dispatch(
+          updateLeagueMatchesByID({
+            matcheId: mid,
+            status: "in_progress",
+            team2ScoreDetails: {
+              opponentScore: null,
+              yourScore: null,
+              submittedAt: null,
+            },
+            winner: null,
+          })
+        ).then((result) => {
+          if (updateLeagueMatchesByID.fulfilled.match(result)) {
+            dispatch(fetchLeagueMatchesByID({ matcheId: mid }));
+          }
+        });
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
       <div className="max-w-6xl mx-auto px-4 py-6">
@@ -462,26 +502,33 @@ const MatchDetails = () => {
               {/* Players */}
               <div className="space-y-3">
                 {matcheDetail.team1.map((player, index) => (
-                  <div
-                    key={player?._id}
-                    className="flex items-center space-x-3 bg-gray-700/30 p-3 rounded-xl"
-                  >
-                    <div className="relative">
-                      <img
-                        src={`${baseURL}/api/v1/${player?.participant?.userId?.profilePicture}`}
-                        alt={player?.participant?.userId?.username}
-                        className="w-12 h-12 rounded-full object-cover border-2 border-gray-600"
-                      />
-                      <div className="absolute -top-1 -right-1 w-5 h-5 bg-[#46A2FF] rounded-full flex items-center justify-center text-white text-xs font-bold">
-                        {index + 1}
+                  <div className="flex items-center justify-between bg-gray-700/30 p-3 rounded-xl">
+                    <div
+                      key={player?._id}
+                      className="flex items-center space-x-3 "
+                    >
+                      <div className="relative">
+                        <img
+                          src={`${baseURL}/api/v1/${player?.participant?.userId?.profilePicture}`}
+                          alt={player?.participant?.userId?.username}
+                          className="w-12 h-12 rounded-full object-cover border-2 border-gray-600"
+                        />
+                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-[#46A2FF] rounded-full flex items-center justify-center text-white text-xs font-bold">
+                          {index + 1}
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-white text-base">
+                          {player?.participant?.userId?.username}
+                        </p>
+                        <p className="text-gray-400 text-sm">
+                          ID: {player?.participant?.gameId}
+                        </p>
                       </div>
                     </div>
-                    <div className="flex-1">
+                    <div>
                       <p className="font-semibold text-white text-base">
-                        {player?.participant?.userId?.username}
-                      </p>
-                      <p className="text-gray-400 text-sm">
-                        ID: {player?.participant?.gameId}
+                        {player?.score}
                       </p>
                     </div>
                   </div>
@@ -491,10 +538,19 @@ const MatchDetails = () => {
 
             {/* Scores */}
             <div className="p-6">
-              <h4 className="text-gray-300 font-semibold mb-4 flex items-center gap-2">
-                <span className="text-[#46A2FF] text-lg">🏆</span>
-                Scores
-              </h4>
+              <div className="flex items-center justify-between">
+                <h4 className="text-gray-300 font-semibold mb-4 flex items-center gap-2">
+                  <span className="text-[#46A2FF] text-lg">🏆</span>
+                  Scores
+                </h4>
+                <button
+                  onClick={() => deleteScore("team1")}
+                  className="py-2 px-4 bg-gradient-to-r from-[#f43f5e] to-[#F05252] text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
+                  title="Edit Team 1 Scores"
+                >
+                  Delete Score
+                </button>
+              </div>
               {editingTeam1 ? (
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
@@ -627,26 +683,33 @@ const MatchDetails = () => {
               {/* Players */}
               <div className="space-y-3">
                 {matcheDetail?.team2?.map((player, index) => (
-                  <div
-                    key={player?._id}
-                    className="flex items-center space-x-3 bg-gray-700/30 p-3 rounded-xl"
-                  >
-                    <div className="relative">
-                      <img
-                        src={`${baseURL}/api/v1/${player?.participant?.userId?.profilePicture}`}
-                        alt={player?.participant?.userId?.username}
-                        className="w-12 h-12 rounded-full object-cover border-2 border-gray-600"
-                      />
-                      <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                        {index + 1}
+                  <div className="flex items-center justify-between bg-gray-700/30 p-3 rounded-xl">
+                    <div
+                      key={player?._id}
+                      className="flex items-center space-x-3"
+                    >
+                      <div className="relative">
+                        <img
+                          src={`${baseURL}/api/v1/${player?.participant?.userId?.profilePicture}`}
+                          alt={player?.participant?.userId?.username}
+                          className="w-12 h-12 rounded-full object-cover border-2 border-gray-600"
+                        />
+                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                          {index + 1}
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-white text-base">
+                          {player?.participant?.userId?.username}
+                        </p>
+                        <p className="text-gray-400 text-sm">
+                          ID: {player?.participant?.gameId}
+                        </p>
                       </div>
                     </div>
-                    <div className="flex-1">
+                    <div>
                       <p className="font-semibold text-white text-base">
-                        {player?.participant?.userId?.username}
-                      </p>
-                      <p className="text-gray-400 text-sm">
-                        ID: {player?.participant?.gameId}
+                        {player?.score}
                       </p>
                     </div>
                   </div>
@@ -656,10 +719,20 @@ const MatchDetails = () => {
 
             {/* Scores */}
             <div className="p-6">
-              <h4 className="text-gray-300 font-semibold mb-4 flex items-center gap-2">
-                <span className="text-orange-500 text-lg">🏆</span>
-                Scores
-              </h4>
+              <div className="flex items-center justify-between">
+                <h4 className="text-gray-300 font-semibold mb-4 flex items-center gap-2">
+                  <span className="text-orange-500 text-lg">🏆</span>
+                  Scores
+                </h4>{" "}
+                <button
+                  onClick={() => deleteScore("team2")}
+                  className="py-2 px-4 bg-gradient-to-r from-[#f43f5e] to-[#F05252] text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
+                  title="Edit Team 1 Scores"
+                >
+                  Delete Score
+                </button>
+              </div>
+
               {editingTeam2 ? (
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
