@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { CancelIcon } from "../ui";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -29,17 +29,20 @@ export const DeviceModal: React.FC<ModalProps> = ({
   const [fileName, setFileName] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
-  const debouncedCheckDevice = useCallback(
-    debounce(async (value, id, resolve) => {
-      console.log(`Checking device: ${value}`);
-      if (value) {
-        const result = await dispatch(checkDeviceExists({ device: value, id }));
-        console.log(`Result for ${value}:`, result.payload);
-        resolve(result.payload.data ? "Device already exists" : undefined);
-      } else {
-        resolve(undefined);
-      }
-    }, 500),
+  const debouncedCheckDevice = useMemo(
+    () =>
+      debounce(async (value, id, resolve) => {
+        console.log(`Checking device: ${value}`);
+        if (value) {
+          const result = await dispatch(
+            checkDeviceExists({ device: value, id })
+          );
+          console.log(`Result for ${value}:`, result.payload);
+          resolve(result.payload.data ? "Device already exists" : undefined);
+        } else {
+          resolve(undefined);
+        }
+      }, 500),
     [dispatch]
   );
 

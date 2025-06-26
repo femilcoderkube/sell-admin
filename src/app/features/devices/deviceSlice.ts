@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 const initialState: DevicesState = {
   devices: [],
   loading: false,
+  checkloading: false,
   error: null,
   currentPage: 1,
   perPage: 10,
@@ -180,13 +181,13 @@ const devicesSlice = createSlice({
         toast.error(action.payload as string);
       })
       .addCase(checkDeviceExists.pending, (state) => {
-        state.loading = true;
+        state.checkloading = true;
       })
       .addCase(checkDeviceExists.fulfilled, (state) => {
-        state.loading = false;
+        state.checkloading = false;
       })
       .addCase(checkDeviceExists.rejected, (state, action) => {
-        state.loading = false;
+        state.checkloading = false;
         state.error = action.payload;
       });
   },
