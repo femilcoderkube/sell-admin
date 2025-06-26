@@ -46,7 +46,7 @@ export const DeviceModal: React.FC<ModalProps> = ({
   // Validation schema
   const deviceSchema = Yup.object().shape({
     name: Yup.string()
-      .min(3, "Name must be at least 3 characters")
+      // .min(3, "Name must be at least 3 characters")
       .max(50, "Name cannot exceed 50 characters")
       .required("Device name is required")
       .test(
