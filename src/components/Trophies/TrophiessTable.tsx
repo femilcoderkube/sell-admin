@@ -27,16 +27,20 @@ export const TrophiesTable: React.FC<ITrophiesProps> = ({
     actions: "Actions",
   };
 
+  console.log("data", data);
+
   const tdetail = data.map((trophie, key) => ({
-    id: trophie._id,
+    id: trophie?._id,
     key: (currentPage - 1) * 10 + key + 1,
-    badgeID: trophie.BadgeID.name,
-    position: trophie.position,
-    points: trophie.points,
-    prize: trophie.prize,
+    badgeID: trophie?.badge?.name,
+    position: trophie?.position,
+    points: trophie?.points,
+    prize: trophie?.prize,
     actions: {
       edit: <img src={edit} alt="Edit" style={{ width: "1.26rem" }} />,
-      delete: <img src={deleteIcon} alt="Delete" style={{ width: "1.26rem" }} />,
+      delete: (
+        <img src={deleteIcon} alt="Delete" style={{ width: "1.26rem" }} />
+      ),
       view: <img src={viewIcon} alt="View" style={{ width: "1.26rem" }} />,
     },
   }));
@@ -67,37 +71,39 @@ export const TrophiesTable: React.FC<ITrophiesProps> = ({
           </tr>
         </thead>
         <tbody>
-          {tdetail.map((tdetail, index) => (
-            <tr key={tdetail.key} className="border-b border-light-border">
-              <td className="text-[1.0625rem] py-3">{tdetail.key}</td>
-              <td className="text-[1.0625rem] py-3">{tdetail.badgeID}</td>
-              <td className="text-[1.0625rem] py-3">{tdetail.position}</td>
-              <td className="text-[1.0625rem] py-3">{tdetail.points}</td>
-              <td className="text-[1.0625rem] py-3">{tdetail.prize}</td>
-              <td className="text-[1.0625rem] py-3 flex space-x-3 justify-center">
-                <button
-                  style={{
-                    background:
-                      "radial-gradient(circle, #39415C 0%, #555F83 100%)",
-                  }}
-                  className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
-                  onClick={() => onEditClick(data[index])}
-                >
-                  {tdetail.actions.edit}
-                </button>
-                <button
-                  style={{
-                    background:
-                      "radial-gradient(circle, #39415C 0%, #555F83 100%)",
-                  }}
-                  className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
-                  onClick={() => onDeleteClick(tdetail.id)}
-                >
-                  {tdetail.actions.delete}
-                </button>
-              </td>
-            </tr>
-          ))}
+          {tdetail.map((tdetail, index) => {
+            return (
+              <tr key={tdetail.key} className="border-b border-light-border">
+                <td className="text-[1.0625rem] py-3">{tdetail.key}</td>
+                <td className="text-[1.0625rem] py-3">{tdetail.badgeID}</td>
+                <td className="text-[1.0625rem] py-3">{tdetail.position}</td>
+                <td className="text-[1.0625rem] py-3">{tdetail.points}</td>
+                <td className="text-[1.0625rem] py-3">{tdetail.prize}</td>
+                <td className="text-[1.0625rem] py-3 flex space-x-3 justify-center">
+                  <button
+                    style={{
+                      background:
+                        "radial-gradient(circle, #39415C 0%, #555F83 100%)",
+                    }}
+                    className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
+                    onClick={() => onEditClick(data[index])}
+                  >
+                    {tdetail.actions.edit}
+                  </button>
+                  <button
+                    style={{
+                      background:
+                        "radial-gradient(circle, #39415C 0%, #555F83 100%)",
+                    }}
+                    className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
+                    onClick={() => onDeleteClick(tdetail.id)}
+                  >
+                    {tdetail.actions.delete}
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
