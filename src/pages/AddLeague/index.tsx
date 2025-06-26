@@ -879,17 +879,19 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                     <h6 className="text-white text-[0.78125rem] font-medium">
                       Timeline #{index + 1}
                     </h6>
-                    <button
-                      type="button"
-                      onClick={() => remove(index)}
-                      className="bg-gray-gradient hover:opacity-80 p-[0.625rem] rounded-[0.52rem] duration-300"
-                    >
-                      <img
-                        src={deleteIcon}
-                        alt="Delete"
-                        style={{ width: "1.25rem" }}
-                      />
-                    </button>
+                    {index !== 0 && ( // Only show delete button for fields after the first one
+                      <button
+                        type="button"
+                        onClick={() => remove(index)}
+                        className="bg-gray-gradient hover:opacity-80 p-[0.625rem] rounded-[0.52rem] duration-300"
+                      >
+                        <img
+                          src={deleteIcon}
+                          alt="Delete"
+                          style={{ width: "1.25rem" }}
+                        />
+                      </button>
+                    )}
                   </div>
                   <div className="relative float-label-input custom-input mb-4">
                     <Field
