@@ -30,18 +30,35 @@ const BanModal = ({ isOpen, onClose }) => {
     );
   };
 
-  const validationSchema = Yup.object({
+  const validationSchema = Yup.object().shape({
     playerName: Yup.string()
-      .required("Player name is required")
-      .max(50, "Player name must be 50 characters or less"),
-    // ipAddress: Yup.string()
-    //   .matches(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/, "Invalid IP address format")
-    //   .required("IP address is required"),
-    date: Yup.date().required("Ban date is required"),
-    // .min(new Date(), "Ban date cannot be in the past"),
+      .max(50, "Player name must be 50 characters or less")
+      .test(
+        "playerName-or-ipAddress",
+        "Either Player Name or IP Address is required",
+        function (value) {
+          const { ipAddress } = this.parent;
+          return Boolean(value?.trim()) || Boolean(ipAddress?.trim());
+        }
+      )
+      .matches(/^\S.*\S$/, "playerName cannot start or end with spaces"),
+    ipAddress: Yup.string()
+      // .matches(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/, "Invalid IP address format")
+      .nullable()
+      .matches(/^\S.*\S$/, "ipAddress cannot start or end with spaces"),
+    date: Yup.date()
+      .nullable()
+      .when("permanentBan", {
+        is: true,
+        then: (schema) =>
+          schema.required("Ban date is required for permanent ban"),
+        otherwise: (schema) => schema.notRequired(),
+      }),
+    permanentBan: Yup.boolean(),
     comment: Yup.string()
       .required("Reason for ban is required")
-      .max(500, "Comment must be 500 characters or less"),
+      .max(500, "Comment must be 500 characters or less")
+      .matches(/^\S.*\S$/, "Comment cannot start or end with spaces"),
   });
 
   const initialValues = {
@@ -66,7 +83,6 @@ const BanModal = ({ isOpen, onClose }) => {
       resetForm();
       onClose();
     } catch (error) {
-      // Error is handled by the createBannedUser thunk
       setSubmitting(false);
     }
   };
@@ -74,7 +90,6 @@ const BanModal = ({ isOpen, onClose }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-[#1A2332] rounded-2xl shadow-2xl w-full max-w-md transform transition-all duration-300 border border-gray-700/50">
-        {/* Header */}
         <div className="px-6 py-5 border-b border-gray-700/50">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -104,7 +119,6 @@ const BanModal = ({ isOpen, onClose }) => {
           </div>
         </div>
 
-        {/* Scrollable Form Content */}
         <div
           className="px-6 py-5 space-y-5 max-h-[70vh] overflow-y-auto"
           style={{ scrollbarWidth: "none" }}
@@ -116,8 +130,14 @@ const BanModal = ({ isOpen, onClose }) => {
           >
             {({ values, setFieldValue, isSubmitting }) => (
               <Form>
-                {/* Player Name */}
                 <div className="space-y-2">
+                  <ErrorMessage
+                    name="playerName"
+                    component="div"
+                    className="text-red-500 text-xs mt-1"
+                  />
+                </div>
+                <div className="space-y-2 mt-4">
                   <label
                     htmlFor="playerName"
                     className="block text-sm font-medium text-gray-300"
@@ -130,14 +150,8 @@ const BanModal = ({ isOpen, onClose }) => {
                     className="w-full px-4 py-3 bg-[#242B3C] text-white rounded-xl border border-gray-600/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 placeholder-gray-400"
                     placeholder="Enter player name"
                   />
-                  <ErrorMessage
-                    name="playerName"
-                    component="div"
-                    className="text-red-500 text-xs mt-1"
-                  />
                 </div>
 
-                {/* IP Address */}
                 <div className="space-y-2 mt-4">
                   <label
                     htmlFor="ipAddress"
@@ -158,27 +172,6 @@ const BanModal = ({ isOpen, onClose }) => {
                   />
                 </div>
 
-                {/* Date */}
-                <div className="space-y-2 mt-4">
-                  <label
-                    htmlFor="date"
-                    className="block text-sm font-medium text-gray-300"
-                  >
-                    Ban Date
-                  </label>
-                  <Field
-                    type="date"
-                    name="date"
-                    className="w-full px-4 py-3 bg-[#242B3C] text-white rounded-xl border-gray-600/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200"
-                  />
-                  <ErrorMessage
-                    name="date"
-                    component="div"
-                    className="text-red-500 text-xs mt-1"
-                  />
-                </div>
-
-                {/* Permanent Ban */}
                 <div className="bg-[#242B3C]/50 rounded-xl p-4 border-gray-600/20 border mt-4">
                   <div className="flex items-start space-x-3">
                     <Switch
@@ -199,8 +192,25 @@ const BanModal = ({ isOpen, onClose }) => {
                     </div>
                   </div>
                 </div>
+                <div className="space-y-2 mt-4">
+                  <label
+                    htmlFor="date"
+                    className="block text-sm font-medium text-gray-300"
+                  >
+                    Ban Date
+                  </label>
+                  <Field
+                    type="date"
+                    name="date"
+                    className="w-full px-4 py-3 bg-[#242B3C] text-white rounded-xl border-gray-600/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200"
+                  />
+                  <ErrorMessage
+                    name="date"
+                    component="div"
+                    className="text-red-500 text-xs mt-1"
+                  />
+                </div>
 
-                {/* Comment */}
                 <div className="space-y-2 mt-4">
                   <label
                     htmlFor="comment"
@@ -222,7 +232,6 @@ const BanModal = ({ isOpen, onClose }) => {
                   />
                 </div>
 
-                {/* Footer Actions */}
                 <div className="px-6 py-5 bg-[#242B3C]/30 rounded-b-2xl border-t border-gray-700/50 mt-6">
                   <div className="flex space-x-3">
                     <button
