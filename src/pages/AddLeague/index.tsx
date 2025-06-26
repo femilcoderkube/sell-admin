@@ -42,6 +42,7 @@ interface League {
   // platform: string;
   format: string;
   playersPerTeam: number;
+  weekOfTheStarPrice: number;
   // maxMatchesPerPlayer: {
   //   isActive: boolean;
   //   maxMatches: number;
@@ -170,6 +171,9 @@ const validationSchema = Yup.object().shape({
   prizepool: Yup.number()
     .min(0, "Prizepool must be non-negative")
     .required("Prizepool is required"),
+  weekOfTheStarPrice: Yup.number()
+    .min(0, "Week of The Star Price must be non-negative")
+    .required("Week of The Star Price is required"),
   timeLine: Yup.array()
     .of(
       Yup.object().shape({
@@ -864,6 +868,30 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
           </div>
         )}
       </div>
+      <div className="relative float-label-input custom-input mb-4">
+        <Field
+          type="number"
+          id="weekOfTheStarPrice"
+          name="weekOfTheStarPrice"
+          placeholder=" "
+          className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+            touched.weekOfTheStarPrice && errors.weekOfTheStarPrice
+              ? "border border-red-500"
+              : ""
+          }`}
+        />
+        <label
+          htmlFor="weekOfTheStarPrice"
+          className="absolute top-3 left-0 translate-y-[0.2rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
+        >
+          Total Week of The Star Price
+        </label>
+        {touched.weekOfTheStarPrice && errors.weekOfTheStarPrice && (
+          <div className="text-red-500 text-[0.7rem] mt-1">
+            {errors.weekOfTheStarPrice}
+          </div>
+        )}
+      </div>
 
       <div className="mb-4">
         <h5 className="text-white mb-2 text-base font-medium">Timeline</h5>
@@ -1380,6 +1408,9 @@ export const AddLeague: FC = () => {
     // platform: "",
     format: leagueData?.format ? leagueData?.format : "solo queue",
     playersPerTeam: leagueData?.playersPerTeam ? leagueData?.playersPerTeam : 0,
+    weekOfTheStarPrice: leagueData?.weekOfTheStarPrice
+      ? leagueData?.weekOfTheStarPrice
+      : 0,
     // maxMatchesPerPlayer: leagueData?.maxMatchesPerPlayer
     //   ? leagueData?.maxMatchesPerPlayer
     //   : { isActive: false, maxMatches: 0 },
@@ -1433,6 +1464,7 @@ export const AddLeague: FC = () => {
       format: values.format,
       playersPerTeam: values.playersPerTeam,
       // maxMatchesPerPlayer: values.maxMatchesPerPlayer,
+      weekOfTheStarPrice: values.weekOfTheStarPrice,
       queueSettings: values.queueSettings,
       qualifyingLine: values.qualifyingLine,
       prizepool: values.prizepool,
@@ -1481,6 +1513,7 @@ export const AddLeague: FC = () => {
         ],
         2: [
           // "maxMatchesPerPlayer",
+          "weekOfTheStarPrice",
           "queueSettings",
           "qualifyingLine",
           "prizepool",
@@ -1535,6 +1568,7 @@ export const AddLeague: FC = () => {
         ],
         2: [
           // "maxMatchesPerPlayer",
+          "weekOfTheStarPrice",
           "queueSettings",
           "qualifyingLine",
           "prizepool",
