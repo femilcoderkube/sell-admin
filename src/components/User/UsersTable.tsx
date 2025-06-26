@@ -1,10 +1,11 @@
 import React from "react";
 import edit from "../../assets/images/Edit.svg";
 import deleteIcon from "../../assets/images/trash_can.svg";
-import viewIcon from "../../assets/images/setting_icon.svg";
+import viewIcon from "../../assets/images/eye_icon.svg";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../app/store";
 import { deleteUser, updateUser } from "../../app/features/users/usersSlice";
+import { Link } from "react-router";
 
 interface UsersTableProps {
   users: any[];
@@ -137,7 +138,8 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                       style={{ width: "1.26rem" }}
                     />
                   </button>
-                  <button
+                  <Link
+                    to={`/user-controll/all-user/${user._id}`}
                     style={{
                       background:
                         "radial-gradient(circle, #39415C 0%, #555F83 100%)",
@@ -149,7 +151,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                       alt="View"
                       style={{ width: "1.26rem" }}
                     />
-                  </button>
+                  </Link>
                 </td>
               </tr>
             ))

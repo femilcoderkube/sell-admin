@@ -1186,7 +1186,7 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                     >
                       <option value="text">Text</option>
                       <option value="number">Number</option>
-                      <option value="select">Select</option>
+                      {/* <option value="select">Select</option> */}
                     </Field>
                     {touched.customRegistrationFields?.[index]?.fieldType &&
                       errors.customRegistrationFields?.[index]?.fieldType && (

@@ -27,6 +27,7 @@ import { BannedUsers } from "../pages/BannedUsers";
 import LeagueDetails from "../components/League/LeagueDetails";
 import { LeagueDetail } from "../pages/League/leagueDetail";
 import { MatcheDetail } from "../pages/League/MatcheDetail";
+import { UserDetail } from "../pages/Users/userDetail";
 
 // Helper function to convert snake_case to Title Case
 const toTitleCase = (str: string) =>
@@ -213,6 +214,17 @@ export const generateRoutes = (adminside: any[]): RoutesProps[] => {
       dark_svg: downarr,
       white_svg: white_arr,
       component: <MatcheDetail />,
+      auth: true,
+      isShow: false,
+      partnerColor: undefined,
+    },
+    {
+      label: "User Details",
+      icon: <NafesLeagueIcon />,
+      path: "/user-controll/all-user/:id",
+      dark_svg: downarr,
+      white_svg: white_arr,
+      component: <UserDetail />,
       auth: true,
       isShow: false,
       partnerColor: undefined,
