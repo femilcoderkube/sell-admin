@@ -42,10 +42,10 @@ interface League {
   // platform: string;
   format: string;
   playersPerTeam: number;
-  maxMatchesPerPlayer: {
-    isActive: boolean;
-    maxMatches: number;
-  };
+  // maxMatchesPerPlayer: {
+  //   isActive: boolean;
+  //   maxMatches: number;
+  // };
   queueSettings: {
     alwaysOn: boolean;
     schedule: {
@@ -115,17 +115,17 @@ const validationSchema = Yup.object().shape({
   playersPerTeam: Yup.number()
     .min(1, "Players per team must be at least 1")
     .required("Players per team is required"),
-  maxMatchesPerPlayer: Yup.object().shape({
-    isActive: Yup.boolean(),
-    maxMatches: Yup.number().when("isActive", {
-      is: true,
-      then: (schema) =>
-        schema
-          .min(1, "Maximum matches must be at least 1")
-          .required("Maximum matches is required when limit is active"),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-  }),
+  // maxMatchesPerPlayer: Yup.object().shape({
+  //   isActive: Yup.boolean(),
+  //   maxMatches: Yup.number().when("isActive", {
+  //     is: true,
+  //     then: (schema) =>
+  //       schema
+  //         .min(1, "Maximum matches must be at least 1")
+  //         .required("Maximum matches is required when limit is active"),
+  //     otherwise: (schema) => schema.notRequired(),
+  //   }),
+  // }),
   queueSettings: Yup.object().shape({
     alwaysOn: Yup.boolean(),
     schedule: Yup.object().when("alwaysOn", {
@@ -697,7 +697,7 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
         League Details
       </h4>
 
-      <div className="check_setting flex items-center justify-between w-full text-[0.78125rem] text-custom-gray mb-4 focus:outline-0 focus:!border focus:!border-[#2792FF] py-[0.92rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal">
+      {/* <div className="check_setting flex items-center justify-between w-full text-[0.78125rem] text-custom-gray mb-4 focus:outline-0 focus:!border focus:!border-[#2792FF] py-[0.92rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal">
         <span className="text-white font-medium">Limit Matches Per Player</span>
         <label className="inline-flex items-center cursor-pointer">
           <Field
@@ -707,9 +707,9 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
           />
           <div className="relative w-9 h-5 bg-custom-gray focus:outline-none rounded-full peer dark:bg-custom-gray peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-primary-gradient dark:peer-checked:bg-primary-gradient"></div>
         </label>
-      </div>
+      </div> */}
 
-      {values.maxMatchesPerPlayer.isActive && (
+      {/* {values.maxMatchesPerPlayer.isActive && (
         <div className="relative float-label-input custom-input mb-4">
           <Field
             type="number"
@@ -736,7 +736,7 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
               </div>
             )}
         </div>
-      )}
+      )} */}
 
       <div className="check_setting flex items-center justify-between w-full text-[0.78125rem] text-custom-gray mb-4 focus:outline-0 focus:!border focus:!border-[#2792FF] py-[0.92rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal">
         <span className="text-white font-medium">Always On Queue</span>
@@ -1380,9 +1380,9 @@ export const AddLeague: FC = () => {
     // platform: "",
     format: leagueData?.format ? leagueData?.format : "solo queue",
     playersPerTeam: leagueData?.playersPerTeam ? leagueData?.playersPerTeam : 0,
-    maxMatchesPerPlayer: leagueData?.maxMatchesPerPlayer
-      ? leagueData?.maxMatchesPerPlayer
-      : { isActive: false, maxMatches: 0 },
+    // maxMatchesPerPlayer: leagueData?.maxMatchesPerPlayer
+    //   ? leagueData?.maxMatchesPerPlayer
+    //   : { isActive: false, maxMatches: 0 },
     queueSettings: leagueData?.queueSettings
       ? leagueData?.queueSettings
       : {
@@ -1432,7 +1432,7 @@ export const AddLeague: FC = () => {
       platform: values.device?.value || "",
       format: values.format,
       playersPerTeam: values.playersPerTeam,
-      maxMatchesPerPlayer: values.maxMatchesPerPlayer,
+      // maxMatchesPerPlayer: values.maxMatchesPerPlayer,
       queueSettings: values.queueSettings,
       qualifyingLine: values.qualifyingLine,
       prizepool: values.prizepool,
@@ -1480,7 +1480,7 @@ export const AddLeague: FC = () => {
           "endDate",
         ],
         2: [
-          "maxMatchesPerPlayer",
+          // "maxMatchesPerPlayer",
           "queueSettings",
           "qualifyingLine",
           "prizepool",
@@ -1534,7 +1534,7 @@ export const AddLeague: FC = () => {
           "endDate",
         ],
         2: [
-          "maxMatchesPerPlayer",
+          // "maxMatchesPerPlayer",
           "queueSettings",
           "qualifyingLine",
           "prizepool",
