@@ -156,7 +156,7 @@ export const generateRoutes = (adminside: any[]): RoutesProps[] => {
     {
       label: "Login",
       icon: <></>,
-      path: "/",
+      path: "/login",
       dark_svg: downarr,
       white_svg: white_arr,
       component: <Login />,
@@ -166,7 +166,7 @@ export const generateRoutes = (adminside: any[]): RoutesProps[] => {
     {
       label: "Dashboard",
       icon: <DashboardIcon />,
-      path: "/dashboard",
+      path: "/",
       dark_svg: downarr,
       white_svg: white_arr,
       component: <Dashboard />,

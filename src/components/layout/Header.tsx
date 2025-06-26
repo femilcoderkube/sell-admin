@@ -14,7 +14,7 @@ export const Header: FC = () => {
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate("/");
+    navigate("/login");
   };
 
   const toggleUserMenu = () => {
@@ -224,7 +224,7 @@ export const Header: FC = () => {
         <div className="flex justify-between items-center max-w-7xl mx-auto">
           {/* Left section - Logo and Brand */}
           <div className="nf_head_left-con flex items-center gap-4">
-            <Link to={"/dashboard"} className="logo-container block">
+            <Link to={"/"} className="logo-container block">
               <img
                 className="w-[2.5rem] h-[2.5rem] object-contain"
                 src={logo}

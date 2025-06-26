@@ -18,6 +18,7 @@ export const BannedUsersTable: React.FC<BannedUsersTableProps> = ({
   error,
   handleUnbanUser,
 }) => {
+  console.log("users", users);
   const thead = {
     id: (
       <svg
@@ -40,7 +41,7 @@ export const BannedUsersTable: React.FC<BannedUsersTableProps> = ({
     email: "Email",
     role: "Role",
     lastLoginDate: "Last Login Date",
-    mobile: "Mobile",
+    // mobile: "Mobile",
     ip_address: "IP Address",
     status: "Action", // Changed from "Ban Status" to "Action"
   };
@@ -67,9 +68,9 @@ export const BannedUsersTable: React.FC<BannedUsersTableProps> = ({
             <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
               {thead.lastLoginDate}
             </th>
-            <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
+            {/* <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
               {thead.mobile}
-            </th>
+            </th> */}
             <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
               {thead.ip_address}
             </th>
@@ -83,15 +84,17 @@ export const BannedUsersTable: React.FC<BannedUsersTableProps> = ({
             users.map((user, idx) => (
               <tr key={user._id} className="border-b border-light-border">
                 <td className="text-[1.0625rem] py-3">{idx + 1}</td>
-                <td className="text-[1.0625rem] py-3">{user.username}</td>
-                <td className="text-[1.0625rem] py-3">{user.email}</td>
-                <td className="text-[1.0625rem] py-3">{user.role}</td>
+                <td className="text-[1.0625rem] py-3">
+                  {user?.user?.username}
+                </td>
+                <td className="text-[1.0625rem] py-3">{user?.user?.email}</td>
+                <td className="text-[1.0625rem] py-3">{user?.user?.role}</td>
                 <td className="text-[1.0625rem] py-3">
                   {user.updatedAt
                     ? new Date(user.updatedAt).toLocaleString()
                     : "-"}
                 </td>
-                <td className="text-[1.0625rem] py-3">{user.phone || "-"}</td>
+                {/* <td className="text-[1.0625rem] py-3">{user.phone || "-"}</td> */}
                 <td className="text-[1.0625rem] py-3">
                   {user.ipAddress || "-"}
                 </td>

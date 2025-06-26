@@ -28,7 +28,7 @@ export const LoginForm: FC = () => {
 
   React.useEffect(() => {
     if (token) {
-      navigate("/dashboard");
+      navigate("/");
     }
   }, [token, navigate]);
 
@@ -64,6 +64,7 @@ export const LoginForm: FC = () => {
             validationSchema={validationSchema}
             onSubmit={(values: LoginRequest, { resetForm }) => {
               dispatch(login(values));
+
               setTimeout(() => {
                 resetForm();
               }, 1000);

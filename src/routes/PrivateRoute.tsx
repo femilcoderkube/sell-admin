@@ -6,7 +6,7 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   if (token) {
     return children;
   }
-  return <Navigate to="/" />;
+  return <Navigate to="/login" />;
 };
 
 export default PrivateRoute;
