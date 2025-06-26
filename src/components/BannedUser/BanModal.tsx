@@ -49,7 +49,7 @@ const BanModal = ({ isOpen, onClose }) => {
     date: Yup.date()
       .nullable()
       .when("permanentBan", {
-        is: true,
+        is: false,
         then: (schema) =>
           schema.required("Ban date is required for permanent ban"),
         otherwise: (schema) => schema.notRequired(),
@@ -96,7 +96,7 @@ const BanModal = ({ isOpen, onClose }) => {
               <div className="w-8 h-8 bg-red-500/20 rounded-lg flex items-center justify-center">
                 <div className="w-4 h-4 bg-red-500 rounded-full" />
               </div>
-              <h3 className="text-xl font-semibold text-white">Ban Player</h3>
+              <h3 className="text-xl font-semibold text-white">Ban Users</h3>
             </div>
             <button
               onClick={onClose}
@@ -247,7 +247,7 @@ const BanModal = ({ isOpen, onClose }) => {
                       className="flex-1 px-4 py-3 bg-red-500 hover:bg-red-600 text-white font-medium rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-red-500/25"
                       disabled={isSubmitting}
                     >
-                      {isSubmitting ? "Banning..." : "Ban Player"}
+                      {isSubmitting ? "Banning..." : "Ban User"}
                     </button>
                   </div>
                 </div>
