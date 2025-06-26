@@ -141,7 +141,7 @@ const gamesSlice = createSlice({
       })
       .addCase(updateGame.fulfilled, (state) => {
         state.loading = false;
-        toast.success("Changes are saved and updated.");
+        toast.success("Game updated successfully!");
       })
       .addCase(updateGame.rejected, (state, action) => {
         state.loading = false;
@@ -153,7 +153,7 @@ const gamesSlice = createSlice({
       })
       .addCase(deleteGame.fulfilled, (state) => {
         state.loading = false;
-        toast.success("Game is removed from the list.");
+        toast.success("Game deleted successfully!");
       })
       .addCase(deleteGame.rejected, (state, action) => {
         state.loading = false;

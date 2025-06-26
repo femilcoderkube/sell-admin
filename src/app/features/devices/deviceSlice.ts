@@ -148,7 +148,7 @@ const devicesSlice = createSlice({
       })
       .addCase(addDevice.fulfilled, (state) => {
         state.loading = false;
-        toast.success("Device is added successfully.");
+        toast.success("Device added successfully!");
       })
       .addCase(addDevice.rejected, (state, action) => {
         state.loading = false;
@@ -160,7 +160,7 @@ const devicesSlice = createSlice({
       })
       .addCase(updateDevice.fulfilled, (state) => {
         state.loading = false;
-        toast.success("Changes are saved and updated.");
+        toast.success("Device updated successfully!");
       })
       .addCase(updateDevice.rejected, (state, action) => {
         state.loading = false;
@@ -172,7 +172,7 @@ const devicesSlice = createSlice({
       })
       .addCase(deleteDevice.fulfilled, (state) => {
         state.loading = false;
-        toast.success("Device is removed from the list.");
+        toast.success("Device deleted successfully!");
       })
       .addCase(deleteDevice.rejected, (state, action) => {
         state.loading = false;

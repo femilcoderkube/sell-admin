@@ -155,7 +155,7 @@ const trophiesSlice = createSlice({
       })
       .addCase(addTrophie.fulfilled, (state) => {
         state.loading = false;
-        toast.success("Trophy is created successfully.");
+        toast.success("Trophy added successfully!");
       })
       .addCase(addTrophie.rejected, (state, action) => {
         state.loading = false;
@@ -167,7 +167,7 @@ const trophiesSlice = createSlice({
       })
       .addCase(updateTrophie.fulfilled, (state) => {
         state.loading = false;
-        toast.success("Trophy details are updated.");
+        toast.success("Trophy updated successfully!");
       })
       .addCase(updateTrophie.rejected, (state, action) => {
         state.loading = false;
@@ -179,7 +179,7 @@ const trophiesSlice = createSlice({
       })
       .addCase(deleteTrophie.fulfilled, (state) => {
         state.loading = false;
-        toast.success("Trophy is removed from the list.");
+        toast.success("Trophy deleted successfully!");
       })
       .addCase(deleteTrophie.rejected, (state, action) => {
         state.loading = false;
