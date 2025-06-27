@@ -17,7 +17,7 @@ import HandLogoLoader from "../Loader/Loader";
 
 export * from "./DeviceTable";
 
-export const Device: React.FC = () => {
+export const Device: React.FC = ({ title }: any) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [selectedDevice, setSelectedDevice] = useState<DeviceType | null>(null);
@@ -67,7 +67,7 @@ export const Device: React.FC = () => {
       <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-between items-center pt-3 pb-[2rem] border-b border-light-border">
         <div className="legue__head_left-con">
           <h3 className="font-bold text-[1.25rem] text-white">
-            Devices <span className="text-custom-gray">({devices.length})</span>
+            {title} <span className="text-custom-gray">({devices.length})</span>
           </h3>
         </div>
         <div className="legue__head_right-con flex-wrap flex gap-3 flex-1 justify-end">

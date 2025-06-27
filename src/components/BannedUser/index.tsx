@@ -20,7 +20,7 @@ import {
 
 // Ban Modal
 
-export const BannedUser: React.FC = () => {
+export const BannedUser: React.FC = ({ title }: any) => {
   const dispatch = useDispatch<AppDispatch>();
   const {
     bannedUsers,
@@ -61,7 +61,7 @@ export const BannedUser: React.FC = () => {
       <div className="nf_legue_head--con gap-4 flex-col sm:flex-row flex-wrap justify-between items-center pt-3 pb-[2rem] border-b border-light-border px-4 sm:px-6">
         <div className="legue__head_left-con">
           <h3 className="font-bold text-[1.25rem] text-white">
-            All Banned users{" "}
+            {title}{" "}
             <span className="text-custom-gray">({bannedUsers.length})</span>
           </h3>
         </div>

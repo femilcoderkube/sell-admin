@@ -2,10 +2,10 @@ import { FC } from "react";
 import { Layout } from "../../components/layout";
 import { BannedUser } from "../../components/BannedUser";
 
-export const BannedUsers: FC = () => {
+export const BannedUsers: FC = ({ title }: any) => {
   return (
     <Layout>
-        <BannedUser />
+      <BannedUser title={title} />
     </Layout>
   );
 };

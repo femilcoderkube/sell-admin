@@ -18,7 +18,7 @@ import HandLogoLoader from "../Loader/Loader";
 
 export * from "./GamesTable";
 
-export const Game: React.FC = () => {
+export const Game: React.FC = ({ title }: any) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [selectedGame, setSelectedGame] = useState<GameType | null>(null);

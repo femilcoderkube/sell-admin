@@ -18,7 +18,7 @@ import BadgeModal from "./BadgeModal";
 import HandLogoLoader from "../Loader/Loader";
 export * from "./BadgesTable";
 
-export const Badge: React.FC = () => {
+export const Badge: React.FC = ({ title }: any) => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const [deleteId, setDeleteId] = useState<string>("");
@@ -75,7 +75,7 @@ export const Badge: React.FC = () => {
       <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-between items-center pt-3 pb-[2rem] border-b border-light-border">
         <div className="legue__head_left-con">
           <h3 className="font-bold text-[1.25rem] text-white">
-            Badges <span className="text-custom-gray">({badges.length})</span>
+            {title} <span className="text-custom-gray">({badges.length})</span>
           </h3>
         </div>
         <div className="legue__head_right-con flex-wrap flex gap-3 flex-1 justify-end">
