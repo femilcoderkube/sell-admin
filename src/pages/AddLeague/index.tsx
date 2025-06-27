@@ -1127,7 +1127,7 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                     )}
                   </div>
 
-                  <div className="relative flex-1 custom-input mb-4">
+                  {/* <div className="relative flex-1 custom-input mb-4">
                     <label
                       htmlFor={`customRegistrationFields[${index}].fieldName`}
                       className="absolute top-3 left-0 translate-y-[-0.3rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
@@ -1153,6 +1153,32 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                     >
                       <option value="gameid">Game ID</option>
                     </Field>
+                    {touched.customRegistrationFields?.[index]?.fieldName &&
+                      errors.customRegistrationFields?.[index]?.fieldName && (
+                        <div className="text-red-500 text-[0.7rem] mt-1">
+                          {errors.customRegistrationFields[index].fieldName}
+                        </div>
+                      )}
+                  </div> */}
+                  <div className="relative flex-1 custom-input mb-4">
+                    <label
+                      htmlFor={`customRegistrationFields[${index}].fieldName`}
+                      className="absolute top-3 left-0 translate-y-[-0.3rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
+                    >
+                      Field Name
+                    </label>
+                    <Field
+                      as="input"
+                      type="text"
+                      id={`customRegistrationFields[${index}].fieldName`}
+                      name={`customRegistrationFields[${index}].fieldName`}
+                      className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 leading-normal ${
+                        touched.customRegistrationFields?.[index]?.fieldName &&
+                        errors.customRegistrationFields?.[index]?.fieldName
+                          ? "border border-red-500"
+                          : ""
+                      }`}
+                    />
                     {touched.customRegistrationFields?.[index]?.fieldName &&
                       errors.customRegistrationFields?.[index]?.fieldName && (
                         <div className="text-red-500 text-[0.7rem] mt-1">
@@ -1214,7 +1240,7 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                 type="button"
                 onClick={() =>
                   push({
-                    fieldName: "gameid",
+                    fieldName: "Game ID",
                     fieldType: "text",
                     required: false,
                   })
@@ -1440,7 +1466,7 @@ export const AddLeague: FC = () => {
         ? leagueData?.customRegistrationFields
         : [
             {
-              fieldName: "gameid",
+              fieldName: "Game ID",
               fieldType: "text",
               required: true, // First field is required by default
             },
