@@ -2,7 +2,10 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { createBannedUser } from "../../app/features/bannedusers/bannedUsersSlice";
+import {
+  createBannedUser,
+  fetchBannedUsers,
+} from "../../app/features/bannedusers/bannedUsersSlice";
 
 const BanModal = ({ isOpen, onClose }) => {
   const dispatch = useDispatch();
@@ -49,7 +52,7 @@ const BanModal = ({ isOpen, onClose }) => {
     date: Yup.date()
       .nullable()
       .when("permanentBan", {
-        is: false,
+        is: true,
         then: (schema) =>
           schema.required("Ban date is required for permanent ban"),
         otherwise: (schema) => schema.notRequired(),
@@ -79,7 +82,13 @@ const BanModal = ({ isOpen, onClose }) => {
         comment: values.comment,
       };
 
-      await dispatch(createBannedUser(userData)).unwrap();
+      const result = await dispatch(createBannedUser(userData));
+
+      if (createBannedUser.fulfilled.match(result)) {
+        resetForm();
+        onClose();
+        dispatch(fetchBannedUsers({ page: 1, perPage: 10, searchTerm: "" }));
+      }
       resetForm();
       onClose();
     } catch (error) {

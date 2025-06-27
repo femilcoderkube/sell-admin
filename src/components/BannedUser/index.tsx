@@ -138,10 +138,12 @@ export const BannedUser: React.FC = ({ title }: any) => {
           error={error}
           handleUnbanUser={async (user) => {
             try {
-              await dispatch(deleteBannedUser(user._id)).unwrap();
-              await dispatch(
-                fetchBannedUsers({ page: currentPage, perPage, searchTerm })
-              );
+              const resultAction = await dispatch(deleteBannedUser(user._id));
+              if (deleteBannedUser.fulfilled.match(resultAction)) {
+                dispatch(
+                  fetchBannedUsers({ page: currentPage, perPage, searchTerm })
+                );
+              }
             } catch (error) {
               console.error("Failed to unban user:", error);
             }

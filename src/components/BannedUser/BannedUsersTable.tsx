@@ -18,7 +18,6 @@ export const BannedUsersTable: React.FC<BannedUsersTableProps> = ({
   error,
   handleUnbanUser,
 }) => {
-  console.log("users", users);
   const thead = {
     id: (
       <svg
