@@ -65,7 +65,8 @@ export const Admins: React.FC = () => {
     if (deleteAdmin.fulfilled.match(resultAction)) {
       setDeleteId("");
       setIsDeleteModalOpen(false);
-      dispatch(fetchAdmin({ page: 1, perPage: perPage, searchTerm: searchTerm }));
+      dispatch(setPage(1));
+      dispatch(fetchAdmin({ page: 1, perPage, searchTerm }));
     }
   };
 
