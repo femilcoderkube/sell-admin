@@ -85,7 +85,8 @@ export const DeviceModal: React.FC<ModalProps> = ({
           }
           return true;
         }
-      ),
+      )
+      .required("A logo is required"),
   });
 
   const formik = useFormik({

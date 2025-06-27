@@ -58,7 +58,8 @@ const gameSchema = Yup.object().shape({
         }
         return true;
       }
-    ),
+    )
+    .required("A logo is required"),
 });
 
 export const GameModal: React.FC<ModalProps> = ({
