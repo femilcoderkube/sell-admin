@@ -39,6 +39,7 @@ const authSlice = createSlice({
       state.user = { _id: "", email: null, isSuperAdmin: false };
       localStorage.removeItem("token");
       localStorage.removeItem("admin");
+      window.location.href = "/login";
     },
   },
   extraReducers: (builder) => {
