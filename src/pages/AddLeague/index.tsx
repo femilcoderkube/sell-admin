@@ -884,7 +884,7 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
           htmlFor="weekOfTheStarPrice"
           className="absolute top-3 left-0 translate-y-[0.2rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
         >
-          Total Week of The Star Price
+          Star of the week price
         </label>
         {touched.weekOfTheStarPrice && errors.weekOfTheStarPrice && (
           <div className="text-red-500 text-[0.7rem] mt-1">
@@ -1127,39 +1127,6 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                     )}
                   </div>
 
-                  {/* <div className="relative flex-1 custom-input mb-4">
-                    <label
-                      htmlFor={`customRegistrationFields[${index}].fieldName`}
-                      className="absolute top-3 left-0 translate-y-[-0.3rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
-                    >
-                      Field Name
-                    </label>
-                    <Field
-                      as="select"
-                      id={`customRegistrationFields[${index}].fieldName`}
-                      name={`customRegistrationFields[${index}].fieldName`}
-                      className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${
-                        touched.customRegistrationFields?.[index]?.fieldName &&
-                        errors.customRegistrationFields?.[index]?.fieldName
-                          ? "border border-red-500"
-                          : ""
-                      }`}
-                      style={{
-                        backgroundImage: `url(${downarr})`,
-                        backgroundRepeat: "no-repeat",
-                        backgroundPosition: "right 10px center",
-                        backgroundSize: "16px 16px",
-                      }}
-                    >
-                      <option value="gameid">Game ID</option>
-                    </Field>
-                    {touched.customRegistrationFields?.[index]?.fieldName &&
-                      errors.customRegistrationFields?.[index]?.fieldName && (
-                        <div className="text-red-500 text-[0.7rem] mt-1">
-                          {errors.customRegistrationFields[index].fieldName}
-                        </div>
-                      )}
-                  </div> */}
                   <div className="relative flex-1 custom-input mb-4">
                     <label
                       htmlFor={`customRegistrationFields[${index}].fieldName`}
