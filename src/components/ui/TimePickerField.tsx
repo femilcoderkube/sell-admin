@@ -72,13 +72,16 @@ export const TimePickerField: React.FC<TimePickerFieldProps> = ({
         selected={selectedTime}
         onChange={handleTimeChange}
         onBlur={handleBlur} // Add onBlur handler
-        customInput={<CustomTimeInput />}
+        // customInput={<CustomTimeInput />}
         // Time picker specific props
         showTimeSelect
         showTimeSelectOnly
         timeIntervals={15}
         timeCaption="Time"
         dateFormat="h:mm aa" // e.g., "5:30 PM"
+        className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] py-[0.92rem] bg-input-color rounded-[0.52rem] px-3 appearance-none leading-normal cursor-pointer ${
+          touchValue && errorValue ? "border border-red-500" : ""
+        }`}
       />
       {/* <label
         htmlFor={name}

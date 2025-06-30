@@ -1165,6 +1165,7 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                       as="select"
                       id={`customRegistrationFields[${index}].fieldType`}
                       name={`customRegistrationFields[${index}].fieldType`}
+                      readOnly={index === 0}
                       className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${
                         touched.customRegistrationFields?.[index]?.fieldType &&
                         errors.customRegistrationFields?.[index]?.fieldType
