@@ -14,7 +14,7 @@ export const Header: FC = () => {
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate("/login");
+    // navigate("/login");
   };
 
   const toggleUserMenu = () => {
