@@ -88,7 +88,7 @@ const LeagueDetails: React.FC = () => {
     );
   }
 
-  const tabs = ["Participants", "Matches"];
+  const tabs = ["Participants", "Matches", "Tickets"];
 
   // Pagination handlers
   const handleParticipantsPageChange = (page: number) => {
@@ -553,6 +553,157 @@ const LeagueDetails: React.FC = () => {
                     </div>
                   </div>
                 )}
+              </div>
+            )}
+            {activeTab === "Tickets" && (
+              <div>
+                <h4 className="font-bold text-2xl text-white mb-6 flex items-center gap-3">
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-lg flex items-center justify-center">
+                    <span className="text-white text-sm">🎟️</span>
+                  </div>
+                  Tickets
+                </h4>
+                {/* {matchesLoading ? (
+                  <HandLogoLoader />
+                ) : matchesError ? (
+                  <div className="text-custom-gray bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+                    Error: {matchesError}
+                  </div>
+                ) : matches?.length > 0 ? (
+                  <>
+                    <div className="bg-gray-800/30 rounded-2xl overflow-hidden border border-gray-700/30 shadow-lg">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-lg text-white border-collapse">
+                          <thead>
+                            <tr className="bg-gradient-to-r from-gray-800/80 to-gray-700/80 text-gray-300">
+                              <th className="py-4 px-6 text-left font-semibold">
+                                Team 1
+                              </th>
+                              <th className="py-4 px-6 text-left font-semibold">
+                                Team 2
+                              </th>
+                              <th className="py-4 px-6 text-left font-semibold">
+                                Status
+                              </th>
+                              <th className="py-4 px-6 text-left font-semibold">
+                                Start Time
+                              </th>
+                              <th className="py-4 px-6 text-left font-semibold">
+                                Winner
+                              </th>
+                              <th className="py-4 px-6 text-left font-semibold">
+                                Action
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {matches?.map((match: any, index: number) => (
+                              <tr
+                                key={match?._id}
+                                className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-yellow-500/10 hover:to-orange-500/10 transition-all duration-200 ${
+                                  index % 2 === 0
+                                    ? "bg-gray-800/20"
+                                    : "bg-gray-800/10"
+                                }`}
+                              >
+                                <td className="py-4 px-6 font-medium text-blue-300">
+                                  {match?.team1
+                                    ?.map(
+                                      (p: any) =>
+                                        p.participant?.userId?.username
+                                    )
+                                    .join(", ")}
+                                </td>
+                                <td className="py-4 px-6 font-medium text-purple-300">
+                                  {match?.team2
+                                    ?.map(
+                                      (p: any) =>
+                                        p.participant?.userId?.username
+                                    )
+                                    .join(", ")}
+                                </td>
+                                <td className="py-4 px-6">
+                                  <span
+                                    className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                      match?.status === "completed"
+                                        ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                                        : match?.status === "live"
+                                        ? "bg-red-500/20 text-red-400 border border-red-500/30"
+                                        : "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                                    }`}
+                                  >
+                                    {match?.status}
+                                  </span>
+                                </td>
+                                <td className="py-4 px-6 text-gray-300">
+                                  {new Date(match?.startTime).toLocaleString()}
+                                </td>
+                                <td className="py-4 px-6">
+                                  {match?.winner ? (
+                                    <span className="text-yellow-400 font-medium flex items-center gap-2">
+                                      🏆 {match.winner}
+                                    </span>
+                                  ) : (
+                                    <span className="text-gray-500">---</span>
+                                  )}
+                                </td>
+                                <td className="py-4 px-6">
+                                  <Link
+                                    to={`/${partnerId}/leagues/${lid}/${match?._id}`}
+                                    className="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
+                                  >
+                                    <img
+                                      src={viewIcon}
+                                      alt="View"
+                                      className="w-5 h-5"
+                                    />
+                                  </Link>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                    Tickets Pagination
+                    <div className="flex justify-between items-center mt-6 bg-gray-800/30 rounded-xl p-4 border border-gray-700/30">
+                      <div className="text-gray-300 font-medium">
+                        Showing {matches.length} of {matchesTotalCount} tickets
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() =>
+                            handleMatchesPageChange(matchesCurrentPage - 1)
+                          }
+                          disabled={matchesCurrentPage === 1}
+                          className="py-2 px-4 bg-gradient-to-r from-gray-700 to-gray-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
+                        >
+                          Previous
+                        </button>
+                        <span className="py-2 px-4 text-white bg-gray-800/50 rounded-lg border border-gray-600/30 font-medium">
+                          Page {matchesCurrentPage} of{" "}
+                          {Math.ceil(matchesTotalCount / matchesPerPage)}
+                        </span>
+                        <button
+                          onClick={() =>
+                            handleMatchesPageChange(matchesCurrentPage + 1)
+                          }
+                          disabled={
+                            matchesCurrentPage >=
+                            Math.ceil(matchesTotalCount / matchesPerPage)
+                          }
+                          className="py-2 px-4 bg-gradient-to-r from-gray-700 to-gray-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                ) : ( */}
+                <div className="text-center py-12 bg-gray-800/20 rounded-xl border-2 border-dashed border-gray-600/30">
+                  <div className="text-gray-400 text-lg">No tickets found.</div>
+                </div>
+                {/* )} */}
               </div>
             )}
           </div>
