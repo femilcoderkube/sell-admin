@@ -543,7 +543,7 @@ const MatchDetails = () => {
                     </div>
                     <div>
                       <p className="font-semibold text-white text-base">
-                        {player?.score}
+                        {player?.score?.toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -730,7 +730,7 @@ const MatchDetails = () => {
                     </div>
                     <div>
                       <p className="font-semibold text-white text-base">
-                        {player?.score}
+                        {player?.score?.toFixed(2)}
                       </p>
                     </div>
                   </div>
