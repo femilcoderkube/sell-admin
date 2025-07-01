@@ -59,11 +59,12 @@ const MatchStatusSwitch = ({
   const [pendingStatus, setPendingStatus] = useState<string | null>(null);
   const dispatch = useDispatch();
 
-  const statusOptions = ["in_progress", "completed", "cancelled"];
+  const statusOptions = ["in_progress", "completed", "cancelled", "in_dispute"];
   const statusColors = {
     in_progress: "bg-gradient-to-r from-yellow-500 to-orange-500",
     completed: "bg-gradient-to-r from-green-500 to-emerald-500",
     cancelled: "bg-gradient-to-r from-red-500 to-rose-500",
+    in_dispute: "bg-gradient-to-r from-purple-500 to-violet-500",
   };
   const statusTextColors = {
     in_progress: "text-white",
@@ -244,8 +245,12 @@ const MatchDetails = () => {
           matcheId: mid,
           team1ScoreDetails: {
             ...team1Scores,
-            submittedAt: team1Scores?.submittedAt || new Date().toISOString(),
+            submittedAt: new Date().toISOString(),
           } as TeamScoreDetails,
+          // team1ScoreDetails: {
+          //   ...team1Scores,
+          //   submittedAt: team1Scores?.submittedAt || new Date().toISOString(),
+          // } as TeamScoreDetails,
           team2ScoreDetails:
             matcheDetail?.team2ScoreDetails || ({} as TeamScoreDetails),
         })
@@ -265,9 +270,13 @@ const MatchDetails = () => {
           matcheId: mid,
           team1ScoreDetails:
             matcheDetail?.team1ScoreDetails || ({} as TeamScoreDetails),
+          // team2ScoreDetails: {
+          //   ...team2Scores,
+          //   submittedAt: team2Scores?.submittedAt || new Date().toISOString(),
+          // } as TeamScoreDetails,
           team2ScoreDetails: {
             ...team2Scores,
-            submittedAt: team2Scores?.submittedAt || new Date().toISOString(),
+            submittedAt: new Date().toISOString(),
           } as TeamScoreDetails,
         })
       ).then((result) => {
@@ -351,45 +360,45 @@ const MatchDetails = () => {
         matcheDetail.team1ScoreDetails.opponentScore ===
           matcheDetail.team2ScoreDetails.opponentScore));
 
-  const deleteScore = (team: any) => {
-    if (mid) {
-      if (team === "team1") {
-        dispatch(
-          updateLeagueMatchesByID({
-            matcheId: mid,
-            status: "in_progress",
-            team1ScoreDetails: {
-              opponentScore: null,
-              yourScore: null,
-              submittedAt: null,
-            },
-            winner: null,
-          })
-        ).then((result) => {
-          if (updateLeagueMatchesByID.fulfilled.match(result)) {
-            dispatch(fetchLeagueMatchesByID({ matcheId: mid }));
-          }
-        });
-      } else {
-        dispatch(
-          updateLeagueMatchesByID({
-            matcheId: mid,
-            status: "in_progress",
-            team2ScoreDetails: {
-              opponentScore: null,
-              yourScore: null,
-              submittedAt: null,
-            },
-            winner: null,
-          })
-        ).then((result) => {
-          if (updateLeagueMatchesByID.fulfilled.match(result)) {
-            dispatch(fetchLeagueMatchesByID({ matcheId: mid }));
-          }
-        });
-      }
-    }
-  };
+  // const deleteScore = (team: any) => {
+  //   if (mid) {
+  //     if (team === "team1") {
+  //       dispatch(
+  //         updateLeagueMatchesByID({
+  //           matcheId: mid,
+  //           status: "in_progress",
+  //           team1ScoreDetails: {
+  //             opponentScore: null,
+  //             yourScore: null,
+  //             submittedAt: null,
+  //           },
+  //           winner: null,
+  //         })
+  //       ).then((result) => {
+  //         if (updateLeagueMatchesByID.fulfilled.match(result)) {
+  //           dispatch(fetchLeagueMatchesByID({ matcheId: mid }));
+  //         }
+  //       });
+  //     } else {
+  //       dispatch(
+  //         updateLeagueMatchesByID({
+  //           matcheId: mid,
+  //           status: "in_progress",
+  //           team2ScoreDetails: {
+  //             opponentScore: null,
+  //             yourScore: null,
+  //             submittedAt: null,
+  //           },
+  //           winner: null,
+  //         })
+  //       ).then((result) => {
+  //         if (updateLeagueMatchesByID.fulfilled.match(result)) {
+  //           dispatch(fetchLeagueMatchesByID({ matcheId: mid }));
+  //         }
+  //       });
+  //     }
+  //   }
+  // };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
@@ -461,15 +470,17 @@ const MatchDetails = () => {
                   Team 1
                 </h3>
                 <div className="flex gap-2">
-                  {showAdoptButtonTeam1 && !editingTeam1 && (
-                    <button
-                      onClick={() => handleAdoptScores("team1")}
-                      className="py-2 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
-                      title="Adopt Team 2's Scores"
-                    >
-                      Adopt
-                    </button>
-                  )}
+                  {matcheDetail?.status === "in_dispute" &&
+                    showAdoptButtonTeam1 &&
+                    !editingTeam1 && (
+                      <button
+                        onClick={() => handleAdoptScores("team1")}
+                        className="py-2 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
+                        title="Adopt Team 2's Scores"
+                      >
+                        Adopt
+                      </button>
+                    )}
                   {editingTeam1 ? (
                     <>
                       <button
@@ -488,13 +499,17 @@ const MatchDetails = () => {
                       </button>
                     </>
                   ) : (
-                    <button
-                      onClick={() => setEditingTeam1(true)}
-                      className="py-2 px-4 bg-gradient-to-r from-[#46A2FF] to-[#3b8ce6] text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
-                      title="Edit Team 1 Scores"
-                    >
-                      Edit
-                    </button>
+                    <>
+                      {matcheDetail?.status === "in_dispute" && (
+                        <button
+                          onClick={() => setEditingTeam1(true)}
+                          className="py-2 px-4 bg-gradient-to-r from-[#46A2FF] to-[#3b8ce6] text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
+                          title="Edit Team 1 Scores"
+                        >
+                          Edit
+                        </button>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
@@ -543,13 +558,13 @@ const MatchDetails = () => {
                   <span className="text-[#46A2FF] text-lg">🏆</span>
                   Scores
                 </h4>
-                <button
+                {/* <button
                   onClick={() => deleteScore("team1")}
                   className="py-2 px-4 bg-gradient-to-r from-[#f43f5e] to-[#F05252] text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
                   title="Edit Team 1 Scores"
                 >
                   Delete Score
-                </button>
+                </button> */}
               </div>
               {editingTeam1 ? (
                 <div className="space-y-4">
@@ -642,15 +657,17 @@ const MatchDetails = () => {
                   Team 2
                 </h3>
                 <div className="flex gap-2 z-0">
-                  {showAdoptButtonTeam2 && !editingTeam2 && (
-                    <button
-                      onClick={() => handleAdoptScores("team2")}
-                      className="py-2 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
-                      title="Adopt Team 1's Scores"
-                    >
-                      Adopt
-                    </button>
-                  )}
+                  {matcheDetail?.status === "in_dispute" &&
+                    showAdoptButtonTeam2 &&
+                    !editingTeam2 && (
+                      <button
+                        onClick={() => handleAdoptScores("team2")}
+                        className="py-2 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
+                        title="Adopt Team 1's Scores"
+                      >
+                        Adopt
+                      </button>
+                    )}
                   {editingTeam2 ? (
                     <>
                       <button
@@ -669,13 +686,17 @@ const MatchDetails = () => {
                       </button>
                     </>
                   ) : (
-                    <button
-                      onClick={() => setEditingTeam2(true)}
-                      className="py-2 px-4 bg-gradient-to-r from-[#46A2FF] to-[#3b8ce6] text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
-                      title="Edit Team 2 Scores"
-                    >
-                      Edit
-                    </button>
+                    <>
+                      {matcheDetail?.status === "in_dispute" && (
+                        <button
+                          onClick={() => setEditingTeam2(true)}
+                          className="py-2 px-4 bg-gradient-to-r from-[#46A2FF] to-[#3b8ce6] text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
+                          title="Edit Team 2 Scores"
+                        >
+                          Edit
+                        </button>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
@@ -724,13 +745,13 @@ const MatchDetails = () => {
                   <span className="text-orange-500 text-lg">🏆</span>
                   Scores
                 </h4>{" "}
-                <button
+                {/* <button
                   onClick={() => deleteScore("team2")}
                   className="py-2 px-4 bg-gradient-to-r from-[#f43f5e] to-[#F05252] text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
                   title="Edit Team 1 Scores"
                 >
                   Delete Score
-                </button>
+                </button> */}
               </div>
 
               {editingTeam2 ? (
