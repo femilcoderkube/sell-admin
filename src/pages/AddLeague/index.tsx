@@ -575,6 +575,7 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
             name="startDate"
             placeholderText="Select start date"
             autoComplete="off"
+            timeIntervals={15}
             minDate={new Date()}
             popperPlacement="bottom-start"
             wrapperClassName="w-full"
@@ -607,6 +608,7 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
             }`}
             id="endDate"
             name="endDate"
+            timeIntervals={15}
             placeholderText="Select end date"
             autoComplete="off"
             minDate={values.startDate ? new Date(values.startDate) : new Date()}

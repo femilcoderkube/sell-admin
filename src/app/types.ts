@@ -149,9 +149,21 @@ export interface LeagueState {
   participants: any[];
   participantsLoading: boolean;
   participantsError: string | null;
+  participantsCurrentPage: any;
+  participantsPerPage: any;
+  participantsTotalCount: any;
   matches: any[];
   matchesLoading: boolean;
   matchesError: string | null;
+  matchesTotalCount: any;
+  matchesCurrentPage: any;
+  matchesPerPage: any;
+  tickets: any[];
+  ticketsLoading: boolean;
+  ticketsError: string | null;
+  ticketsTotalCount: any;
+  ticketsCurrentPage: any;
+  ticketsPerPage: any;
 }
 
 export interface Rule {

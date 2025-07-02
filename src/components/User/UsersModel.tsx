@@ -131,7 +131,6 @@ const UsersModel: React.FC<UsersModelProps> = ({
       profilePictureUrl: selectedUser?.profilePicture || "",
       email: selectedUser?.email || "",
       username: selectedUser?.username || "",
-      password: "", // Added password
     },
     enableReinitialize: true,
     validationSchema: getValidationSchema(isAddUser),

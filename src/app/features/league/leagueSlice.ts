@@ -25,6 +25,12 @@ const initialState: LeagueState = {
   matchesCurrentPage: 1,
   matchesPerPage: 5,
   matchesTotalCount: 0,
+  tickets: [],
+  ticketsLoading: false,
+  ticketsError: null,
+  ticketsTotalCount: 0,
+  ticketsCurrentPage: 1,
+  ticketsPerPage: 5,
 };
 
 export const fetchLeagueMatches = createAsyncThunk(
@@ -70,14 +76,12 @@ export const updateLeagueMatchesByID = createAsyncThunk(
   async (
     {
       matcheId,
-      team1ScoreDetails,
-      team2ScoreDetails,
+      matchScores,
       status,
       winner,
     }: {
       matcheId: string;
-      team1ScoreDetails?: object;
-      team2ScoreDetails?: object;
+      matchScores?: any;
       status?: string;
       winner?: string;
     },
@@ -85,8 +89,7 @@ export const updateLeagueMatchesByID = createAsyncThunk(
   ) => {
     try {
       const response = await axiosInstance.put(`/LeagueMatch?id=${matcheId}`, {
-        team1ScoreDetails,
-        team2ScoreDetails,
+        matchScores,
         ...(status && { status }),
         winner,
         // ...(winner && { winner }),
@@ -120,6 +123,30 @@ export const fetchLeagueParticipants = createAsyncThunk(
 
       return rejectWithValue(
         error.response?.data?.message || "Error fetching league participants"
+      );
+    }
+  }
+);
+export const fetchLeagueTickets = createAsyncThunk(
+  "leagues/fetchLeagueTickets",
+  async (
+    {
+      leagueId,
+      page,
+      perPage,
+    }: { leagueId: string; page: number; perPage: number },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axiosInstance.get(
+        `/LeaguesTickets?leagueId=${leagueId}&page=${page}&limit=${perPage}`
+      );
+      return response.data;
+    } catch (error: any) {
+      console.log("err 2", error);
+
+      return rejectWithValue(
+        error.response?.data?.message || "Error fetching league tickets"
       );
     }
   }
@@ -212,6 +239,39 @@ export const updateLeague = createAsyncThunk(
   }
 );
 
+export const addLeagueMatchScore = createAsyncThunk(
+  "leagues/addLeagueMatchScore",
+  async (
+    {
+      matcheId,
+      yourScore,
+      opponentScore,
+    }: { matcheId: string; yourScore: number; opponentScore: number },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axiosInstance.put(
+        `/LeagueMatch/addscore?id=${matcheId}`,
+        {
+          yourScore,
+          opponentScore,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      console.log("err addScore", error);
+      return rejectWithValue(
+        error.response?.data?.message || "Error adding match scores"
+      );
+    }
+  }
+);
+
 export const deleteLeague = createAsyncThunk(
   "leagues/deleteLeague",
   async (id: string, { rejectWithValue }) => {
@@ -273,6 +333,9 @@ const leagueSlice = createSlice({
     setMatchesPage: (state, action: PayloadAction<number>) => {
       state.matchesCurrentPage = action.payload;
     },
+    setTicketsPage: (state, action: PayloadAction<number>) => {
+      state.ticketsCurrentPage = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -287,6 +350,19 @@ const leagueSlice = createSlice({
       .addCase(fetchLeagueMatches.rejected, (state, action) => {
         state.matchesLoading = false;
         state.matchesError = action.payload as string;
+      })
+
+      .addCase(fetchLeagueTickets.pending, (state) => {
+        state.ticketsLoading = true;
+      })
+      .addCase(fetchLeagueTickets.fulfilled, (state, action) => {
+        state.ticketsLoading = false;
+        state.tickets = action.payload.data.result;
+        state.ticketsTotalCount = action.payload.data.totalItem;
+      })
+      .addCase(fetchLeagueTickets.rejected, (state, action) => {
+        state.ticketsLoading = false;
+        state.ticketsError = action.payload as string;
       })
       .addCase(fetchLeagueParticipants.pending, (state) => {
         state.participantsLoading = true;
@@ -399,6 +475,26 @@ const leagueSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
         toast.error("Failed to update match!");
+      })
+      .addCase(addLeagueMatchScore.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(addLeagueMatchScore.fulfilled, (state, action) => {
+        state.loading = false;
+        // Update matcheDetail if it matches the updated match
+        if (state.matcheDetail?.id === action.payload.data.id) {
+          state.matcheDetail = action.payload.data;
+        }
+        // Update matches array to reflect the new scores
+        state.matches = state.matches.map((match) =>
+          match.id === action.payload.data.id ? action.payload.data : match
+        );
+        toast.success("Match scores added successfully!");
+      })
+      .addCase(addLeagueMatchScore.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        toast.error("Failed to add match scores!");
       });
   },
 });
@@ -409,6 +505,7 @@ export const {
   setPage,
   setParticipantsPage,
   setMatchesPage,
+  setTicketsPage,
 } = leagueSlice.actions;
 
 export default leagueSlice.reducer;

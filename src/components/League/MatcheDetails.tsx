@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
+  addLeagueMatchScore,
   fetchLeagueMatchesByID,
   updateLeagueMatchesByID,
 } from "../../app/features/league/leagueSlice";
@@ -9,13 +10,19 @@ import { RootState } from "../../app/store";
 import { baseURL } from "../../axios";
 import HandLogoLoader from "../Loader/Loader";
 import toast from "react-hot-toast";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 
-interface TeamScoreDetails {
+interface MatchScore {
   yourScore: number;
   opponentScore: number;
   description: string;
   attachment: string;
+  submittedBy: string;
   submittedAt: string;
+  winner: string | null;
+  isActive: boolean;
+  _id: string;
 }
 
 interface Participant {
@@ -31,8 +38,6 @@ interface Team {
 }
 
 interface MatchDetails {
-  team1ScoreDetails: TeamScoreDetails;
-  team2ScoreDetails: TeamScoreDetails;
   _id: string;
   league: {
     title: string;
@@ -46,6 +51,7 @@ interface MatchDetails {
   isScoreVerified: boolean;
   status: string;
   startTime: string;
+  matchScores: MatchScore[];
 }
 
 const MatchStatusSwitch = ({
@@ -70,10 +76,11 @@ const MatchStatusSwitch = ({
     in_progress: "text-white",
     completed: "text-white",
     cancelled: "text-white",
+    in_dispute: "text-white",
   };
 
   const handleStatusChange = (newStatus: string) => {
-    if (newStatus === status) return; // Prevent re-selecting the same status
+    if (newStatus === status) return;
     setPendingStatus(newStatus);
     setShowModal(true);
   };
@@ -87,8 +94,6 @@ const MatchStatusSwitch = ({
       const result = await dispatch(
         updateLeagueMatchesByID({
           matcheId: matcheDetail?._id,
-          team1ScoreDetails: matcheDetail?.team1ScoreDetails || {},
-          team2ScoreDetails: matcheDetail?.team2ScoreDetails || {},
           status: pendingStatus,
         })
       );
@@ -188,6 +193,7 @@ const MatchDetails = () => {
   const { mid } = useParams<{ mid: string }>();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [addingScore, setAddingScore] = useState(false);
   const { matcheDetail, loading, error } = useSelector(
     (state: RootState) => state.leagues
   ) as {
@@ -196,21 +202,35 @@ const MatchDetails = () => {
     error: string | null;
   };
 
-  const [editingTeam1, setEditingTeam1] = useState(false);
-  const [editingTeam2, setEditingTeam2] = useState(false);
-  const [team1Scores, setTeam1Scores] = useState<Partial<TeamScoreDetails>>({
-    yourScore: 0,
-    opponentScore: 0,
-    description: "",
-    attachment: "",
-    submittedAt: "",
-  });
-  const [team2Scores, setTeam2Scores] = useState<Partial<TeamScoreDetails>>({
-    yourScore: 0,
-    opponentScore: 0,
-    description: "",
-    attachment: "",
-    submittedAt: "",
+  // Formik setup with Yup validation
+  const formik = useFormik({
+    initialValues: {
+      team1: "",
+      team2: "",
+    },
+    validationSchema: Yup.object({
+      team1: Yup.string()
+        .required("Team 1 score is required")
+        .matches(/^\s*\d*\.?\d+\s*$/, "Must be a valid number")
+        .trim(),
+      team2: Yup.string()
+        .required("Team 2 score is required")
+        .matches(/^\s*\d*\.?\d+\s*$/, "Must be a valid number")
+        .trim(),
+    }),
+    onSubmit: (values) => {
+      console.log("Saving score:", values?.team1, values?.team2);
+      dispatch(
+        addLeagueMatchScore({
+          matcheId: mid,
+          yourScore: values?.team1,
+          opponentScore: values?.team2,
+        })
+      );
+      // Example: send values to backend here
+      setAddingScore(false);
+      formik.resetForm();
+    },
   });
 
   useEffect(() => {
@@ -218,90 +238,6 @@ const MatchDetails = () => {
       dispatch(fetchLeagueMatchesByID({ matcheId: mid }));
     }
   }, [dispatch, mid]);
-
-  useEffect(() => {
-    if (matcheDetail) {
-      setTeam1Scores({
-        yourScore: matcheDetail?.team1ScoreDetails?.yourScore,
-        opponentScore: matcheDetail?.team1ScoreDetails?.opponentScore,
-        description: matcheDetail?.team1ScoreDetails?.description,
-        attachment: matcheDetail?.team1ScoreDetails?.attachment,
-        submittedAt: matcheDetail?.team1ScoreDetails?.submittedAt,
-      });
-      setTeam2Scores({
-        yourScore: matcheDetail?.team2ScoreDetails?.yourScore,
-        opponentScore: matcheDetail?.team2ScoreDetails?.opponentScore,
-        description: matcheDetail?.team2ScoreDetails?.description,
-        attachment: matcheDetail?.team2ScoreDetails?.attachment,
-        submittedAt: matcheDetail?.team2ScoreDetails?.submittedAt,
-      });
-    }
-  }, [matcheDetail]);
-
-  const handleSaveTeam1 = () => {
-    if (mid) {
-      dispatch(
-        updateLeagueMatchesByID({
-          matcheId: mid,
-          team1ScoreDetails: {
-            ...team1Scores,
-            submittedAt: new Date().toISOString(),
-          } as TeamScoreDetails,
-          // team1ScoreDetails: {
-          //   ...team1Scores,
-          //   submittedAt: team1Scores?.submittedAt || new Date().toISOString(),
-          // } as TeamScoreDetails,
-          team2ScoreDetails:
-            matcheDetail?.team2ScoreDetails || ({} as TeamScoreDetails),
-        })
-      ).then((result) => {
-        if (updateLeagueMatchesByID.fulfilled.match(result)) {
-          setEditingTeam1(false);
-          dispatch(fetchLeagueMatchesByID({ matcheId: mid }));
-        }
-      });
-    }
-  };
-
-  const handleSaveTeam2 = () => {
-    if (mid) {
-      dispatch(
-        updateLeagueMatchesByID({
-          matcheId: mid,
-          team1ScoreDetails:
-            matcheDetail?.team1ScoreDetails || ({} as TeamScoreDetails),
-          // team2ScoreDetails: {
-          //   ...team2Scores,
-          //   submittedAt: team2Scores?.submittedAt || new Date().toISOString(),
-          // } as TeamScoreDetails,
-          team2ScoreDetails: {
-            ...team2Scores,
-            submittedAt: new Date().toISOString(),
-          } as TeamScoreDetails,
-        })
-      ).then((result) => {
-        if (updateLeagueMatchesByID.fulfilled.match(result)) {
-          setEditingTeam2(false);
-          dispatch(fetchLeagueMatchesByID({ matcheId: mid }));
-        }
-      });
-    }
-  };
-
-  const handleAdoptScores = (team: any) => {
-    if (team) {
-      dispatch(
-        updateLeagueMatchesByID({
-          winner: team,
-          matcheId: mid,
-        })
-      ).then((result) => {
-        if (updateLeagueMatchesByID.fulfilled.match(result)) {
-          dispatch(fetchLeagueMatchesByID({ matcheId: mid }));
-        }
-      });
-    }
-  };
 
   const handleBack = () => {
     navigate(-1);
@@ -322,7 +258,7 @@ const MatchDetails = () => {
       <div className="flex items-center justify-center h-screen bg-gradient-to-br from-gray-900 to-gray-800">
         <div className="text-center">
           <div className="text-red-400 text-6xl mb-4">⚠️</div>
-          <div className="text-red-400 text-xl font-semibold bg-gray-800/50  p-6 rounded-2xl border border-red-400/20">
+          <div className="text-red-400 text-xl font-semibold bg-gray-800/50 p-6 rounded-2xl border border-red-400/20">
             Error: {error}
           </div>
         </div>
@@ -335,7 +271,7 @@ const MatchDetails = () => {
       <div className="flex items-center justify-center h-screen bg-gradient-to-br from-gray-900 to-gray-800">
         <div className="text-center">
           <div className="text-gray-400 text-6xl mb-4">📊</div>
-          <div className="text-gray-400 text-xl font-medium bg-gray-800/50  p-6 rounded-2xl border border-gray-700/50">
+          <div className="text-gray-400 text-xl font-medium bg-gray-800/50 p-6 rounded-2xl border border-gray-700/50">
             No match data found.
           </div>
         </div>
@@ -343,68 +279,15 @@ const MatchDetails = () => {
     );
   }
 
-  // Determine if Adopt button should be shown
-  const showAdoptButtonTeam1 =
-    matcheDetail.winner &&
-    (matcheDetail.winner !== "team1" ||
-      (matcheDetail.team1ScoreDetails.yourScore ===
-        matcheDetail.team2ScoreDetails.yourScore &&
-        matcheDetail.team1ScoreDetails.opponentScore ===
-          matcheDetail.team2ScoreDetails.opponentScore));
-
-  const showAdoptButtonTeam2 =
-    matcheDetail.winner &&
-    (matcheDetail.winner !== "team2" ||
-      (matcheDetail.team1ScoreDetails.yourScore ===
-        matcheDetail.team2ScoreDetails.yourScore &&
-        matcheDetail.team1ScoreDetails.opponentScore ===
-          matcheDetail.team2ScoreDetails.opponentScore));
-
-  // const deleteScore = (team: any) => {
-  //   if (mid) {
-  //     if (team === "team1") {
-  //       dispatch(
-  //         updateLeagueMatchesByID({
-  //           matcheId: mid,
-  //           status: "in_progress",
-  //           team1ScoreDetails: {
-  //             opponentScore: null,
-  //             yourScore: null,
-  //             submittedAt: null,
-  //           },
-  //           winner: null,
-  //         })
-  //       ).then((result) => {
-  //         if (updateLeagueMatchesByID.fulfilled.match(result)) {
-  //           dispatch(fetchLeagueMatchesByID({ matcheId: mid }));
-  //         }
-  //       });
-  //     } else {
-  //       dispatch(
-  //         updateLeagueMatchesByID({
-  //           matcheId: mid,
-  //           status: "in_progress",
-  //           team2ScoreDetails: {
-  //             opponentScore: null,
-  //             yourScore: null,
-  //             submittedAt: null,
-  //           },
-  //           winner: null,
-  //         })
-  //       ).then((result) => {
-  //         if (updateLeagueMatchesByID.fulfilled.match(result)) {
-  //           dispatch(fetchLeagueMatchesByID({ matcheId: mid }));
-  //         }
-  //       });
-  //     }
-  //   }
-  // };
+  const handleAddScore = () => {
+    setAddingScore(true);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
       <div className="max-w-6xl mx-auto px-4 py-6">
         {/* Header Section */}
-        <div className="bg-gray-800/50  border border-gray-700/50 rounded-2xl p-6 mb-6 shadow-xl">
+        <div className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6 mb-6 shadow-xl">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
             <div className="flex items-center gap-6">
               <button
@@ -415,6 +298,7 @@ const MatchDetails = () => {
                 <span className="text-lg">←</span>
                 <span>Back</span>
               </button>
+
               <div className="flex items-center gap-4">
                 <div className="relative">
                   <img
@@ -438,7 +322,7 @@ const MatchDetails = () => {
         </div>
 
         {/* Match Status Section */}
-        <div className="bg-gray-800/50  border border-gray-700/50 rounded-2xl p-6 mb-6 shadow-xl">
+        <div className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6 mb-6 shadow-xl">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <h2 className="text-lg font-semibold text-gray-300 mb-2">
@@ -458,390 +342,168 @@ const MatchDetails = () => {
         </div>
 
         {/* Teams Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Team 1 */}
-          <div className="bg-gray-800/50  border border-gray-700/50 rounded-2xl overflow-hidden shadow-xl">
-            <div className="bg-gradient-to-r from-[#46A2FF]/10 to-transparent p-6 border-b border-gray-700/50">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-bold text-xl text-white flex items-center gap-2">
-                  <span className="w-8 h-8 bg-[#46A2FF] rounded-lg flex items-center justify-center text-white font-bold text-sm">
-                    1
-                  </span>
-                  Team 1
-                </h3>
-                <div className="flex gap-2">
-                  {matcheDetail?.status === "in_dispute" &&
-                    showAdoptButtonTeam1 &&
-                    !editingTeam1 && (
-                      <button
-                        onClick={() => handleAdoptScores("team1")}
-                        className="py-2 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
-                        title="Adopt Team 2's Scores"
-                      >
-                        Adopt
-                      </button>
-                    )}
-                  {editingTeam1 ? (
-                    <>
-                      <button
-                        onClick={handleSaveTeam1}
-                        className="py-2 px-4 bg-gradient-to-r from-[#46A2FF] to-[#3b8ce6] text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
-                        title="Save Team 1 Scores"
-                      >
-                        Save
-                      </button>
-                      <button
-                        onClick={() => setEditingTeam1(false)}
-                        className="py-2 px-4 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
-                        title="Cancel Editing"
-                      >
-                        Cancel
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      {matcheDetail?.status === "in_dispute" && (
-                        <button
-                          onClick={() => setEditingTeam1(true)}
-                          className="py-2 px-4 bg-gradient-to-r from-[#46A2FF] to-[#3b8ce6] text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
-                          title="Edit Team 1 Scores"
-                        >
-                          Edit
-                        </button>
-                      )}
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Players */}
-              <div className="space-y-3">
-                {matcheDetail.team1.map((player, index) => (
-                  <div className="flex items-center justify-between bg-gray-700/30 p-3 rounded-xl">
-                    <div
-                      key={player?._id}
-                      className="flex items-center space-x-3 "
-                    >
-                      <div className="relative">
-                        <img
-                          src={`${baseURL}/api/v1/${player?.participant?.userId?.profilePicture}`}
-                          alt={player?.participant?.userId?.username}
-                          className="w-12 h-12 rounded-full object-cover border-2 border-gray-600"
-                        />
-                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-[#46A2FF] rounded-full flex items-center justify-center text-white text-xs font-bold">
-                          {index + 1}
-                        </div>
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-semibold text-white text-base">
-                          {player?.participant?.userId?.username}
-                        </p>
-                        <p className="text-gray-400 text-sm">
-                          ID: {player?.participant?.gameId}
-                        </p>
-                      </div>
-                    </div>
-                    <div>
-                      <p className="font-semibold text-white text-base">
-                        {player?.score?.toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Scores */}
-            <div className="p-6">
-              <div className="flex items-center justify-between">
-                <h4 className="text-gray-300 font-semibold mb-4 flex items-center gap-2">
-                  <span className="text-[#46A2FF] text-lg">🏆</span>
-                  Scores
-                </h4>
-                {/* <button
-                  onClick={() => deleteScore("team1")}
-                  className="py-2 px-4 bg-gradient-to-r from-[#f43f5e] to-[#F05252] text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
-                  title="Edit Team 1 Scores"
-                >
-                  Delete Score
-                </button> */}
-              </div>
-              {editingTeam1 ? (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm text-gray-400 mb-2 block font-medium">
-                        Your Score
-                      </label>
-                      <input
-                        type="number"
-                        value={team1Scores?.yourScore}
-                        onChange={(e) =>
-                          setTeam1Scores({
-                            ...team1Scores,
-                            yourScore: Number(e.target.value),
-                          })
-                        }
-                        className="w-full py-3 px-4 bg-gray-900/70 text-white rounded-xl border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#46A2FF] focus:border-transparent transition-all duration-300 font-medium text-center text-lg"
-                        placeholder="0"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm text-gray-400 mb-2 block font-medium">
-                        Opponent Score
-                      </label>
-                      <input
-                        type="number"
-                        value={team1Scores?.opponentScore}
-                        onChange={(e) =>
-                          setTeam1Scores({
-                            ...team1Scores,
-                            opponentScore: Number(e.target.value),
-                          })
-                        }
-                        className="w-full py-3 px-4 bg-gray-900/70 text-white rounded-xl border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#46A2FF] focus:border-transparent transition-all duration-300 font-medium text-center text-lg"
-                        placeholder="0"
-                      />
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-gray-900/50 p-4 rounded-xl border border-gray-700/50">
-                  <div className="flex items-center justify-center gap-4 mb-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-[#46A2FF] mb-1">
-                        {team1Scores?.yourScore || 0}
-                      </div>
-                      <div className="text-sm text-gray-400">Your Score</div>
-                    </div>
-                    <div className="text-gray-500 text-2xl font-bold">VS</div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-[#46A2FF] mb-1">
-                        {team1Scores?.opponentScore || 0}
-                      </div>
-                      <div className="text-sm text-gray-400">Opponent</div>
-                    </div>
-                  </div>
-                  {team1Scores?.description && (
-                    <div className="mt-3 p-3 bg-gray-800/50 rounded-lg">
-                      <p className="text-gray-300 text-sm">
-                        <span className="font-semibold text-[#46A2FF]">
-                          Note:
-                        </span>{" "}
-                        {team1Scores?.description}
-                      </p>
-                    </div>
-                  )}
-                  {team1Scores?.attachment && (
-                    <div className="mt-3">
-                      <img
-                        src={`${baseURL}/api/v1/${team1Scores?.attachment}`}
-                        alt="Team 1 Score Proof"
-                        className="w-full max-w-xs mx-auto rounded-lg shadow-lg border border-gray-600"
-                      />
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
+        <div className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6 mb-6 shadow-xl">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold text-xl text-white flex items-center gap-2">
+              <span className="text-[#46A2FF] text-lg">👥</span>
+              Teams
+            </h3>
+            <button
+              className="py-2 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
+              title="Add Score"
+              onClick={handleAddScore}
+            >
+              Add Score
+            </button>
           </div>
-
-          {/* Team 2 */}
-          <div className="bg-gray-800/50  border border-gray-700/50 rounded-2xl overflow-hidden shadow-xl">
-            <div className="bg-gradient-to-r from-orange-500/10 to-transparent p-6 border-b border-gray-700/50">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-bold text-xl text-white flex items-center gap-2">
-                  <span className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">
-                    2
-                  </span>
-                  Team 2
-                </h3>
-                <div className="flex gap-2 z-0">
-                  {matcheDetail?.status === "in_dispute" &&
-                    showAdoptButtonTeam2 &&
-                    !editingTeam2 && (
-                      <button
-                        onClick={() => handleAdoptScores("team2")}
-                        className="py-2 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
-                        title="Adopt Team 1's Scores"
-                      >
-                        Adopt
-                      </button>
-                    )}
-                  {editingTeam2 ? (
-                    <>
-                      <button
-                        onClick={handleSaveTeam2}
-                        className="py-2 px-4 bg-gradient-to-r from-[#46A2FF] to-[#3b8ce6] text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
-                        title="Save Team 2 Scores"
-                      >
-                        Save
-                      </button>
-                      <button
-                        onClick={() => setEditingTeam2(false)}
-                        className="py-2 px-4 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
-                        title="Cancel Editing"
-                      >
-                        Cancel
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      {matcheDetail?.status === "in_dispute" && (
-                        <button
-                          onClick={() => setEditingTeam2(true)}
-                          className="py-2 px-4 bg-gradient-to-r from-[#46A2FF] to-[#3b8ce6] text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
-                          title="Edit Team 2 Scores"
-                        >
-                          Edit
-                        </button>
-                      )}
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Players */}
-              <div className="space-y-3">
-                {matcheDetail?.team2?.map((player, index) => (
-                  <div className="flex items-center justify-between bg-gray-700/30 p-3 rounded-xl">
-                    <div
-                      key={player?._id}
-                      className="flex items-center space-x-3"
-                    >
-                      <div className="relative">
-                        <img
-                          src={`${baseURL}/api/v1/${player?.participant?.userId?.profilePicture}`}
-                          alt={player?.participant?.userId?.username}
-                          className="w-12 h-12 rounded-full object-cover border-2 border-gray-600"
-                        />
-                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                          {index + 1}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-900/50">
+                  <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
+                    Team
+                  </th>
+                  <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
+                    Team 1
+                  </th>
+                  <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
+                    Team 2
+                  </th>
+                  <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {matcheDetail?.matchScores?.map((score, index) => {
+                  return (
+                    <tr key={score._id} className="bg-gray-700/30">
+                      <td className="p-4 border-b border-gray-700/50">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm ${
+                              score.submittedBy === "team1"
+                                ? "bg-[#46A2FF]"
+                                : score.submittedBy === "team2"
+                                ? "bg-orange-500"
+                                : "bg-green-500"
+                            }`}
+                          >
+                            {index + 1}
+                          </span>
+                          <span className="font-bold text-white">
+                            {score.submittedBy === "team1"
+                              ? "Team 1"
+                              : score.submittedBy === "team2"
+                              ? "Team 2"
+                              : "Admin"}
+                          </span>
                         </div>
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-semibold text-white text-base">
-                          {player?.participant?.userId?.username}
+                      </td>
+                      <td className="p-4 border-b border-gray-700/50">
+                        <p className="font-semibold text-[#46A2FF] text-lg">
+                          {score.submittedBy === "team1"
+                            ? score.yourScore.toFixed(0)
+                            : score.opponentScore.toFixed(0)}
                         </p>
-                        <p className="text-gray-400 text-sm">
-                          ID: {player?.participant?.gameId}
+                      </td>
+                      <td className="p-4 border-b border-gray-700/50">
+                        <p className="font-semibold text-orange-500 text-lg">
+                          {score.submittedBy === "team1"
+                            ? score.opponentScore.toFixed(0)
+                            : score.yourScore.toFixed(0)}
                         </p>
-                      </div>
-                    </div>
-                    <div>
-                      <p className="font-semibold text-white text-base">
-                        {player?.score?.toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Scores */}
-            <div className="p-6">
-              <div className="flex items-center justify-between">
-                <h4 className="text-gray-300 font-semibold mb-4 flex items-center gap-2">
-                  <span className="text-orange-500 text-lg">🏆</span>
-                  Scores
-                </h4>{" "}
-                {/* <button
-                  onClick={() => deleteScore("team2")}
-                  className="py-2 px-4 bg-gradient-to-r from-[#f43f5e] to-[#F05252] text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
-                  title="Edit Team 1 Scores"
-                >
-                  Delete Score
-                </button> */}
-              </div>
-
-              {editingTeam2 ? (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm text-gray-400 mb-2 block font-medium">
-                        Your Score
-                      </label>
+                      </td>
+                      <td className="p-4 border-b border-gray-700/50">
+                        {score?.isActive === false && (
+                          <button
+                            className="py-2 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
+                            title="Adopt"
+                            // onClick={handleAddScore}
+                          >
+                            Adopt
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+                {/* New Row for Adding Score */}
+                {addingScore && (
+                  <tr className="bg-gray-600/40">
+                    <td className="p-4 border-b border-gray-700/50 font-bold text-white">
+                      Admin
+                    </td>
+                    <td className="p-4 border-b border-gray-700/50">
                       <input
-                        type="number"
-                        value={team2Scores?.yourScore}
-                        onChange={(e) =>
-                          setTeam2Scores({
-                            ...team2Scores,
-                            yourScore: Number(e.target.value),
-                          })
-                        }
-                        className="w-full py-3 px-4 bg-gray-900/70 text-white rounded-xl border border-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 font-medium text-center text-lg"
-                        placeholder="0"
+                        type="text"
+                        name="team1"
+                        className={`w-20 bg-gray-800 text-white px-2 py-1 rounded ${
+                          formik.touched.team1 && formik.errors.team1
+                            ? "border-red-500 border"
+                            : ""
+                        }`}
+                        value={formik.values.team1}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
                       />
-                    </div>
-                    <div>
-                      <label className="text-sm text-gray-400 mb-2 block font-medium">
-                        Opponent Score
-                      </label>
+                      {formik.touched.team1 && formik.errors.team1 && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {formik.errors.team1}
+                        </p>
+                      )}
+                    </td>
+                    <td className="p-4 border-b border-gray-700/50">
                       <input
-                        type="number"
-                        value={team2Scores?.opponentScore}
-                        onChange={(e) =>
-                          setTeam2Scores({
-                            ...team2Scores,
-                            opponentScore: Number(e.target.value),
-                          })
-                        }
-                        className="w-full py-3 px-4 bg-gray-900/70 text-white rounded-xl border border-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 font-medium text-center text-lg"
-                        placeholder="0"
+                        type="text"
+                        name="team2"
+                        className={`w-20 bg-gray-800 text-white px-2 py-1 rounded ${
+                          formik.touched.team2 && formik.errors.team2
+                            ? "border-red-500 border"
+                            : ""
+                        }`}
+                        value={formik.values.team2}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
                       />
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-gray-900/50 p-4 rounded-xl border border-gray-700/50">
-                  <div className="flex items-center justify-center gap-4 mb-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-orange-500 mb-1">
-                        {team2Scores?.yourScore || 0}
+                      {formik.touched.team2 && formik.errors.team2 && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {formik.errors.team2}
+                        </p>
+                      )}
+                    </td>
+                    <td className="p-4 border-b border-gray-700/50">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={formik.handleSubmit}
+                          className="py-2 px-4 bg-gradient-to-r from-blue-500 to-blue-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
+                          disabled={!formik.isValid || formik.isSubmitting}
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={() => setAddingScore(false)}
+                          className="py-2 px-4 bg-gradient-to-r from-red-500 to-red-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
+                          disabled={!formik.isValid || formik.isSubmitting}
+                        >
+                          Cancel
+                        </button>
                       </div>
-                      <div className="text-sm text-gray-400">Your Score</div>
-                    </div>
-                    <div className="text-gray-500 text-2xl font-bold">VS</div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-orange-500 mb-1">
-                        {team2Scores?.opponentScore || 0}
-                      </div>
-                      <div className="text-sm text-gray-400">Opponent</div>
-                    </div>
-                  </div>
-                  {team2Scores?.description && (
-                    <div className="mt-3 p-3 bg-gray-800/50 rounded-lg">
-                      <p className="text-gray-300 text-sm">
-                        <span className="font-semibold text-orange-500">
-                          Note:
-                        </span>{" "}
-                        {team2Scores?.description}
-                      </p>
-                    </div>
-                  )}
-                  {team2Scores?.attachment && (
-                    <div className="mt-3">
-                      <img
-                        src={`${baseURL}/api/v1/${team2Scores?.attachment}`}
-                        alt="Team 2 Score Proof"
-                        className="w-full max-w-xs mx-auto rounded-lg shadow-lg border border-gray-600"
-                      />
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
 
         {/* Match Information */}
-        <div className="bg-gray-800/50  border border-gray-700/50 rounded-2xl p-6 shadow-xl">
+        <div className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6 shadow-xl">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 bg-[#46A2FF]/10 rounded-xl flex items-center justify-center">
               <span className="text-[#46A2FF] text-xl">ℹ️</span>
             </div>
-            <h3 className="font-bold text-xl text-white">Match Information</h3>
+            <h3 className="font-bold hive-2xl text-white">Match Information</h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

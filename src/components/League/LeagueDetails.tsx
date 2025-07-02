@@ -8,6 +8,8 @@ import {
   setParticipantsPage,
   setMatchesPage,
   fetchLeagueMatchesByID,
+  fetchLeagueTickets,
+  setTicketsPage,
 } from "../../app/features/league/leagueSlice";
 import { RootState } from "../../app/store";
 import HandLogoLoader from "../Loader/Loader";
@@ -35,6 +37,12 @@ const LeagueDetails: React.FC = () => {
     matchesCurrentPage,
     matchesPerPage,
     matchesTotalCount,
+    tickets,
+    ticketsLoading,
+    ticketsError,
+    ticketsTotalCount,
+    ticketsCurrentPage,
+    ticketsPerPage,
   } = useSelector((state: RootState) => state.leagues);
   console.log("error", error);
   // State for active tab
@@ -44,6 +52,11 @@ const LeagueDetails: React.FC = () => {
   useEffect(() => {
     if (lid) {
       dispatch(fetchLeagueById(lid));
+    }
+  }, [dispatch, lid]);
+
+  useEffect(() => {
+    if (lid) {
       dispatch(
         fetchLeagueParticipants({
           leagueId: lid,
@@ -51,6 +64,11 @@ const LeagueDetails: React.FC = () => {
           perPage: participantsPerPage,
         })
       );
+    }
+  }, [dispatch, lid, participantsCurrentPage, participantsPerPage]);
+
+  useEffect(() => {
+    if (lid) {
       dispatch(
         fetchLeagueMatches({
           leagueId: lid,
@@ -59,14 +77,19 @@ const LeagueDetails: React.FC = () => {
         })
       );
     }
-  }, [
-    dispatch,
-    lid,
-    participantsCurrentPage,
-    participantsPerPage,
-    matchesCurrentPage,
-    matchesPerPage,
-  ]);
+  }, [dispatch, lid, matchesCurrentPage, matchesPerPage]);
+
+  useEffect(() => {
+    if (lid) {
+      dispatch(
+        fetchLeagueTickets({
+          leagueId: lid,
+          page: ticketsCurrentPage,
+          perPage: ticketsPerPage,
+        })
+      );
+    }
+  }, [dispatch, lid, ticketsCurrentPage, ticketsPerPage]);
 
   if (loading) {
     return <HandLogoLoader />;
@@ -103,6 +126,12 @@ const LeagueDetails: React.FC = () => {
   const handleMatchesPageChange = (page: number) => {
     if (page >= 1 && page <= Math.ceil(matchesTotalCount / matchesPerPage)) {
       dispatch(setMatchesPage(page));
+    }
+  };
+
+  const handleTicketsPageChange = (page: number) => {
+    if (page >= 1 && page <= Math.ceil(ticketsTotalCount / ticketsPerPage)) {
+      dispatch(setTicketsPage(page));
     }
   };
 
@@ -474,9 +503,11 @@ const LeagueDetails: React.FC = () => {
                                     className={`px-3 py-1 rounded-full text-sm font-medium ${
                                       match?.status === "completed"
                                         ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                                        : match?.status === "live"
+                                        : match?.status === "cancelled"
                                         ? "bg-red-500/20 text-red-400 border border-red-500/30"
-                                        : "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                                        : match?.status === "in_progress"
+                                        ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                                        : "bg-purple-500/20 text-purple-400 border border-purple-500/30"
                                     }`}
                                   >
                                     {match?.status}
@@ -563,13 +594,13 @@ const LeagueDetails: React.FC = () => {
                   </div>
                   Tickets
                 </h4>
-                {/* {matchesLoading ? (
+                {ticketsLoading ? (
                   <HandLogoLoader />
-                ) : matchesError ? (
+                ) : ticketsError ? (
                   <div className="text-custom-gray bg-red-500/10 border border-red-500/20 rounded-xl p-4">
-                    Error: {matchesError}
+                    Error: {ticketsError}
                   </div>
-                ) : matches?.length > 0 ? (
+                ) : tickets?.length > 0 ? (
                   <>
                     <div className="bg-gray-800/30 rounded-2xl overflow-hidden border border-gray-700/30 shadow-lg">
                       <div className="overflow-x-auto">
@@ -577,19 +608,11 @@ const LeagueDetails: React.FC = () => {
                           <thead>
                             <tr className="bg-gradient-to-r from-gray-800/80 to-gray-700/80 text-gray-300">
                               <th className="py-4 px-6 text-left font-semibold">
-                                Team 1
+                                User Name
                               </th>
-                              <th className="py-4 px-6 text-left font-semibold">
-                                Team 2
-                              </th>
+
                               <th className="py-4 px-6 text-left font-semibold">
                                 Status
-                              </th>
-                              <th className="py-4 px-6 text-left font-semibold">
-                                Start Time
-                              </th>
-                              <th className="py-4 px-6 text-left font-semibold">
-                                Winner
                               </th>
                               <th className="py-4 px-6 text-left font-semibold">
                                 Action
@@ -597,9 +620,9 @@ const LeagueDetails: React.FC = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {matches?.map((match: any, index: number) => (
+                            {tickets?.map((ticket: any, index: number) => (
                               <tr
-                                key={match?._id}
+                                key={ticket?._id}
                                 className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-yellow-500/10 hover:to-orange-500/10 transition-all duration-200 ${
                                   index % 2 === 0
                                     ? "bg-gray-800/20"
@@ -607,49 +630,23 @@ const LeagueDetails: React.FC = () => {
                                 }`}
                               >
                                 <td className="py-4 px-6 font-medium text-blue-300">
-                                  {match?.team1
-                                    ?.map(
-                                      (p: any) =>
-                                        p.participant?.userId?.username
-                                    )
-                                    .join(", ")}
+                                  {ticket?.raiserID?.username}
                                 </td>
-                                <td className="py-4 px-6 font-medium text-purple-300">
-                                  {match?.team2
-                                    ?.map(
-                                      (p: any) =>
-                                        p.participant?.userId?.username
-                                    )
-                                    .join(", ")}
-                                </td>
+
                                 <td className="py-4 px-6">
                                   <span
                                     className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                      match?.status === "completed"
-                                        ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                                        : match?.status === "live"
-                                        ? "bg-red-500/20 text-red-400 border border-red-500/30"
-                                        : "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                                      ticket?.status === "open"
+                                        ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                                        : "bg-green-500/20 text-green-400 border border-green-500/30"
                                     }`}
                                   >
-                                    {match?.status}
+                                    {ticket?.status}
                                   </span>
-                                </td>
-                                <td className="py-4 px-6 text-gray-300">
-                                  {new Date(match?.startTime).toLocaleString()}
-                                </td>
-                                <td className="py-4 px-6">
-                                  {match?.winner ? (
-                                    <span className="text-yellow-400 font-medium flex items-center gap-2">
-                                      🏆 {match.winner}
-                                    </span>
-                                  ) : (
-                                    <span className="text-gray-500">---</span>
-                                  )}
                                 </td>
                                 <td className="py-4 px-6">
                                   <Link
-                                    to={`/${partnerId}/leagues/${lid}/${match?._id}`}
+                                    to={`/${partnerId}/leagues/${lid}/chat/${ticket?.matchId}`}
                                     className="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
                                   >
                                     <img
@@ -665,32 +662,32 @@ const LeagueDetails: React.FC = () => {
                         </table>
                       </div>
                     </div>
-                    Tickets Pagination
+
                     <div className="flex justify-between items-center mt-6 bg-gray-800/30 rounded-xl p-4 border border-gray-700/30">
                       <div className="text-gray-300 font-medium">
-                        Showing {matches.length} of {matchesTotalCount} tickets
+                        Showing {tickets.length} of {ticketsTotalCount} tickets
                       </div>
                       <div className="flex gap-2">
                         <button
                           onClick={() =>
-                            handleMatchesPageChange(matchesCurrentPage - 1)
+                            handleTicketsPageChange(ticketsCurrentPage - 1)
                           }
-                          disabled={matchesCurrentPage === 1}
+                          disabled={ticketsCurrentPage === 1}
                           className="py-2 px-4 bg-gradient-to-r from-gray-700 to-gray-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
                         >
                           Previous
                         </button>
                         <span className="py-2 px-4 text-white bg-gray-800/50 rounded-lg border border-gray-600/30 font-medium">
-                          Page {matchesCurrentPage} of{" "}
-                          {Math.ceil(matchesTotalCount / matchesPerPage)}
+                          Page {ticketsCurrentPage} of{" "}
+                          {Math.ceil(ticketsTotalCount / ticketsPerPage)}
                         </span>
                         <button
                           onClick={() =>
-                            handleMatchesPageChange(matchesCurrentPage + 1)
+                            handleTicketsPageChange(ticketsCurrentPage + 1)
                           }
                           disabled={
-                            matchesCurrentPage >=
-                            Math.ceil(matchesTotalCount / matchesPerPage)
+                            ticketsCurrentPage >=
+                            Math.ceil(ticketsTotalCount / ticketsPerPage)
                           }
                           className="py-2 px-4 bg-gradient-to-r from-gray-700 to-gray-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
                         >
@@ -699,11 +696,13 @@ const LeagueDetails: React.FC = () => {
                       </div>
                     </div>
                   </>
-                ) : ( */}
-                <div className="text-center py-12 bg-gray-800/20 rounded-xl border-2 border-dashed border-gray-600/30">
-                  <div className="text-gray-400 text-lg">No tickets found.</div>
-                </div>
-                {/* )} */}
+                ) : (
+                  <div className="text-center py-12 bg-gray-800/20 rounded-xl border-2 border-dashed border-gray-600/30">
+                    <div className="text-gray-400 text-lg">
+                      No tickets found.
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

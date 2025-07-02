@@ -52,7 +52,7 @@ const BanModal = ({ isOpen, onClose }) => {
     date: Yup.date()
       .nullable()
       .when("permanentBan", {
-        is: true,
+        is: false,
         then: (schema) =>
           schema.required("Ban date is required for permanent ban"),
         otherwise: (schema) => schema.notRequired(),
