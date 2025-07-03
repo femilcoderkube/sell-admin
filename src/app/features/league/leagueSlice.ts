@@ -312,6 +312,33 @@ export const registerForLeague = createAsyncThunk(
   }
 );
 
+export const adoptLeagueMatchScore = createAsyncThunk(
+  "leagues/adoptLeagueMatchScore",
+  async (
+    { matcheId, index }: { matcheId: string; index: number },
+    { rejectWithValue }
+  ) => {
+    console.log("matcheId", matcheId);
+    try {
+      const response = await axiosInstance.put(
+        `/LeagueMatch/adoptscore?id=${matcheId}`,
+        { index },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      console.log("err adoptScore", error);
+      return rejectWithValue(
+        error.response?.data?.message || "Error adopting match score"
+      );
+    }
+  }
+);
+
 const leagueSlice = createSlice({
   name: "leagues",
   initialState,
@@ -446,6 +473,18 @@ const leagueSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
         toast.error("Failed to delete league!");
+      })
+      .addCase(adoptLeagueMatchScore.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(adoptLeagueMatchScore.fulfilled, (state) => {
+        state.loading = false;
+        toast.success("Accept score successfully!");
+      })
+      .addCase(adoptLeagueMatchScore.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        toast.error("Failed to Accept Score!");
       })
       .addCase(registerForLeague.pending, (state) => {
         state.loading = true;

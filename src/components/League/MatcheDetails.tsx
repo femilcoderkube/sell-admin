@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   addLeagueMatchScore,
+  adoptLeagueMatchScore,
   fetchLeagueMatchesByID,
   updateLeagueMatchesByID,
 } from "../../app/features/league/leagueSlice";
@@ -12,6 +13,8 @@ import HandLogoLoader from "../Loader/Loader";
 import toast from "react-hot-toast";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { socket } from "../../app/socket/socket";
+import { SOCKET } from "../../utils/constant";
 
 interface MatchScore {
   yourScore: number;
@@ -117,17 +120,19 @@ const MatchStatusSwitch = ({
   return (
     <>
       <div
-        className={`inline-flex items-center rounded-full text-sm font-semibold transition-all duration-300 transform hover:shadow-lg ${
-          isLoading
-            ? "opacity-50 cursor-not-allowed"
-            : "cursor-pointer shadow-md"
-        }`}
+        className={`inline-flex items-center rounded-full text-sm font-semibold transition-all duration-300 transform 
+          hover:shadow-lg 
+          ${
+            isLoading
+              ? "opacity-50 cursor-not-allowed"
+              : "cursor-pointer shadow-md"
+          }`}
       >
         {statusOptions.map((option) => (
           <button
             key={option}
-            onClick={() => handleStatusChange(option)}
-            disabled={isLoading}
+            // onClick={() => handleStatusChange(option)}
+            disabled={true}
             className={`px-6 py-3 font-medium capitalize transition-all duration-200 ${
               status === option
                 ? `${statusColors[option]} ${statusTextColors[option]}`
@@ -191,6 +196,7 @@ const MatchStatusSwitch = ({
 
 const MatchDetails = () => {
   const { mid } = useParams<{ mid: string }>();
+  const [activeTab, setActiveTab] = useState<"details" | "chat">("details");
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [addingScore, setAddingScore] = useState(false);
@@ -232,6 +238,21 @@ const MatchDetails = () => {
       formik.resetForm();
     },
   });
+
+  // useEffect(() => {
+  //   if (mid) {
+  //     socket.on(SOCKET.MATCHUPDATE, (data: any) => {
+  //       console.log("Received matchUpdate:", data);
+  //     });
+  //     socket.emit(SOCKET.ONADMINMESSAGESTART, { matchId: mid });
+
+  //     socket.emit("onAdminMessage", {
+  //       isAdmin: true,
+  //       msg: "Asdasdsa",
+  //       roomId: mid,
+  //     });
+  //   }
+  // }, [mid]);
 
   useEffect(() => {
     if (mid) {
@@ -281,6 +302,15 @@ const MatchDetails = () => {
 
   const handleAddScore = () => {
     setAddingScore(true);
+  };
+
+  const handleAccept = async (index: any) => {
+    try {
+      await dispatch(adoptLeagueMatchScore({ matcheId: mid, index })).unwrap();
+      dispatch(fetchLeagueMatchesByID({ matcheId: mid }));
+    } catch (err) {
+      console.error("Failed to adopt score:", err);
+    }
   };
 
   return (
@@ -340,162 +370,259 @@ const MatchDetails = () => {
             )}
           </div>
         </div>
+        {/* Tab Navigation */}
 
-        {/* Teams Section */}
-        <div className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6 mb-6 shadow-xl">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-xl text-white flex items-center gap-2">
-              <span className="text-[#46A2FF] text-lg">👥</span>
-              Teams
-            </h3>
-            <button
-              className="py-2 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
-              title="Add Score"
-              onClick={handleAddScore}
-            >
-              Add Score
-            </button>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-gray-900/50">
-                  <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
-                    Team
-                  </th>
-                  <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
-                    Team 1
-                  </th>
-                  <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
-                    Team 2
-                  </th>
-                  <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {matcheDetail?.matchScores?.map((score, index) => {
-                  return (
-                    <tr key={score._id} className="bg-gray-700/30">
-                      <td className="p-4 border-b border-gray-700/50">
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm ${
-                              score.submittedBy === "team1"
-                                ? "bg-[#46A2FF]"
-                                : score.submittedBy === "team2"
-                                ? "bg-orange-500"
-                                : "bg-green-500"
-                            }`}
-                          >
-                            {index + 1}
-                          </span>
-                          <span className="font-bold text-white">
-                            {score.submittedBy === "team1"
-                              ? "Team 1"
-                              : score.submittedBy === "team2"
-                              ? "Team 2"
-                              : "Admin"}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="p-4 border-b border-gray-700/50">
-                        <p className="font-semibold text-[#46A2FF] text-lg">
-                          {score.submittedBy === "team1"
-                            ? score.yourScore.toFixed(0)
-                            : score.opponentScore.toFixed(0)}
-                        </p>
-                      </td>
-                      <td className="p-4 border-b border-gray-700/50">
-                        <p className="font-semibold text-orange-500 text-lg">
-                          {score.submittedBy === "team1"
-                            ? score.opponentScore.toFixed(0)
-                            : score.yourScore.toFixed(0)}
-                        </p>
-                      </td>
-                      <td className="p-4 border-b border-gray-700/50">
-                        {score?.isActive === false && (
-                          <button
-                            className="py-2 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
-                            title="Adopt"
-                            // onClick={handleAddScore}
-                          >
-                            Adopt
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-                {/* New Row for Adding Score */}
-                {addingScore && (
-                  <tr className="bg-gray-600/40">
-                    <td className="p-4 border-b border-gray-700/50 font-bold text-white">
-                      Admin
-                    </td>
-                    <td className="p-4 border-b border-gray-700/50">
-                      <input
-                        type="text"
-                        name="team1"
-                        className={`w-20 bg-gray-800 text-white px-2 py-1 rounded ${
-                          formik.touched.team1 && formik.errors.team1
-                            ? "border-red-500 border"
-                            : ""
-                        }`}
-                        value={formik.values.team1}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                      />
-                      {formik.touched.team1 && formik.errors.team1 && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {formik.errors.team1}
-                        </p>
-                      )}
-                    </td>
-                    <td className="p-4 border-b border-gray-700/50">
-                      <input
-                        type="text"
-                        name="team2"
-                        className={`w-20 bg-gray-800 text-white px-2 py-1 rounded ${
-                          formik.touched.team2 && formik.errors.team2
-                            ? "border-red-500 border"
-                            : ""
-                        }`}
-                        value={formik.values.team2}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                      />
-                      {formik.touched.team2 && formik.errors.team2 && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {formik.errors.team2}
-                        </p>
-                      )}
-                    </td>
-                    <td className="p-4 border-b border-gray-700/50">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={formik.handleSubmit}
-                          className="py-2 px-4 bg-gradient-to-r from-blue-500 to-blue-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
-                          disabled={!formik.isValid || formik.isSubmitting}
-                        >
-                          Save
-                        </button>
-                        <button
-                          onClick={() => setAddingScore(false)}
-                          className="py-2 px-4 bg-gradient-to-r from-red-500 to-red-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
-                          disabled={!formik.isValid || formik.isSubmitting}
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+        <div className="relative flex border-b border-gray-700/50 mb-6">
+          <div
+            className="absolute bottom-0 h-0.5 bg-gradient-to-r from-[#46A2FF] to-[#6B73FF] transition-all duration-300 ease-out"
+            style={{
+              left: activeTab === "details" ? "0%" : "50%",
+              width: "50%",
+            }}
+          />
+
+          <button
+            className={`relative py-3 px-6 font-semibold text-sm transition-all duration-200 ease-out flex-1 group ${
+              activeTab === "details"
+                ? "text-white"
+                : "text-gray-400 hover:text-gray-200"
+            }`}
+            onClick={() => setActiveTab("details")}
+          >
+            <span className="relative z-10">Match Details</span>
+            {activeTab === "details" && (
+              <div className="absolute inset-0 bg-gradient-to-b from-[#46A2FF]/10 to-transparent rounded-t-lg" />
+            )}
+            <div className="absolute inset-0 bg-gray-700/0 group-hover:bg-gray-700/20 rounded-t-lg transition-all duration-200" />
+          </button>
+
+          <button
+            className={`relative py-3 px-6 font-semibold text-sm transition-all duration-200 ease-out flex-1 group ${
+              activeTab === "chat"
+                ? "text-white"
+                : "text-gray-400 hover:text-gray-200"
+            }`}
+            onClick={() => setActiveTab("chat")}
+          >
+            <span className="relative z-10">Chat</span>
+            {activeTab === "chat" && (
+              <div className="absolute inset-0 bg-gradient-to-b from-[#46A2FF]/10 to-transparent rounded-t-lg" />
+            )}
+            <div className="absolute inset-0 bg-gray-700/0 group-hover:bg-gray-700/20 rounded-t-lg transition-all duration-200" />
+          </button>
         </div>
+
+        <>
+          {activeTab === "details" ? (
+            <>
+              {/* Teams Section */}
+              <div className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6 mb-6 shadow-xl">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-bold text-xl text-white flex items-center gap-2">
+                    <span className="text-[#46A2FF] text-lg">👥</span>
+                    Teams
+                  </h3>
+                  {matcheDetail?.status === "in_dispute" && (
+                    <button
+                      className="py-2 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
+                      title="Add Score"
+                      onClick={handleAddScore}
+                    >
+                      Add Score
+                    </button>
+                  )}
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-gray-900/50">
+                        <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
+                          Team
+                        </th>
+                        <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
+                          Team 1
+                        </th>
+                        <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
+                          Team 2
+                        </th>
+                        <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {matcheDetail?.matchScores?.map((score, index) => {
+                        return (
+                          <tr key={score._id} className="bg-gray-700/30">
+                            <td className="p-4 border-b border-gray-700/50">
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className={`w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm ${
+                                    score?.submittedBy === "team1"
+                                      ? "bg-[#46A2FF]"
+                                      : score?.submittedBy === "team2"
+                                      ? "bg-orange-500"
+                                      : "bg-green-500"
+                                  }`}
+                                >
+                                  {index + 1}
+                                </span>
+                                <span className="font-bold text-white">
+                                  {score?.submittedBy === "team1"
+                                    ? "Team 1"
+                                    : score?.submittedBy === "team2"
+                                    ? "Team 2"
+                                    : "Admin"}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="p-4 border-b border-gray-700/50">
+                              <p className="font-semibold text-[#46A2FF] text-lg">
+                                {score?.submittedBy === "team1"
+                                  ? score?.yourScore.toFixed(0)
+                                  : score?.submittedBy === "admin"
+                                  ? score?.yourScore.toFixed(0)
+                                  : score?.opponentScore.toFixed(0)}
+                              </p>
+                            </td>
+                            <td className="p-4 border-b border-gray-700/50">
+                              <p className="font-semibold text-orange-500 text-lg">
+                                {score?.submittedBy === "team1"
+                                  ? score?.opponentScore.toFixed(0)
+                                  : score?.submittedBy === "admin"
+                                  ? score?.opponentScore.toFixed(0)
+                                  : score?.yourScore.toFixed(0)}
+                              </p>
+                            </td>
+                            <td className="p-4 border-b border-gray-700/50">
+                              {matcheDetail?.status === "in_dispute" ? (
+                                score?.isActive === false ? (
+                                  <button
+                                    className="py-2 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
+                                    title="Adopt"
+                                    onClick={() => handleAccept(index)}
+                                  >
+                                    Accept
+                                  </button>
+                                ) : (
+                                  <span className="text-gray-400">
+                                    Accepted
+                                  </span>
+                                )
+                              ) : null}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                      {/* New Row for Adding Score */}
+                      {addingScore && (
+                        <tr className="bg-gray-600/40">
+                          <td className="p-4 border-b border-gray-700/50 font-bold text-white">
+                            Admin
+                          </td>
+                          <td className="p-4 border-b border-gray-700/50">
+                            <input
+                              type="text"
+                              name="team1"
+                              className={`w-20 bg-gray-800 text-white px-2 py-1 rounded ${
+                                formik.touched.team1 && formik.errors.team1
+                                  ? "border-red-500 border"
+                                  : ""
+                              }`}
+                              value={formik.values.team1}
+                              onChange={formik.handleChange}
+                              onBlur={formik.handleBlur}
+                            />
+                            {formik.touched.team1 && formik.errors.team1 && (
+                              <p className="text-red-500 text-sm mt-1">
+                                {formik.errors.team1}
+                              </p>
+                            )}
+                          </td>
+                          <td className="p-4 border-b border-gray-700/50">
+                            <input
+                              type="text"
+                              name="team2"
+                              className={`w-20 bg-gray-800 text-white px-2 py-1 rounded ${
+                                formik.touched.team2 && formik.errors.team2
+                                  ? "border-red-500 border"
+                                  : ""
+                              }`}
+                              value={formik.values.team2}
+                              onChange={formik.handleChange}
+                              onBlur={formik.handleBlur}
+                            />
+                            {formik.touched.team2 && formik.errors.team2 && (
+                              <p className="text-red-500 text-sm mt-1">
+                                {formik.errors.team2}
+                              </p>
+                            )}
+                          </td>
+                          <td className="p-4 border-b border-gray-700/50">
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={formik.handleSubmit}
+                                className="py-2 px-4 bg-gradient-to-r from-blue-500 to-blue-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
+                                disabled={
+                                  !formik.isValid || formik.isSubmitting
+                                }
+                              >
+                                Save
+                              </button>
+                              <button
+                                onClick={() => setAddingScore(false)}
+                                className="py-2 px-4 bg-gradient-to-r from-red-500 to-red-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
+                                disabled={
+                                  !formik.isValid || formik.isSubmitting
+                                }
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6 shadow-xl mb-6">
+                <h3 className="font-bold text-xl text-white flex items-center gap-2 mb-4">
+                  <span className="text-[#46A2FF] text-lg">💬</span>
+                  Chat
+                </h3>
+                <div className="h-64 overflow-y-auto bg-gray-900/50 p-4 rounded-lg">
+                  {/* Placeholder chat content */}
+                  <p className="text-gray-300">No messages yet.</p>
+                  {/* Add your chat implementation here, e.g., a list of messages */}
+                  {/* Example structure:
+            <div className="flex flex-col gap-2">
+              <div className="bg-gray-700 p-2 rounded-lg text-white">
+                <span className="font-bold">User1:</span> Hello, team!
+              </div>
+              <div className="bg-blue-500 p-2 rounded-lg text-white self-end">
+                <span className="font-bold">You:</span> Hi there!
+              </div>
+            </div>
+            */}
+                </div>
+                <div className="mt-4 flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Type a message..."
+                    className="flex-1 bg-gray-800 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#46A2FF]"
+                  />
+                  <button className="py-2 px-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm">
+                    Send
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+        </>
 
         {/* Match Information */}
         <div className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6 shadow-xl">
