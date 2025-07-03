@@ -614,9 +614,9 @@ const LeagueDetails: React.FC = () => {
                               <th className="py-4 px-6 text-left font-semibold">
                                 Status
                               </th>
-                              <th className="py-4 px-6 text-left font-semibold">
+                              {/* <th className="py-4 px-6 text-left font-semibold">
                                 Action
-                              </th>
+                              </th> */}
                             </tr>
                           </thead>
                           <tbody>
@@ -644,7 +644,7 @@ const LeagueDetails: React.FC = () => {
                                     {ticket?.status}
                                   </span>
                                 </td>
-                                <td className="py-4 px-6">
+                                {/* <td className="py-4 px-6">
                                   <Link
                                     to={`/${partnerId}/leagues/${lid}/chat/${ticket?.matchId}`}
                                     className="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
@@ -655,7 +655,7 @@ const LeagueDetails: React.FC = () => {
                                       className="w-5 h-5"
                                     />
                                   </Link>
-                                </td>
+                                </td> */}
                               </tr>
                             ))}
                           </tbody>
