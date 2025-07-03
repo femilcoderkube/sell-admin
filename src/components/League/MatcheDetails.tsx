@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   addLeagueMatchScore,
   adoptLeagueMatchScore,
@@ -200,6 +200,18 @@ const MatchDetails = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [addingScore, setAddingScore] = useState(false);
+  const [messageData, setMessageData] = useState(false);
+  const [sendMessage, setSendMessage] = useState();
+
+  const messagesEndRef = useRef(null);
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messageData]);
+
   const { matcheDetail, loading, error } = useSelector(
     (state: RootState) => state.leagues
   ) as {
@@ -239,20 +251,16 @@ const MatchDetails = () => {
     },
   });
 
-  // useEffect(() => {
-  //   if (mid) {
-  //     socket.on(SOCKET.MATCHUPDATE, (data: any) => {
-  //       console.log("Received matchUpdate:", data);
-  //     });
-  //     socket.emit(SOCKET.ONADMINMESSAGESTART, { matchId: mid });
-
-  //     socket.emit("onAdminMessage", {
-  //       isAdmin: true,
-  //       msg: "Asdasdsa",
-  //       roomId: mid,
-  //     });
-  //   }
-  // }, [mid]);
+  useEffect(() => {
+    if (mid) {
+      socket.emit(SOCKET.ONADMINMESSAGESTART, { matchId: mid });
+      socket.on(SOCKET.MATCHUPDATE, (data: any) => {
+        if (!data?.isMatchUpdate) {
+          setMessageData(data?.data?.reverse());
+        }
+      });
+    }
+  }, [mid]);
 
   useEffect(() => {
     if (mid) {
@@ -262,6 +270,21 @@ const MatchDetails = () => {
 
   const handleBack = () => {
     navigate(-1);
+  };
+
+  const handleSendMessage = () => {
+    socket.emit(SOCKET.ONADMINMESSAGE, {
+      isAdmin: true,
+      msg: sendMessage,
+      roomId: mid,
+    });
+    setTimeout(() => {
+      socket.on(SOCKET.MATCHUPDATE, (data: any) => {
+        if (!data?.isMatchUpdate) {
+          setMessageData(data?.data?.reverse());
+        }
+      });
+    }, 100);
   };
 
   if (loading) {
@@ -595,27 +618,50 @@ const MatchDetails = () => {
                   Chat
                 </h3>
                 <div className="h-64 overflow-y-auto bg-gray-900/50 p-4 rounded-lg">
-                  {/* Placeholder chat content */}
-                  <p className="text-gray-300">No messages yet.</p>
-                  {/* Add your chat implementation here, e.g., a list of messages */}
-                  {/* Example structure:
-            <div className="flex flex-col gap-2">
-              <div className="bg-gray-700 p-2 rounded-lg text-white">
-                <span className="font-bold">User1:</span> Hello, team!
-              </div>
-              <div className="bg-blue-500 p-2 rounded-lg text-white self-end">
-                <span className="font-bold">You:</span> Hi there!
-              </div>
-            </div>
-            */}
+                  {messageData.length > 0 ? (
+                    messageData.map((message: any) => (
+                      <div
+                        key={message._id}
+                        className={`mb-3 p-2 rounded-lg ${
+                          message.isAdmin
+                            ? "bg-blue-600/30 text-blue-200"
+                            : "bg-gray-700/30 text-gray-200"
+                        }`}
+                      >
+                        <div className="flex justify-between items-start">
+                          <p className="text-sm">
+                            <span className="font-semibold">
+                              {message.isAdmin ? "Admin" : "User"}
+                            </span>
+                            : {message.msg}
+                          </p>
+                          <span className="text-xs text-gray-400">
+                            {new Date(message.dateTime).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-300">No messages yet.</p>
+                  )}
+                  <div ref={messagesEndRef} />
                 </div>
                 <div className="mt-4 flex gap-2">
                   <input
                     type="text"
                     placeholder="Type a message..."
                     className="flex-1 bg-gray-800 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#46A2FF]"
+                    onChange={(e) => setSendMessage(e.target.value)}
                   />
-                  <button className="py-2 px-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm">
+                  <button
+                    className="py-2 px-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
+                    onClick={() => {
+                      handleSendMessage();
+                    }}
+                  >
                     Send
                   </button>
                 </div>
