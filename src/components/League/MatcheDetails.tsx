@@ -5,6 +5,7 @@ import {
   fetchLeagueMatchesByID,
   updateLeagueMatchesByID,
 } from "../../app/features/league/leagueSlice";
+import viewIcon from "../../assets/images/eye_icon.svg";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../app/store";
@@ -202,7 +203,8 @@ const MatchDetails = () => {
   const [addingScore, setAddingScore] = useState(false);
   const [messageData, setMessageData] = useState([]);
   const [sendMessage, setSendMessage] = useState<undefined>(undefined);
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedAttachment, setSelectedAttachment] = useState(null);
   const { matcheDetail, loading, error } = useSelector(
     (state: RootState) => state.leagues
   ) as {
@@ -288,6 +290,17 @@ const MatchDetails = () => {
         setMessageData(data?.data);
       }
     });
+  };
+
+  const openModal = (attachment) => {
+    setSelectedAttachment(attachment);
+    setIsModalOpen(true);
+  };
+
+  // Function to close the modal
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedAttachment(null);
   };
 
   if (loading) {
@@ -463,13 +476,19 @@ const MatchDetails = () => {
                     <thead>
                       <tr className="bg-gray-900/50">
                         <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
-                          Team
+                          {matcheDetail?.team1?.length === 1 &&
+                          matcheDetail?.team2?.length === 1
+                            ? "Player"
+                            : "Team"}
                         </th>
                         <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
                           Team 1
                         </th>
                         <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
                           Team 2
+                        </th>
+                        <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
+                          Proof
                         </th>
                         <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
                           Actions
@@ -495,9 +514,15 @@ const MatchDetails = () => {
                                 </span>
                                 <span className="font-bold text-white">
                                   {score?.submittedBy === "team1"
-                                    ? "Team 1"
+                                    ? matcheDetail?.team1?.length === 1
+                                      ? matcheDetail?.team1[0]?.participant
+                                          ?.userId?.username
+                                      : "Team 1"
                                     : score?.submittedBy === "team2"
-                                    ? "Team 2"
+                                    ? matcheDetail?.team2?.length === 1
+                                      ? matcheDetail?.team2[0]?.participant
+                                          ?.userId?.username
+                                      : "Team 2"
                                     : "Admin"}
                                 </span>
                               </div>
@@ -519,6 +544,22 @@ const MatchDetails = () => {
                                   ? score?.opponentScore.toFixed(0)
                                   : score?.yourScore.toFixed(0)}
                               </p>
+                            </td>
+                            <td className="p-4 border-b border-gray-700/50">
+                              <button
+                                className="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
+                                onClick={() =>
+                                  openModal(
+                                    `${baseURL}/api/v1/${score?.attachment}`
+                                  )
+                                }
+                              >
+                                <img
+                                  src={viewIcon}
+                                  alt="View"
+                                  className="w-5 h-5"
+                                />
+                              </button>
                             </td>
                             <td className="p-4 border-b border-gray-700/50">
                               {matcheDetail?.status === "in_dispute" ? (
@@ -630,7 +671,6 @@ const MatchDetails = () => {
                 >
                   {messageData?.length > 0 ? (
                     [...messageData]?.reverse().map((message: any) => {
-                      console.log("message", message);
                       return (
                         <div
                           key={message._id}
@@ -742,6 +782,46 @@ const MatchDetails = () => {
             </div>
           </div>
         </div>
+        {isModalOpen && selectedAttachment && (
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-gray-800/95 backdrop-blur-sm shadow-2xl rounded-2xl max-w-2xl w-full max-h-[95vh] overflow-hidden relative border border-gray-700/50">
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-700/50 bg-gray-800/50">
+                <h2 className="text-white text-xl font-semibold">
+                  Proof Attachment
+                </h2>
+                <button
+                  className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-700/50 hover:bg-gray-600/50 transition-colors duration-200 text-gray-300 hover:text-white"
+                  onClick={closeModal}
+                  aria-label="Close modal"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Image Container */}
+              <div className="px-5 py-6 bg-gray-800/30 flex items-center justify-center min-h-[60vh] max-h-[75vh] overflow-hidden">
+                <img
+                  src={selectedAttachment}
+                  alt="Proof attachment"
+                  className="max-w-full max-h-full object-contain rounded-lg shadow-lg ring-1 ring-gray-600/30"
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
