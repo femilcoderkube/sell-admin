@@ -461,7 +461,7 @@ const MatchDetails = () => {
                     <span className="text-[#46A2FF] text-lg">👥</span>
                     Teams
                   </h3>
-                  {matcheDetail?.status === "in_dispute" && (
+                  { (
                     <button
                       className="py-2 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
                       title="Add Score"
@@ -562,7 +562,7 @@ const MatchDetails = () => {
                               </button>
                             </td>
                             <td className="p-4 border-b border-gray-700/50">
-                              {matcheDetail?.status === "in_dispute" ? (
+                              { (
                                 score?.isActive === false ? (
                                   <button
                                     className="py-2 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
@@ -576,10 +576,7 @@ const MatchDetails = () => {
                                     Accepted
                                   </span>
                                 )
-                              ) : matcheDetail?.status === "completed" &&
-                                score?.isActive === true ? (
-                                <span className="text-gray-400">Accepted</span>
-                              ) : null}
+                              ) }
                             </td>
                           </tr>
                         );
