@@ -133,7 +133,7 @@ const MatchStatusSwitch = ({
             key={option}
             // onClick={() => handleStatusChange(option)}
             disabled={true}
-            className={`px-6 py-3 font-medium capitalize transition-all duration-200 ${
+            className={`px-4 py-3 font-medium capitalize transition-all duration-200 ${
               status === option
                 ? `${statusColors[option]} ${statusTextColors[option]}`
                 : "bg-gray-700 text-gray-300 hover:bg-gray-600"
@@ -211,6 +211,8 @@ const MatchDetails = () => {
     error: string | null;
   };
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+
   // Formik setup with Yup validation
   const formik = useFormik({
     initialValues: {
@@ -262,6 +264,12 @@ const MatchDetails = () => {
       dispatch(fetchLeagueMatchesByID({ matcheId: mid }));
     }
   }, [dispatch, mid]);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messageData]);
 
   const handleBack = () => {
     navigate(-1);
@@ -618,43 +626,50 @@ const MatchDetails = () => {
                 <div
                   className="h-64 overflow-y-auto bg-gray-900/50 p-4 rounded-lg"
                   style={{ scrollbarWidth: "thin" }}
+                  ref={scrollRef}
                 >
                   {messageData?.length > 0 ? (
-                    messageData?.map((message: any) => (
-                      <div
-                        key={message._id}
-                        // className={`mb-3 p-2 flex ${
-                        //   message.isAdmin
-                        //     ? "bg-blue-600/30 text-blue-200 justify-end"
-                        //     : "bg-gray-700/30 text-gray-200 justify-start"
-                        // }`}
-                        className={`mb-3 p-2 flex ${
-                          message.isAdmin
-                            ? "bg-blue-600/30 text-blue-200 justify-end"
-                            : "bg-gray-700/30 text-gray-200 justify-start"
-                        }`}
-                      >
-                        <div className="inline-block">
-                          <div className="flex items-start space-x-2 px-3 py-2 rounded-lg">
-                            <p className="text-sm break-words">
-                              <span className="font-semibold">
-                                {message.isAdmin ? "Admin" : "User"}
+                    [...messageData]?.reverse().map((message: any) => {
+                      console.log("message", message);
+                      return (
+                        <div
+                          key={message._id}
+                          className={`p-1 flex  ${
+                            message.isAdmin
+                              ? "text-blue-200 justify-end"
+                              : "text-gray-200 justify-start"
+                          }`}
+                        >
+                          <div
+                            className={`inline-block rounded-lg ${
+                              message.isAdmin
+                                ? "bg-blue-600/30"
+                                : "bg-gray-700/30"
+                            }`}
+                          >
+                            <div className="flex items-start space-x-2 px-3 py-2 rounded-lg">
+                              <p className="text-sm break-words">
+                                <span className="font-semibold">
+                                  {message.isAdmin
+                                    ? "Admin"
+                                    : message?.senderId?.username}
+                                </span>
+                                : {message.msg}
+                              </p>
+                              <span className="text-xs text-gray-400 self-end">
+                                {new Date(message.dateTime).toLocaleTimeString(
+                                  [],
+                                  {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  }
+                                )}
                               </span>
-                              : {message.msg}
-                            </p>
-                            <span className="text-xs text-gray-400 self-end">
-                              {new Date(message.dateTime).toLocaleTimeString(
-                                [],
-                                {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                }
-                              )}
-                            </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))
+                      );
+                    })
                   ) : (
                     <p className="text-gray-300">No messages yet.</p>
                   )}
@@ -665,7 +680,10 @@ const MatchDetails = () => {
                     placeholder="Type a message..."
                     value={sendMessage}
                     className="flex-1 bg-gray-800 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#46A2FF]"
-                    onChange={(e) => setSendMessage(e.target.value)}
+                    onChange={(e) => {
+                      e.preventDefault();
+                      setSendMessage(e.target.value);
+                    }}
                   />
                   <button
                     className="py-2 px-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
