@@ -200,17 +200,8 @@ const MatchDetails = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [addingScore, setAddingScore] = useState(false);
-  const [messageData, setMessageData] = useState(false);
-  const [sendMessage, setSendMessage] = useState();
-
-  const messagesEndRef = useRef(null);
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messageData]);
+  const [messageData, setMessageData] = useState([]);
+  const [sendMessage, setSendMessage] = useState<undefined>(undefined);
 
   const { matcheDetail, loading, error } = useSelector(
     (state: RootState) => state.leagues
@@ -252,11 +243,15 @@ const MatchDetails = () => {
   });
 
   useEffect(() => {
+    socket.connect();
+  }, []);
+
+  useEffect(() => {
     if (mid) {
       socket.emit(SOCKET.ONADMINMESSAGESTART, { matchId: mid });
       socket.on(SOCKET.MATCHUPDATE, (data: any) => {
         if (!data?.isMatchUpdate) {
-          setMessageData(data?.data?.reverse());
+          setMessageData(data?.data);
         }
       });
     }
@@ -278,13 +273,13 @@ const MatchDetails = () => {
       msg: sendMessage,
       roomId: mid,
     });
-    setTimeout(() => {
-      socket.on(SOCKET.MATCHUPDATE, (data: any) => {
-        if (!data?.isMatchUpdate) {
-          setMessageData(data?.data?.reverse());
-        }
-      });
-    }, 100);
+
+    socket.on(SOCKET.MATCHUPDATE, (data: any) => {
+      if (!data?.isMatchUpdate) {
+        setSendMessage("");
+        setMessageData(data?.data);
+      }
+    });
   };
 
   if (loading) {
@@ -620,42 +615,55 @@ const MatchDetails = () => {
                   <span className="text-[#46A2FF] text-lg">💬</span>
                   Chat
                 </h3>
-                <div className="h-64 overflow-y-auto bg-gray-900/50 p-4 rounded-lg">
-                  {messageData.length > 0 ? (
-                    messageData.map((message: any) => (
+                <div
+                  className="h-64 overflow-y-auto bg-gray-900/50 p-4 rounded-lg"
+                  style={{ scrollbarWidth: "thin" }}
+                >
+                  {messageData?.length > 0 ? (
+                    messageData?.map((message: any) => (
                       <div
                         key={message._id}
-                        className={`mb-3 p-2 rounded-lg ${
+                        // className={`mb-3 p-2 flex ${
+                        //   message.isAdmin
+                        //     ? "bg-blue-600/30 text-blue-200 justify-end"
+                        //     : "bg-gray-700/30 text-gray-200 justify-start"
+                        // }`}
+                        className={`mb-3 p-2 flex ${
                           message.isAdmin
-                            ? "bg-blue-600/30 text-blue-200"
-                            : "bg-gray-700/30 text-gray-200"
+                            ? "bg-blue-600/30 text-blue-200 justify-end"
+                            : "bg-gray-700/30 text-gray-200 justify-start"
                         }`}
                       >
-                        <div className="flex justify-between items-start">
-                          <p className="text-sm">
-                            <span className="font-semibold">
-                              {message.isAdmin ? "Admin" : "User"}
+                        <div className="inline-block">
+                          <div className="flex items-start space-x-2 px-3 py-2 rounded-lg">
+                            <p className="text-sm break-words">
+                              <span className="font-semibold">
+                                {message.isAdmin ? "Admin" : "User"}
+                              </span>
+                              : {message.msg}
+                            </p>
+                            <span className="text-xs text-gray-400 self-end">
+                              {new Date(message.dateTime).toLocaleTimeString(
+                                [],
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
                             </span>
-                            : {message.msg}
-                          </p>
-                          <span className="text-xs text-gray-400">
-                            {new Date(message.dateTime).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </span>
+                          </div>
                         </div>
                       </div>
                     ))
                   ) : (
                     <p className="text-gray-300">No messages yet.</p>
                   )}
-                  <div ref={messagesEndRef} />
                 </div>
                 <div className="mt-4 flex gap-2">
                   <input
                     type="text"
                     placeholder="Type a message..."
+                    value={sendMessage}
                     className="flex-1 bg-gray-800 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#46A2FF]"
                     onChange={(e) => setSendMessage(e.target.value)}
                   />
