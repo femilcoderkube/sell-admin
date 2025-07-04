@@ -532,6 +532,9 @@ const MatchDetails = () => {
                                     Accepted
                                   </span>
                                 )
+                              ) : matcheDetail?.status === "completed" &&
+                                score?.isActive === true ? (
+                                <span className="text-gray-400">Accepted</span>
                               ) : null}
                             </td>
                           </tr>
