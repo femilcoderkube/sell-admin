@@ -234,30 +234,35 @@ const UsersModel: React.FC<UsersModelProps> = ({
                       </div>
                     )}
                   </div>
-                  <div className="relative float-label-input custom-input mb-4">
-                    <input
-                      type="text"
-                      id="username"
-                      placeholder=" "
-                      className={`w-full text-[0.94rem] text-white focus:outline-0 pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
-                        formik.touched.username && formik.errors.username
-                          ? "border border-red-500"
-                          : "focus:!border focus:!border-highlight-color"
-                      }`}
-                      {...formik.getFieldProps("username")}
-                    />
-                    <label
-                      htmlFor="username"
-                      className="absolute top-3 left-0 translate-y-[0.2rem] font-bold text-[0.94rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
-                    >
-                      Username
-                    </label>
-                    {formik.touched.username && formik.errors.username && (
-                      <div className="text-red-500 text-xs mt-1">
-                        {formik.errors.username}
-                      </div>
-                    )}
+                </>
+              )}
+
+              <div className="relative float-label-input custom-input mb-4">
+                <input
+                  type="text"
+                  id="username"
+                  placeholder=" "
+                  className={`w-full text-[0.94rem] text-white focus:outline-0 pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+                    formik.touched.username && formik.errors.username
+                      ? "border border-red-500"
+                      : "focus:!border focus:!border-highlight-color"
+                  }`}
+                  {...formik.getFieldProps("username")}
+                />
+                <label
+                  htmlFor="username"
+                  className="absolute top-3 left-0 translate-y-[0.2rem] font-bold text-[0.94rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
+                >
+                  Username
+                </label>
+                {formik.touched.username && formik.errors.username && (
+                  <div className="text-red-500 text-xs mt-1">
+                    {formik.errors.username}
                   </div>
+                )}
+              </div>
+              {isAddUser && (
+                <>
                   <div className="relative float-label-input custom-input mb-4">
                     <input
                       type="password"
@@ -284,6 +289,7 @@ const UsersModel: React.FC<UsersModelProps> = ({
                   </div>
                 </>
               )}
+
               <div className="relative float-label-input custom-input mb-4">
                 <input
                   type="text"
