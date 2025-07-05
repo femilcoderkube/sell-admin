@@ -627,6 +627,7 @@ const MatchDetails = () => {
                               </p>
                             )}
                           </td>
+                          <td className="p-4 border-b border-gray-700/50"></td>
                           <td className="p-4 border-b border-gray-700/50">
                             <div className="flex items-center gap-2">
                               <button
@@ -639,11 +640,16 @@ const MatchDetails = () => {
                                 Save
                               </button>
                               <button
-                                onClick={() => setAddingScore(false)}
+                                onClick={(e) => {
+                                  e.preventDefault();
+
+                                  formik.resetForm();
+                                  setAddingScore(false);
+                                }}
                                 className="py-2 px-4 bg-gradient-to-r from-red-500 to-red-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
-                                disabled={
-                                  !formik.isValid || formik.isSubmitting
-                                }
+                                // disabled={
+                                //   !formik.isValid || formik.isSubmitting
+                                // }
                               >
                                 Cancel
                               </button>
