@@ -461,7 +461,7 @@ const MatchDetails = () => {
                     <span className="text-[#46A2FF] text-lg">👥</span>
                     Teams
                   </h3>
-                  { (
+                  {
                     <button
                       className="py-2 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
                       title="Add Score"
@@ -469,17 +469,18 @@ const MatchDetails = () => {
                     >
                       Add Score
                     </button>
-                  )}
+                  }
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-gray-900/50">
                         <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
-                          {matcheDetail?.team1?.length === 1 &&
+                          {/* {matcheDetail?.team1?.length === 1 &&
                           matcheDetail?.team2?.length === 1
                             ? "Player"
-                            : "Team"}
+                            : "Team"} */}
+                          Team
                         </th>
                         <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
                           Team 1
@@ -513,7 +514,7 @@ const MatchDetails = () => {
                                   {index + 1}
                                 </span>
                                 <span className="font-bold text-white">
-                                  {score?.submittedBy === "team1"
+                                  {/* {score?.submittedBy === "team1"
                                     ? matcheDetail?.team1?.length === 1
                                       ? matcheDetail?.team1[0]?.participant
                                           ?.userId?.username
@@ -523,6 +524,11 @@ const MatchDetails = () => {
                                       ? matcheDetail?.team2[0]?.participant
                                           ?.userId?.username
                                       : "Team 2"
+                                    : "Admin"} */}
+                                  {score?.submittedBy === "team1"
+                                    ? "Team 1"
+                                    : score?.submittedBy === "team2"
+                                    ? "Team 2"
                                     : "Admin"}
                                 </span>
                               </div>
@@ -562,21 +568,17 @@ const MatchDetails = () => {
                               </button>
                             </td>
                             <td className="p-4 border-b border-gray-700/50">
-                              { (
-                                score?.isActive === false ? (
-                                  <button
-                                    className="py-2 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
-                                    title="Adopt"
-                                    onClick={() => handleAccept(index)}
-                                  >
-                                    Accept
-                                  </button>
-                                ) : (
-                                  <span className="text-gray-400">
-                                    Accepted
-                                  </span>
-                                )
-                              ) }
+                              {score?.isActive === false ? (
+                                <button
+                                  className="py-2 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
+                                  title="Adopt"
+                                  onClick={() => handleAccept(index)}
+                                >
+                                  Accept
+                                </button>
+                              ) : (
+                                <span className="text-gray-400">Accepted</span>
+                              )}
                             </td>
                           </tr>
                         );
