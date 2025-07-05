@@ -111,7 +111,7 @@ const LeagueDetails: React.FC = () => {
     );
   }
 
-  const tabs = ["Participants", "Matches"];
+  const tabs = ["Participants", "Matches", "Tickets"];
 
   // Pagination handlers
   const handleParticipantsPageChange = (page: number) => {
@@ -581,6 +581,111 @@ const LeagueDetails: React.FC = () => {
                   <div className="text-center py-12 bg-gray-800/20 rounded-xl border-2 border-dashed border-gray-600/30">
                     <div className="text-gray-400 text-lg">
                       No matches found.
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === "Tickets" && (
+              <div>
+                <h4 className="font-bold text-2xl text-white mb-6 flex items-center gap-3">
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-lg flex items-center justify-center">
+                    <span className="text-white text-sm">🎟️</span>
+                  </div>
+                  Tickets
+                </h4>
+                {ticketsLoading ? (
+                  <HandLogoLoader />
+                ) : ticketsError ? (
+                  <div className="text-custom-gray bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+                    Error: {ticketsError}
+                  </div>
+                ) : tickets?.length > 0 ? (
+                  <>
+                    <div className="bg-gray-800/30 rounded-2xl overflow-hidden border border-gray-700/30 shadow-lg">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-lg text-white border-collapse">
+                          <thead>
+                            <tr className="bg-gradient-to-r from-gray-800/80 to-gray-700/80 text-gray-300">
+                              <th className="py-4 px-6 text-left font-semibold">
+                                User Name
+                              </th>
+
+                              <th className="py-4 px-6 text-left font-semibold">
+                                Status
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {tickets?.map((ticket: any, index: number) => (
+                              <tr
+                                key={ticket?._id}
+                                className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-yellow-500/10 hover:to-orange-500/10 transition-all duration-200 ${
+                                  index % 2 === 0
+                                    ? "bg-gray-800/20"
+                                    : "bg-gray-800/10"
+                                }`}
+                              >
+                                <td className="py-4 px-6 font-medium text-blue-300">
+                                  {ticket?.raiserID?.username}
+                                </td>
+
+                                <td className="py-4 px-6">
+                                  <span
+                                    className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                      ticket?.status === "open"
+                                        ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                                        : "bg-green-500/20 text-green-400 border border-green-500/30"
+                                    }`}
+                                  >
+                                    {ticket?.status}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center mt-6 bg-gray-800/30 rounded-xl p-4 border border-gray-700/30">
+                      <div className="text-gray-300 font-medium">
+                        Showing {tickets.length} of {ticketsTotalCount} tickets
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() =>
+                            handleTicketsPageChange(ticketsCurrentPage - 1)
+                          }
+                          disabled={ticketsCurrentPage === 1}
+                          className="py-2 px-4 bg-gradient-to-r from-gray-700 to-gray-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
+                        >
+                          Previous
+                        </button>
+                        <span className="py-2 px-4 text-white bg-gray-800/50 rounded-lg border border-gray-600/30 font-medium">
+                          Page {ticketsCurrentPage} of{" "}
+                          {Math.ceil(ticketsTotalCount / ticketsPerPage)}
+                        </span>
+                        <button
+                          onClick={() =>
+                            handleTicketsPageChange(ticketsCurrentPage + 1)
+                          }
+                          disabled={
+                            ticketsCurrentPage >=
+                            Math.ceil(ticketsTotalCount / ticketsPerPage)
+                          }
+                          className="py-2 px-4 bg-gradient-to-r from-gray-700 to-gray-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center py-12 bg-gray-800/20 rounded-xl border-2 border-dashed border-gray-600/30">
+                    <div className="text-gray-400 text-lg">
+                      No tickets found.
                     </div>
                   </div>
                 )}
