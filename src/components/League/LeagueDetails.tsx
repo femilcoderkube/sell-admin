@@ -666,11 +666,15 @@ const LeagueDetails: React.FC = () => {
                           <thead>
                             <tr className="bg-gradient-to-r from-gray-800/80 to-gray-700/80 text-gray-300">
                               <th className="py-4 px-6 text-left font-semibold">
-                                User Name
+                                {/* User Name */}
+                                Team
                               </th>
 
                               <th className="py-4 px-6 text-left font-semibold">
                                 Status
+                              </th>
+                              <th className="py-4 px-6 text-left font-semibold">
+                                Action
                               </th>
                             </tr>
                           </thead>
@@ -685,7 +689,8 @@ const LeagueDetails: React.FC = () => {
                                 }`}
                               >
                                 <td className="py-4 px-6 font-medium text-blue-300">
-                                  {ticket?.raiserID?.username}
+                                  {/* {ticket?.raiserID?.username} */}
+                                  {ticket?.raiser}
                                 </td>
 
                                 <td className="py-4 px-6">
@@ -698,6 +703,18 @@ const LeagueDetails: React.FC = () => {
                                   >
                                     {ticket?.status}
                                   </span>
+                                </td>
+                                <td className="py-4 px-6">
+                                  <Link
+                                    to={`/${partnerId}/leagues/${lid}/${ticket?.matchId}`}
+                                    className="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
+                                  >
+                                    <img
+                                      src={viewIcon}
+                                      alt="View"
+                                      className="w-5 h-5"
+                                    />
+                                  </Link>
                                 </td>
                               </tr>
                             ))}
