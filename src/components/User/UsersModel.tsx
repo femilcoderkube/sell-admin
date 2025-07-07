@@ -3,7 +3,9 @@ import FileUpload from "../ui/UploadFile";
 import { CancelIcon } from "../ui";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import Select from "react-select";
 import { baseURL } from "../../axios";
+import { countryData } from "../../utils/CountryCodes";
 
 const ROLES = [
   "Player",
@@ -113,6 +115,15 @@ const UsersModel: React.FC<UsersModelProps> = ({
   const [profilePicFileName, setProfilePicFileName] = useState<string>("");
 
   const isAddUser = !selectedUser; // Determine if adding a new user
+  const countryOptions = countryData.map((country) => ({
+    value: country.name,
+    label: country.name,
+  }));
+  const defaultNationality = countryOptions.find(
+    (option) => option.value === "Saudi Arabia"
+  );
+
+  console.log("selectedUser", selectedUser);
 
   const formik = useFormik({
     initialValues: {
@@ -123,7 +134,11 @@ const UsersModel: React.FC<UsersModelProps> = ({
         : "",
       gender: selectedUser?.gender || "",
       phone: selectedUser?.phone || "",
-      nationality: selectedUser?.nationality || "",
+      // nationality: selectedUser?.nationality || "",
+      nationality:
+        countryOptions.find(
+          (option) => option.value === selectedUser?.nationality
+        )?.label || defaultNationality?.label,
       role: selectedUser?.role || ROLES[0],
       profilePicture: null as File | null,
       socialMediaHandles: selectedUser?.socialMediaHandles || {},
@@ -400,13 +415,20 @@ const UsersModel: React.FC<UsersModelProps> = ({
                 </label>
               </div>
               <div className="relative float-label-input custom-input mb-4">
-                <input
-                  type="text"
+                <select
                   id="nationality"
-                  placeholder=" "
                   className="w-full text-[0.94rem] text-white focus:outline-0 focus:!border focus:!border-highlight-color pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal"
                   {...formik.getFieldProps("nationality")}
-                />
+                >
+                  <option value="" disabled hidden>
+                    Select Nationality
+                  </option>
+                  {countryOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
                 <label
                   htmlFor="nationality"
                   className="absolute top-3 left-0 translate-y-[0.2rem] font-bold text-[0.94rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
