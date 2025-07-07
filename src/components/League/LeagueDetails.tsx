@@ -298,12 +298,19 @@ const LeagueDetails: React.FC = () => {
           <div className="p-6">
             {activeTab === "Participants" && (
               <div>
-                <h4 className="font-bold text-2xl text-white mb-6 flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-                    <span className="text-white text-sm">👥</span>
+                <div className="flex items-center justify-between">
+                  <h4 className="font-bold text-2xl text-white mb-6 flex items-center gap-3">
+                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+                      <span className="text-white text-sm">👥</span>
+                    </div>
+                    Participants
+                  </h4>
+                  <div>
+                    <button className="py-2 px-4 bg-gradient-to-r from-blue-500 to-blue-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm">
+                      Export
+                    </button>
                   </div>
-                  Participants
-                </h4>
+                </div>
                 {participantsLoading ? (
                   <HandLogoLoader />
                 ) : participantsError ? (
@@ -433,12 +440,62 @@ const LeagueDetails: React.FC = () => {
 
             {activeTab === "Matches" && (
               <div>
-                <h4 className="font-bold text-2xl text-white mb-6 flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center">
-                    <span className="text-white text-sm">🏆</span>
+                <div className="flex items-center justify-between">
+                  <h4 className="font-bold text-2xl text-white mb-6 flex items-center gap-3">
+                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+                      <span className="text-white text-sm">👥</span>
+                    </div>
+                    Matches
+                  </h4>
+
+                  <div className="relative">
+                    <select className="w-full py-2 px-4 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none cursor-pointer">
+                      <option value="" className="bg-gray-800 text-white">
+                        All Status
+                      </option>
+                      <option value="active" className="bg-gray-800 text-white">
+                        Active
+                      </option>
+                      <option
+                        value="pending"
+                        className="bg-gray-800 text-white"
+                      >
+                        Pending
+                      </option>
+                      <option
+                        value="completed"
+                        className="bg-gray-800 text-white"
+                      >
+                        Completed
+                      </option>
+                      <option
+                        value="cancelled"
+                        className="bg-gray-800 text-white"
+                      >
+                        Cancelled
+                      </option>
+                    </select>
+                    <svg
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/40 pointer-events-none w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
                   </div>
-                  Matches
-                </h4>
+
+                  <div>
+                    <button className="py-2 px-4 bg-gradient-to-r from-blue-500 to-blue-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm">
+                      Export
+                    </button>
+                  </div>
+                </div>
                 {matchesLoading ? (
                   <HandLogoLoader />
                 ) : matchesError ? (
