@@ -195,6 +195,141 @@ const MatchStatusSwitch = ({
   );
 };
 
+const TeamDropdown = ({
+  score,
+  index,
+  matchData,
+}: {
+  score: MatchScore;
+  index: any;
+  matchData: MatchDetails;
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const teamLabel =
+    score?.submittedBy === "team1"
+      ? "Team 1"
+      : score?.submittedBy === "team2"
+      ? "Team 2"
+      : "Admin";
+  const players =
+    score?.submittedBy === "team1"
+      ? matchData.team1
+      : score?.submittedBy === "team2"
+      ? matchData.team2
+      : [];
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div className="relative inline-block" ref={dropdownRef}>
+      <button
+        disabled={teamLabel === "Admin"}
+        className={`"font-bold text-white ${
+          teamLabel !== "Admin" ? "cursor-pointer" : ""
+        } hover:text-gray-300 transition-colors duration-200`}
+        onClick={() => setIsOpen(!isOpen)}
+        aria-label={`Toggle ${teamLabel} players dropdown`}
+        role="button"
+      >
+        <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-700/30 transition-all duration-200">
+          <span
+            className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-md ${
+              score?.submittedBy === "team1"
+                ? "bg-gradient-to-br from-[#46A2FF] to-[#2563eb]"
+                : score?.submittedBy === "team2"
+                ? "bg-gradient-to-br from-orange-500 to-orange-600"
+                : "bg-gradient-to-br from-green-500 to-green-600"
+            }`}
+          >
+            {index + 1}
+          </span>
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-white text-base">
+              {score?.submittedBy === "team1"
+                ? "Team 1"
+                : score?.submittedBy === "team2"
+                ? "Team 2"
+                : "Admin"}
+            </span>
+            {teamLabel !== "Admin" && (
+              <svg
+                className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
+                  isOpen ? "rotate-180" : ""
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            )}
+          </div>
+        </div>
+      </button>
+
+      {isOpen && players.length > 0 && (
+        <div className="absolute z-20 mt-2 w-56 bg-gray-800 border border-gray-600 rounded-xl shadow-2xl backdrop-blur-sm animate-in fade-in-0 zoom-in-95 duration-200">
+          <div className="p-2">
+            <div className="text-xs font-semibold text-gray-400 px-3 py-2 uppercase tracking-wider">
+              Players ({players.length})
+            </div>
+            <ul className="space-y-1">
+              {players.map((player, playerIndex) => (
+                <li
+                  key={player.participant._id}
+                  className="px-3 py-2.5 text-sm text-white hover:bg-gray-700 cursor-pointer rounded-lg transition-all duration-150 hover:scale-[1.02] group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-gradient-to-br from-gray-600 to-gray-700 rounded-full flex items-center justify-center text-xs font-bold text-white">
+                      {player.participant.userId.username
+                        ?.charAt(0)
+                        .toUpperCase() || "?"}
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-medium text-white group-hover:text-gray-100">
+                        {player.participant.userId.username}
+                      </div>
+                      <div className="text-xs text-gray-400">
+                        Player #{playerIndex + 1}
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {isOpen && players.length === 0 && (
+        <div className="absolute z-20 mt-2 w-56 bg-gray-800 border border-gray-600 rounded-xl shadow-2xl backdrop-blur-sm animate-in fade-in-0 zoom-in-95 duration-200">
+          <div className="p-4 text-center">
+            <div className="text-gray-400 text-sm">No players found</div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const MatchDetails = () => {
   const { mid } = useParams<{ mid: string }>();
   const [activeTab, setActiveTab] = useState<"details" | "chat">("details");
@@ -501,6 +636,13 @@ const MatchDetails = () => {
                         return (
                           <tr key={score._id} className="bg-gray-700/30">
                             <td className="p-4 border-b border-gray-700/50">
+                              <TeamDropdown
+                                score={score}
+                                index={index}
+                                matchData={matcheDetail}
+                              />
+                            </td>
+                            {/* <td className="p-4 border-b border-gray-700/50">
                               <div className="flex items-center gap-2">
                                 <span
                                   className={`w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm ${
@@ -514,17 +656,6 @@ const MatchDetails = () => {
                                   {index + 1}
                                 </span>
                                 <span className="font-bold text-white">
-                                  {/* {score?.submittedBy === "team1"
-                                    ? matcheDetail?.team1?.length === 1
-                                      ? matcheDetail?.team1[0]?.participant
-                                          ?.userId?.username
-                                      : "Team 1"
-                                    : score?.submittedBy === "team2"
-                                    ? matcheDetail?.team2?.length === 1
-                                      ? matcheDetail?.team2[0]?.participant
-                                          ?.userId?.username
-                                      : "Team 2"
-                                    : "Admin"} */}
                                   {score?.submittedBy === "team1"
                                     ? "Team 1"
                                     : score?.submittedBy === "team2"
@@ -532,7 +663,7 @@ const MatchDetails = () => {
                                     : "Admin"}
                                 </span>
                               </div>
-                            </td>
+                            </td> */}
                             <td className="p-4 border-b border-gray-700/50">
                               <p className="font-semibold text-[#46A2FF] text-lg">
                                 {score?.submittedBy === "team1"
