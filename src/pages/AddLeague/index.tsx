@@ -55,7 +55,7 @@ interface League {
       endTime: string;
     };
   };
-  qualifyingLine: number;
+  // qualifyingLine: number;
   prizepool: number;
   rules: File | null;
   timeLine: Array<{
@@ -165,9 +165,9 @@ const validationSchema = Yup.object().shape({
       otherwise: (schema) => schema.notRequired(),
     }),
   }),
-  qualifyingLine: Yup.number()
-    .min(1, "Qualifying line must be at least 1")
-    .required("Qualifying line is required"),
+  // qualifyingLine: Yup.number()
+  //   .min(1, "Qualifying line must be at least 1")
+  //   .required("Qualifying line is required"),
   prizepool: Yup.number()
     .min(0, "Prizepool must be non-negative")
     .required("Prizepool is required"),
@@ -823,7 +823,7 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
         </div>
       )}
 
-      <div className="relative float-label-input custom-input mb-4">
+      {/* <div className="relative float-label-input custom-input mb-4">
         <Field
           type="number"
           id="qualifyingLine"
@@ -846,7 +846,7 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
             {errors.qualifyingLine}
           </div>
         )}
-      </div>
+      </div> */}
 
       <div className="relative float-label-input custom-input mb-4">
         <Field
@@ -1417,7 +1417,7 @@ export const AddLeague: FC = () => {
           alwaysOn: false,
           schedule: { days: [], startTime: "", endTime: "" },
         },
-    qualifyingLine: leagueData?.qualifyingLine ? leagueData.qualifyingLine : 0,
+    // qualifyingLine: leagueData?.qualifyingLine ? leagueData.qualifyingLine : 0,
     prizepool: leagueData?.prizepool ? leagueData?.prizepool : 0,
     rules: leagueData?.rules ? leagueData?.rules : null,
     timeLine:
@@ -1463,7 +1463,7 @@ export const AddLeague: FC = () => {
       // maxMatchesPerPlayer: values.maxMatchesPerPlayer,
       weekOfTheStarPrice: values.weekOfTheStarPrice,
       queueSettings: values.queueSettings,
-      qualifyingLine: values.qualifyingLine,
+      // qualifyingLine: values.qualifyingLine,
       prizepool: values.prizepool,
       rules: values.rules,
       timeLine: values.timeLine,
@@ -1512,7 +1512,7 @@ export const AddLeague: FC = () => {
           // "maxMatchesPerPlayer",
           "weekOfTheStarPrice",
           "queueSettings",
-          "qualifyingLine",
+          // "qualifyingLine",
           "prizepool",
           "timeLine",
           "customRegistrationFields",
@@ -1567,7 +1567,7 @@ export const AddLeague: FC = () => {
           // "maxMatchesPerPlayer",
           "weekOfTheStarPrice",
           "queueSettings",
-          "qualifyingLine",
+          // "qualifyingLine",
           "prizepool",
           "timeLine",
           "customRegistrationFields",

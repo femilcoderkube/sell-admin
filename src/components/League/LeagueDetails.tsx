@@ -448,7 +448,7 @@ const LeagueDetails: React.FC = () => {
                     Matches
                   </h4>
 
-                  <div className="relative">
+                  {/* <div className="relative">
                     <select className="w-full py-2 px-4 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none cursor-pointer">
                       <option value="" className="bg-gray-800 text-white">
                         All Status
@@ -488,13 +488,13 @@ const LeagueDetails: React.FC = () => {
                         d="M19 9l-7 7-7-7"
                       />
                     </svg>
-                  </div>
+                  </div> */}
 
-                  <div>
+                  {/* <div>
                     <button className="py-2 px-4 bg-gradient-to-r from-blue-500 to-blue-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm">
                       Export
                     </button>
-                  </div>
+                  </div> */}
                 </div>
                 {matchesLoading ? (
                   <HandLogoLoader />
