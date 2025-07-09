@@ -1578,7 +1578,7 @@ const LeagueStep3: FC<StepProps> = ({ step, leagueData }: any) => {
                 ? `${baseURL}/api/v1/${leagueData?.logo}`
                 : ""
             }
-            label="Crad Photo"
+            label="Outside photo (Suggested: 270*330px)"
             id="logo"
             onChange={handleFileUpload("logo", setImgFile)}
             accept="image/*"
@@ -1597,7 +1597,7 @@ const LeagueStep3: FC<StepProps> = ({ step, leagueData }: any) => {
                 ? `${baseURL}/api/v1/${leagueData?.headerPhoto}`
                 : ""
             }
-            label="Main Header Photo (600x400)"
+            label="Header Photo (Suggested: 600*400px)"
             id="headerPhoto"
             onChange={handleFileUpload("headerPhoto", setHeaderPhoto)}
             accept="image/*"
@@ -1635,7 +1635,7 @@ const LeagueStep3: FC<StepProps> = ({ step, leagueData }: any) => {
                 ? `${baseURL}/api/v1/${leagueData?.internalPhoto}`
                 : ""
             }
-            label="Internal League Photo"
+            label="Inside photo (Suggested: 300*300px)"
             id="internalPhoto"
             onChange={handleFileUpload("internalPhoto", setInternalPhoto)}
             accept="image/*"
