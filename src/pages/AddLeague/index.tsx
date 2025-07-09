@@ -716,8 +716,20 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
   // };
 
   // Handle file change and upload to API
-  const handleFileChange = async (index, file) => {
-    if (!file) return;
+  const handleFileChange = async (index: number, file: File | null) => {
+    if (!file) {
+      setFieldValue(`customRegistrationFields[${index}].image`, null);
+      setPreviews((prev) => {
+        const newPreviews = { ...prev };
+        if (newPreviews[index] && newPreviews[index]?.startsWith("blob:")) {
+          URL.revokeObjectURL(newPreviews[index]!);
+        }
+        newPreviews[index] = null;
+        return newPreviews;
+      });
+      setUploadErrors((prev) => ({ ...prev, [index]: null }));
+      return;
+    }
 
     // Generate local preview
     const previewUrl = URL.createObjectURL(file);
@@ -730,8 +742,9 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
     try {
       const result = await dispatch(uploadFile(formData));
       if (result?.payload?.data) {
-        const fileUrl = `${baseURL}/api/v1/${result.payload.data}`;
+        const fileUrl = `${result.payload.data}`;
         setFieldValue(`customRegistrationFields[${index}].image`, fileUrl);
+        setPreviews((prev) => ({ ...prev, [index]: fileUrl })); // Update preview to server URL
         setUploadErrors((prev) => ({ ...prev, [index]: null }));
       } else {
         throw new Error("No file URL returned from API");
@@ -743,37 +756,58 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
         [index]: "Failed to upload image",
       }));
       setFieldValue(`customRegistrationFields[${index}].image`, null);
+      setPreviews((prev) => {
+        const newPreviews = { ...prev };
+        if (newPreviews[index]?.startsWith("blob:")) {
+          URL.revokeObjectURL(newPreviews[index]!);
+        }
+        newPreviews[index] = null;
+        return newPreviews;
+      });
     }
   };
 
   // Handle file removal
   const handleRemoveFile = (index: number) => {
-    if (previews[index]) {
-      URL.revokeObjectURL(previews[index]!);
-    }
     setFieldValue(`customRegistrationFields[${index}].image`, null);
-    setPreviews((prev) => ({ ...prev, [index]: null }));
+    setPreviews((prev) => {
+      const newPreviews = { ...prev };
+      if (newPreviews[index]?.startsWith("blob:")) {
+        URL.revokeObjectURL(newPreviews[index]!);
+      }
+      delete newPreviews[index];
+      return newPreviews;
+    });
+    setUploadErrors((prev) => {
+      const newErrors = { ...prev };
+      delete newErrors[index];
+      return newErrors;
+    });
   };
 
   // Initialize previews for edit mode
   useEffect(() => {
+    const newPreviews: { [key: number]: string | null } = {};
     values.customRegistrationFields.forEach((field, index) => {
-      console.log("field", field);
-      if (field.image && typeof field.image === "string") {
-        setPreviews((prev) => ({
-          ...prev,
-          [index]: `${baseURL}/api/v1/${field.value}`,
-        }));
+      if (field.image && typeof field.image === "string" && !previews[index]) {
+        newPreviews[index] = field.image.startsWith(baseURL)
+          ? field.image
+          : `${field.image}`;
       }
     });
+    setPreviews((prev) => ({ ...prev, ...newPreviews }));
 
     return () => {
-      // Cleanup previews on unmount
-      Object.values(previews).forEach((preview) => {
-        if (preview) URL.revokeObjectURL(preview);
+      // Cleanup only blob URLs on unmount
+      Object.entries(previews).forEach(([index, preview]) => {
+        if (preview && preview.startsWith("blob:")) {
+          URL.revokeObjectURL(preview);
+        }
       });
     };
   }, [values.customRegistrationFields]);
+
+  console.log("previews", previews);
 
   return (
     <div className="max-w-[42.5rem] mx-auto genral_form-info mb-4">
@@ -1314,7 +1348,7 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                     {previews[index] && (
                       <div className="mt-2">
                         <img
-                          src={previews[index]}
+                          src={`${baseURL}/api/v1/${previews[index]}`}
                           alt="Preview"
                           className="max-w-full h-auto rounded-[0.52rem]"
                           style={{ maxHeight: "100px" }}
