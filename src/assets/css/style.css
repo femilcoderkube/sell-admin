@@ -215,3 +215,57 @@ textarea:focus {
 .css-1wvbbxw-MuiList-root-MuiMultiSectionDigitalClockSection-root::-webkit-scrollbar {
   display: none !important;
 }
+/* Main editor area text color and background */
+.custom-quill-editor .ql-editor {
+  min-height: 120px;
+  color: white;
+  background-color: #2b3245;
+}
+
+/* Toolbar background and buttons */
+.custom-quill-editor .ql-toolbar {
+  background-color: #1f2535;
+  border: none;
+  border-bottom: 1px solid #444;
+}
+
+/* Buttons inside toolbar */
+/* Target stroke (used by most toolbar icons like bold, italic, etc.) */
+.custom-quill-editor .ql-toolbar .ql-stroke {
+  stroke: white !important;
+}
+
+/* Target fill (used by icons like dropdowns, color pickers, etc.) */
+.custom-quill-editor .ql-toolbar .ql-fill {
+  fill: white !important;
+}
+
+/* Optional: border color for pickers (like color dropdown) */
+.custom-quill-editor .ql-toolbar .ql-picker {
+  color: white;
+}
+
+/* Active button state */
+.custom-quill-editor .ql-toolbar .ql-active {
+  background-color: #3a3f5a;
+}
+
+.custom-quill-editor .ql-toolbar.ql-snow {
+  border: 0px;
+
+  border-top-left-radius: 0.52rem;
+  border-top-right-radius: 0.52rem;
+}
+
+/* Focus and border styling */
+.custom-quill-editor .ql-container.ql-snow {
+  border: 0px solid #ccc;
+}
+.custom-quill-editor .ql-editor {
+  border: 0px;
+  border-bottom-left-radius: 0.52rem;
+  border-bottom-right-radius: 0.52rem;
+}
+.custom-quill-editor span {
+  color: #fff;
+}

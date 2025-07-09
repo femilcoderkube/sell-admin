@@ -2,6 +2,8 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import {
   createBannedUser,
   fetchBannedUsers,
@@ -46,7 +48,6 @@ const BanModal = ({ isOpen, onClose }) => {
       )
       .matches(/^\S.*\S$/, "playerName cannot start or end with spaces"),
     ipAddress: Yup.string()
-      // .matches(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/, "Invalid IP address format")
       .nullable()
       .matches(/^\S.*\S$/, "ipAddress cannot start or end with spaces"),
     date: Yup.date()
@@ -54,7 +55,7 @@ const BanModal = ({ isOpen, onClose }) => {
       .when("permanentBan", {
         is: false,
         then: (schema) =>
-          schema.required("Ban date is required for permanent ban"),
+          schema.required("Ban date is required for non-permanent ban"),
         otherwise: (schema) => schema.notRequired(),
       }),
     permanentBan: Yup.boolean(),
@@ -67,7 +68,7 @@ const BanModal = ({ isOpen, onClose }) => {
   const initialValues = {
     playerName: "",
     ipAddress: "",
-    date: "",
+    date: null,
     permanentBan: false,
     comment: "",
   };
@@ -76,7 +77,7 @@ const BanModal = ({ isOpen, onClose }) => {
     try {
       const userData = {
         username: values.playerName,
-        Date: values.date,
+        Date: values.date?.toISOString(),
         ipAddress: values.ipAddress,
         isPermanent: values.permanentBan,
         comment: values.comment,
@@ -208,10 +209,14 @@ const BanModal = ({ isOpen, onClose }) => {
                   >
                     Ban Date
                   </label>
-                  <Field
-                    type="date"
-                    name="date"
-                    className="w-full px-4 py-3 bg-[#242B3C] text-white rounded-xl border-gray-600/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200"
+                  <DatePicker
+                    selected={values.date}
+                    onChange={(date) => setFieldValue("date", date)}
+                    className="w-full px-4 py-3 bg-[#242B3C] text-white rounded-xl border border-gray-600/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 placeholder-gray-400"
+                    placeholderText="Select ban date"
+                    dateFormat="yyyy-MM-dd"
+                    wrapperClassName="w-full"
+                    disabled={values.permanentBan}
                   />
                   <ErrorMessage
                     name="date"

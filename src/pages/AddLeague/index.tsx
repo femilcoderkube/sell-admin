@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AsyncPaginate } from "react-select-async-paginate";
@@ -18,12 +18,9 @@ import downarr from "../../assets/images/down_arr.svg";
 import deleteIcon from "../../assets/images/trash_can.svg";
 import { baseURL } from "../../axios";
 import { TimePickerField } from "../../components/ui/TimePickerField";
-// import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
-// import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-// import { TextField } from "@mui/material";
-// import dayjs from "dayjs";
-import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
+
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 // Type Definitions
 interface Winner {
@@ -69,8 +66,13 @@ interface League {
     fieldName: string;
     fieldType: string;
     required: boolean;
+    checkboxText: string;
+    image: string;
   }>;
   logo: File | null;
+  headerPhoto: File | null;
+  internalPhoto: File | null;
+  // cardPhoto: File | null;
   hydraulicsImage?: File | null;
   mobileHeader?: File | null;
   bannerImage?: File | null;
@@ -206,6 +208,9 @@ const validationSchema = Yup.object().shape({
   ),
   logo: Yup.mixed().required("Logo is required"),
   rules: Yup.mixed().required("Rules PDF is required"),
+  headerPhoto: Yup.mixed().required("Header Photo is required"),
+  internalPhoto: Yup.mixed().required("Internal Photo is required"),
+  // cardPhoto: Yup.mixed().required("Card Photo is required"),
   startDate: Yup.date()
     .required("Start date is required")
     .min(new Date().setTime(0), "Start date cannot be in the past"),
@@ -215,11 +220,6 @@ const validationSchema = Yup.object().shape({
 });
 
 const LeagueStep1: FC<StepProps> = ({ step }) => {
-  const darkTheme = createTheme({
-    palette: {
-      mode: "dark", // 🔥 this enables dark mode
-    },
-  });
   const dispatch = useDispatch();
   const {
     values,
@@ -301,8 +301,9 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
           id="title"
           name="title"
           placeholder=" "
-          className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${touched.title && errors.title ? "border border-red-500" : ""
-            }`}
+          className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+            touched.title && errors.title ? "border border-red-500" : ""
+          }`}
         />
         <label
           htmlFor="title"
@@ -383,8 +384,8 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
               backgroundColor: isSelected
                 ? "#007EFF"
                 : isFocused
-                  ? "#2B3245"
-                  : "#212739",
+                ? "#2B3245"
+                : "#212739",
               color: "#fff",
               fontSize: "0.78125rem",
               padding: "0.5rem 0.75rem",
@@ -459,8 +460,8 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
               backgroundColor: isSelected
                 ? "#007EFF"
                 : isFocused
-                  ? "#2B3245"
-                  : "#212739",
+                ? "#2B3245"
+                : "#212739",
               color: "#fff",
               fontSize: "0.78125rem",
               padding: "0.5rem 0.75rem",
@@ -499,8 +500,9 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
           as="select"
           id="format"
           name="format"
-          className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${touched.format && errors.format ? "border border-red-500" : ""
-            }`}
+          className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+            touched.format && errors.format ? "border border-red-500" : ""
+          }`}
           style={{
             backgroundImage: `url(${downarr})`,
             backgroundRepeat: "no-repeat",
@@ -535,10 +537,11 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
           min="1"
           max="5"
           disabled={values.format === "1v1"}
-          className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${touched.playersPerTeam && errors.playersPerTeam
+          className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+            touched.playersPerTeam && errors.playersPerTeam
               ? "border border-red-500"
               : ""
-            } ${values.format === "1v1" ? "opacity-50 cursor-not-allowed" : ""}`}
+          } ${values.format === "1v1" ? "opacity-50 cursor-not-allowed" : ""}`}
         />
         <label
           htmlFor="playersPerTeam"
@@ -563,10 +566,11 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
             showTimeSelect
             timeFormat="h:mm aa"
             dateFormat="yyyy-MM-dd h:mm aa"
-            className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${touched.startDate && errors.startDate
+            className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+              touched.startDate && errors.startDate
                 ? "border border-red-500"
                 : ""
-              }`}
+            }`}
             id="startDate"
             name="startDate"
             placeholderText="Select start date"
@@ -599,8 +603,9 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
             showTimeSelect
             timeFormat="h:mm aa"
             dateFormat="yyyy-MM-dd h:mm aa"
-            className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${touched.endDate && errors.endDate ? "border border-red-500" : ""
-              }`}
+            className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+              touched.endDate && errors.endDate ? "border border-red-500" : ""
+            }`}
             id="endDate"
             name="endDate"
             timeIntervals={15}
@@ -691,6 +696,84 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
     handleChange,
     setFieldTouched,
   } = useFormikContext<League>();
+
+  const [previews, setPreviews] = useState<{ [key: number]: string | null }>(
+    {}
+  );
+  const [uploadErrors, setUploadErrors] = useState({});
+  const dispatch = useDispatch();
+
+  // Handle file change for image uploads
+  // const handleFileChange = (index: number, file: File | null) => {
+  //   if (file) {
+  //     setFieldValue(`customRegistrationFields[${index}].image`, file);
+  //     const objectUrl = URL.createObjectURL(file);
+  //     setPreviews((prev) => ({ ...prev, [index]: objectUrl }));
+  //   } else {
+  //     setFieldValue(`customRegistrationFields[${index}].image`, null);
+  //     setPreviews((prev) => ({ ...prev, [index]: null }));
+  //   }
+  // };
+
+  // Handle file change and upload to API
+  const handleFileChange = async (index, file) => {
+    if (!file) return;
+
+    // Generate local preview
+    const previewUrl = URL.createObjectURL(file);
+    setPreviews((prev) => ({ ...prev, [index]: previewUrl }));
+
+    // Prepare form data for API
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const result = await dispatch(uploadFile(formData));
+      if (result?.payload?.data) {
+        const fileUrl = `${baseURL}/api/v1/${result.payload.data}`;
+        setFieldValue(`customRegistrationFields[${index}].image`, fileUrl);
+        setUploadErrors((prev) => ({ ...prev, [index]: null }));
+      } else {
+        throw new Error("No file URL returned from API");
+      }
+    } catch (err) {
+      console.error("File upload error:", err);
+      setUploadErrors((prev) => ({
+        ...prev,
+        [index]: "Failed to upload image",
+      }));
+      setFieldValue(`customRegistrationFields[${index}].image`, null);
+    }
+  };
+
+  // Handle file removal
+  const handleRemoveFile = (index: number) => {
+    if (previews[index]) {
+      URL.revokeObjectURL(previews[index]!);
+    }
+    setFieldValue(`customRegistrationFields[${index}].image`, null);
+    setPreviews((prev) => ({ ...prev, [index]: null }));
+  };
+
+  // Initialize previews for edit mode
+  useEffect(() => {
+    values.customRegistrationFields.forEach((field, index) => {
+      console.log("field", field);
+      if (field.image && typeof field.image === "string") {
+        setPreviews((prev) => ({
+          ...prev,
+          [index]: `${baseURL}/api/v1/${field.value}`,
+        }));
+      }
+    });
+
+    return () => {
+      // Cleanup previews on unmount
+      Object.values(previews).forEach((preview) => {
+        if (preview) URL.revokeObjectURL(preview);
+      });
+    };
+  }, [values.customRegistrationFields]);
 
   return (
     <div className="max-w-[42.5rem] mx-auto genral_form-info mb-4">
@@ -849,8 +932,9 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
           id="prizepool"
           name="prizepool"
           placeholder=" "
-          className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${touched.prizepool && errors.prizepool ? "border border-red-500" : ""
-            }`}
+          className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+            touched.prizepool && errors.prizepool ? "border border-red-500" : ""
+          }`}
         />
         <label
           htmlFor="prizepool"
@@ -870,10 +954,11 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
           id="weekOfTheStarPrice"
           name="weekOfTheStarPrice"
           placeholder=" "
-          className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${touched.weekOfTheStarPrice && errors.weekOfTheStarPrice
+          className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+            touched.weekOfTheStarPrice && errors.weekOfTheStarPrice
               ? "border border-red-500"
               : ""
-            }`}
+          }`}
         />
         <label
           htmlFor="weekOfTheStarPrice"
@@ -922,11 +1007,12 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                       id={`timeLine[${index}].title`}
                       name={`timeLine[${index}].title`}
                       placeholder=" "
-                      className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${touched.timeLine?.[index]?.title &&
-                          errors.timeLine?.[index]?.title
+                      className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+                        touched.timeLine?.[index]?.title &&
+                        errors.timeLine?.[index]?.title
                           ? "border border-red-500"
                           : ""
-                        }`}
+                      }`}
                     />
                     <label
                       htmlFor={`timeLine[${index}].title`}
@@ -947,11 +1033,12 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                       id={`timeLine[${index}].titleAr`}
                       name={`timeLine[${index}].titleAr`}
                       placeholder=" "
-                      className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${touched.timeLine?.[index]?.titleAr &&
-                          errors.timeLine?.[index]?.titleAr
+                      className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+                        touched.timeLine?.[index]?.titleAr &&
+                        errors.timeLine?.[index]?.titleAr
                           ? "border border-red-500"
                           : ""
-                        }`}
+                      }`}
                     />
                     <label
                       htmlFor={`timeLine[${index}].titleAr`}
@@ -986,11 +1073,12 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                         showTimeSelect
                         timeFormat="h:mm aa"
                         dateFormat="yyyy-MM-dd h:mm aa"
-                        className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${touched.timeLine?.[index]?.startDate &&
-                            errors.timeLine?.[index]?.startDate
+                        className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+                          touched.timeLine?.[index]?.startDate &&
+                          errors.timeLine?.[index]?.startDate
                             ? "border border-red-500"
                             : ""
-                          }`}
+                        }`}
                         id={`timeLine[${index}].startDate`}
                         name={`timeLine[${index}].startDate`}
                         placeholderText="Select start date"
@@ -1032,11 +1120,12 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                         showTimeSelect
                         timeFormat="h:mm aa"
                         dateFormat="yyyy-MM-dd h:mm aa"
-                        className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${touched.timeLine?.[index]?.endDate &&
-                            errors.timeLine?.[index]?.endDate
+                        className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+                          touched.timeLine?.[index]?.endDate &&
+                          errors.timeLine?.[index]?.endDate
                             ? "border border-red-500"
                             : ""
-                          }`}
+                        }`}
                         id={`timeLine[${index}].endDate`}
                         name={`timeLine[${index}].endDate`}
                         placeholderText="Select end date"
@@ -1131,11 +1220,12 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                       readOnly={index === 0}
                       id={`customRegistrationFields[${index}].fieldName`}
                       name={`customRegistrationFields[${index}].fieldName`}
-                      className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 leading-normal ${touched.customRegistrationFields?.[index]?.fieldName &&
-                          errors.customRegistrationFields?.[index]?.fieldName
+                      className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 leading-normal ${
+                        touched.customRegistrationFields?.[index]?.fieldName &&
+                        errors.customRegistrationFields?.[index]?.fieldName
                           ? "border border-red-500"
                           : ""
-                        }`}
+                      }`}
                     />
                     {touched.customRegistrationFields?.[index]?.fieldName &&
                       errors.customRegistrationFields?.[index]?.fieldName && (
@@ -1156,11 +1246,12 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                       id={`customRegistrationFields[${index}].fieldType`}
                       name={`customRegistrationFields[${index}].fieldType`}
                       readOnly={index === 0}
-                      className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${touched.customRegistrationFields?.[index]?.fieldType &&
-                          errors.customRegistrationFields?.[index]?.fieldType
+                      className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+                        touched.customRegistrationFields?.[index]?.fieldType &&
+                        errors.customRegistrationFields?.[index]?.fieldType
                           ? "border border-red-500"
                           : ""
-                        }`}
+                      }`}
                       style={{
                         backgroundImage: `url(${downarr})`,
                         backgroundRepeat: "no-repeat",
@@ -1178,6 +1269,110 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                           {errors.customRegistrationFields[index].fieldType}
                         </div>
                       )}
+                  </div>
+                  <div className="relative flex-1 custom-input mb-4">
+                    <label
+                      htmlFor={`customRegistrationFields[${index}].image`}
+                      className="block text-[0.78125rem] font-bold text-custom-gray mb-2"
+                    >
+                      Upload Image
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        id={`customRegistrationFields[${index}].image`}
+                        onChange={(e) =>
+                          handleFileChange(index, e.target.files?.[0] || null)
+                        }
+                        className="block w-full text-[0.78125rem] text-white bg-[#2B3245] rounded-[0.52rem] px-3 py-2 file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#2792FF] file:text-white hover:file:bg-[#1c74d1]"
+                      />
+                      {previews[index] && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFile(index)}
+                          className="absolute top-2 right-2 text-gray-400 bg-transparent rounded-full hover:bg-gray-600 hover:text-white p-1 transition duration-200"
+                          title="Remove Image"
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                          <span className="sr-only">Remove Image</span>
+                        </button>
+                      )}
+                    </div>
+                    {previews[index] && (
+                      <div className="mt-2">
+                        <img
+                          src={previews[index]}
+                          alt="Preview"
+                          className="max-w-full h-auto rounded-[0.52rem]"
+                          style={{ maxHeight: "100px" }}
+                        />
+                      </div>
+                    )}
+                    {touched.customRegistrationFields?.[index]?.image &&
+                      errors.customRegistrationFields?.[index]?.image && (
+                        <div className="text-red-500 text-[0.7rem] mt-1">
+                          {errors.customRegistrationFields[index].image}
+                        </div>
+                      )}
+
+                    {uploadErrors[index] && (
+                      <div className="text-red-500 text-[0.7rem] mt-1">
+                        {uploadErrors[index]}
+                      </div>
+                    )}
+                  </div>
+                  <div className="mb-4">
+                    <div className="relative flex-1 custom-input mb-4">
+                      <label
+                        htmlFor={`customRegistrationFields[${index}].checkboxText`}
+                        className="block text-[0.78125rem] font-bold text-custom-gray mb-2"
+                      >
+                        Checkbox Text
+                      </label>
+                      <ReactQuill
+                        value={
+                          values.customRegistrationFields[index].checkboxText
+                        }
+                        onChange={(value) =>
+                          setFieldValue(
+                            `customRegistrationFields[${index}].checkboxText`,
+                            value
+                          )
+                        }
+                        className={`custom-quill-editor bg-[#2B3245] rounded-[0.52rem] text-white ${
+                          touched.customRegistrationFields?.[index]
+                            ?.checkboxText &&
+                          errors.customRegistrationFields?.[index]?.checkboxText
+                            ? "border border-red-500"
+                            : ""
+                        }`}
+                      />
+
+                      {touched.customRegistrationFields?.[index]
+                        ?.checkboxText &&
+                        errors.customRegistrationFields?.[index]
+                          ?.checkboxText && (
+                          <div className="text-red-500 text-[0.7rem] mt-1">
+                            {
+                              errors.customRegistrationFields[index]
+                                .checkboxText
+                            }
+                          </div>
+                        )}
+                    </div>
                   </div>
                   <div className="check_setting flex items-center justify-between w-full text-[0.78125rem] text-custom-gray focus:outline-0 focus:!border focus:!border-[#2792FF] py-[0.92rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal">
                     <span className="text-white font-medium">Required</span>
@@ -1273,11 +1468,15 @@ const LeagueStep3: FC<StepProps> = ({ step, leagueData }: any) => {
   const dispatch = useDispatch();
   const { values, errors, touched, setFieldValue } = useFormikContext<League>();
 
-  const [imgFile, setImgFile] = useState();
-  const [pdfFile, setPdfFile] = useState();
+  const [imgFile, setImgFile] = useState<string | undefined>();
+  const [pdfFile, setPdfFile] = useState<string | undefined>();
+  const [headerPhoto, setHeaderPhoto] = useState<string | undefined>();
+  // const [cardPhoto, setCardPhoto] = useState<string | undefined>();
+  const [internalPhoto, setInternalPhoto] = useState<string | undefined>();
 
-  const handleFileUploadForImage =
-    (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload =
+    (field: string, setFile: (url: string | undefined) => void) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
 
       if (file) {
@@ -1286,27 +1485,8 @@ const LeagueStep3: FC<StepProps> = ({ step, leagueData }: any) => {
         dispatch(uploadFile(formData))
           .then((result: any) => {
             if (result?.payload?.data) {
-              setImgFile(`${baseURL}/api/v1/${result?.payload?.data}`);
-              setFieldValue(field, result.payload.data);
-            }
-          })
-          .catch((err: any) => {
-            console.log("err", err);
-          });
-      }
-    };
-  const handleFileUploadForPDf =
-    (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-
-      if (file) {
-        const formData = new FormData();
-        formData.append("file", file);
-        dispatch(uploadFile(formData))
-          .then((result: any) => {
-            if (result?.payload?.data) {
-              setPdfFile(`${baseURL}/api/v1/${result?.payload?.data}`);
-
+              const fileUrl = `${baseURL}/api/v1/${result?.payload?.data}`;
+              setFile(fileUrl);
               setFieldValue(field, result.payload.data);
             }
           })
@@ -1317,60 +1497,149 @@ const LeagueStep3: FC<StepProps> = ({ step, leagueData }: any) => {
     };
 
   return (
-    <div className="max-w-[42.5rem] mx-auto genral_form-info mb-4">
-      <h4 className="text-white mb-5 text-base font-medium text-center">
-        Media and Rules
-      </h4>
+    <>
+      <style>
+        {`
+          .grid-container {
+            max-width: 42.5rem;
+            margin: 0 auto;
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+          }
+          .grid-container h4 {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: white;
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 1.25rem;
+          }
+          .file-upload-section {
+            display: flex;
+            flex-direction: column;
+          }
+          .error-text {
+            color: #ef4444;
+            font-size: 0.7rem;
+            margin-top: 0.25rem;
+          }
+          @media (max-width: 768px) {
+            .grid-container {
+              grid-template-columns: 1fr;
+            }
+          }
+        `}
+      </style>
+      <div className="grid-container">
+        <h4>Media and Rules</h4>
 
-      <div className="mb-4">
-        <FileUpload
-          previewUrl={
-            imgFile
-              ? imgFile
-              : leagueData?.logo
+        <div className="file-upload-section">
+          <FileUpload
+            previewUrl={
+              imgFile
+                ? imgFile
+                : leagueData?.logo
                 ? `${baseURL}/api/v1/${leagueData?.logo}`
                 : ""
-          }
-          label="Logo (270*330)"
-          id="logo"
-          onChange={handleFileUploadForImage("logo")}
-        // accept="image/*"
-        />
-        {touched.logo && errors.logo && (
-          <div className="text-red-500 text-[0.7rem] mt-1">{errors.logo}</div>
-        )}
-      </div>
+            }
+            label="Crad Photo"
+            id="logo"
+            onChange={handleFileUpload("logo", setImgFile)}
+            accept="image/*"
+          />
+          {touched.logo && errors.logo && (
+            <div className="error-text">{errors.logo}</div>
+          )}
+        </div>
 
-      <div className="mb-4">
-        <FileUpload
-          previewUrl={
-            pdfFile
-              ? "/pdf-2127829_640.webp"
-              : leagueData?.logo
+        <div className="file-upload-section">
+          <FileUpload
+            previewUrl={
+              headerPhoto
+                ? headerPhoto
+                : leagueData?.headerPhoto
+                ? `${baseURL}/api/v1/${leagueData?.headerPhoto}`
+                : ""
+            }
+            label="Main Header Photo (600x400)"
+            id="headerPhoto"
+            onChange={handleFileUpload("headerPhoto", setHeaderPhoto)}
+            accept="image/*"
+          />
+          {touched.headerPhoto && errors.headerPhoto && (
+            <div className="error-text">{errors.headerPhoto}</div>
+          )}
+        </div>
+
+        {/* <div className="file-upload-section">
+          <FileUpload
+            previewUrl={
+              cardPhoto
+                ? cardPhoto
+                : leagueData?.cardPhoto
+                ? `${baseURL}/api/v1/${leagueData?.cardPhoto}`
+                : ""
+            }
+            label="Card Photo"
+            id="cardPhoto"
+            onChange={handleFileUpload("cardPhoto", setCardPhoto)}
+            accept="image/*"
+          />
+          {touched.cardPhoto && errors.cardPhoto && (
+            <div className="error-text">{errors.cardPhoto}</div>
+          )}
+        </div> */}
+
+        <div className="file-upload-section">
+          <FileUpload
+            previewUrl={
+              internalPhoto
+                ? internalPhoto
+                : leagueData?.internalPhoto
+                ? `${baseURL}/api/v1/${leagueData?.internalPhoto}`
+                : ""
+            }
+            label="Internal League Photo"
+            id="internalPhoto"
+            onChange={handleFileUpload("internalPhoto", setInternalPhoto)}
+            accept="image/*"
+          />
+          {touched.internalPhoto && errors.internalPhoto && (
+            <div className="error-text">{errors.internalPhoto}</div>
+          )}
+        </div>
+
+        <div className="file-upload-section">
+          <FileUpload
+            previewUrl={
+              pdfFile
+                ? "/pdf-2127829_640.webp"
+                : leagueData?.rules
                 ? `/pdf-2127829_640.webp`
                 : ""
-          }
-          label="Rules (PDF)"
-          id="rules"
-          onChange={handleFileUploadForPDf("rules")}
-          accept="application/pdf"
-          ispdf={true}
-        />
-        {touched.rules && errors.rules && (
-          <div className="text-red-500 text-[0.7rem] mt-1">{errors.rules}</div>
-        )}
+            }
+            label="Rules (PDF)"
+            id="rules"
+            onChange={handleFileUpload("rules", setPdfFile)}
+            accept="application/pdf"
+            ispdf={true}
+          />
+          {touched.rules && errors.rules && (
+            <div className="error-text">{errors.rules}</div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
 // Main AddLeague Component
 export const AddLeague: FC = () => {
   const location = useLocation();
-  const leagueData = location.state && location.state.league;
 
-  console.log("leagueData",leagueData)
-
+  const leagueData = location?.state?.league;
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [step, setStep] = useState(1);
@@ -1379,17 +1648,17 @@ export const AddLeague: FC = () => {
 
   // Initialize form values
   const [initialValues, setInitialValues] = useState<League>({
-    title: leagueData?.title ? leagueData.title : "",
-    titleAr: leagueData?.titleAr ? leagueData.titleAr : "",
-    partner: leagueData?.partner ? leagueData.partner : pID,
+    title: leagueData?.title ? leagueData?.title : "",
+    titleAr: leagueData?.titleAr ? leagueData?.titleAr : "",
+    partner: leagueData?.partner ? leagueData?.partner : pID,
     game: leagueData?.game?._id
       ? { value: leagueData?.game?._id, label: leagueData?.game?.name }
       : "",
     device: leagueData?.platform?._id
       ? {
-        value: leagueData?.platform?._id,
-        label: leagueData?.platform?.name,
-      }
+          value: leagueData?.platform?._id,
+          label: leagueData?.platform?.name,
+        }
       : "",
     // platform: "",
     format: leagueData?.format ? leagueData?.format : "solo queue",
@@ -1403,34 +1672,37 @@ export const AddLeague: FC = () => {
     queueSettings: leagueData?.queueSettings
       ? leagueData?.queueSettings
       : {
-        alwaysOn: false,
-        schedule: { days: [], startTime: "", endTime: "" },
-      },
-    // qualifyingLine: leagueData?.qualifyingLine ? leagueData.qualifyingLine : 0,
+          alwaysOn: false,
+          schedule: { days: [], startTime: "", endTime: "" },
+        },
+    // qualifyingLine: leagueData?.qualifyingLine ? leagueData?.qualifyingLine : 0,
     prizepool: leagueData?.prizepool ? leagueData?.prizepool : 0,
     rules: leagueData?.rules ? leagueData?.rules : null,
+    headerPhoto: leagueData?.headerPhoto ? leagueData?.headerPhoto : null,
+    internalPhoto: leagueData?.internalPhoto ? leagueData?.internalPhoto : null,
+    // cardPhoto: leagueData?.cardPhoto ? leagueData?.cardPhoto : null,
     timeLine:
-      leagueData?.timeLine.length > 0
+      leagueData?.timeLine?.length > 0
         ? leagueData?.timeLine
         : [
-          {
-            title: "",
-            titleAr: "",
-            startDate: "",
-            endDate: "",
-            // description: ""
-          },
-        ],
+            {
+              title: "",
+              titleAr: "",
+              startDate: "",
+              endDate: "",
+              // description: ""
+            },
+          ],
     customRegistrationFields:
-      leagueData?.customRegistrationFields.length > 0
+      leagueData?.customRegistrationFields?.length > 0
         ? leagueData?.customRegistrationFields
         : [
-          {
-            fieldName: "Game ID",
-            fieldType: "text",
-            required: true, // First field is required by default
-          },
-        ],
+            {
+              fieldName: "Game ID",
+              fieldType: "text",
+              required: true, // First field is required by default
+            },
+          ],
     logo: leagueData?.logo ? leagueData?.logo : null,
     startDate: leagueData?.startDate
       ? new Date(leagueData?.startDate).toISOString()
@@ -1455,6 +1727,9 @@ export const AddLeague: FC = () => {
       // qualifyingLine: values.qualifyingLine,
       prizepool: values.prizepool,
       rules: values.rules,
+      headerPhoto: values.headerPhoto,
+      internalPhoto: values.internalPhoto,
+      // cardPhoto: values.cardPhoto,
       timeLine: values.timeLine,
       customRegistrationFields: values.customRegistrationFields,
       logo: values.logo,
@@ -1506,7 +1781,13 @@ export const AddLeague: FC = () => {
           "timeLine",
           "customRegistrationFields",
         ],
-        3: ["logo", "rules"],
+        3: [
+          "logo",
+          "rules",
+          "headerPhoto",
+          "internalPhoto",
+          // "cardPhoto"
+        ],
       };
 
       const currentStepErrors = Object.keys(errors).some((key) =>
@@ -1528,11 +1809,11 @@ export const AddLeague: FC = () => {
   };
 
   const btnBack = () => {
-    // if (step > 1) {
-    //   setStep(step - 1);
-    // } else {
-    navigate(`/${pID}/leagues`);
-    // }
+    if (step > 1) {
+      setStep(step - 1);
+    } else {
+      navigate(`/${pID}/leagues`);
+    }
   };
 
   const handleStepClick = (
@@ -1561,7 +1842,13 @@ export const AddLeague: FC = () => {
           "timeLine",
           "customRegistrationFields",
         ],
-        3: ["logo", "rules"],
+        3: [
+          "logo",
+          "rules",
+          "headerPhoto",
+          "internalPhoto",
+          // "cardPhoto"
+        ],
       };
 
       const previousStepErrors = Object.keys(errors).some((key) =>
@@ -1619,21 +1906,24 @@ export const AddLeague: FC = () => {
               {[1, 2, 3].map((num) => (
                 <div
                   key={num}
-                  className={`leg_steps--num flex items-center gap-[0.35rem] ${step >= num ? "active-step" : ""
-                    }`}
+                  className={`leg_steps--num flex items-center gap-[0.35rem] ${
+                    step >= num ? "active-step" : ""
+                  }`}
                   onClick={() => handleStepClick(num, validateForm, values)}
                   style={{ cursor: "pointer" }}
                 >
                   <span
-                    className={`steps-num leading-none ${step >= num ? "bg-[#007EFF]" : "bg-light-border"
-                      } w-[1.67rem] h-[1.67rem] flex items-center justify-center text-white rounded-[1.67rem]`}
+                    className={`steps-num leading-none ${
+                      step >= num ? "bg-[#007EFF]" : "bg-light-border"
+                    } w-[1.67rem] h-[1.67rem] flex items-center justify-center text-white rounded-[1.67rem]`}
                   >
                     {num}
                   </span>
                   {num !== 3 && (
                     <span
-                      className={`step-line inline-block w-[1rem] h-[0.1rem] ${step > num ? "bg-[#007EFF]" : "bg-light-border"
-                        } rounded-[0.2rem]`}
+                      className={`step-line inline-block w-[1rem] h-[0.1rem] ${
+                        step > num ? "bg-[#007EFF]" : "bg-light-border"
+                      } rounded-[0.2rem]`}
                     ></span>
                   )}
                 </div>

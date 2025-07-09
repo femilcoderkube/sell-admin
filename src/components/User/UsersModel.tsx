@@ -163,7 +163,9 @@ const UsersModel: React.FC<UsersModelProps> = ({
         phone: values.dialCode
           ? `${values.dialCode}-${values.phone}`
           : values.phone,
-        socialMediaHandles: isAddUser ? JSON.stringify(values.socialMediaHandles) : values.socialMediaHandles
+        socialMediaHandles: isAddUser
+          ? JSON.stringify(values.socialMediaHandles)
+          : values.socialMediaHandles,
       });
     },
   });
@@ -220,8 +222,9 @@ const UsersModel: React.FC<UsersModelProps> = ({
     <div
       id="default-modal"
       aria-hidden={!show}
-      className={`fixed top-0 left-0 right-0 z-50 flex justify-center items-center w-full h-screen bg-black bg-opacity-50 transition-opacity ${show ? "opacity-100 visible" : "opacity-0 invisible"
-        }`}
+      className={`fixed top-0 left-0 right-0 z-50 flex justify-center items-center w-full h-screen bg-black bg-opacity-50 transition-opacity ${
+        show ? "opacity-100 visible" : "opacity-0 invisible"
+      }`}
     >
       <form
         onSubmit={formik.handleSubmit}
@@ -255,10 +258,11 @@ const UsersModel: React.FC<UsersModelProps> = ({
                       type="email"
                       id="email"
                       placeholder=" "
-                      className={`w-full text-[0.94rem] text-white focus:outline-0 pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${formik.touched.email && formik.errors.email
-                        ? "border border-red-500"
-                        : "focus:!border focus:!border-highlight-color"
-                        }`}
+                      className={`w-full text-[0.94rem] text-white focus:outline-0 pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+                        formik.touched.email && formik.errors.email
+                          ? "border border-red-500"
+                          : "focus:!border focus:!border-highlight-color"
+                      }`}
                       {...formik.getFieldProps("email")}
                     />
                     <label
@@ -281,10 +285,11 @@ const UsersModel: React.FC<UsersModelProps> = ({
                   type="text"
                   id="username"
                   placeholder=" "
-                  className={`w-full text-[0.94rem] text-white focus:outline-0 pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${formik.touched.username && formik.errors.username
-                    ? "border border-red-500"
-                    : "focus:!border focus:!border-highlight-color"
-                    }`}
+                  className={`w-full text-[0.94rem] text-white focus:outline-0 pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+                    formik.touched.username && formik.errors.username
+                      ? "border border-red-500"
+                      : "focus:!border focus:!border-highlight-color"
+                  }`}
                   {...formik.getFieldProps("username")}
                 />
                 <label
@@ -306,10 +311,11 @@ const UsersModel: React.FC<UsersModelProps> = ({
                       type="password"
                       id="password"
                       placeholder=" "
-                      className={`w-full text-[0.94rem] text-white focus:outline-0 pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${formik.touched.password && formik.errors.password
-                        ? "border border-red-500"
-                        : "focus:!border focus:!border-highlight-color"
-                        }`}
+                      className={`w-full text-[0.94rem] text-white focus:outline-0 pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+                        formik.touched.password && formik.errors.password
+                          ? "border border-red-500"
+                          : "focus:!border focus:!border-highlight-color"
+                      }`}
                       {...formik.getFieldProps("password")}
                     />
                     <label
@@ -332,10 +338,11 @@ const UsersModel: React.FC<UsersModelProps> = ({
                   type="text"
                   id="firstName"
                   placeholder=" "
-                  className={`w-full text-[0.94rem] text-white focus:outline-0 pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${formik.touched.firstName && formik.errors.firstName
-                    ? "border border-red-500"
-                    : "focus:!border focus:!border-highlight-color"
-                    }`}
+                  className={`w-full text-[0.94rem] text-white focus:outline-0 pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+                    formik.touched.firstName && formik.errors.firstName
+                      ? "border border-red-500"
+                      : "focus:!border focus:!border-highlight-color"
+                  }`}
                   {...formik.getFieldProps("firstName")}
                 />
                 <label
@@ -355,10 +362,11 @@ const UsersModel: React.FC<UsersModelProps> = ({
                   type="text"
                   id="lastName"
                   placeholder=" "
-                  className={`w-full text-[0.94rem] text-white focus:outline-0 pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${formik.touched.lastName && formik.errors.lastName
-                    ? "border border-red-500"
-                    : "focus:!border focus:!border-highlight-color"
-                    }`}
+                  className={`w-full text-[0.94rem] text-white focus:outline-0 pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+                    formik.touched.lastName && formik.errors.lastName
+                      ? "border border-red-500"
+                      : "focus:!border focus:!border-highlight-color"
+                  }`}
                   {...formik.getFieldProps("lastName")}
                 />
                 <label
@@ -391,10 +399,11 @@ const UsersModel: React.FC<UsersModelProps> = ({
               <div className="relative float-label-input custom-input mb-4">
                 <select
                   id="gender"
-                  className={`w-full text-[0.94rem] text-white focus:outline-0 pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${formik.touched.gender && formik.errors.gender
-                    ? "border border-red-500"
-                    : "focus:!border focus:!border-highlight-color"
-                    } ${formik.values.gender ? "pt-[1.5rem]" : "pt-[0.35rem]"}`}
+                  className={`w-full text-[0.94rem] text-white focus:outline-0 pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+                    formik.touched.gender && formik.errors.gender
+                      ? "border border-red-500"
+                      : "focus:!border focus:!border-highlight-color"
+                  } ${formik.values.gender ? "pt-[1.5rem]" : "pt-[0.35rem]"}`}
                   {...formik.getFieldProps("gender")}
                 >
                   <option value="">Select Gender</option>
@@ -404,10 +413,11 @@ const UsersModel: React.FC<UsersModelProps> = ({
                 </select>
                 <label
                   htmlFor="gender"
-                  className={`absolute left-3 transition-all duration-200 text-[0.94rem] font-bold text-custom-gray pointer-events-none ${formik.values.gender
-                    ? "top-1 -translate-y-0.5 font-normal text-[13px]"
-                    : "top-1/2 -translate-y-1/2"
-                    }`}
+                  className={`absolute left-3 transition-all duration-200 text-[0.94rem] font-bold text-custom-gray pointer-events-none ${
+                    formik.values.gender
+                      ? "top-1 -translate-y-0.5 font-normal text-[13px]"
+                      : "top-1/2 -translate-y-1/2"
+                  }`}
                 >
                   Gender
                 </label>
@@ -419,6 +429,16 @@ const UsersModel: React.FC<UsersModelProps> = ({
               </div>
               <div className="relative float-label-input custom-input mb-4">
                 <div className="flex gap-3">
+                  <label
+                    htmlFor="dialCode"
+                    className={`absolute left-3 transition-all duration-200 text-[0.94rem] font-bold text-custom-gray pointer-events-none ${
+                      formik.values.dialCode
+                        ? "top-1 -translate-y-0.5 font-normal text-[13px]"
+                        : "top-1/2 -translate-y-1/2"
+                    }`}
+                  >
+                    Dial Code
+                  </label>
                   <select
                     className="text-[0.94rem] text-white focus:outline-0 focus:!border focus:!border-highlight-color pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 border-r border-gray-600 appearance-none leading-normal min-w-[80px]"
                     {...formik.getFieldProps("dialCode")}
@@ -472,10 +492,11 @@ const UsersModel: React.FC<UsersModelProps> = ({
               <div className="relative float-label-input custom-input mb-4">
                 <select
                   id="role"
-                  className={`w-full text-[0.94rem] text-white focus:outline-0 pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${formik.touched.role && formik.errors.role
-                    ? "border border-red-500"
-                    : "focus:!border focus:!border-highlight-color"
-                    } ${formik.values.role ? "pt-[1.5rem]" : "pt-[0.35rem]"}`}
+                  className={`w-full text-[0.94rem] text-white focus:outline-0 pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+                    formik.touched.role && formik.errors.role
+                      ? "border border-red-500"
+                      : "focus:!border focus:!border-highlight-color"
+                  } ${formik.values.role ? "pt-[1.5rem]" : "pt-[0.35rem]"}`}
                   {...formik.getFieldProps("role")}
                 >
                   {ROLES.map((role) => (
@@ -486,10 +507,11 @@ const UsersModel: React.FC<UsersModelProps> = ({
                 </select>
                 <label
                   htmlFor="role"
-                  className={`absolute left-3 transition-all duration-200 text-[0.94rem] font-bold text-custom-gray pointer-events-none ${formik.values.role
-                    ? "top-1 -translate-y-0.5 font-normal text-[13px]"
-                    : "top-1/2 -translate-y-1/2"
-                    }`}
+                  className={`absolute left-3 transition-all duration-200 text-[0.94rem] font-bold text-custom-gray pointer-events-none ${
+                    formik.values.role
+                      ? "top-1 -translate-y-0.5 font-normal text-[13px]"
+                      : "top-1/2 -translate-y-1/2"
+                  }`}
                 >
                   Role
                 </label>
@@ -512,7 +534,7 @@ const UsersModel: React.FC<UsersModelProps> = ({
                   {profilePicPreview && (
                     <button
                       type="button"
-                      style={{ right: '2.5rem', top: '2rem' }}
+                      style={{ right: "2.5rem", top: "2rem" }}
                       className="absolute text-gray-400 bg-transparent rounded-full hover:bg-gray-600 hover:text-white p-1 transition duration-200"
                       onClick={handleRemoveProfilePic}
                       title="Remove Profile Picture"
