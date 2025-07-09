@@ -1771,8 +1771,8 @@ export const AddLeague: FC = () => {
       endDate: values.endDate,
     };
 
-    if (location?.state?._id) {
-      dispatch(updateLeague({ id: location.state._id, league: bodyData })).then(
+    if (leagueData?._id) {
+      dispatch(updateLeague({ id: leagueData?._id, league: bodyData })).then(
         (result) => {
           if (updateLeague.fulfilled.match(result)) {
             navigate(`/${pID}/leagues`);
