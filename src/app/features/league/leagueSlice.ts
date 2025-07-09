@@ -239,6 +239,23 @@ export const updateLeague = createAsyncThunk(
   }
 );
 
+export const toogleleague = createAsyncThunk(
+  "leagues/toogleleague",
+  async (
+    { id, isHidden }: { id: string; isHidden: boolean },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axiosInstance.put(`/Leagues?id=${id}`, { isHidden });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error updating league"
+      );
+    }
+  }
+);
+
 export const addLeagueMatchScore = createAsyncThunk(
   "leagues/addLeagueMatchScore",
   async (

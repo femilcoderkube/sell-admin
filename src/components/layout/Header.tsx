@@ -1,25 +1,28 @@
-import { FC, useState } from "react";
+import { FC } from "react";
 import "../../assets/css/style.css";
 import logo from "../../assets/images/nafes-logo.svg";
-import user from "../../assets/images/user.png";
-import { useDispatch } from "react-redux";
+// import user from "../../assets/images/user.png";
+import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../app/features/auth/authSlice";
-import { Link, useNavigate } from "react-router-dom";
-import { AppDispatch } from "../../app/store";
+import { Link } from "react-router-dom";
+import { AppDispatch, RootState } from "../../app/store";
 
 export const Header: FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const { admin } = useSelector((state: RootState) => state.auth);
+  // const navigate = useNavigate();
+  // const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userData = localStorage.getItem('admin') && JSON.parse(localStorage.getItem('admin') || '') || admin
+
 
   const handleLogout = () => {
     dispatch(logout());
     // navigate("/login");
   };
 
-  const toggleUserMenu = () => {
-    setIsUserMenuOpen(!isUserMenuOpen);
-  };
+  // const toggleUserMenu = () => {
+  //   setIsUserMenuOpen(!isUserMenuOpen);
+  // };
 
   return (
     <>
@@ -240,23 +243,25 @@ export const Header: FC = () => {
             {/* User Profile Button */}
             <div className="relative">
               <button
-                onClick={toggleUserMenu}
+                // onClick={toggleUserMenu}
                 className="header-button flex items-center gap-3 text-white font-medium lg:text-[0.885rem] py-2.5 px-4 rounded-xl"
               >
-                <div className="flex items-center gap-2">
-                  <img
+                <div className="flex flex-col items-center">
+                  {/* <img
                     className="user-avatar w-[1.5rem] h-[1.5rem] object-cover rounded-full"
                     src={user}
                     alt="User Avatar"
-                  />
+                  /> */}
                   <span className="hidden sm:inline font-semibold">
-                    PlusGammer
+                    {userData?.userName}
+                  </span>
+                  <span className="hidden sm:inline font-semibold">
+                    {userData?.role}
                   </span>
                 </div>
-                <div
-                  className={`icon-container transition-transform duration-300 ${
-                    isUserMenuOpen ? "rotate-180" : ""
-                  }`}
+                {/* <div
+                  className={`icon-container transition-transform duration-300 ${isUserMenuOpen ? "rotate-180" : ""
+                    }`}
                 >
                   <svg
                     width="16"
@@ -273,12 +278,12 @@ export const Header: FC = () => {
                       strokeLinejoin="round"
                     />
                   </svg>
-                </div>
+                </div> */}
               </button>
 
               {/* Dropdown Menu */}
-              <div className={`user-menu ${isUserMenuOpen ? "open" : ""}`}>
-                <div className="menu-item">
+              <div className="user-menu">
+                {/* <div className="menu-item">
                   <div className="flex items-center gap-3">
                     <img
                       className="w-8 h-8 object-cover rounded-full"
@@ -286,11 +291,11 @@ export const Header: FC = () => {
                       alt="User Avatar"
                     />
                     <div>
-                      <div className="font-semibold text-sm">PlusGammer</div>
-                      <div className="text-xs text-gray-500">Administrator</div>
+                      <div className="font-semibold text-sm">{admin?.userName}</div>
+                      <div className="text-xs text-gray-500">{admin?.role}</div>
                     </div>
                   </div>
-                </div>
+                </div> */}
                 {/* <div className="menu-item">
                   <div className="flex items-center gap-3">
                     <div className="icon-container">
