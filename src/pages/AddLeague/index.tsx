@@ -21,6 +21,8 @@ import { TimePickerField } from "../../components/ui/TimePickerField";
 
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import moment from "moment-timezone";
+import { toLocaldateTimeFromSaudi, toLocalTimeFromSaudi } from "../../utils/constant";
 
 // Type Definitions
 interface Winner {
@@ -1704,7 +1706,16 @@ export const AddLeague: FC = () => {
     //   ? leagueData?.maxMatchesPerPlayer
     //   : { isActive: false, maxMatches: 0 },
     queueSettings: leagueData?.queueSettings
-      ? leagueData?.queueSettings
+      ? {
+          ...leagueData.queueSettings,
+          schedule: leagueData.queueSettings.schedule
+            ? {
+                ...leagueData.queueSettings.schedule,
+                startTime: toLocalTimeFromSaudi(leagueData.queueSettings.schedule.startTime),
+                endTime: toLocalTimeFromSaudi(leagueData.queueSettings.schedule.endTime),
+              }
+            : { days: [], startTime: "", endTime: "" },
+        }
       : {
           alwaysOn: false,
           schedule: { days: [], startTime: "", endTime: "" },
@@ -1739,14 +1750,28 @@ export const AddLeague: FC = () => {
           ],
     logo: leagueData?.logo ? leagueData?.logo : null,
     startDate: leagueData?.startDate
-      ? new Date(leagueData?.startDate).toISOString()
+      ? toLocaldateTimeFromSaudi(leagueData?.startDate)
       : "",
     endDate: leagueData?.endDate
-      ? new Date(leagueData?.endDate).toISOString()
+      ? toLocaldateTimeFromSaudi(leagueData?.endDate)
       : "",
   });
 
   const handleSubmit = (values: League) => {
+    // Convert startTime and endTime to Saudi time if needed
+    let queueSettings = { ...values.queueSettings };
+    if (!queueSettings.alwaysOn && queueSettings.schedule) {
+      const { startTime, endTime } = queueSettings.schedule;
+      if (startTime) {
+        // Parse as local time, then convert to Saudi time
+        const saudi = moment.tz(`1970-01-01T${startTime}`, "YYYY-MM-DDTHH:mm", moment.tz.guess()).tz("Asia/Riyadh");
+        queueSettings.schedule.startTime = saudi.format("HH:mm");
+      }
+      if (endTime) {
+        const saudi = moment.tz(`1970-01-01T${endTime}`, "YYYY-MM-DDTHH:mm", moment.tz.guess()).tz("Asia/Riyadh");
+        queueSettings.schedule.endTime = saudi.format("HH:mm");
+      }
+    }
     const bodyData = {
       title: values.title,
       titleAr: values.titleAr,
@@ -1757,7 +1782,7 @@ export const AddLeague: FC = () => {
       playersPerTeam: values.playersPerTeam,
       // maxMatchesPerPlayer: values.maxMatchesPerPlayer,
       weekOfTheStarPrice: values.weekOfTheStarPrice,
-      queueSettings: values.queueSettings,
+      queueSettings: queueSettings,
       // qualifyingLine: values.qualifyingLine,
       prizepool: values.prizepool,
       rules: values.rules,

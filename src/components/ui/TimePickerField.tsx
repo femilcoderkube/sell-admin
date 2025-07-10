@@ -3,6 +3,7 @@ import React from "react";
 import DatePicker from "react-datepicker";
 import { useFormikContext, getIn } from "formik";
 import { format } from "date-fns";
+// import moment from "moment-timezone";
 
 // Import the CSS for the datepicker
 import "react-datepicker/dist/react-datepicker.css";
@@ -38,6 +39,16 @@ export const TimePickerField: React.FC<TimePickerFieldProps> = ({
       setFieldValue(name, "");
     }
   };
+
+  // const handleTimeChange = (date: Date | null) => {
+  //   if (date) {
+  //     // Convert to Saudi time (Asia/Riyadh) and format as "HH:mm"
+  //     const saudiTime = moment(date).tz("Asia/Riyadh");
+  //     setFieldValue(name, saudiTime.format("HH:mm"));
+  //   } else {
+  //     setFieldValue(name, "");
+  //   }
+  // };
 
   // Handle blur to ensure touched state is set when user leaves the picker
   const handleBlur = () => {

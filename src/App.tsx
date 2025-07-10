@@ -6,8 +6,12 @@ import { useEffect, useMemo, useState } from "react";
 import { RoutesProps } from "./utils";
 import { generateRoutes } from "./routes/menuItems";
 import { useSelector } from "react-redux";
+// import moment from "moment-timezone";
 
 export const App = () => {
+  // Set default timezone to Asia/Riyadh (Saudi Arabia)
+  // moment.tz.setDefault("Asia/Riyadh");
+
   const booleanValue = useSelector((state) => state.boolean.value);
   console.log("booleanValue", booleanValue);
 
