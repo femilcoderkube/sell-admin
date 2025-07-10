@@ -269,3 +269,10 @@ textarea:focus {
 .custom-quill-editor span {
   color: #fff;
 }
+
+.custom-input > input {
+  background-color: #2b3245;
+  outline: none !important;
+  box-shadow: none !important;
+  border: 0 !important;
+}

@@ -85,6 +85,8 @@ interface League {
   verifiedAccounts?: boolean;
   startDate: string;
   endDate: string;
+  messages: string[]; // Changed from single message to array
+  randomMessages: Array<{ randomText: string; tags: string[] }>;
 }
 
 interface StepProps {
@@ -219,6 +221,42 @@ const validationSchema = Yup.object().shape({
   endDate: Yup.date()
     .required("End date is required")
     .min(Yup.ref("startDate"), "End date must be after start date"),
+  messages: Yup.array()
+    .of(
+      Yup.string().test(
+        "not-empty",
+        "Message cannot be empty",
+        (value) => !value || !!value.replace(/<[^>]+>/g, "").trim()
+      )
+    )
+    .min(1, "At least one message is required")
+    .test("first-not-empty", "Message 1 cannot be empty", (value) =>
+      value && value[0] ? !!value[0].replace(/<[^>]+>/g, "").trim() : false
+    ),
+  randomMessages: Yup.array()
+    .of(
+      Yup.object().shape({
+        randomText: Yup.string().test(
+          "not-empty",
+          "Random Message cannot be empty",
+          (value) => !value || !!value.replace(/<[^>]+>/g, "").trim()
+        ),
+        tags: Yup.array()
+          .of(
+            Yup.string()
+              .trim()
+              .min(1, "Tag cannot be empty")
+              .required("Tag is required")
+          )
+          .min(1, "At least one tag is required"),
+      })
+    )
+    .min(1, "At least one random message is required")
+    .test("first-not-empty", "Random Message 1 cannot be empty", (value) =>
+      value && value[0]?.randomText
+        ? !!value[0].randomText.replace(/<[^>]+>/g, "").trim()
+        : false
+    ),
 });
 
 const LeagueStep1: FC<StepProps> = ({ step }) => {
@@ -1499,7 +1537,6 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
   );
 };
 
-// Step 3: Media and Rules
 const LeagueStep3: FC<StepProps> = ({ step, leagueData }: any) => {
   const dispatch = useDispatch();
   const { values, errors, touched, setFieldValue } = useFormikContext<League>();
@@ -1671,7 +1708,313 @@ const LeagueStep3: FC<StepProps> = ({ step, leagueData }: any) => {
   );
 };
 
-// Main AddLeague Component
+const LeagueStep4: FC<StepProps> = ({ step }) => {
+  const { values, errors, touched, setFieldValue } = useFormikContext<League>();
+  const handleTagToggle = (
+    tag: string,
+    index: number,
+    currentTags: string[]
+  ) => {
+    if (currentTags.includes(tag)) {
+      // Remove tag
+      setFieldValue(
+        `randomMessages[${index}].tags`,
+        currentTags.filter((t) => t !== tag)
+      );
+    } else {
+      // Add tag
+      setFieldValue(`randomMessages[${index}].tags`, [...currentTags, tag]);
+    }
+  };
+
+  return (
+    <div className="max-w-[42.5rem] mx-auto genral_form-info mb-4">
+      <h4 className="text-white mb-5 text-base font-medium text-center">
+        Additional Information
+      </h4>
+
+      <div className="mb-4">
+        <h5 className="text-white mb-2 text-base font-medium">Messages</h5>
+        <FieldArray name="messages">
+          {({ push, remove }) => (
+            <>
+              {values.messages.map((message, index) => (
+                <div
+                  key={index}
+                  className="mb-4 bg-input-color p-4 rounded-[0.52rem]"
+                >
+                  <div className="flex justify-between items-center mb-2">
+                    <h6 className="text-white text-[0.78125rem] font-medium">
+                      Message #{index + 1}
+                    </h6>
+                    {index !== 0 && (
+                      <button
+                        type="button"
+                        onClick={() => remove(index)}
+                        className="bg-gray-gradient hover:opacity-80 p-[0.625rem] rounded-[0.52rem] duration-300"
+                      >
+                        <img
+                          src={deleteIcon}
+                          alt="Delete"
+                          style={{ width: "1.25rem" }}
+                        />
+                      </button>
+                    )}
+                  </div>
+                  <div className="relative flex-1 custom-input">
+                    <label
+                      htmlFor={`messages[${index}]`}
+                      className="block text-[0.78125rem] font-bold text-custom-gray mb-2"
+                    >
+                      Message {index + 1}
+                    </label>
+                    <ReactQuill
+                      value={message}
+                      onChange={(value) =>
+                        setFieldValue(`messages[${index}]`, value)
+                      }
+                      className={`custom-quill-editor bg-[#2B3245] rounded-[0.52rem] text-white ${
+                        touched.messages?.[index] && errors.messages?.[index]
+                          ? "border border-red-500"
+                          : ""
+                      }`}
+                    />
+                    {touched.messages?.[index] && errors.messages?.[index] && (
+                      <div className="text-red-500 text-[0.7rem] mt-1">
+                        {errors.messages[index]}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => push("")}
+                className="w-full py-[0.45rem] border bg-input-color bg-opacity-40 rounded-[0.52rem] border-dashed border-custom-gray border-opacity-40 text-custom-gray text-[0.78125rem] font-medium"
+              >
+                + Add Message
+              </button>
+              {touched.messages &&
+                errors.messages &&
+                typeof errors.messages === "string" && (
+                  <div className="text-red-500 text-[0.7rem] mt-1">
+                    {errors.messages}
+                  </div>
+                )}
+            </>
+          )}
+        </FieldArray>
+      </div>
+
+      <div className="mb-4">
+        <h5 className="text-white mb-2 text-base font-medium">
+          Random Messages
+        </h5>
+        <FieldArray name="randomMessages">
+          {({ push, remove }) => (
+            <>
+              {values.randomMessages.map((randomMessage, index) => (
+                <div
+                  key={index}
+                  className="mb-4 bg-input-color p-4 rounded-[0.52rem]"
+                >
+                  <div className="flex justify-between items-center mb-2">
+                    <h6 className="text-white text-[0.78125rem] font-medium">
+                      Random Message #{index + 1}
+                    </h6>
+                    {index !== 0 && (
+                      <button
+                        type="button"
+                        onClick={() => remove(index)}
+                        className="bg-gray-gradient hover:opacity-80 p-[0.625rem] rounded-[0.52rem] duration-300"
+                      >
+                        <img
+                          src={deleteIcon}
+                          alt="Delete"
+                          style={{ width: "1.25rem" }}
+                        />
+                      </button>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="relative flex-1 custom-input mb-4">
+                      <label
+                        htmlFor={`randomMessages[${index}].randomText`}
+                        className="block text-[0.78125rem] font-bold text-custom-gray mb-2"
+                      >
+                        Random Message {index + 1}
+                      </label>
+                      <ReactQuill
+                        value={randomMessage.randomText}
+                        onChange={(value) =>
+                          setFieldValue(
+                            `randomMessages[${index}].randomText`,
+                            value
+                          )
+                        }
+                        className={`custom-quill-editor bg-[#2B3245] rounded-[0.52rem] text-white ${
+                          touched.randomMessages?.[index]?.randomText &&
+                          errors.randomMessages?.[index]?.randomText
+                            ? "border border-red-500"
+                            : ""
+                        }`}
+                      />
+                      {touched.randomMessages?.[index]?.randomText &&
+                        errors.randomMessages?.[index]?.randomText && (
+                          <div className="text-red-500 text-[0.7rem] mt-1">
+                            {errors.randomMessages[index].randomText}
+                          </div>
+                        )}
+                    </div>
+                    <div className="relative flex-1 custom-input">
+                      <label className="block text-[0.78125rem] font-bold text-custom-gray mb-2">
+                        Tags for Random Message {index + 1}
+                      </label>
+                      <div className="bg-[#212739] p-3 rounded-[0.5rem]">
+                        <div className="mb-2">
+                          <div className="relative float-label-input custom-input">
+                            <input
+                              // className="border-0 focus-0"
+                              type="text"
+                              placeholder="Add a tag..."
+                              onKeyDown={(e) => {
+                                if (
+                                  e.key === "Enter" &&
+                                  e.currentTarget.value.trim()
+                                ) {
+                                  const newTag = e.currentTarget.value.trim();
+                                  setFieldValue(
+                                    `randomMessages[${index}].tags`,
+                                    [...randomMessage.tags, newTag]
+                                  );
+                                  e.currentTarget.value = ""; // Reset input
+                                  e.preventDefault();
+                                }
+                              }}
+                              className={`
+                              w-full text-[0.78125rem] text-white focus:outline-none focus:border-[#2792FF] pt-[0.5rem] pb-[0.35rem] bg-input-color rounded-[0.1rem] px-3 appearance-none leading-normal
+                              ${
+                                touched.randomMessages?.[index]?.tags &&
+                                errors.randomMessages?.[index]?.tags
+                                  ? "border border-red-500"
+                                  : ""
+                              }`}
+                            />
+                            {/* <label className="absolute top-0 left-0 translate-y-[0.1rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray">
+                              Add Custom Tag
+                            </label> */}
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-2 mb-2">
+                          {randomMessage.tags.map((tag, tagIndex) => (
+                            <div
+                              key={tagIndex}
+                              className="flex items-center bg-[#2792FF] text-white text-[0.78125rem] px-2 py-1 rounded-[0.52rem]"
+                            >
+                              {tag}
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleTagToggle(
+                                    tag,
+                                    index,
+                                    randomMessage.tags
+                                  )
+                                }
+                                className="ml-2 text-white hover:text-red-500"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      {/* <div className="flex flex-wrap gap-2 mb-2">
+                        {randomMessage.tags.map((tag, tagIndex) => (
+                          <div
+                            key={tagIndex}
+                            className="flex items-center bg-[#2792FF] text-white text-[0.78125rem] px-2 py-1 rounded-[0.52rem]"
+                          >
+                            {tag}
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleTagToggle(tag, index, randomMessage.tags)
+                              }
+                              className="ml-2 text-white hover:text-red-500"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div> */}
+                      {/* <div className="flex flex-wrap gap-2">
+                        {predefinedTags
+                          .filter((tag) => !randomMessage.tags.includes(tag))
+                          .map((tag) => (
+                            <button
+                              key={tag}
+                              type="button"
+                              onClick={() =>
+                                handleTagToggle(tag, index, randomMessage.tags)
+                              }
+                              className="bg-[#2B3245] text-white text-[0.78125rem] px-2 py-1 rounded-[0.52rem] hover:bg-[#2792FF] transition duration-200"
+                            >
+                              {tag}
+                            </button>
+                          ))}
+                      </div> */}
+                      {touched.randomMessages?.[index]?.tags &&
+                        errors.randomMessages?.[index]?.tags && (
+                          <div className="text-red-500 text-[0.7rem] mt-1">
+                            {typeof errors.randomMessages[index].tags ===
+                            "string"
+                              ? errors.randomMessages[index].tags
+                              : "At least one tag is required"}
+                          </div>
+                        )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => push({ randomText: "", tags: [] })}
+                className="w-full py-[0.45rem] border bg-input-color bg-opacity-40 rounded-[0.52rem] border-dashed border-custom-gray border-opacity-40 text-custom-gray text-[0.78125rem] font-medium"
+              >
+                + Add Random Message
+              </button>
+              {touched.randomMessages &&
+                errors.randomMessages &&
+                typeof errors.randomMessages === "string" && (
+                  <div className="text-red-500 text-[0.7rem] mt-1">
+                    {errors.randomMessages}
+                  </div>
+                )}
+            </>
+          )}
+        </FieldArray>
+      </div>
+
+      <style>{`
+        .custom-quill-editor .ql-container {
+          background-color: #2B3245;
+          border-radius: 0.52rem;
+          color: #fff;
+          font-size: 0.78125rem;
+        }
+        .custom-quill-editor .ql-toolbar {
+          background-color: #212739;
+          border-radius: 0.52rem 0.52rem 0 0;
+        }
+        .custom-quill-editor .ql-editor {
+          min-height: 100px;
+        }
+      `}</style>
+    </div>
+  );
+};
+
 export const AddLeague: FC = () => {
   const location = useLocation();
 
@@ -1755,6 +2098,11 @@ export const AddLeague: FC = () => {
     endDate: leagueData?.endDate
       ? toLocaldateTimeFromSaudi(leagueData?.endDate)
       : "",
+    messages: leagueData?.messages?.length > 0 ? leagueData.messages : [""],
+    randomMessages:
+      leagueData?.randomMessages?.length > 0
+        ? leagueData.randomMessages
+        : [{ randomText: "", tags: [] }],
   });
 
   const handleSubmit = (values: League) => {
@@ -1794,6 +2142,8 @@ export const AddLeague: FC = () => {
       logo: values.logo,
       startDate: values.startDate,
       endDate: values.endDate,
+      messages: values.messages, // Changed to array
+      randomMessages: values.randomMessages,
     };
 
     if (leagueData?._id) {
@@ -1847,6 +2197,7 @@ export const AddLeague: FC = () => {
           "internalPhoto",
           // "cardPhoto"
         ],
+        4: ["message", "randomMessage"], // New step fields
       };
 
       const currentStepErrors = Object.keys(errors).some((key) =>
@@ -1854,7 +2205,7 @@ export const AddLeague: FC = () => {
       );
 
       if (!currentStepErrors) {
-        if (step < 3) {
+        if (step < 4) {
           setStep(step + 1);
         } else {
           setShowModal(true);
@@ -1908,6 +2259,7 @@ export const AddLeague: FC = () => {
           "internalPhoto",
           // "cardPhoto"
         ],
+        4: ["message", "randomMessage"], // New step fields
       };
 
       const previousStepErrors = Object.keys(errors).some((key) =>
@@ -1962,7 +2314,7 @@ export const AddLeague: FC = () => {
             </div>
 
             <div className="leg_steps--con flex items-center justify-center my-[1.67rem] gap-[0.35rem]">
-              {[1, 2, 3].map((num) => (
+              {[1, 2, 3, 4].map((num) => (
                 <div
                   key={num}
                   className={`leg_steps--num flex items-center gap-[0.35rem] ${
@@ -1978,7 +2330,7 @@ export const AddLeague: FC = () => {
                   >
                     {num}
                   </span>
-                  {num !== 3 && (
+                  {num !== 4 && (
                     <span
                       className={`step-line inline-block w-[1rem] h-[0.1rem] ${
                         step > num ? "bg-[#007EFF]" : "bg-light-border"
@@ -1992,6 +2344,7 @@ export const AddLeague: FC = () => {
             {step === 1 && <LeagueStep1 step={step} />}
             {step === 2 && <LeagueStep2 step={step} />}
             {step === 3 && <LeagueStep3 step={step} leagueData={leagueData} />}
+            {step === 4 && <LeagueStep4 step={step} />}
 
             <div className="max-w-[42.5rem] mx-auto genral_form-info mb-4">
               <div className="flex items-center justify-end gap-2 mt-[1.8rem]">
@@ -2008,7 +2361,7 @@ export const AddLeague: FC = () => {
                   onClick={() => nextStep(validateForm, values)}
                   className="bg-primary-gradient w-[6.25rem] mb-4 text-white bg-blue-700 hover:opacity-[0.75] duration-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none disabled:opacity-50"
                 >
-                  {step === 3 ? "Submit" : "Next Step"}
+                  {step === 4 ? "Submit" : "Next Step"}
                 </button>
               </div>
             </div>

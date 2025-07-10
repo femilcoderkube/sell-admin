@@ -188,8 +188,14 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({
                   <img src={dotIcon} alt="Menu" style={{ width: "1.26rem" }} />
                 </button>
                 {open === league?._id && (
-                  <div className="absolute right-0 z-50 mt-10 w-56 origin-top-right rounded-xl bg-white shadow-xl ring-1 ring-black ring-opacity-5 dark:bg-gray-800 dark:ring-gray-700 transform transition-all duration-200 ease-out">
-                    <div className="p-2">
+                  <div
+                    className="absolute right-0 z-50 mt-1 w-52 origin-top-right rounded-xl shadow-2xl ring-1 ring-gray-700 transform transition-all duration-300 ease-out"
+                    style={{
+                      background:
+                        "radial-gradient(circle, #39415C 0%, #555F83 100%)",
+                    }}
+                  >
+                    <div className="p-2 space-y-0.5">
                       {/* Edit Button */}
                       <button
                         onClick={() =>
@@ -197,36 +203,36 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({
                             state: { league },
                           })
                         }
-                        className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200 group"
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-100 hover:bg-gray-700/50 rounded-lg transition-colors duration-200 group"
                       >
-                        <Edit className="w-4 h-4 text-gray-500 group-hover:text-blue-600 dark:text-gray-400 dark:group-hover:text-blue-400 transition-colors" />
-                        <span className="font-medium">Edit</span>
+                        <Edit className="w-4 h-4 text-gray-400 group-hover:text-blue-400 transition-colors" />
+                        <span>Edit League</span>
                       </button>
 
                       {/* Delete Button */}
                       <button
                         onClick={() => handleDelete(league._id)}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200 group"
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-100 hover:bg-red-800/30 rounded-lg transition-colors duration-200 group"
                       >
-                        <Trash2 className="w-4 h-4 text-gray-500 group-hover:text-red-600 dark:text-gray-400 dark:group-hover:text-red-400 transition-colors" />
-                        <span className="font-medium group-hover:text-red-600 dark:group-hover:text-red-400">
-                          Delete
-                        </span>
+                        <Trash2 className="w-4 h-4 text-gray-400 group-hover:text-red-400 transition-colors" />
+                        <span>Delete League</span>
                       </button>
 
                       {/* Divider */}
-                      <div className="h-px bg-gray-200 dark:bg-gray-700 my-2"></div>
+                      <div className="h-px bg-gray-600/50 my-1.5"></div>
 
                       {/* Hide Toggle */}
-                      <div className="flex items-center justify-between px-4 py-3">
-                        <div className="flex items-center gap-3">
-                          {league?.isHidden ? (
-                            <EyeOff className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                      <div className="flex items-center justify-between px-3 py-2">
+                        <div className="flex items-center gap-2">
+                          {!league?.isHidden ? (
+                            <EyeOff className="w-4 h-4 text-gray-400" />
                           ) : (
-                            <Eye className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                            <Eye className="w-4 h-4 text-gray-400" />
                           )}
-                          <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                            {"Publish"}
+                          <span className="text-xs font-medium text-gray-100">
+                            {league?.isHidden
+                              ? "Publish League"
+                              : "Hide League"}
                           </span>
                         </div>
 
@@ -252,7 +258,7 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({
                               );
                             }}
                           />
-                          <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                          <div className="relative w-10 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-400/50 rounded-full peer peer-checked:after:translate-x-[18px] after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-gray-200 after:rounded-full after:h-5 after:w-5 after:transition-all after:shadow-sm peer-checked:bg-blue-400"></div>
                         </label>
                       </div>
                     </div>
