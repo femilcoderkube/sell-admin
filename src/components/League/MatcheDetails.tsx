@@ -808,42 +808,45 @@ const MatchDetails = () => {
                   {messageData?.length > 0 ? (
                     [...messageData]?.reverse().map((message: any) => {
                       return (
-                        <div
-                          key={message._id}
-                          className={`p-1 flex  ${
-                            message.isAdmin
-                              ? "text-blue-200 justify-end"
-                              : "text-gray-200 justify-start"
-                          }`}
-                        >
-                          <div
-                            className={`inline-block rounded-lg ${
-                              message.isAdmin
-                                ? "bg-blue-600/30"
-                                : "bg-gray-700/30"
-                            }`}
-                          >
-                            <div className="flex items-start space-x-2 px-3 py-2 rounded-lg">
-                              <p className="text-sm break-words">
-                                <span className="font-semibold">
-                                  {message.isAdmin
-                                    ? "Admin"
-                                    : message?.senderId?.username}
-                                </span>
-                                : {message.msg}
-                              </p>
-                              <span className="text-xs text-gray-400 self-end">
-                                {new Date(message.dateTime).toLocaleTimeString(
-                                  [],
-                                  {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  }
-                                )}
-                              </span>
+                        <>
+                          {!message?.isSystemMsg && (
+                            <div
+                              key={message._id}
+                              className={`p-1 flex  ${
+                                message.isAdmin
+                                  ? "text-blue-200 justify-end"
+                                  : "text-gray-200 justify-start"
+                              }`}
+                            >
+                              <div
+                                className={`inline-block rounded-lg ${
+                                  message.isAdmin
+                                    ? "bg-blue-600/30"
+                                    : "bg-gray-700/30"
+                                }`}
+                              >
+                                <div className="flex items-start space-x-2 px-3 py-2 rounded-lg">
+                                  <p className="text-sm break-words">
+                                    <span className="font-semibold">
+                                      {message.isAdmin
+                                        ? "Admin"
+                                        : message?.senderId?.username}
+                                    </span>
+                                    : {message.msg}
+                                  </p>
+                                  <span className="text-xs text-gray-400 self-end">
+                                    {new Date(
+                                      message.dateTime
+                                    ).toLocaleTimeString([], {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    })}
+                                  </span>
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        </div>
+                          )}
+                        </>
                       );
                     })
                   ) : (
