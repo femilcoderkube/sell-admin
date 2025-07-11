@@ -204,7 +204,22 @@ export const addLeague = createAsyncThunk(
   "leagues/addLeague",
   async (league: any, { rejectWithValue }) => {
     try {
-      // Check if league.startDate and league.endDate exist, and convert them to Saudi local time using moment, then replace them
+      if (Array.isArray(league?.timeLine)) {
+        league.timeLine = league.timeLine.map((item: any) => {
+          const newItem = { ...item };
+          if (newItem.startDate) {
+            newItem.startDate = moment(newItem.startDate)
+              .tz("Asia/Riyadh")
+              .format();
+          }
+          if (newItem.endDate) {
+            newItem.endDate = moment(newItem.endDate)
+              .tz("Asia/Riyadh")
+              .format();
+          }
+          return newItem;
+        });
+      }
       if (league?.startDate) {
         league.startDate = moment(league.startDate).tz("Asia/Riyadh").format();
       }
