@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { LeagueState, League } from "../../types";
 import axiosInstance from "../../../axios";
 import toast from "react-hot-toast";
+import moment from "moment-timezone";
 
 const initialState: LeagueState = {
   leagues: [],
@@ -203,6 +204,14 @@ export const addLeague = createAsyncThunk(
   "leagues/addLeague",
   async (league: any, { rejectWithValue }) => {
     try {
+      // Check if league.startDate and league.endDate exist, and convert them to Saudi local time using moment, then replace them
+      if (league?.startDate) {
+        league.startDate = moment(league.startDate).tz("Asia/Riyadh").format();
+      }
+      if (league?.endDate) {
+        league.endDate = moment(league.endDate).tz("Asia/Riyadh").format();
+      }
+
       const response = await axiosInstance.post("/Leagues", league, {
         headers: {
           // "Content-Type": "multipart/form-data",
@@ -225,6 +234,28 @@ export const updateLeague = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
+      if (Array.isArray(league?.timeLine)) {
+        league.timeLine = league.timeLine.map((item: any) => {
+          const newItem = { ...item };
+          if (newItem.startDate) {
+            newItem.startDate = moment(newItem.startDate)
+              .tz("Asia/Riyadh")
+              .format();
+          }
+          if (newItem.endDate) {
+            newItem.endDate = moment(newItem.endDate)
+              .tz("Asia/Riyadh")
+              .format();
+          }
+          return newItem;
+        });
+      }
+      if (league?.startDate) {
+        league.startDate = moment(league.startDate).tz("Asia/Riyadh").format();
+      }
+      if (league?.endDate) {
+        league.endDate = moment(league.endDate).tz("Asia/Riyadh").format();
+      }
       const response = await axiosInstance.put(`/Leagues?id=${id}`, league, {
         headers: {
           "Content-Type": "application/json",
@@ -246,7 +277,9 @@ export const toogleleague = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await axiosInstance.put(`/Leagues?id=${id}`, { isHidden });
+      const response = await axiosInstance.put(`/Leagues?id=${id}`, {
+        isHidden,
+      });
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
