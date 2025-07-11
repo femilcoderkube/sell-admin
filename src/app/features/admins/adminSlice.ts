@@ -1,9 +1,10 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { AdminState, } from "../../types";
+import { AdminState } from "../../types";
 import axiosInstance from "../../../axios";
 
 const initialState: AdminState = {
   admins: [],
+  dashboard: [],
   loading: false,
   error: null,
   currentPage: 1,
@@ -39,6 +40,19 @@ export const fetchAdmin = createAsyncThunk(
     }
   }
 );
+export const fetchDashboard = createAsyncThunk(
+  "admin/fetchDashboard",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get("/admin/dashboard");
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error fetching dashboard data"
+      );
+    }
+  }
+);
 
 export const addAdmin = createAsyncThunk(
   "admin/addAdmin",
@@ -46,7 +60,7 @@ export const addAdmin = createAsyncThunk(
     try {
       const response = await axiosInstance.post("/admin", admin, {
         headers: {
-         "Content-Type": "application/json",
+          "Content-Type": "application/json",
         },
       });
       return response.data;
@@ -60,10 +74,7 @@ export const addAdmin = createAsyncThunk(
 
 export const updateAdmin = createAsyncThunk(
   "admin/updateAdmin",
-  async (
-    { id, admin }: { id: string; admin: any },
-    { rejectWithValue }
-  ) => {
+  async ({ id, admin }: { id: string; admin: any }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.put(`/admin?id=${id}`, admin, {
         headers: {
@@ -93,25 +104,32 @@ export const deleteAdmin = createAsyncThunk(
   }
 );
 export const fetchAdminById = createAsyncThunk(
-  'admins/fetchAdminById',
+  "admins/fetchAdminById",
   async (id: string, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(`/admin?id=${id}`);
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Error fetching admins');
+      return rejectWithValue(
+        error.response?.data?.message || "Error fetching admins"
+      );
     }
   }
 );
 
 export const checkAdminExists = createAsyncThunk(
   "admin/checkAdminExists",
-  async ({ email, userName }: { email?: string; userName?: string }, { rejectWithValue }) => {
+  async (
+    { email, userName }: { email?: string; userName?: string },
+    { rejectWithValue }
+  ) => {
     try {
       const params = new URLSearchParams();
       if (email) params.append("email", email);
       if (userName) params.append("userName", userName);
-      const response = await axiosInstance.get(`/admin/check?${params.toString()}`);
+      const response = await axiosInstance.get(
+        `/admin/check?${params.toString()}`
+      );
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -148,6 +166,17 @@ const adminSlice = createSlice({
         state.totalCount = action.payload.data.totalItem;
       })
       .addCase(fetchAdmin.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchDashboard.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchDashboard.fulfilled, (state, action) => {
+        state.loading = false;
+        state.dashboard = action.payload.data;
+      })
+      .addCase(fetchDashboard.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })

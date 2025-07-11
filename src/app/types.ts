@@ -30,6 +30,7 @@ export interface AdminType {
 }
 export interface AdminState {
   admins: AdminType[];
+  dashboard: any;
   loading: boolean;
   error: string | null;
   currentPage: number;
