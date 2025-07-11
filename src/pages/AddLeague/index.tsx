@@ -22,7 +22,10 @@ import { TimePickerField } from "../../components/ui/TimePickerField";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import moment from "moment-timezone";
-import { toLocaldateTimeFromSaudi, toLocalTimeFromSaudi } from "../../utils/constant";
+import {
+  toLocaldateTimeFromSaudi,
+  toLocalTimeFromSaudi,
+} from "../../utils/constant";
 
 // Type Definitions
 interface Winner {
@@ -221,42 +224,42 @@ const validationSchema = Yup.object().shape({
   endDate: Yup.date()
     .required("End date is required")
     .min(Yup.ref("startDate"), "End date must be after start date"),
-  messages: Yup.array()
-    .of(
-      Yup.string().test(
-        "not-empty",
-        "Message cannot be empty",
-        (value) => !value || !!value.replace(/<[^>]+>/g, "").trim()
-      )
-    )
-    .min(1, "At least one message is required")
-    .test("first-not-empty", "Message 1 cannot be empty", (value) =>
-      value && value[0] ? !!value[0].replace(/<[^>]+>/g, "").trim() : false
-    ),
-  randomMessages: Yup.array()
-    .of(
-      Yup.object().shape({
-        randomText: Yup.string().test(
-          "not-empty",
-          "Random Message cannot be empty",
-          (value) => !value || !!value.replace(/<[^>]+>/g, "").trim()
-        ),
-        tags: Yup.array()
-          .of(
-            Yup.string()
-              .trim()
-              .min(1, "Tag cannot be empty")
-              .required("Tag is required")
-          )
-          .min(1, "At least one tag is required"),
-      })
-    )
-    .min(1, "At least one random message is required")
-    .test("first-not-empty", "Random Message 1 cannot be empty", (value) =>
-      value && value[0]?.randomText
-        ? !!value[0].randomText.replace(/<[^>]+>/g, "").trim()
-        : false
-    ),
+  // messages: Yup.array()
+  //   .of(
+  //     Yup.string().test(
+  //       "not-empty",
+  //       "Message cannot be empty",
+  //       (value) => !value || !!value.replace(/<[^>]+>/g, "").trim()
+  //     )
+  //   )
+  //   .min(1, "At least one message is required")
+  //   .test("first-not-empty", "Message 1 cannot be empty", (value) =>
+  //     value && value[0] ? !!value[0].replace(/<[^>]+>/g, "").trim() : false
+  //   ),
+  // randomMessages: Yup.array()
+  //   .of(
+  //     Yup.object().shape({
+  //       randomText: Yup.string().test(
+  //         "not-empty",
+  //         "Random Message cannot be empty",
+  //         (value) => !value || !!value.replace(/<[^>]+>/g, "").trim()
+  //       ),
+  //       tags: Yup.array()
+  //         .of(
+  //           Yup.string()
+  //             .trim()
+  //             .min(1, "Tag cannot be empty")
+  //             .required("Tag is required")
+  //         )
+  //         .min(1, "At least one tag is required"),
+  //     })
+  //   )
+  //   .min(1, "At least one random message is required")
+  //   .test("first-not-empty", "Random Message 1 cannot be empty", (value) =>
+  //     value && value[0]?.randomText
+  //       ? !!value[0].randomText.replace(/<[^>]+>/g, "").trim()
+  //       : false
+  //   ),
 });
 
 const LeagueStep1: FC<StepProps> = ({ step }) => {
@@ -2054,8 +2057,12 @@ export const AddLeague: FC = () => {
           schedule: leagueData.queueSettings.schedule
             ? {
                 ...leagueData.queueSettings.schedule,
-                startTime: toLocalTimeFromSaudi(leagueData.queueSettings.schedule.startTime),
-                endTime: toLocalTimeFromSaudi(leagueData.queueSettings.schedule.endTime),
+                startTime: toLocalTimeFromSaudi(
+                  leagueData.queueSettings.schedule.startTime
+                ),
+                endTime: toLocalTimeFromSaudi(
+                  leagueData.queueSettings.schedule.endTime
+                ),
               }
             : { days: [], startTime: "", endTime: "" },
         }
@@ -2112,11 +2119,15 @@ export const AddLeague: FC = () => {
       const { startTime, endTime } = queueSettings.schedule;
       if (startTime) {
         // Parse as local time, then convert to Saudi time
-        const saudi = moment.tz(`1970-01-01T${startTime}`, "YYYY-MM-DDTHH:mm", moment.tz.guess()).tz("Asia/Riyadh");
+        const saudi = moment
+          .tz(`1970-01-01T${startTime}`, "YYYY-MM-DDTHH:mm", moment.tz.guess())
+          .tz("Asia/Riyadh");
         queueSettings.schedule.startTime = saudi.format("HH:mm");
       }
       if (endTime) {
-        const saudi = moment.tz(`1970-01-01T${endTime}`, "YYYY-MM-DDTHH:mm", moment.tz.guess()).tz("Asia/Riyadh");
+        const saudi = moment
+          .tz(`1970-01-01T${endTime}`, "YYYY-MM-DDTHH:mm", moment.tz.guess())
+          .tz("Asia/Riyadh");
         queueSettings.schedule.endTime = saudi.format("HH:mm");
       }
     }
