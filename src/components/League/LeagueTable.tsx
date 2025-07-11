@@ -230,7 +230,7 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({
                             <Eye className="w-4 h-4 text-gray-400" />
                           )}
                           <span className="text-xs font-medium text-gray-100">
-                            "Publish League"
+                            Publish League
                           </span>
                         </div>
 
