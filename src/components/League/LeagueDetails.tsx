@@ -10,8 +10,9 @@ import {
   fetchLeagueMatchesByID,
   fetchLeagueTickets,
   setTicketsPage,
+  generateExcelFile,
 } from "../../app/features/league/leagueSlice";
-import { RootState } from "../../app/store";
+import { RootState, AppDispatch } from "../../app/store";
 import HandLogoLoader from "../Loader/Loader";
 import viewIcon from "../../assets/images/eye_icon.svg";
 import { baseURL } from "../../axios";
@@ -20,7 +21,7 @@ import CommonModal from "./CommonModal";
 const LeagueDetails: React.FC = () => {
   const { lid } = useParams<{ lid: string }>();
   const partnerId = window.location.pathname.split("/")[1];
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const {
     leagueDetail,
     loading,
@@ -132,6 +133,12 @@ const LeagueDetails: React.FC = () => {
   const handleTicketsPageChange = (page: number) => {
     if (page >= 1 && page <= Math.ceil(ticketsTotalCount / ticketsPerPage)) {
       dispatch(setTicketsPage(page));
+    }
+  };
+
+  const handleExportParticipants = async () => {
+    if (lid) {
+      dispatch(generateExcelFile({ lid }));
     }
   };
 
@@ -306,7 +313,10 @@ const LeagueDetails: React.FC = () => {
                     Participants
                   </h4>
                   <div>
-                    <button className="py-2 px-4 bg-gradient-to-r from-blue-500 to-blue-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm">
+                    <button
+                      className="py-2 px-4 bg-gradient-to-r from-blue-500 to-blue-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
+                      onClick={handleExportParticipants}
+                    >
                       Export
                     </button>
                   </div>

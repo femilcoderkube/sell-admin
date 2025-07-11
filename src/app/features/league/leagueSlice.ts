@@ -404,6 +404,72 @@ export const adoptLeagueMatchScore = createAsyncThunk(
   }
 );
 
+export const generateExcelFile = createAsyncThunk(
+  "leagues/generateExcelFile", // Fixed typo and more descriptive name
+  async ({ lid }: { lid: string }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(
+        `LeaguesParticipants/export/excel?leagueId=${lid}`,
+        {
+          headers: {
+            'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          },
+          responseType: 'blob' // This is crucial for file downloads
+        }
+      );
+
+      // Response is already a blob due to responseType: 'blob'
+      const blob = response.data;
+
+      // Get filename from response headers or use a default
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = "participants_export.xlsx"; // Changed to .xlsx for Excel files
+
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (match && match[1]) {
+          filename = match[1].replace(/['"]/g, '');
+        }
+      }
+
+      // Create a link and trigger download
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+
+      return {
+        success: true,
+        message: "Excel file downloaded successfully",
+        filename
+      };
+
+    } catch (err: any) {
+      console.error('Excel export error:', err);
+
+      // Better error handling
+      let errorMessage = "Failed to export participants";
+
+      if (err.response) {
+        // Server responded with error status
+        errorMessage = err.response.data?.message || `Server error: ${err.response.status}`;
+      } else if (err.request) {
+        // Request was made but no response received
+        errorMessage = "Network error: No response from server";
+      } else {
+        // Something else happened
+        errorMessage = err.message || "Unknown error occurred";
+      }
+
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
 const leagueSlice = createSlice({
   name: "leagues",
   initialState,
