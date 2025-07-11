@@ -1,4 +1,4 @@
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchDashboard } from "../../app/features/admins/adminSlice";
 import { AppDispatch, RootState } from "../../app/store";
@@ -11,33 +11,6 @@ const formatKey = (key: string): string => {
     .replace(/([A-Z])/g, " $1") // Add space before capital letters
     .replace(/^./, (str) => str.toUpperCase()) // Capitalize first letter
     .trim();
-};
-
-// Predefined Tailwind color palette for random selection
-const colorPalette = [
-  "blue-500",
-  "purple-600",
-  "indigo-700",
-  "red-500",
-  "green-600",
-  "yellow-500",
-  "pink-600",
-  "teal-500",
-  "cyan-600",
-  "orange-500",
-];
-
-// Utility function to get a random Tailwind color class
-const getRandomColorClass = (): string => {
-  return colorPalette[Math.floor(Math.random() * colorPalette.length)];
-};
-
-// Utility function to generate a random gradient in Tailwind format
-const getRandomGradient = (): string => {
-  const color1 = getRandomColorClass();
-  const color2 = getRandomColorClass();
-  const color3 = getRandomColorClass();
-  return `from-${color1} via-${color2} to-${color3}`;
 };
 
 const CountingAnimation = ({
@@ -76,10 +49,8 @@ const CountingAnimation = ({
   );
 };
 
-const DashboardCard = ({ title, value, delay = 0 }) => {
+const DashboardCard = ({ title, value, delay = 0, color = "emerald" }) => {
   const [isVisible, setIsVisible] = useState(false);
-  // Memoize the gradient to prevent re-generation on every render
-  const gradient = useMemo(() => getRandomGradient(), []);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), delay);
@@ -88,7 +59,7 @@ const DashboardCard = ({ title, value, delay = 0 }) => {
 
   return (
     <div
-      className={`bg-gradient-to-br ${gradient} rounded-xl p-6 shadow-lg transform transition-all duration-700 hover:scale-105 hover:shadow-xl ${
+      className={`bg-gradient-to-br  rounded-xl p-6 shadow-lg transform transition-all duration-700 hover:scale-105 hover:shadow-xl ${
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
       }`}
     >
@@ -108,7 +79,7 @@ export const Dashboard: FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { dashboard, loading, error } = useSelector(
     (state: RootState) => state.admins
-  );
+  ); // Adjust to match slice name
 
   useEffect(() => {
     dispatch(fetchDashboard());
@@ -167,9 +138,6 @@ export const Dashboard: FC = () => {
           )}
 
           {/* Floating Elements */}
-
-          <div className="fixed bottom-20 right-10 w-16 h-16 bg-purple-500 bg-opacity-20 rounded-full animate-bounce"></div>
-          <div className="fixed top-1/2 right-20 w-12 h-12 bg-gray-500 bg-opacity-20 rounded-full animate-ping"></div>
         </div>
       </div>
     </Layout>
