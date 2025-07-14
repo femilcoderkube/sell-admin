@@ -22,6 +22,7 @@ import { TimePickerField } from "../../components/ui/TimePickerField";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { convertSchedule } from "../../utils/constant";
+import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 
 // Type Definitions
 interface Winner {
@@ -956,77 +957,96 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                 return (
                   <div key={day} className="mb-4">
                     <div className="flex items-center justify-between py-2">
-                      <label className="inline-flex items-center cursor-pointer">
-                        <Field
-                          type="checkbox"
-                          name={`queueSettings.schedule.days[${values?.queueSettings?.schedule?.days.findIndex(
-                            (d) => d.day === day
-                          )}].day`}
-                          checked={!!dayData}
-                          onChange={(
-                            e: React.ChangeEvent<HTMLInputElement>
-                          ) => {
-                            const updatedDays = [
-                              ...(values?.queueSettings?.schedule?.days || []),
-                            ];
-                            if (e.target.checked) {
-                              updatedDays.push({
-                                day,
-                                time: [{ startTime: "", endTime: "" }],
-                              });
-                              setOpenDays((prev) => ({ ...prev, [day]: true }));
-                            } else {
-                              const index = updatedDays.findIndex(
-                                (d) => d.day === day
-                              );
-                              if (index !== -1) {
-                                updatedDays.splice(index, 1);
-                                setOpenDays((prev) => {
-                                  const newOpenDays = { ...prev };
-                                  delete newOpenDays[day];
-                                  return newOpenDays;
+                      <div className="flex items-center">
+                        <label className="inline-flex items-center cursor-pointer">
+                          <Field
+                            type="checkbox"
+                            name={`queueSettings.schedule.days[${values?.queueSettings?.schedule?.days.findIndex(
+                              (d) => d.day === day
+                            )}].day`}
+                            checked={!!dayData}
+                            onChange={(
+                              e: React.ChangeEvent<HTMLInputElement>
+                            ) => {
+                              const updatedDays = [
+                                ...(values?.queueSettings?.schedule?.days ||
+                                  []),
+                              ];
+                              if (e.target.checked) {
+                                updatedDays.push({
+                                  day,
+                                  time: [{ startTime: "", endTime: "" }],
                                 });
+                                setOpenDays((prev) => ({
+                                  ...prev,
+                                  [day]: true,
+                                }));
+                              } else {
+                                const index = updatedDays.findIndex(
+                                  (d) => d.day === day
+                                );
+                                if (index !== -1) {
+                                  updatedDays.splice(index, 1);
+                                  setOpenDays((prev) => {
+                                    const newOpenDays = { ...prev };
+                                    delete newOpenDays[day];
+                                    return newOpenDays;
+                                  });
+                                }
                               }
-                            }
-                            setFieldValue(
-                              "queueSettings.schedule.days",
-                              updatedDays
-                            );
-                          }}
-                          className="sr-only peer"
-                        />
-                        <div className="relative w-9 h-5 bg-custom-gray focus:outline-none rounded-full peer dark:bg-custom-gray peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-primary-gradient dark:peer-checked:bg-primary-gradient"></div>
-                        <span className="ml-2 text-[0.78125rem] text-white capitalize">
-                          {day}
-                        </span>
-                      </label>
-                      {dayData && (
-                        <span className="text-[0.78125rem] text-white ml-2 ">
-                          {dayData.time
-                            ?.filter((slot) => slot.startTime && slot.endTime)
-                            ?.map((slot, index) => (
-                              <span
-                                key={index}
-                                className="bg-custom-gray ml-2 py-[0.125rem] px-1 rounded"
-                              >
-                                {index > 0 && ""}
-                                {`${slot.startTime} - ${slot.endTime}`}
-                              </span>
-                            )) || ""}
-                        </span>
-                      )}
+                              setFieldValue(
+                                "queueSettings.schedule.days",
+                                updatedDays
+                              );
+                            }}
+                            className="sr-only peer"
+                          />
+                          <div className="relative w-9 h-5 bg-custom-gray focus:outline-none rounded-full peer dark:bg-custom-gray peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-primary-gradient dark:peer-checked:bg-primary-gradient"></div>
+                          <span className="ml-2 text-[0.78125rem] text-white capitalize">
+                            {day}
+                          </span>
+                        </label>
+                        {dayData && (
+                          <span className="text-[0.78125rem] text-white ml-2 ">
+                            {dayData.time
+                              ?.filter((slot) => slot.startTime && slot.endTime)
+                              ?.map((slot, index) => (
+                                <span
+                                  key={index}
+                                  className="bg-custom-gray ml-2 py-[0.125rem] px-1 rounded"
+                                >
+                                  {index > 0 && ""}
+                                  {`${slot.startTime} - ${slot.endTime}`}
+                                </span>
+                              )) || ""}
+                          </span>
+                        )}
+                      </div>
                       {dayData && (
                         <button
                           type="button"
                           onClick={() => toggleDay(day)}
                           className="text-white text-[0.78125rem] focus:outline-none"
                         >
-                          {openDays[day] ? "▲" : "▼"}
+                          {openDays[day] ? <ChevronUp /> : <ChevronDown />}
                         </button>
                       )}
                     </div>
                     {dayData && openDays[day] && (
-                      <div className="ml-4 mt-2">
+                      <div className="border p-2 rounded border-[#243c5a] time__pic-wrap">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="grid grid-cols-2 gap-3 flex-grow">
+                            <div className="text-white text-[0.78125rem]">
+                              Start
+                            </div>
+                            <div className="text-white text-[0.78125rem]">
+                              End
+                            </div>
+                          </div>
+                          <div className="text-white text-[0.78125rem]">
+                            Action
+                          </div>
+                        </div>
                         {dayData.time.map((_: any, index: number) => {
                           const dayIndex =
                             values?.queueSettings?.schedule?.days.findIndex(
@@ -1039,11 +1059,9 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                             >
                               <div className="grid grid-cols-2 gap-3 flex-grow">
                                 <TimePickerField
-                                  label={`Start Time ${index + 1}`}
                                   name={`queueSettings.schedule.days[${dayIndex}].time[${index}].startTime`}
                                 />
                                 <TimePickerField
-                                  label={`End Time ${index + 1}`}
                                   name={`queueSettings.schedule.days[${dayIndex}].time[${index}].endTime`}
                                 />
                               </div>
@@ -1078,9 +1096,9 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                                     );
                                   }
                                 }}
-                                className="text-red-500 hover:text-red-700 text-[0.78125rem] font-medium"
+                                className="text-red-500 hover:text-red-700 text-[0.78125rem] font-medium txt_delete"
                               >
-                                Delete
+                                <Trash2 size={15} />
                               </button>
                             </div>
                           );

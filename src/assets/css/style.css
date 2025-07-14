@@ -276,3 +276,15 @@ textarea:focus {
   box-shadow: none !important;
   border: 0 !important;
 }
+.time__pic-wrap .react-datepicker-wrapper {
+  display: block !important;
+}
+
+.txt_delete {
+  --tw-text-opacity: 1;
+  color: rgb(240 82 82 / var(--tw-text-opacity, 1));
+  border: rgb(240 82 82 / var(--tw-text-opacity, 1)) solid;
+  padding: 5px;
+  border-width: 0.5px;
+  border-radius: 5px;
+}

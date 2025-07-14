@@ -11,14 +11,11 @@ import "react-datepicker/dist/react-datepicker.css";
 import "./TimePicker.css";
 
 interface TimePickerFieldProps {
-  label: string;
+  // label: string;
   name: string;
 }
 
-export const TimePickerField: React.FC<TimePickerFieldProps> = ({
-  label,
-  name,
-}) => {
+export const TimePickerField: React.FC<TimePickerFieldProps> = ({ name }) => {
   const { values, setFieldValue, touched, errors, setFieldTouched } =
     useFormikContext<any>();
 
@@ -76,9 +73,9 @@ export const TimePickerField: React.FC<TimePickerFieldProps> = ({
 
   return (
     <div className="relative float-label-input custom-input">
-      <label className=" top-2 left-0 font-bold text-[0.78125rem] bg-transparent px-3 text-custom-gray">
+      {/* <label className=" top-2 left-0 font-bold text-[0.78125rem] bg-transparent px-3 text-custom-gray">
         {label}
-      </label>
+      </label> */}
       <DatePicker
         selected={selectedTime}
         onChange={handleTimeChange}
