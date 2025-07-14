@@ -189,7 +189,7 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({
                 </button>
                 {open === league?._id && (
                   <div
-                    className="absolute right-0 z-50 mt-1 w-52 origin-top-right rounded-xl shadow-2xl ring-1 ring-gray-700 transform transition-all duration-300 ease-out"
+                    className="absolute right-0 z-50 mt-10 w-52 origin-top-right rounded-xl shadow-2xl ring-1 ring-gray-700 transform transition-all duration-300 ease-out"
                     style={{
                       background:
                         "radial-gradient(circle, #39415C 0%, #555F83 100%)",

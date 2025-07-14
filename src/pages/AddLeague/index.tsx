@@ -2273,6 +2273,16 @@ export const AddLeague: FC = () => {
   });
 
   const handleSubmit = (values: League) => {
+    const filteredRandomMessages = (values.randomMessages || []).filter(
+      (msg) =>
+        (msg.randomText && msg.randomText.replace(/<[^>]+>/g, "").trim() !== "") ||
+        (Array.isArray(msg.tags) && msg.tags.length > 0)
+    );
+
+    const filteredMessages = (values.messages || []).filter(
+      (msg) => msg && msg.replace(/<[^>]+>/g, "").trim() !== ""
+    );
+
     const bodyData = {
       title: values.title,
       titleAr: values.titleAr,
@@ -2314,8 +2324,8 @@ export const AddLeague: FC = () => {
       logo: values.logo,
       startDate: values.startDate,
       endDate: values.endDate,
-      messages: values.messages, // Changed to array
-      randomMessages: values.randomMessages,
+      messages: filteredMessages.length > 0 ? filteredMessages : undefined,
+      randomMessages: filteredRandomMessages.length > 0 ? filteredRandomMessages : undefined,
     };
 
     if (leagueData?._id) {
