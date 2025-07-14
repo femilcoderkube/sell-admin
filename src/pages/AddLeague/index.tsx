@@ -21,6 +21,7 @@ import { TimePickerField } from "../../components/ui/TimePickerField";
 
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import { convertSchedule } from "../../utils/constant";
 
 // Type Definitions
 interface Winner {
@@ -47,9 +48,13 @@ interface League {
   queueSettings: {
     alwaysOn: boolean;
     schedule: {
-      days: string[];
-      startTime: string;
-      endTime: string;
+      days: Array<{
+        day: string;
+        time: Array<{
+          startTime: string;
+          endTime: string;
+        }>;
+      }>;
     };
   };
   // qualifyingLine: number;
@@ -138,33 +143,44 @@ const validationSchema = Yup.object().shape({
       then: (schema) =>
         schema.shape({
           days: Yup.array()
-            .of(Yup.string())
-            .min(1, "At least one day must be selected")
+            .of(
+              Yup.object().shape({
+                day: Yup.string().required("Day is required"),
+                time: Yup.array()
+                  .of(
+                    Yup.object().shape({
+                      startTime: Yup.string()
+                        .matches(
+                          /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
+                          "Start time must be a valid time (HH:MM)"
+                        )
+                        .required("Start time is required"),
+                      endTime: Yup.string()
+                        .matches(
+                          /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
+                          "End time must be a valid time (HH:MM)"
+                        )
+                        .required("End time is required")
+                        .test(
+                          "is-after-start",
+                          "End time must be after start time",
+                          function (endTime) {
+                            const startTime = this.parent.startTime;
+                            if (!startTime || !endTime) return true;
+                            return (
+                              new Date(`1970-01-01T${endTime}:00`) >
+                              new Date(`1970-01-01T${startTime}:00`)
+                            );
+                          }
+                        ),
+                    })
+                  )
+                  .min(1, "At least one time slot is required")
+                  .required("Time slots are required"),
+              })
+            )
+            .min(1, "At least one day with time slots is required")
             .required("Days are required"),
-          startTime: Yup.string()
-            .matches(
-              /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
-              "Start time must be a valid time (HH:MM)"
-            )
-            .required("Start time is required"),
-          endTime: Yup.string()
-            .matches(
-              /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
-              "End time must be a valid time (HH:MM)"
-            )
-            .required("End time is required")
-            .test(
-              "is-after-start",
-              "End time must be after start time",
-              function (endTime) {
-                const startTime = this.parent.startTime;
-                if (!startTime || !endTime) return true;
-                return (
-                  new Date(`1970-01-01T${endTime}:00`) >
-                  new Date(`1970-01-01T${startTime}:00`)
-                );
-              }
-            ),
         }),
       otherwise: (schema) => schema.notRequired(),
     }),
@@ -741,6 +757,12 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
   const [uploadErrors, setUploadErrors] = useState({});
   const dispatch = useDispatch();
 
+  const [openDays, setOpenDays] = useState({});
+
+  const toggleDay = (day) => {
+    setOpenDays((prev) => ({ ...prev, [day]: !prev[day] }));
+  };
+
   // Handle file change for image uploads
   // const handleFileChange = (index: number, file: File | null) => {
   //   if (file) {
@@ -893,85 +915,217 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
             )}
         </div>
       )} */}
-
-      <div className="check_setting flex items-center justify-between w-full text-[0.78125rem] text-custom-gray mb-4 focus:outline-0 focus:!border focus:!border-[#2792FF] py-[0.92rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal">
-        <span className="text-white font-medium">Always On Queue</span>
-        <label className="inline-flex items-center cursor-pointer">
-          <Field
-            type="checkbox"
-            name="queueSettings.alwaysOn"
-            className="sr-only peer"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              handleChange(e);
-              if (e.target.checked) {
-                setFieldValue("queueSettings.schedule", {
-                  days: [],
-                  startTime: "",
-                  endTime: "",
-                });
-              }
-            }}
-          />
-          <div className="relative w-9 h-5 bg-custom-gray focus:outline-none rounded-full peer dark:bg-custom-gray peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-primary-gradient dark:peer-checked:bg-primary-gradient"></div>
-        </label>
-      </div>
-
-      {!values.queueSettings.alwaysOn && (
-        <div className="mb-4">
-          <h5 className="text-white mb-2 text-base font-medium">
-            Queue Schedule
-          </h5>
-          <div className="grid grid-cols-2 gap-3 mb-4">
-            {[
-              "monday",
-              "tuesday",
-              "wednesday",
-              "thursday",
-              "friday",
-              "saturday",
-              "sunday",
-            ].map((day) => (
-              <label
-                key={day}
-                className="inline-flex items-center cursor-pointer"
-              >
-                <Field
-                  type="checkbox"
-                  name="queueSettings.schedule.days"
-                  value={day}
-                  checked={values.queueSettings.schedule.days.includes(day)}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    const currentDays = values.queueSettings.schedule.days;
-                    const updatedDays = e.target.checked
-                      ? [...currentDays, day]
-                      : currentDays.filter((d: string) => d !== day);
-                    setFieldValue("queueSettings.schedule.days", updatedDays);
-                  }}
-                  className="sr-only peer"
-                />
-                <div className="relative w-9 h-5 bg-custom-gray focus:outline-none rounded-full peer dark:bg-custom-gray peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-primary-gradient dark:peer-checked:bg-primary-gradient"></div>
-                <span className="ml-2 text-[0.78125rem] text-white">{day}</span>
-              </label>
-            ))}
-          </div>
-          {touched.queueSettings?.schedule?.days &&
-            errors.queueSettings?.schedule?.days && (
-              <div className="text-red-500 text-[0.7rem] mb-2">
-                {errors.queueSettings.schedule.days}
-              </div>
-            )}
-          <div className="grid grid-cols-2 gap-3 mt-4">
-            <TimePickerField
-              label="Start Time"
-              name="queueSettings.schedule.startTime"
+      <>
+        <div className="check_setting flex items-center justify-between w-full text-[0.78125rem] text-custom-gray mb-4 focus:outline-0 focus:!border focus:!border-[#2792FF] py-[0.92rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal">
+          <span className="text-white font-medium">Always On Queue</span>
+          <label className="inline-flex items-center cursor-pointer">
+            <Field
+              type="checkbox"
+              name="queueSettings.alwaysOn"
+              className="sr-only peer"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                handleChange(e);
+                if (e.target.checked) {
+                  setFieldValue("queueSettings.schedule", { days: [] });
+                  setOpenDays({});
+                }
+              }}
             />
-            <TimePickerField
-              label="End Time"
-              name="queueSettings.schedule.endTime"
-            />
-          </div>
+            <div className="relative w-9 h-5 bg-custom-gray focus:outline-none rounded-full peer dark:bg-custom-gray peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-primary-gradient dark:peer-checked:bg-primary-gradient"></div>
+          </label>
         </div>
-      )}
+
+        {!values?.queueSettings?.alwaysOn && (
+          <div className="mb-4">
+            <h5 className="text-white mb-2 text-base font-medium">
+              Queue Schedule
+            </h5>
+            <div className="mb-4">
+              {[
+                "monday",
+                "tuesday",
+                "wednesday",
+                "thursday",
+                "friday",
+                "saturday",
+                "sunday",
+              ].map((day) => {
+                const dayData = values?.queueSettings?.schedule?.days.find(
+                  (d) => d.day === day
+                );
+                return (
+                  <div key={day} className="mb-4">
+                    <div className="flex items-center justify-between py-2">
+                      <label className="inline-flex items-center cursor-pointer">
+                        <Field
+                          type="checkbox"
+                          name={`queueSettings.schedule.days[${values?.queueSettings?.schedule?.days.findIndex(
+                            (d) => d.day === day
+                          )}].day`}
+                          checked={!!dayData}
+                          onChange={(
+                            e: React.ChangeEvent<HTMLInputElement>
+                          ) => {
+                            const updatedDays = [
+                              ...(values?.queueSettings?.schedule?.days || []),
+                            ];
+                            if (e.target.checked) {
+                              updatedDays.push({
+                                day,
+                                time: [{ startTime: "", endTime: "" }],
+                              });
+                              setOpenDays((prev) => ({ ...prev, [day]: true }));
+                            } else {
+                              const index = updatedDays.findIndex(
+                                (d) => d.day === day
+                              );
+                              if (index !== -1) {
+                                updatedDays.splice(index, 1);
+                                setOpenDays((prev) => {
+                                  const newOpenDays = { ...prev };
+                                  delete newOpenDays[day];
+                                  return newOpenDays;
+                                });
+                              }
+                            }
+                            setFieldValue(
+                              "queueSettings.schedule.days",
+                              updatedDays
+                            );
+                          }}
+                          className="sr-only peer"
+                        />
+                        <div className="relative w-9 h-5 bg-custom-gray focus:outline-none rounded-full peer dark:bg-custom-gray peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-primary-gradient dark:peer-checked:bg-primary-gradient"></div>
+                        <span className="ml-2 text-[0.78125rem] text-white capitalize">
+                          {day}
+                        </span>
+                      </label>
+                      {dayData && (
+                        <span className="text-[0.78125rem] text-white ml-2 ">
+                          {dayData.time
+                            ?.filter((slot) => slot.startTime && slot.endTime)
+                            ?.map((slot, index) => (
+                              <span
+                                key={index}
+                                className="bg-custom-gray ml-2 py-[0.125rem] px-1 rounded"
+                              >
+                                {index > 0 && ""}
+                                {`${slot.startTime} - ${slot.endTime}`}
+                              </span>
+                            )) || ""}
+                        </span>
+                      )}
+                      {dayData && (
+                        <button
+                          type="button"
+                          onClick={() => toggleDay(day)}
+                          className="text-white text-[0.78125rem] focus:outline-none"
+                        >
+                          {openDays[day] ? "▲" : "▼"}
+                        </button>
+                      )}
+                    </div>
+                    {dayData && openDays[day] && (
+                      <div className="ml-4 mt-2">
+                        {dayData.time.map((_: any, index: number) => {
+                          const dayIndex =
+                            values?.queueSettings?.schedule?.days.findIndex(
+                              (d) => d.day === day
+                            );
+                          return (
+                            <div
+                              key={index}
+                              className="flex items-center gap-3 mb-2"
+                            >
+                              <div className="grid grid-cols-2 gap-3 flex-grow">
+                                <TimePickerField
+                                  label={`Start Time ${index + 1}`}
+                                  name={`queueSettings.schedule.days[${dayIndex}].time[${index}].startTime`}
+                                />
+                                <TimePickerField
+                                  label={`End Time ${index + 1}`}
+                                  name={`queueSettings.schedule.days[${dayIndex}].time[${index}].endTime`}
+                                />
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const updatedDays = [
+                                    ...values?.queueSettings?.schedule?.days,
+                                  ];
+                                  const dayIndex = updatedDays.findIndex(
+                                    (d) => d.day === day
+                                  );
+                                  if (dayIndex !== -1) {
+                                    updatedDays[dayIndex].time = updatedDays[
+                                      dayIndex
+                                    ].time.filter(
+                                      (_: any, i: number) => i !== index
+                                    );
+                                    if (
+                                      updatedDays[dayIndex].time.length === 0
+                                    ) {
+                                      updatedDays.splice(dayIndex, 1);
+                                      setOpenDays((prev) => {
+                                        const newOpenDays = { ...prev };
+                                        delete newOpenDays[day];
+                                        return newOpenDays;
+                                      });
+                                    }
+                                    setFieldValue(
+                                      "queueSettings.schedule.days",
+                                      updatedDays
+                                    );
+                                  }
+                                }}
+                                className="text-red-500 hover:text-red-700 text-[0.78125rem] font-medium"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          );
+                        })}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updatedDays = [
+                              ...values?.queueSettings?.schedule?.days,
+                            ];
+                            const dayIndex = updatedDays.findIndex(
+                              (d) => d.day === day
+                            );
+                            if (dayIndex !== -1) {
+                              updatedDays[dayIndex].time = [
+                                ...updatedDays[dayIndex].time,
+                                { startTime: "", endTime: "" },
+                              ];
+                              setFieldValue(
+                                "queueSettings.schedule.days",
+                                updatedDays
+                              );
+                              setOpenDays((prev) => ({ ...prev, [day]: true }));
+                            }
+                          }}
+                          className="mt-2 text-[0.78125rem] text-white bg-primary-gradient hover:bg-primary-gradient-dark rounded-[0.52rem] px-3 py-1"
+                        >
+                          Add Time Slot
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            {touched.queueSettings?.schedule?.days &&
+              errors.queueSettings?.schedule?.days &&
+              typeof errors?.queueSettings?.schedule?.days === "string" && (
+                <div className="text-red-500 text-[0.7rem] mb-2">
+                  {errors?.queueSettings?.schedule?.days}
+                </div>
+              )}
+          </div>
+        )}
+      </>
 
       {/* <div className="relative float-label-input custom-input mb-4">
         <Field
@@ -2100,24 +2254,6 @@ export const AddLeague: FC = () => {
   });
 
   const handleSubmit = (values: League) => {
-    // Convert startTime and endTime to Saudi time if needed
-    // let queueSettings = { ...values.queueSettings };
-    // if (!queueSettings.alwaysOn && queueSettings.schedule) {
-    //   const { startTime, endTime } = queueSettings.schedule;
-    //   if (startTime) {
-    //     // Parse as local time, then convert to Saudi time
-    //     const saudi = moment
-    //       .tz(`1970-01-01T${startTime}`, "YYYY-MM-DDTHH:mm", moment.tz.guess())
-    //       .tz("Asia/Riyadh");
-    //     queueSettings.schedule.startTime = saudi.format("HH:mm");
-    //   }
-    //   if (endTime) {
-    //     const saudi = moment
-    //       .tz(`1970-01-01T${endTime}`, "YYYY-MM-DDTHH:mm", moment.tz.guess())
-    //       .tz("Asia/Riyadh");
-    //     queueSettings.schedule.endTime = saudi.format("HH:mm");
-    //   }
-    // }
     const bodyData = {
       title: values.title,
       titleAr: values.titleAr,
@@ -2143,6 +2279,7 @@ export const AddLeague: FC = () => {
       messages: values.messages, // Changed to array
       randomMessages: values.randomMessages,
     };
+    console.log("bodyData", bodyData);
 
     if (leagueData?._id) {
       dispatch(updateLeague({ id: leagueData?._id, league: bodyData })).then(
