@@ -19,7 +19,13 @@ import { baseURL } from "../../axios";
 import CommonModal from "./CommonModal";
 
 const LeagueDetails: React.FC = () => {
-  const statusOptions = ["in_progress", "completed", "cancelled", "in_dispute"];
+  const statusOptions = [
+    "all",
+    "in_progress",
+    "completed",
+    "cancelled",
+    "in_dispute",
+  ];
   const { lid } = useParams<{ lid: string }>();
   const partnerId = window.location.pathname.split("/")[1];
   const dispatch = useDispatch<AppDispatch>();
@@ -46,7 +52,8 @@ const LeagueDetails: React.FC = () => {
     ticketsCurrentPage,
     ticketsPerPage,
   } = useSelector((state: RootState) => state.leagues);
-  console.log("error", error);
+  const [searchKey, setSearchKey] = useState("");
+  const [status, setStatus] = useState("all");
   // State for active tab
   const [activeTab, setActiveTab] = React.useState("Participants");
 
@@ -76,10 +83,12 @@ const LeagueDetails: React.FC = () => {
           leagueId: lid,
           page: matchesCurrentPage,
           perPage: matchesPerPage,
+          searchKey: searchKey ? searchKey : "",
+          status: status === "all" ? "" : status,
         })
       );
     }
-  }, [dispatch, lid, matchesCurrentPage, matchesPerPage]);
+  }, [dispatch, lid, matchesCurrentPage, matchesPerPage, searchKey, status]);
 
   useEffect(() => {
     if (lid) {
@@ -460,7 +469,12 @@ const LeagueDetails: React.FC = () => {
                   </h4>
 
                   <div className="relative">
-                    <select className="w-40 py-2 px-4 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none cursor-pointer">
+                    <select
+                      className="w-40 py-2 px-4 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none cursor-pointer"
+                      onChange={(e) => {
+                        setStatus(e.target.value);
+                      }}
+                    >
                       {statusOptions.map((option) => (
                         <option
                           key={option}
@@ -491,6 +505,7 @@ const LeagueDetails: React.FC = () => {
                     <input
                       type="text"
                       placeholder="Search..."
+                      onChange={(e) => setSearchKey(e.target.value)}
                       className="w-full py-2 px-4 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     />
                   </div>
@@ -572,7 +587,9 @@ const LeagueDetails: React.FC = () => {
                                         : "bg-purple-500/20 text-purple-400 border border-purple-500/30"
                                     }`}
                                   >
-                                    {match?.status}
+                                    {match?.status
+                                      ?.replace("_", " ")
+                                      .replace(/\b\w/g, (c) => c.toUpperCase())}
                                   </span>
                                 </td>
                                 <td className="py-4 px-6 text-gray-300">

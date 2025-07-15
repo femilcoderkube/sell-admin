@@ -41,12 +41,20 @@ export const fetchLeagueMatches = createAsyncThunk(
       leagueId,
       page,
       perPage,
-    }: { leagueId: string; page: number; perPage: number },
+      searchKey,
+      status,
+    }: {
+      leagueId: string;
+      page: number;
+      perPage: number;
+      searchKey: string;
+      status: string;
+    },
     { rejectWithValue }
   ) => {
     try {
       const response = await axiosInstance.get(
-        `/LeagueMatch?leagueId=${leagueId}&page=${page}&limit=${perPage}`
+        `/LeagueMatch?leagueId=${leagueId}&page=${page}&limit=${perPage}&searchKey=${searchKey}&status=${status}`
       );
       return response.data;
     } catch (error: any) {
