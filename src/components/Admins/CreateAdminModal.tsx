@@ -35,84 +35,133 @@ interface Module {
 // Define available roles
 const roleOptions = [
   { value: "admin", label: "Admin" },
-  { value: "operator", label: "Operator" },
+  { value: "Operator", label: "Operator" },
 ];
 
 // Cache for validation results to avoid duplicate API calls
-const validationCache = new Map<string, { result: boolean; timestamp: number }>();
+const validationCache = new Map<
+  string,
+  { result: boolean; timestamp: number }
+>();
 const CACHE_DURATION = 30000; // 30 seconds
 
 // Password generation utility
 const generateStrongPassword = (length: number = 12): string => {
-  const lowercase = 'abcdefghijklmnopqrstuvwxyz';
-  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const numbers = '0123456789';
-  const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
-  
+  const lowercase = "abcdefghijklmnopqrstuvwxyz";
+  const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const numbers = "0123456789";
+  const symbols = "!@#$%^&*()_+-=[]{}|;:,.<>?";
+
   const allChars = lowercase + uppercase + numbers + symbols;
-  
+
   // Ensure at least one character from each category
-  let password = '';
+  let password = "";
   password += lowercase[Math.floor(Math.random() * lowercase.length)];
   password += uppercase[Math.floor(Math.random() * uppercase.length)];
   password += numbers[Math.floor(Math.random() * numbers.length)];
   password += symbols[Math.floor(Math.random() * symbols.length)];
-  
+
   // Fill the rest randomly
   for (let i = password.length; i < length; i++) {
     password += allChars[Math.floor(Math.random() * allChars.length)];
   }
-  
+
   // Shuffle the password
-  return password.split('').sort(() => Math.random() - 0.5).join('');
+  return password
+    .split("")
+    .sort(() => Math.random() - 0.5)
+    .join("");
 };
 
 // Password strength checker
-const checkPasswordStrength = (password: string): { strength: string; color: string; percentage: number } => {
+const checkPasswordStrength = (
+  password: string
+): { strength: string; color: string; percentage: number } => {
   let score = 0;
-  
+
   if (password.length >= 8) score += 1;
   if (password.length >= 12) score += 1;
   if (/[a-z]/.test(password)) score += 1;
   if (/[A-Z]/.test(password)) score += 1;
   if (/\d/.test(password)) score += 1;
   if (/[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(password)) score += 1;
-  
-  if (score <= 2) return { strength: 'Weak', color: 'bg-red-500', percentage: 25 };
-  if (score <= 4) return { strength: 'Medium', color: 'bg-yellow-500', percentage: 50 };
-  if (score <= 5) return { strength: 'Strong', color: 'bg-green-500', percentage: 75 };
-  return { strength: 'Very Strong', color: 'bg-green-600', percentage: 100 };
+
+  if (score <= 2)
+    return { strength: "Weak", color: "bg-red-500", percentage: 25 };
+  if (score <= 4)
+    return { strength: "Medium", color: "bg-yellow-500", percentage: 50 };
+  if (score <= 5)
+    return { strength: "Strong", color: "bg-green-500", percentage: 75 };
+  return { strength: "Very Strong", color: "bg-green-600", percentage: 100 };
 };
 
 // Eye icons for show/hide password
 const EyeIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+  <svg
+    className="w-5 h-5"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+    />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+    />
   </svg>
 );
 
 const EyeOffIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+  <svg
+    className="w-5 h-5"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
+    />
   </svg>
 );
 
 const RefreshIcon = () => (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+  <svg
+    className="w-4 h-4"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+    />
   </svg>
 );
 
 const createValidationSchema = (dispatch: AppDispatch) => {
-  const checkWithCache = async (key: string, checkFn: () => Promise<boolean>) => {
+  const checkWithCache = async (
+    key: string,
+    checkFn: () => Promise<boolean>
+  ) => {
     const cached = validationCache.get(key);
     const now = Date.now();
-    
-    if (cached && (now - cached.timestamp) < CACHE_DURATION) {
+
+    if (cached && now - cached.timestamp < CACHE_DURATION) {
       return cached.result;
     }
-    
+
     const result = await checkFn();
     validationCache.set(key, { result, timestamp: now });
     return result;
@@ -120,10 +169,12 @@ const createValidationSchema = (dispatch: AppDispatch) => {
 
   const validateUsername = async (value: string) => {
     if (!value || value.length < 3) return true;
-    
+
     return checkWithCache(`username_${value}`, async () => {
       try {
-        const resultAction = await dispatch(checkAdminExists({ userName: value }));
+        const resultAction = await dispatch(
+          checkAdminExists({ userName: value })
+        );
         if (checkAdminExists.fulfilled.match(resultAction)) {
           return resultAction.payload.data;
         }
@@ -137,10 +188,10 @@ const createValidationSchema = (dispatch: AppDispatch) => {
 
   const validateEmail = async (value: string) => {
     if (!value) return true;
-    
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(value)) return true;
-    
+
     return checkWithCache(`email_${value}`, async () => {
       try {
         const resultAction = await dispatch(checkAdminExists({ email: value }));
@@ -164,7 +215,11 @@ const createValidationSchema = (dispatch: AppDispatch) => {
         /^[a-zA-Z0-9_]+$/,
         "Username can only contain letters, numbers, and underscores"
       )
-      .test("check-username-exists", "Username already exists", validateUsername),
+      .test(
+        "check-username-exists",
+        "Username already exists",
+        validateUsername
+      ),
     email: Yup.string()
       .email("Invalid email address")
       .required("Email is required")
@@ -209,14 +264,20 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
   });
   const [submissionError, setSubmissionError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [validationSchema, setValidationSchema] = useState(() => 
+  const [validationSchema, setValidationSchema] = useState(() =>
     createValidationSchema(dispatch)
   );
-  const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
-  
+  const [expandedModules, setExpandedModules] = useState<Set<string>>(
+    new Set()
+  );
+
   // Password visibility and generation states
   const [showPassword, setShowPassword] = useState(false);
-  const [passwordStrength, setPasswordStrength] = useState({ strength: '', color: '', percentage: 0 });
+  const [passwordStrength, setPasswordStrength] = useState({
+    strength: "",
+    color: "",
+    percentage: 0,
+  });
 
   const formikRef = useRef<any>(null);
 
@@ -242,7 +303,7 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
       setSubmissionError(null);
       setExpandedModules(new Set());
       setShowPassword(false);
-      setPasswordStrength({ strength: '', color: '', percentage: 0 });
+      setPasswordStrength({ strength: "", color: "", percentage: 0 });
     }
   }, [isOpen, dispatch]);
 
@@ -263,12 +324,12 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
           hasAccess: sub.hasAccess || false,
         })),
       }));
-      
+
       setModules(mappedModules);
-      
+
       // Auto-expand modules that have access
       const expanded = new Set<string>();
-      mappedModules.forEach(module => {
+      mappedModules.forEach((module) => {
         if (module.hasAccess) {
           expanded.add(module.key);
         }
@@ -294,7 +355,7 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
     );
 
     // Toggle expanded state
-    setExpandedModules(prev => {
+    setExpandedModules((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(moduleKey)) {
         newSet.delete(moduleKey);
@@ -323,7 +384,7 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
   };
 
   const toggleModuleExpansion = (moduleKey: string) => {
-    setExpandedModules(prev => {
+    setExpandedModules((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(moduleKey)) {
         newSet.delete(moduleKey);
@@ -358,7 +419,8 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
       ).unwrap();
       onClose();
     } catch (err: any) {
-      const errorMessage = err?.message || "Failed to create admin. Please try again.";
+      const errorMessage =
+        err?.message || "Failed to create admin. Please try again.";
       setSubmissionError(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -367,17 +429,20 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
 
   const handleGeneratePassword = (setFieldValue: any) => {
     const newPassword = generateStrongPassword();
-    setFieldValue('password', newPassword);
+    setFieldValue("password", newPassword);
     setPasswordStrength(checkPasswordStrength(newPassword));
   };
 
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>, setFieldValue: any) => {
+  const handlePasswordChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    setFieldValue: any
+  ) => {
     const password = e.target.value;
-    setFieldValue('password', password);
+    setFieldValue("password", password);
     if (password) {
       setPasswordStrength(checkPasswordStrength(password));
     } else {
-      setPasswordStrength({ strength: '', color: '', percentage: 0 });
+      setPasswordStrength({ strength: "", color: "", percentage: 0 });
     }
   };
 
@@ -424,7 +489,14 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
                 validateOnChange={true}
                 validateOnBlur={true}
               >
-                {({ isSubmitting: formikSubmitting, setFieldTouched, setFieldError, values, errors, setFieldValue }) => (
+                {({
+                  isSubmitting: formikSubmitting,
+                  setFieldTouched,
+                  setFieldError,
+                  values,
+                  errors,
+                  setFieldValue,
+                }) => (
                   <Form className="space-y-4">
                     <div>
                       <Field
@@ -433,10 +505,13 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
                         placeholder="Username"
                         className="w-full p-3 rounded-lg bg-gray-800 text-white border border-light-border focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                         onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
-                          setFieldTouched('userName', true);
+                          setFieldTouched("userName", true);
                           // Clear previous error when user starts typing again
-                          if (errors.userName && e.target.value !== values.userName) {
-                            setFieldError('userName', undefined);
+                          if (
+                            errors.userName &&
+                            e.target.value !== values.userName
+                          ) {
+                            setFieldError("userName", undefined);
                           }
                         }}
                       />
@@ -472,10 +547,10 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
                         placeholder="Email"
                         className="w-full p-3 rounded-lg bg-gray-800 text-white border border-light-border focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                         onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
-                          setFieldTouched('email', true);
+                          setFieldTouched("email", true);
                           // Clear previous error when user starts typing again
                           if (errors.email && e.target.value !== values.email) {
-                            setFieldError('email', undefined);
+                            setFieldError("email", undefined);
                           }
                         }}
                       />
@@ -485,7 +560,7 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
                         className="text-red-400 text-sm mt-1 animate-fade-in"
                       />
                     </div>
-                    
+
                     {/* Enhanced Password Field */}
                     <div>
                       <div className="relative">
@@ -494,13 +569,17 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
                           name="password"
                           placeholder="Password"
                           className="w-full p-3 pr-20 rounded-lg bg-gray-800 text-white border border-light-border focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePasswordChange(e, setFieldValue)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            handlePasswordChange(e, setFieldValue)
+                          }
                         />
                         <div className="absolute inset-y-0 right-0 flex items-center">
                           {/* Generate Password Button */}
                           <button
                             type="button"
-                            onClick={() => handleGeneratePassword(setFieldValue)}
+                            onClick={() =>
+                              handleGeneratePassword(setFieldValue)
+                            }
                             className="px-2 py-1 mr-1 text-gray-400 hover:text-blue-400 transition-colors duration-200"
                             title="Generate Strong Password"
                           >
@@ -511,61 +590,95 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
                             className="px-3 py-1 text-gray-400 hover:text-white transition-colors duration-200"
-                            title={showPassword ? "Hide Password" : "Show Password"}
+                            title={
+                              showPassword ? "Hide Password" : "Show Password"
+                            }
                           >
                             {showPassword ? <EyeOffIcon /> : <EyeIcon />}
                           </button>
                         </div>
                       </div>
-                      
+
                       {/* Password Strength Indicator */}
                       {values.password && (
                         <div className="mt-2">
                           <div className="flex items-center justify-between mb-1">
-                            <span className="text-xs text-gray-400">Password Strength:</span>
-                            <span className={`text-xs font-medium ${
-                              passwordStrength.strength === 'Weak' ? 'text-red-400' :
-                              passwordStrength.strength === 'Medium' ? 'text-yellow-400' :
-                              'text-green-400'
-                            }`}>
+                            <span className="text-xs text-gray-400">
+                              Password Strength:
+                            </span>
+                            <span
+                              className={`text-xs font-medium ${
+                                passwordStrength.strength === "Weak"
+                                  ? "text-red-400"
+                                  : passwordStrength.strength === "Medium"
+                                  ? "text-yellow-400"
+                                  : "text-green-400"
+                              }`}
+                            >
                               {passwordStrength.strength}
                             </span>
                           </div>
                           <div className="w-full bg-gray-700 rounded-full h-2">
                             <div
                               className={`h-2 rounded-full transition-all duration-300 ${passwordStrength.color}`}
-                              style={{ width: `${passwordStrength.percentage}%` }}
+                              style={{
+                                width: `${passwordStrength.percentage}%`,
+                              }}
                             ></div>
                           </div>
                         </div>
                       )}
-                      
+
                       <ErrorMessage
                         name="password"
                         component="div"
                         className="text-red-400 text-sm mt-1 animate-fade-in"
                       />
-                      
+
                       {/* Password Requirements */}
                       <div className="mt-2 text-xs text-gray-500">
                         <p>Password must contain:</p>
                         <ul className="ml-4 mt-1 space-y-1">
-                          <li className={values.password?.length >= 8 ? 'text-green-400' : ''}>
+                          <li
+                            className={
+                              values.password?.length >= 8
+                                ? "text-green-400"
+                                : ""
+                            }
+                          >
                             • At least 8 characters
                           </li>
-                          <li className={/[A-Z]/.test(values.password || '') ? 'text-green-400' : ''}>
+                          <li
+                            className={
+                              /[A-Z]/.test(values.password || "")
+                                ? "text-green-400"
+                                : ""
+                            }
+                          >
                             • One uppercase letter
                           </li>
-                          <li className={/[a-z]/.test(values.password || '') ? 'text-green-400' : ''}>
+                          <li
+                            className={
+                              /[a-z]/.test(values.password || "")
+                                ? "text-green-400"
+                                : ""
+                            }
+                          >
                             • One lowercase letter
                           </li>
-                          <li className={/\d/.test(values.password || '') ? 'text-green-400' : ''}>
+                          <li
+                            className={
+                              /\d/.test(values.password || "")
+                                ? "text-green-400"
+                                : ""
+                            }
+                          >
                             • One number
                           </li>
                         </ul>
                       </div>
                     </div>
-                    
+
                     <div>
                       <Field
                         type="text"
@@ -603,25 +716,30 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
             {currentStep === 2 && (
               <>
                 <div className="mb-6">
-                  <h4 className="text-xl font-semibold text-white mb-2">Admin Access Permissions</h4>
+                  <h4 className="text-xl font-semibold text-white mb-2">
+                    Admin Access Permissions
+                  </h4>
                   <p className="text-gray-400 text-sm">
-                    Configure module access permissions for the new admin. Click on modules to expand and configure submodule permissions.
+                    Configure module access permissions for the new admin. Click
+                    on modules to expand and configure submodule permissions.
                   </p>
                 </div>
 
                 {loading && (
                   <div className="flex items-center justify-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                    <span className="ml-3 text-gray-400">Loading modules...</span>
+                    <span className="ml-3 text-gray-400">
+                      Loading modules...
+                    </span>
                   </div>
                 )}
-                
+
                 {error && (
                   <div className="bg-red-900/20 border border-red-500 rounded-lg p-4 mb-4">
                     <p className="text-red-400 text-sm">{error}</p>
                   </div>
                 )}
-                
+
                 {submissionError && (
                   <div className="bg-red-900/20 border border-red-500 rounded-lg p-4 mb-4">
                     <p className="text-red-400 text-sm">{submissionError}</p>
@@ -643,7 +761,9 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
                                 <input
                                   type="checkbox"
                                   checked={module.hasAccess}
-                                  onChange={() => handleModuleChange(module.key)}
+                                  onChange={() =>
+                                    handleModuleChange(module.key)
+                                  }
                                   className="sr-only peer"
                                 />
                                 <div className="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all duration-200"></div>
@@ -652,82 +772,106 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
                                 <h3 className="text-lg font-medium text-white">
                                   {module.nameEn}
                                 </h3>
-                                <p className="text-sm text-gray-400">{module.nameAr}</p>
+                                <p className="text-sm text-gray-400">
+                                  {module.nameAr}
+                                </p>
                               </div>
                             </div>
-                            
-                            {module.subModules && module.subModules.length > 0 && (
-                              <button
-                                type="button"
-                                onClick={() => toggleModuleExpansion(module.key)}
-                                className="p-2 text-gray-400 hover:text-white transition-colors duration-200"
-                              >
-                                <svg
-                                  className={`w-5 h-5 transform transition-transform duration-200 ${
-                                    expandedModules.has(module.key) ? 'rotate-180' : ''
-                                  }`}
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
+
+                            {module.subModules &&
+                              module.subModules.length > 0 && (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    toggleModuleExpansion(module.key)
+                                  }
+                                  className="p-2 text-gray-400 hover:text-white transition-colors duration-200"
                                 >
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                </svg>
-                              </button>
-                            )}
+                                  <svg
+                                    className={`w-5 h-5 transform transition-transform duration-200 ${
+                                      expandedModules.has(module.key)
+                                        ? "rotate-180"
+                                        : ""
+                                    }`}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M19 9l-7 7-7-7"
+                                    />
+                                  </svg>
+                                </button>
+                              )}
                           </div>
-                          
-                          {module.subModules && module.subModules.length > 0 && (
-                            <div className="mt-2 text-xs text-gray-500">
-                              {module.subModules.filter(sub => sub.hasAccess).length} of {module.subModules.length} submodules enabled
-                            </div>
-                          )}
+
+                          {module.subModules &&
+                            module.subModules.length > 0 && (
+                              <div className="mt-2 text-xs text-gray-500">
+                                {
+                                  module.subModules.filter(
+                                    (sub) => sub.hasAccess
+                                  ).length
+                                }{" "}
+                                of {module.subModules.length} submodules enabled
+                              </div>
+                            )}
                         </div>
 
                         {/* Submodules */}
-                        {module.subModules && 
-                         module.subModules.length > 0 && 
-                         expandedModules.has(module.key) && (
-                          <div className="border-t border-gray-700 bg-gray-900/30">
-                            <div className="p-4 space-y-3">
-                              <h4 className="text-sm font-medium text-gray-300 mb-3">
-                                Submodule Permissions
-                              </h4>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                {module.subModules.map((subModule) => (
-                                  <div
-                                    key={subModule.key}
-                                    className={`flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${
-                                      module.hasAccess 
-                                        ? 'bg-gray-800 border-gray-600 hover:border-gray-500' 
-                                        : 'bg-gray-800/50 border-gray-700 opacity-50'
-                                    }`}
-                                  >
-                                    <label className="relative inline-flex items-center cursor-pointer">
-                                      <input
-                                        type="checkbox"
-                                        checked={subModule.hasAccess && module.hasAccess}
-                                        onChange={() =>
-                                          handleSubModuleChange(module.key, subModule.key)
-                                        }
-                                        disabled={!module.hasAccess}
-                                        className="sr-only peer"
-                                      />
-                                      <div className="w-9 h-5 bg-gray-600 rounded-full peer peer-checked:bg-green-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all duration-200 peer-disabled:opacity-50"></div>
-                                    </label>
-                                    <div className="flex-1 min-w-0">
-                                      <p className="text-sm font-medium text-white truncate">
-                                        {subModule.nameEn}
-                                      </p>
-                                      <p className="text-xs text-gray-400 truncate">
-                                        {subModule.nameAr}
-                                      </p>
+                        {module.subModules &&
+                          module.subModules.length > 0 &&
+                          expandedModules.has(module.key) && (
+                            <div className="border-t border-gray-700 bg-gray-900/30">
+                              <div className="p-4 space-y-3">
+                                <h4 className="text-sm font-medium text-gray-300 mb-3">
+                                  Submodule Permissions
+                                </h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                  {module.subModules.map((subModule) => (
+                                    <div
+                                      key={subModule.key}
+                                      className={`flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${
+                                        module.hasAccess
+                                          ? "bg-gray-800 border-gray-600 hover:border-gray-500"
+                                          : "bg-gray-800/50 border-gray-700 opacity-50"
+                                      }`}
+                                    >
+                                      <label className="relative inline-flex items-center cursor-pointer">
+                                        <input
+                                          type="checkbox"
+                                          checked={
+                                            subModule.hasAccess &&
+                                            module.hasAccess
+                                          }
+                                          onChange={() =>
+                                            handleSubModuleChange(
+                                              module.key,
+                                              subModule.key
+                                            )
+                                          }
+                                          disabled={!module.hasAccess}
+                                          className="sr-only peer"
+                                        />
+                                        <div className="w-9 h-5 bg-gray-600 rounded-full peer peer-checked:bg-green-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all duration-200 peer-disabled:opacity-50"></div>
+                                      </label>
+                                      <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-white truncate">
+                                          {subModule.nameEn}
+                                        </p>
+                                        <p className="text-xs text-gray-400 truncate">
+                                          {subModule.nameAr}
+                                        </p>
+                                      </div>
                                     </div>
-                                  </div>
-                                ))}
+                                  ))}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        )}
+                          )}
                       </div>
                     ))}
                   </div>
@@ -736,8 +880,12 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
                 {!loading && !error && modules.length === 0 && (
                   <div className="text-center py-8">
                     <div className="text-gray-400 text-4xl mb-4">📋</div>
-                    <p className="text-gray-400 text-lg">No access modules available</p>
-                    <p className="text-gray-500 text-sm mt-2">Contact your administrator to configure access modules.</p>
+                    <p className="text-gray-400 text-lg">
+                      No access modules available
+                    </p>
+                    <p className="text-gray-500 text-sm mt-2">
+                      Contact your administrator to configure access modules.
+                    </p>
                   </div>
                 )}
 
@@ -754,7 +902,7 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
                         Creating Admin...
                       </span>
                     ) : (
-                      'Create Admin'
+                      "Create Admin"
                     )}
                   </button>
                   <button
