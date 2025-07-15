@@ -354,6 +354,9 @@ const LeagueDetails: React.FC = () => {
                           <thead>
                             <tr className="bg-gradient-to-r from-gray-800/80 to-gray-700/80 text-gray-300">
                               <th className="py-4 px-6 text-left font-semibold">
+                                #
+                              </th>
+                              <th className="py-4 px-6 text-left font-semibold">
                                 User Name
                               </th>
                               <th className="py-4 px-6 text-left font-semibold">
@@ -378,6 +381,11 @@ const LeagueDetails: React.FC = () => {
                                       : "bg-gray-800/10"
                                   }`}
                                 >
+                                  <td className="py-4 px-6 text-gray-300">
+                                    {(participantsCurrentPage - 1) * 5 +
+                                      index +
+                                      1}
+                                  </td>
                                   <td className="py-4 px-6 font-medium">
                                     <div className="flex items-center gap-3">
                                       <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-sm font-bold">
@@ -539,6 +547,9 @@ const LeagueDetails: React.FC = () => {
                           <thead>
                             <tr className="bg-gradient-to-r from-gray-800/80 to-gray-700/80 text-gray-300">
                               <th className="py-4 px-6 text-left font-semibold">
+                                #
+                              </th>
+                              <th className="py-4 px-6 text-left font-semibold">
                                 Team 1
                               </th>
                               <th className="py-4 px-6 text-left font-semibold">
@@ -568,6 +579,9 @@ const LeagueDetails: React.FC = () => {
                                     : "bg-gray-800/10"
                                 }`}
                               >
+                                <td className="py-4 px-6 font-medium text-blue-300">
+                                  {(matchesCurrentPage - 1) * 5 + index + 1}
+                                </td>
                                 <td className="py-4 px-6 font-medium text-blue-300">
                                   {match?.team1
                                     ?.map(
@@ -697,12 +711,17 @@ const LeagueDetails: React.FC = () => {
                           <thead>
                             <tr className="bg-gradient-to-r from-gray-800/80 to-gray-700/80 text-gray-300">
                               <th className="py-4 px-6 text-left font-semibold">
-                                {/* User Name */}
+                                #
+                              </th>
+                              <th className="py-4 px-6 text-left font-semibold">
                                 Team
                               </th>
 
                               <th className="py-4 px-6 text-left font-semibold">
                                 Status
+                              </th>
+                              <th className="py-4 px-6 text-left font-semibold">
+                                Date
                               </th>
                               <th className="py-4 px-6 text-left font-semibold">
                                 Action
@@ -720,6 +739,9 @@ const LeagueDetails: React.FC = () => {
                                 }`}
                               >
                                 <td className="py-4 px-6 font-medium text-blue-300">
+                                  {(ticketsCurrentPage - 1) * 5 + index + 1}
+                                </td>
+                                <td className="py-4 px-6 font-medium text-blue-300">
                                   {/* {ticket?.raiserID?.username} */}
                                   {ticket?.raiser}
                                 </td>
@@ -734,6 +756,11 @@ const LeagueDetails: React.FC = () => {
                                   >
                                     {ticket?.status}
                                   </span>
+                                </td>
+                                <td className="py-4 px-6 text-gray-300">
+                                  {new Date(
+                                    ticket?.createdAt
+                                  ).toLocaleDateString()}
                                 </td>
                                 <td className="py-4 px-6">
                                   <Link
