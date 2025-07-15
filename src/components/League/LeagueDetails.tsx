@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, Link } from "react-router-dom";
+import { debounce } from "lodash";
 import {
   fetchLeagueById,
   fetchLeagueMatches,
@@ -52,6 +53,14 @@ const LeagueDetails: React.FC = () => {
     ticketsCurrentPage,
     ticketsPerPage,
   } = useSelector((state: RootState) => state.leagues);
+
+  const debouncedSetSearchKey = useCallback(
+    debounce((value) => {
+      setSearchKey(value);
+    }, 300), // 300ms debounce delay
+    [] // Empty dependency array to ensure debounce is created only once
+  );
+
   const [searchKey, setSearchKey] = useState("");
   const [status, setStatus] = useState("all");
   // State for active tab
@@ -505,7 +514,7 @@ const LeagueDetails: React.FC = () => {
                     <input
                       type="text"
                       placeholder="Search..."
-                      onChange={(e) => setSearchKey(e.target.value)}
+                      onChange={(e) => debouncedSetSearchKey(e.target.value)}
                       className="w-full py-2 px-4 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     />
                   </div>
