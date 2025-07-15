@@ -412,9 +412,10 @@ export const generateExcelFile = createAsyncThunk(
         `LeaguesParticipants/export/excel?leagueId=${lid}`,
         {
           headers: {
-            'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            Accept:
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
           },
-          responseType: 'blob' // This is crucial for file downloads
+          responseType: "blob", // This is crucial for file downloads
         }
       );
 
@@ -422,13 +423,15 @@ export const generateExcelFile = createAsyncThunk(
       const blob = response.data;
 
       // Get filename from response headers or use a default
-      const contentDisposition = response.headers['content-disposition'];
+      const contentDisposition = response.headers["content-disposition"];
       let filename = "participants_export.xlsx"; // Changed to .xlsx for Excel files
 
       if (contentDisposition) {
-        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        const match = contentDisposition.match(
+          /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+        );
         if (match && match[1]) {
-          filename = match[1].replace(/['"]/g, '');
+          filename = match[1].replace(/['"]/g, "");
         }
       }
 
@@ -445,18 +448,18 @@ export const generateExcelFile = createAsyncThunk(
       return {
         success: true,
         message: "Excel file downloaded successfully",
-        filename
+        filename,
       };
-
     } catch (err: any) {
-      console.error('Excel export error:', err);
+      console.error("Excel export error:", err);
 
       // Better error handling
       let errorMessage = "Failed to export participants";
 
       if (err.response) {
         // Server responded with error status
-        errorMessage = err.response.data?.message || `Server error: ${err.response.status}`;
+        errorMessage =
+          err.response.data?.message || `Server error: ${err.response.status}`;
       } else if (err.request) {
         // Request was made but no response received
         errorMessage = "Network error: No response from server";

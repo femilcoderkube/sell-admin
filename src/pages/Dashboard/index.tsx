@@ -4,6 +4,7 @@ import { fetchDashboard } from "../../app/features/admins/adminSlice";
 import { AppDispatch, RootState } from "../../app/store";
 import { Layout } from "../../components/layout";
 import HandLogoLoader from "../../components/Loader/Loader";
+import { Link } from "react-router";
 
 // Utility function to format object keys (e.g., totalLeagues -> Total Leagues)
 const formatKey = (key: string): string => {
@@ -52,15 +53,32 @@ const CountingAnimation = ({
 const DashboardCard = ({ title, value, delay = 0, color = "emerald" }) => {
   const [isVisible, setIsVisible] = useState(false);
 
+  const adminSidebar = localStorage.getItem("admin");
+  const jsonValue = JSON.parse(adminSidebar as any);
+  let partnerId = jsonValue?.adminAccess?.modules?.find(
+    (val: any) => val?.isPartner === true
+  )?.partnerId;
+
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), delay);
     return () => clearTimeout(timer);
   }, [delay]);
 
   return (
-    <div
-      className={`bg-gradient-to-br  rounded-xl p-6 shadow-lg transform transition-all duration-700 hover:scale-105 hover:shadow-xl ${
+    <Link
+      to={
+        title === "Total Leagues"
+          ? `/${partnerId}/leagues`
+          : title === "Total Users"
+          ? "/user-controll/all-user"
+          : ""
+      }
+      className={`bg-gradient-to-br rounded-xl p-6 shadow-lg transform transition-all duration-700 hover:scale-105 hover:shadow-xl ${
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+      } ${
+        title === "Total Leagues" || title === "Total Users"
+          ? "cursor-pointer"
+          : "cursor-default"
       }`}
     >
       <div className="flex items-center justify-between mb-4">
@@ -71,7 +89,7 @@ const DashboardCard = ({ title, value, delay = 0, color = "emerald" }) => {
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 
@@ -108,9 +126,6 @@ export const Dashboard: FC = () => {
             <h1 className="text-5xl font-bold text-white mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
               Analytics Dashboard
             </h1>
-            <p className="text-gray-300 text-lg">
-              Real-time insights and performance metrics
-            </p>
           </div>
 
           {/* Dashboard Cards Grid */}
