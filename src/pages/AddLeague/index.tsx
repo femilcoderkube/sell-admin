@@ -1366,7 +1366,7 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                         name={`timeLine[${index}].startDate`}
                         placeholderText="Select start date"
                         autoComplete="off"
-                        minDate={new Date()}
+                        // minDate={new Date()}
                         popperPlacement="bottom-start"
                         wrapperClassName="w-full"
                         calendarClassName="custom-datepicker"
@@ -1414,9 +1414,8 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                         placeholderText="Select end date"
                         autoComplete="off"
                         minDate={
-                          values.timeLine[index]?.startDate
-                            ? new Date(values.timeLine[index].startDate)
-                            : new Date()
+                          values.timeLine[index]?.startDate &&
+                          new Date(values.timeLine[index].startDate)
                         }
                         popperPlacement="bottom-start"
                         wrapperClassName="w-full"
@@ -2335,8 +2334,20 @@ export const AddLeague: FC = () => {
       logo: values.logo,
       startDate: values.startDate,
       endDate: values.endDate,
-      messages: values.messages, // Changed to array
-      randomMessages: values.randomMessages,
+
+      ...(values.messages &&
+        values.messages.length > 0 &&
+        values.messages.some((msg) => msg && msg.trim().length > 0) && {
+          messages: values.messages,
+        }),
+
+      ...(values.randomMessages &&
+        values.randomMessages.length > 0 &&
+        values.randomMessages.some(
+          (item) =>
+            (item.randomText && item.randomText.trim().length > 0) ||
+            (item.tags && item.tags.length > 0)
+        ) && { randomMessages: values.randomMessages }),
     };
 
     if (leagueData?._id) {
