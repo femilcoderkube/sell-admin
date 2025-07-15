@@ -136,7 +136,9 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({
               key={league._id || index}
               className="border-b border-light-border"
             >
-              <td className="text-[1.0625rem] py-3">{index + 1}</td>
+              <td className="text-[1.0625rem] py-3">
+                {(currentPage - 1) * 10 + index + 1}
+              </td>
               <td className="text-[1.0625rem] py-3">{league.title}</td>
               {/* <td
                 className={`text-[1.0625rem] py-3 ${
