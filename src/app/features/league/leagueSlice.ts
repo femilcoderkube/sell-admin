@@ -18,20 +18,20 @@ const initialState: LeagueState = {
   participantsLoading: false,
   participantsError: null,
   participantsCurrentPage: 1,
-  participantsPerPage: 5,
+  participantsPerPage: 10,
   participantsTotalCount: 0,
   matches: [],
   matchesLoading: false,
   matchesError: null,
   matchesCurrentPage: 1,
-  matchesPerPage: 5,
+  matchesPerPage: 10,
   matchesTotalCount: 0,
   tickets: [],
   ticketsLoading: false,
   ticketsError: null,
   ticketsTotalCount: 0,
   ticketsCurrentPage: 1,
-  ticketsPerPage: 5,
+  ticketsPerPage: 10,
 };
 
 export const fetchLeagueMatches = createAsyncThunk(
@@ -40,13 +40,13 @@ export const fetchLeagueMatches = createAsyncThunk(
     {
       leagueId,
       page,
-      perPage,
+      matchesPerPage,
       searchKey,
       status,
     }: {
       leagueId: string;
       page: number;
-      perPage: number;
+      matchesPerPage: number;
       searchKey: string;
       status: string;
     },
@@ -54,7 +54,7 @@ export const fetchLeagueMatches = createAsyncThunk(
   ) => {
     try {
       const response = await axiosInstance.get(
-        `/LeagueMatch?leagueId=${leagueId}&page=${page}&limit=${perPage}&searchKey=${searchKey}&status=${status}`
+        `/LeagueMatch?leagueId=${leagueId}&page=${page}&limit=${matchesPerPage}&searchKey=${searchKey}&status=${status}`
       );
       return response.data;
     } catch (error: any) {
@@ -118,13 +118,13 @@ export const fetchLeagueParticipants = createAsyncThunk(
     {
       leagueId,
       page,
-      perPage,
-    }: { leagueId: string; page: number; perPage: number },
+      participantsPerPage,
+    }: { leagueId: string; page: number; participantsPerPage: number },
     { rejectWithValue }
   ) => {
     try {
       const response = await axiosInstance.get(
-        `/LeaguesParticipants?leagueId=${leagueId}&page=${page}&limit=${perPage}`
+        `/LeaguesParticipants?leagueId=${leagueId}&page=${page}&limit=${participantsPerPage}`
       );
       return response.data;
     } catch (error: any) {
@@ -142,13 +142,14 @@ export const fetchLeagueTickets = createAsyncThunk(
     {
       leagueId,
       page,
-      perPage,
-    }: { leagueId: string; page: number; perPage: number },
+      ticketsPerPage,
+      status
+    }: { leagueId: string; page: number; ticketsPerPage: number; status: string },
     { rejectWithValue }
   ) => {
     try {
       const response = await axiosInstance.get(
-        `/LeaguesTickets?leagueId=${leagueId}&page=${page}&limit=${perPage}`
+        `/LeaguesTickets?leagueId=${leagueId}&page=${page}&limit=${ticketsPerPage}&status=${status}`
       );
       return response.data;
     } catch (error: any) {
@@ -481,6 +482,23 @@ export const generateExcelFile = createAsyncThunk(
   }
 );
 
+export const updateParticipants = createAsyncThunk(
+  "participants/updateParticipants",
+  async (
+    { id, data }: { id: string; data: any },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axiosInstance.put(`/LeaguesParticipants?id=${id}`, data);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error updating Participants"
+      );
+    }
+  }
+);
+
 const leagueSlice = createSlice({
   name: "leagues",
   initialState,
@@ -496,11 +514,23 @@ const leagueSlice = createSlice({
     setPage: (state, action: PayloadAction<number>) => {
       state.currentPage = action.payload;
     },
+    setParticipantsPerPage: (state, action) => {
+      state.participantsPerPage = action.payload;
+      state.participantsCurrentPage = 1;
+    },
     setParticipantsPage: (state, action: PayloadAction<number>) => {
       state.participantsCurrentPage = action.payload;
     },
+    setMatchesperPage: (state, action) => {
+      state.matchesPerPage = action.payload;
+      state.matchesCurrentPage = 1;
+    },
     setMatchesPage: (state, action: PayloadAction<number>) => {
       state.matchesCurrentPage = action.payload;
+    },
+    setTicketsPerPage: (state, action) => {
+      state.ticketsPerPage = action.payload;
+      state.ticketsCurrentPage = 1;
     },
     setTicketsPage: (state, action: PayloadAction<number>) => {
       state.ticketsCurrentPage = action.payload;
@@ -683,9 +713,12 @@ const leagueSlice = createSlice({
 export const {
   setSearchTerm,
   setPerPage,
+  setParticipantsPerPage,
+  setMatchesperPage,
   setPage,
   setParticipantsPage,
   setMatchesPage,
+  setTicketsPerPage,
   setTicketsPage,
 } = leagueSlice.actions;
 

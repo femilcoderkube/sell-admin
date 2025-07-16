@@ -12,12 +12,17 @@ import {
   fetchLeagueTickets,
   setTicketsPage,
   generateExcelFile,
+  setParticipantsPerPage,
+  setMatchesperPage,
+  setTicketsPerPage,
 } from "../../app/features/league/leagueSlice";
 import { RootState, AppDispatch } from "../../app/store";
 import HandLogoLoader from "../Loader/Loader";
 import viewIcon from "../../assets/images/eye_icon.svg";
 import { baseURL } from "../../axios";
+import edit from "../../assets/images/Edit.svg";
 import CommonModal from "./CommonModal";
+import ParticipantsEditModel from "./ParticipantsEditModel";
 
 const LeagueDetails: React.FC = () => {
   const statusOptions = [
@@ -26,6 +31,12 @@ const LeagueDetails: React.FC = () => {
     "completed",
     "cancelled",
     "in_dispute",
+  ];
+
+  const ticketOptions = [
+    "all",
+    "open",
+    "closed",
   ];
   const { lid } = useParams<{ lid: string }>();
   const partnerId = window.location.pathname.split("/")[1];
@@ -52,6 +63,7 @@ const LeagueDetails: React.FC = () => {
     ticketsTotalCount,
     ticketsCurrentPage,
     ticketsPerPage,
+    perPage,
   } = useSelector((state: RootState) => state.leagues);
 
   const debouncedSetSearchKey = useCallback(
@@ -61,10 +73,26 @@ const LeagueDetails: React.FC = () => {
     [] // Empty dependency array to ensure debounce is created only once
   );
 
+  const [selectedParticipants, setSelectedParticipants] = useState<any | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [searchKey, setSearchKey] = useState("");
   const [status, setStatus] = useState("all");
+  const [ticketStatus, setTicketStatus] = useState("all");
   // State for active tab
-  const [activeTab, setActiveTab] = React.useState("Participants");
+  const [activeTab, setActiveTab] = React.useState("Matches");
+
+  const handlePerPageChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      if (activeTab === "Participants") {
+        dispatch(setParticipantsPerPage(Number(e.target.value)))
+      } else if (activeTab === "Matches") {
+        dispatch(setMatchesperPage(Number(e.target.value)))
+      } else if (activeTab === "Tickets") {
+        dispatch(setTicketsPerPage(Number(e.target.value)))
+      }
+    },
+    [dispatch, activeTab]
+  );
 
   // Fetch league details and paginated data when component mounts or page changes
   useEffect(() => {
@@ -73,17 +101,21 @@ const LeagueDetails: React.FC = () => {
     }
   }, [dispatch, lid]);
 
-  useEffect(() => {
+  const fetchParticipants = useCallback(() => {
     if (lid) {
       dispatch(
         fetchLeagueParticipants({
           leagueId: lid,
           page: participantsCurrentPage,
-          perPage: participantsPerPage,
+          participantsPerPage: participantsPerPage,
         })
       );
     }
   }, [dispatch, lid, participantsCurrentPage, participantsPerPage]);
+
+  useEffect(() => {
+    fetchParticipants();
+  }, [fetchParticipants]);
 
   useEffect(() => {
     if (lid) {
@@ -91,7 +123,7 @@ const LeagueDetails: React.FC = () => {
         fetchLeagueMatches({
           leagueId: lid,
           page: matchesCurrentPage,
-          perPage: matchesPerPage,
+          matchesPerPage: matchesPerPage, // FIXED: was perPage
           searchKey: searchKey ? searchKey : "",
           status: status === "all" ? "" : status,
         })
@@ -105,11 +137,12 @@ const LeagueDetails: React.FC = () => {
         fetchLeagueTickets({
           leagueId: lid,
           page: ticketsCurrentPage,
-          perPage: ticketsPerPage,
+          ticketsPerPage: ticketsPerPage, // FIXED: was perPage
+          status: ticketStatus === "all" ? "" : ticketStatus,
         })
       );
     }
-  }, [dispatch, lid, ticketsCurrentPage, ticketsPerPage]);
+  }, [dispatch, lid, ticketsCurrentPage, ticketsPerPage, ticketStatus]);
 
   if (loading) {
     return <HandLogoLoader />;
@@ -157,9 +190,14 @@ const LeagueDetails: React.FC = () => {
 
   const handleExportParticipants = async () => {
     if (lid) {
-      dispatch(generateExcelFile({ lid }));
+      await dispatch(generateExcelFile({ lid }));
     }
   };
+
+  const handleEdit = (data: any) => {
+    setSelectedParticipants(data);
+    setIsEditModalOpen(true);
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
@@ -228,11 +266,10 @@ const LeagueDetails: React.FC = () => {
                 <div>
                   <span className="text-gray-400 block text-sm">Active</span>
                   <span
-                    className={`py-1 px-3 rounded-lg text-sm font-medium ${
-                      leagueDetail?.isActive
-                        ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                        : "bg-red-500/20 text-red-400 border border-red-500/30"
-                    }`}
+                    className={`py-1 px-3 rounded-lg text-sm font-medium ${leagueDetail?.isActive
+                      ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                      : "bg-red-500/20 text-red-400 border border-red-500/30"
+                      }`}
                   >
                     {leagueDetail?.isActive ? "Yes" : "No"}
                   </span>
@@ -305,11 +342,10 @@ const LeagueDetails: React.FC = () => {
             {tabs.map((tab) => (
               <button
                 key={tab}
-                className={`flex-1 py-4 px-6 text-lg font-medium transition-all duration-300 relative ${
-                  activeTab === tab
-                    ? "text-white bg-gradient-to-r from-blue-500/20 to-purple-500/20 border-b-2 border-blue-500"
-                    : "text-gray-400 hover:text-white hover:bg-gray-700/30"
-                }`}
+                className={`flex-1 py-4 px-6 text-lg font-medium transition-all duration-300 relative ${activeTab === tab
+                  ? "text-white bg-gradient-to-r from-blue-500/20 to-purple-500/20 border-b-2 border-blue-500"
+                  : "text-gray-400 hover:text-white hover:bg-gray-700/30"
+                  }`}
                 onClick={() => setActiveTab(tab)}
               >
                 {tab}
@@ -360,6 +396,9 @@ const LeagueDetails: React.FC = () => {
                                 User Name
                               </th>
                               <th className="py-4 px-6 text-left font-semibold">
+                                Discord ID
+                              </th>
+                              <th className="py-4 px-6 text-left font-semibold">
                                 Game ID
                               </th>
                               <th className="py-4 px-6 text-left font-semibold">
@@ -368,6 +407,9 @@ const LeagueDetails: React.FC = () => {
                               <th className="py-4 px-6 text-left font-semibold">
                                 Registration Date
                               </th>
+                              <th className="py-4 px-6 text-left font-semibold">
+                                Actions
+                              </th>
                             </tr>
                           </thead>
                           <tbody>
@@ -375,11 +417,10 @@ const LeagueDetails: React.FC = () => {
                               (participant: any, index: number) => (
                                 <tr
                                   key={participant?._id}
-                                  className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-blue-500/10 hover:to-purple-500/10 transition-all duration-200 ${
-                                    index % 2 === 0
-                                      ? "bg-gray-800/20"
-                                      : "bg-gray-800/10"
-                                  }`}
+                                  className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-blue-500/10 hover:to-purple-500/10 transition-all duration-200 ${index % 2 === 0
+                                    ? "bg-gray-800/20"
+                                    : "bg-gray-800/10"
+                                    }`}
                                 >
                                   <td className="py-4 px-6 text-gray-300">
                                     {(participantsCurrentPage - 1) * 5 +
@@ -397,15 +438,17 @@ const LeagueDetails: React.FC = () => {
                                     </div>
                                   </td>
                                   <td className="py-4 px-6 text-gray-300">
+                                    {participant?.otherFields?.[0]?.value || "—"}
+                                  </td>
+                                  <td className="py-4 px-6 text-gray-300">
                                     {participant?.gameId}
                                   </td>
                                   <td className="py-4 px-6">
                                     <span
-                                      className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                        participant?.isTeamJoin
-                                          ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                                          : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
-                                      }`}
+                                      className={`px-3 py-1 rounded-full text-sm font-medium ${participant?.isTeamJoin
+                                        ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                                        : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
+                                        }`}
                                     >
                                       {participant?.isTeamJoin ? "Yes" : "No"}
                                     </span>
@@ -414,6 +457,18 @@ const LeagueDetails: React.FC = () => {
                                     {new Date(
                                       participant?.createdAt
                                     ).toLocaleDateString()}
+                                  </td>
+                                  <td>
+                                    <button
+                                      onClick={() => handleEdit(participant)}
+                                      style={{
+                                        background:
+                                          "radial-gradient(circle, #39415C 0%, #555F83 100%)",
+                                      }}
+                                      className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
+                                    >
+                                      <img src={edit} alt="Edit" style={{ width: "1.26rem" }} />
+                                    </button>
                                   </td>
                                 </tr>
                               )
@@ -427,6 +482,22 @@ const LeagueDetails: React.FC = () => {
                       <div className="text-gray-300 font-medium">
                         Showing {participants.length} of{" "}
                         {participantsTotalCount} participants
+                      </div>
+                      <div className="nf_max-al bg-input-color gap-2 flex items-center pl-2 pr-1 rounded-[0.625rem]">
+                        <span className="text-[1.0625rem] text-custom-gray whitespace-nowrap ">
+                          Show max:
+                        </span>
+                        <select
+                          name="selectedFruit"
+                          className=" font-medium focus:outline-0 bg-[#242B3C] text-white py-[0.4rem] px-2 rounded-[0.52rem] text-[1.0625rem]"
+                          value={participantsPerPage}
+                          onChange={handlePerPageChange}
+                        >
+                          <option value={5}>5</option>
+                          <option value={10}>10</option>
+                          <option value={25}>25</option>
+                          <option value={50}>50</option>
+                        </select>
                       </div>
                       <div className="flex gap-2">
                         <button
@@ -573,11 +644,10 @@ const LeagueDetails: React.FC = () => {
                             {matches?.map((match: any, index: number) => (
                               <tr
                                 key={match?._id}
-                                className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-yellow-500/10 hover:to-orange-500/10 transition-all duration-200 ${
-                                  index % 2 === 0
-                                    ? "bg-gray-800/20"
-                                    : "bg-gray-800/10"
-                                }`}
+                                className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-yellow-500/10 hover:to-orange-500/10 transition-all duration-200 ${index % 2 === 0
+                                  ? "bg-gray-800/20"
+                                  : "bg-gray-800/10"
+                                  }`}
                               >
                                 <td className="py-4 px-6 font-medium text-blue-300">
                                   {(matchesCurrentPage - 1) * 5 + index + 1}
@@ -600,15 +670,14 @@ const LeagueDetails: React.FC = () => {
                                 </td>
                                 <td className="py-4 px-6">
                                   <span
-                                    className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                      match?.status === "completed"
-                                        ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                                        : match?.status === "cancelled"
+                                    className={`px-3 py-1 rounded-full text-sm font-medium ${match?.status === "completed"
+                                      ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                                      : match?.status === "cancelled"
                                         ? "bg-red-500/20 text-red-400 border border-red-500/30"
                                         : match?.status === "in_progress"
-                                        ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
-                                        : "bg-purple-500/20 text-purple-400 border border-purple-500/30"
-                                    }`}
+                                          ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                                          : "bg-purple-500/20 text-purple-400 border border-purple-500/30"
+                                      }`}
                                   >
                                     {match?.status
                                       ?.replace("_", " ")
@@ -649,6 +718,22 @@ const LeagueDetails: React.FC = () => {
                     <div className="flex justify-between items-center mt-6 bg-gray-800/30 rounded-xl p-4 border border-gray-700/30">
                       <div className="text-gray-300 font-medium">
                         Showing {matches.length} of {matchesTotalCount} matches
+                      </div>
+                      <div className="nf_max-al bg-input-color gap-2 flex items-center pl-2 pr-1 rounded-[0.625rem]">
+                        <span className="text-[1.0625rem] text-custom-gray whitespace-nowrap ">
+                          Show max:
+                        </span>
+                        <select
+                          name="selectedFruit"
+                          className=" font-medium focus:outline-0 bg-[#242B3C] text-white py-[0.4rem] px-2 rounded-[0.52rem] text-[1.0625rem]"
+                          value={matchesPerPage}
+                          onChange={handlePerPageChange}
+                        >
+                          <option value={5}>5</option>
+                          <option value={10}>10</option>
+                          <option value={25}>25</option>
+                          <option value={50}>50</option>
+                        </select>
                       </div>
                       <div className="flex gap-2">
                         <button
@@ -691,12 +776,48 @@ const LeagueDetails: React.FC = () => {
 
             {activeTab === "Tickets" && (
               <div>
-                <h4 className="font-bold text-2xl text-white mb-6 flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-lg flex items-center justify-center">
-                    <span className="text-white text-sm">🎟️</span>
+                <div className="flex items-center justify-between">
+                  <h4 className="font-bold text-2xl text-white mb-6 flex items-center gap-3">
+                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-lg flex items-center justify-center">
+                      <span className="text-white text-sm">🎟️</span>
+                    </div>
+                    Tickets
+                  </h4>
+                  <div className="relative">
+                    <select
+                      className="w-40 py-2 px-4 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none cursor-pointer"
+                      onChange={(e) => {
+                        setTicketStatus(e.target.value);
+                      }}
+                    >
+                      {ticketOptions.map((option) => (
+                        <option
+                          key={option}
+                          value={option}
+                          className="bg-gray-800 text-white"
+                        >
+                          {option
+                            .replace("_", " ")
+                            .replace(/\b\w/g, (c) => c.toUpperCase())}
+                        </option>
+                      ))}
+                    </select>
+                    <svg
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/40 pointer-events-none w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
                   </div>
-                  Tickets
-                </h4>
+                </div>
+
                 {ticketsLoading ? (
                   <HandLogoLoader />
                 ) : ticketsError ? (
@@ -732,11 +853,10 @@ const LeagueDetails: React.FC = () => {
                             {tickets?.map((ticket: any, index: number) => (
                               <tr
                                 key={ticket?._id}
-                                className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-yellow-500/10 hover:to-orange-500/10 transition-all duration-200 ${
-                                  index % 2 === 0
-                                    ? "bg-gray-800/20"
-                                    : "bg-gray-800/10"
-                                }`}
+                                className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-yellow-500/10 hover:to-orange-500/10 transition-all duration-200 ${index % 2 === 0
+                                  ? "bg-gray-800/20"
+                                  : "bg-gray-800/10"
+                                  }`}
                               >
                                 <td className="py-4 px-6 font-medium text-blue-300">
                                   {(ticketsCurrentPage - 1) * 5 + index + 1}
@@ -748,11 +868,10 @@ const LeagueDetails: React.FC = () => {
 
                                 <td className="py-4 px-6">
                                   <span
-                                    className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                      ticket?.status === "open"
-                                        ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
-                                        : "bg-green-500/20 text-green-400 border border-green-500/30"
-                                    }`}
+                                    className={`px-3 py-1 rounded-full text-sm font-medium ${ticket?.status === "open"
+                                      ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                                      : "bg-green-500/20 text-green-400 border border-green-500/30"
+                                      }`}
                                   >
                                     {ticket?.status}
                                   </span>
@@ -784,6 +903,22 @@ const LeagueDetails: React.FC = () => {
                     <div className="flex justify-between items-center mt-6 bg-gray-800/30 rounded-xl p-4 border border-gray-700/30">
                       <div className="text-gray-300 font-medium">
                         Showing {tickets.length} of {ticketsTotalCount} tickets
+                      </div>
+                      <div className="nf_max-al bg-input-color gap-2 flex items-center pl-2 pr-1 rounded-[0.625rem]">
+                        <span className="text-[1.0625rem] text-custom-gray whitespace-nowrap ">
+                          Show max:
+                        </span>
+                        <select
+                          name="selectedFruit"
+                          className=" font-medium focus:outline-0 bg-[#242B3C] text-white py-[0.4rem] px-2 rounded-[0.52rem] text-[1.0625rem]"
+                          value={ticketsPerPage}
+                          onChange={handlePerPageChange}
+                        >
+                          <option value={5}>5</option>
+                          <option value={10}>10</option>
+                          <option value={25}>25</option>
+                          <option value={50}>50</option>
+                        </select>
                       </div>
                       <div className="flex gap-2">
                         <button
@@ -826,6 +961,15 @@ const LeagueDetails: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <ParticipantsEditModel
+        isOpen={isEditModalOpen}
+        setIsEditModalOpen={setIsEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        selectedParticipants={selectedParticipants}
+        fetchParticipants={fetchParticipants}
+      />
+
     </div>
   );
 };
