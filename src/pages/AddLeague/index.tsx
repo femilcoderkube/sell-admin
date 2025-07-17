@@ -11,7 +11,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { addLeague, updateLeague } from "../../app/features/league/leagueSlice";
 import { fetchGames } from "../../app/features/games/gameSlice";
-import { fetchPartners } from "../../app/features/partners/partnerSlice";
+// import { fetchPartners } from "../../app/features/partners/partnerSlice";
 import { fetchDevices } from "../../app/features/devices/deviceSlice";
 import { uploadFile } from "../../app/features/fileupload/fileUploadSlice";
 import downarr from "../../assets/images/down_arr.svg";
@@ -21,7 +21,7 @@ import { TimePickerField } from "../../components/ui/TimePickerField";
 
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { convertSchedule } from "../../utils/constant";
+// import { convertSchedule } from "../../utils/constant";
 import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 
 // Type Definitions
@@ -98,6 +98,8 @@ interface StepProps {
   step: number;
 }
 
+const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+
 // Validation Schema
 const validationSchema = Yup.object().shape({
   title: Yup.string()
@@ -138,6 +140,55 @@ const validationSchema = Yup.object().shape({
   //     otherwise: (schema) => schema.notRequired(),
   //   }),
   // }),
+  // queueSettings: Yup.object().shape({
+  //   alwaysOn: Yup.boolean(),
+  //   schedule: Yup.object().when("alwaysOn", {
+  //     is: false,
+  //     then: (schema) =>
+  //       schema.shape({
+  //         days: Yup.array()
+  //           .of(
+  //             Yup.object().shape({
+  //               day: Yup.string().required("Day is required"),
+  //               time: Yup.array()
+  //                 .of(
+  //                   Yup.object().shape({
+  //                     startTime: Yup.string()
+  //                       .matches(
+  //                         /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
+  //                         "Start time must be a valid time (HH:MM)"
+  //                       )
+  //                       .required("Start time is required"),
+  //                     endTime: Yup.string()
+  //                       .matches(
+  //                         /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
+  //                         "End time must be a valid time (HH:MM)"
+  //                       )
+  //                       .required("End time is required")
+  //                       .test(
+  //                         "is-after-start",
+  //                         "End time must be after start time",
+  //                         function (endTime) {
+  //                           const startTime = this.parent.startTime;
+  //                           if (!startTime || !endTime) return true;
+  //                           return (
+  //                             new Date(`1970-01-01T${endTime}:00`) >
+  //                             new Date(`1970-01-01T${startTime}:00`)
+  //                           );
+  //                         }
+  //                       ),
+  //                   })
+  //                 )
+  //                 .min(1, "At least one time slot is required")
+  //                 .required("Time slots are required"),
+  //             })
+  //           )
+  //           .min(1, "At least one day with time slots is required")
+  //           .required("Days are required"),
+  //       }),
+  //     otherwise: (schema) => schema.notRequired(),
+  //   }),
+  // }),
   queueSettings: Yup.object().shape({
     alwaysOn: Yup.boolean(),
     schedule: Yup.object().when("alwaysOn", {
@@ -148,37 +199,43 @@ const validationSchema = Yup.object().shape({
             .of(
               Yup.object().shape({
                 day: Yup.string().required("Day is required"),
-                time: Yup.array()
-                  .of(
-                    Yup.object().shape({
-                      startTime: Yup.string()
-                        .matches(
-                          /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
-                          "Start time must be a valid time (HH:MM)"
-                        )
-                        .required("Start time is required"),
-                      endTime: Yup.string()
-                        .matches(
-                          /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
-                          "End time must be a valid time (HH:MM)"
-                        )
-                        .required("End time is required")
-                        .test(
-                          "is-after-start",
-                          "End time must be after start time",
-                          function (endTime) {
-                            const startTime = this.parent.startTime;
-                            if (!startTime || !endTime) return true;
-                            return (
-                              new Date(`1970-01-01T${endTime}:00`) >
-                              new Date(`1970-01-01T${startTime}:00`)
-                            );
-                          }
-                        ),
-                    })
-                  )
-                  .min(1, "At least one time slot is required")
-                  .required("Time slots are required"),
+                alwaysOn: Yup.boolean(),
+                time: Yup.array().when("alwaysOn", {
+                  is: false,
+                  then: (schema) =>
+                    schema
+                      .of(
+                        Yup.object().shape({
+                          startTime: Yup.string()
+                            .matches(
+                              timeRegex,
+                              "Start time must be a valid time (HH:MM)"
+                            )
+                            .required("Start time is required"),
+                          endTime: Yup.string()
+                            .matches(
+                              timeRegex,
+                              "End time must be a valid time (HH:MM)"
+                            )
+                            .required("End time is required")
+                            .test(
+                              "is-after-start",
+                              "End time must be after start time",
+                              function (endTime) {
+                                const startTime = this.parent.startTime;
+                                if (!startTime || !endTime) return true;
+                                return (
+                                  new Date(`1970-01-01T${endTime}:00`) >
+                                  new Date(`1970-01-01T${startTime}:00`)
+                                );
+                              }
+                            ),
+                        })
+                      )
+                      .min(1, "At least one time slot is required")
+                      .required("Time slots are required"),
+                  otherwise: (schema) => schema.notRequired(),
+                }),
               })
             )
             .min(1, "At least one day with time slots is required")
@@ -357,9 +414,8 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
           id="title"
           name="title"
           placeholder=" "
-          className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
-            touched.title && errors.title ? "border border-red-500" : ""
-          }`}
+          className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${touched.title && errors.title ? "border border-red-500" : ""
+            }`}
         />
         <label
           htmlFor="title"
@@ -440,8 +496,8 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
               backgroundColor: isSelected
                 ? "#007EFF"
                 : isFocused
-                ? "#2B3245"
-                : "#212739",
+                  ? "#2B3245"
+                  : "#212739",
               color: "#fff",
               fontSize: "0.78125rem",
               padding: "0.5rem 0.75rem",
@@ -516,8 +572,8 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
               backgroundColor: isSelected
                 ? "#007EFF"
                 : isFocused
-                ? "#2B3245"
-                : "#212739",
+                  ? "#2B3245"
+                  : "#212739",
               color: "#fff",
               fontSize: "0.78125rem",
               padding: "0.5rem 0.75rem",
@@ -556,9 +612,8 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
           as="select"
           id="format"
           name="format"
-          className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
-            touched.format && errors.format ? "border border-red-500" : ""
-          }`}
+          className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${touched.format && errors.format ? "border border-red-500" : ""
+            }`}
           style={{
             backgroundImage: `url(${downarr})`,
             backgroundRepeat: "no-repeat",
@@ -593,11 +648,10 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
           min="1"
           max="5"
           disabled={values.format === "1v1"}
-          className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
-            touched.playersPerTeam && errors.playersPerTeam
+          className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${touched.playersPerTeam && errors.playersPerTeam
               ? "border border-red-500"
               : ""
-          } ${values.format === "1v1" ? "opacity-50 cursor-not-allowed" : ""}`}
+            } ${values.format === "1v1" ? "opacity-50 cursor-not-allowed" : ""}`}
         />
         <label
           htmlFor="playersPerTeam"
@@ -622,11 +676,10 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
             showTimeSelect
             timeFormat="h:mm aa"
             dateFormat="yyyy-MM-dd h:mm aa"
-            className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
-              touched.startDate && errors.startDate
+            className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${touched.startDate && errors.startDate
                 ? "border border-red-500"
                 : ""
-            }`}
+              }`}
             id="startDate"
             name="startDate"
             placeholderText="Select start date"
@@ -659,9 +712,8 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
             showTimeSelect
             timeFormat="h:mm aa"
             dateFormat="yyyy-MM-dd h:mm aa"
-            className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
-              touched.endDate && errors.endDate ? "border border-red-500" : ""
-            }`}
+            className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${touched.endDate && errors.endDate ? "border border-red-500" : ""
+              }`}
             id="endDate"
             name="endDate"
             timeIntervals={15}
@@ -1215,9 +1267,8 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
           id="prizepool"
           name="prizepool"
           placeholder=" "
-          className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
-            touched.prizepool && errors.prizepool ? "border border-red-500" : ""
-          }`}
+          className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${touched.prizepool && errors.prizepool ? "border border-red-500" : ""
+            }`}
         />
         <label
           htmlFor="prizepool"
@@ -1237,11 +1288,10 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
           id="weekOfTheStarPrice"
           name="weekOfTheStarPrice"
           placeholder=" "
-          className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
-            touched.weekOfTheStarPrice && errors.weekOfTheStarPrice
+          className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${touched.weekOfTheStarPrice && errors.weekOfTheStarPrice
               ? "border border-red-500"
               : ""
-          }`}
+            }`}
         />
         <label
           htmlFor="weekOfTheStarPrice"
@@ -1290,12 +1340,11 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                       id={`timeLine[${index}].title`}
                       name={`timeLine[${index}].title`}
                       placeholder=" "
-                      className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${
-                        touched.timeLine?.[index]?.title &&
-                        errors.timeLine?.[index]?.title
+                      className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${touched.timeLine?.[index]?.title &&
+                          errors.timeLine?.[index]?.title
                           ? "border border-red-500"
                           : ""
-                      }`}
+                        }`}
                     />
                     <label
                       htmlFor={`timeLine[${index}].title`}
@@ -1316,12 +1365,11 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                       id={`timeLine[${index}].titleAr`}
                       name={`timeLine[${index}].titleAr`}
                       placeholder=" "
-                      className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${
-                        touched.timeLine?.[index]?.titleAr &&
-                        errors.timeLine?.[index]?.titleAr
+                      className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${touched.timeLine?.[index]?.titleAr &&
+                          errors.timeLine?.[index]?.titleAr
                           ? "border border-red-500"
                           : ""
-                      }`}
+                        }`}
                     />
                     <label
                       htmlFor={`timeLine[${index}].titleAr`}
@@ -1356,12 +1404,11 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                         showTimeSelect
                         timeFormat="h:mm aa"
                         dateFormat="yyyy-MM-dd h:mm aa"
-                        className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${
-                          touched.timeLine?.[index]?.startDate &&
-                          errors.timeLine?.[index]?.startDate
+                        className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${touched.timeLine?.[index]?.startDate &&
+                            errors.timeLine?.[index]?.startDate
                             ? "border border-red-500"
                             : ""
-                        }`}
+                          }`}
                         id={`timeLine[${index}].startDate`}
                         name={`timeLine[${index}].startDate`}
                         placeholderText="Select start date"
@@ -1403,12 +1450,11 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                         showTimeSelect
                         timeFormat="h:mm aa"
                         dateFormat="yyyy-MM-dd h:mm aa"
-                        className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${
-                          touched.timeLine?.[index]?.endDate &&
-                          errors.timeLine?.[index]?.endDate
+                        className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${touched.timeLine?.[index]?.endDate &&
+                            errors.timeLine?.[index]?.endDate
                             ? "border border-red-500"
                             : ""
-                        }`}
+                          }`}
                         id={`timeLine[${index}].endDate`}
                         name={`timeLine[${index}].endDate`}
                         placeholderText="Select end date"
@@ -1502,12 +1548,11 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                       readOnly={index === 0}
                       id={`customRegistrationFields[${index}].fieldName`}
                       name={`customRegistrationFields[${index}].fieldName`}
-                      className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 leading-normal ${
-                        touched.customRegistrationFields?.[index]?.fieldName &&
-                        errors.customRegistrationFields?.[index]?.fieldName
+                      className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 leading-normal ${touched.customRegistrationFields?.[index]?.fieldName &&
+                          errors.customRegistrationFields?.[index]?.fieldName
                           ? "border border-red-500"
                           : ""
-                      }`}
+                        }`}
                     />
                     {touched.customRegistrationFields?.[index]?.fieldName &&
                       errors.customRegistrationFields?.[index]?.fieldName && (
@@ -1528,12 +1573,11 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                       id={`customRegistrationFields[${index}].fieldType`}
                       name={`customRegistrationFields[${index}].fieldType`}
                       readOnly={index === 0}
-                      className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${
-                        touched.customRegistrationFields?.[index]?.fieldType &&
-                        errors.customRegistrationFields?.[index]?.fieldType
+                      className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-[#2B3245] rounded-[0.52rem] px-3 block appearance-none leading-normal ${touched.customRegistrationFields?.[index]?.fieldType &&
+                          errors.customRegistrationFields?.[index]?.fieldType
                           ? "border border-red-500"
                           : ""
-                      }`}
+                        }`}
                       style={{
                         backgroundImage: `url(${downarr})`,
                         backgroundRepeat: "no-repeat",
@@ -1634,13 +1678,12 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                             value
                           )
                         }
-                        className={`custom-quill-editor bg-[#2B3245] rounded-[0.52rem] text-white ${
-                          touched.customRegistrationFields?.[index]
+                        className={`custom-quill-editor bg-[#2B3245] rounded-[0.52rem] text-white ${touched.customRegistrationFields?.[index]
                             ?.checkboxText &&
-                          errors.customRegistrationFields?.[index]?.checkboxText
+                            errors.customRegistrationFields?.[index]?.checkboxText
                             ? "border border-red-500"
                             : ""
-                        }`}
+                          }`}
                       />
 
                       {touched.customRegistrationFields?.[index]
@@ -1757,25 +1800,25 @@ const LeagueStep3: FC<StepProps> = ({ step, leagueData }: any) => {
 
   const handleFileUpload =
     (field: string, setFile: (url: string | undefined) => void) =>
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
+      (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
 
-      if (file) {
-        const formData = new FormData();
-        formData.append("file", file);
-        dispatch(uploadFile(formData))
-          .then((result: any) => {
-            if (result?.payload?.data) {
-              const fileUrl = `${baseURL}/api/v1/${result?.payload?.data}`;
-              setFile(fileUrl);
-              setFieldValue(field, result.payload.data);
-            }
-          })
-          .catch((err: any) => {
-            console.log("err", err);
-          });
-      }
-    };
+        if (file) {
+          const formData = new FormData();
+          formData.append("file", file);
+          dispatch(uploadFile(formData))
+            .then((result: any) => {
+              if (result?.payload?.data) {
+                const fileUrl = `${baseURL}/api/v1/${result?.payload?.data}`;
+                setFile(fileUrl);
+                setFieldValue(field, result.payload.data);
+              }
+            })
+            .catch((err: any) => {
+              console.log("err", err);
+            });
+        }
+      };
 
   return (
     <>
@@ -1822,8 +1865,8 @@ const LeagueStep3: FC<StepProps> = ({ step, leagueData }: any) => {
               imgFile
                 ? imgFile
                 : leagueData?.logo
-                ? `${baseURL}/api/v1/${leagueData?.logo}`
-                : ""
+                  ? `${baseURL}/api/v1/${leagueData?.logo}`
+                  : ""
             }
             label="Outside photo (Suggested: 270*330px)"
             id="logo"
@@ -1841,8 +1884,8 @@ const LeagueStep3: FC<StepProps> = ({ step, leagueData }: any) => {
               headerPhoto
                 ? headerPhoto
                 : leagueData?.headerPhoto
-                ? `${baseURL}/api/v1/${leagueData?.headerPhoto}`
-                : ""
+                  ? `${baseURL}/api/v1/${leagueData?.headerPhoto}`
+                  : ""
             }
             label="Header Photo (Suggested: 600*400px)"
             id="headerPhoto"
@@ -1879,8 +1922,8 @@ const LeagueStep3: FC<StepProps> = ({ step, leagueData }: any) => {
               internalPhoto
                 ? internalPhoto
                 : leagueData?.internalPhoto
-                ? `${baseURL}/api/v1/${leagueData?.internalPhoto}`
-                : ""
+                  ? `${baseURL}/api/v1/${leagueData?.internalPhoto}`
+                  : ""
             }
             label="Inside photo (Suggested: 300*300px)"
             id="internalPhoto"
@@ -1898,8 +1941,8 @@ const LeagueStep3: FC<StepProps> = ({ step, leagueData }: any) => {
               pdfFile
                 ? "/pdf-2127829_640.webp"
                 : leagueData?.rules
-                ? `/pdf-2127829_640.webp`
-                : ""
+                  ? `/pdf-2127829_640.webp`
+                  : ""
             }
             label="Rules (PDF)"
             id="rules"
@@ -1981,11 +2024,10 @@ const LeagueStep4: FC<StepProps> = ({ step }) => {
                       onChange={(value) =>
                         setFieldValue(`messages[${index}]`, value)
                       }
-                      className={`custom-quill-editor bg-[#2B3245] rounded-[0.52rem] text-white ${
-                        touched.messages?.[index] && errors.messages?.[index]
+                      className={`custom-quill-editor bg-[#2B3245] rounded-[0.52rem] text-white ${touched.messages?.[index] && errors.messages?.[index]
                           ? "border border-red-500"
                           : ""
-                      }`}
+                        }`}
                     />
                     {touched.messages?.[index] && errors.messages?.[index] && (
                       <div className="text-red-500 text-[0.7rem] mt-1">
@@ -2060,12 +2102,11 @@ const LeagueStep4: FC<StepProps> = ({ step }) => {
                             value
                           )
                         }
-                        className={`custom-quill-editor bg-[#2B3245] rounded-[0.52rem] text-white ${
-                          touched.randomMessages?.[index]?.randomText &&
-                          errors.randomMessages?.[index]?.randomText
+                        className={`custom-quill-editor bg-[#2B3245] rounded-[0.52rem] text-white ${touched.randomMessages?.[index]?.randomText &&
+                            errors.randomMessages?.[index]?.randomText
                             ? "border border-red-500"
                             : ""
-                        }`}
+                          }`}
                       />
                       {touched.randomMessages?.[index]?.randomText &&
                         errors.randomMessages?.[index]?.randomText && (
@@ -2101,12 +2142,11 @@ const LeagueStep4: FC<StepProps> = ({ step }) => {
                               }}
                               className={`
                               w-full text-[0.78125rem] text-white focus:outline-none focus:border-[#2792FF] pt-[0.5rem] pb-[0.35rem] bg-input-color rounded-[0.1rem] px-3 appearance-none leading-normal
-                              ${
-                                touched.randomMessages?.[index]?.tags &&
-                                errors.randomMessages?.[index]?.tags
+                              ${touched.randomMessages?.[index]?.tags &&
+                                  errors.randomMessages?.[index]?.tags
                                   ? "border border-red-500"
                                   : ""
-                              }`}
+                                }`}
                             />
                             {/* <label className="absolute top-0 left-0 translate-y-[0.1rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray">
                               Add Custom Tag
@@ -2176,7 +2216,7 @@ const LeagueStep4: FC<StepProps> = ({ step }) => {
                         errors.randomMessages?.[index]?.tags && (
                           <div className="text-red-500 text-[0.7rem] mt-1">
                             {typeof errors.randomMessages[index].tags ===
-                            "string"
+                              "string"
                               ? errors.randomMessages[index].tags
                               : "At least one tag is required"}
                           </div>
@@ -2243,9 +2283,9 @@ export const AddLeague: FC = () => {
       : "",
     device: leagueData?.platform?._id
       ? {
-          value: leagueData?.platform?._id,
-          label: leagueData?.platform?.name,
-        }
+        value: leagueData?.platform?._id,
+        label: leagueData?.platform?.name,
+      }
       : "",
     // platform: "",
     format: leagueData?.format ? leagueData?.format : "solo queue",
@@ -2258,19 +2298,19 @@ export const AddLeague: FC = () => {
     //   : { isActive: false, maxMatches: 0 },
     queueSettings: leagueData?.queueSettings
       ? {
-          ...leagueData.queueSettings,
-          schedule: leagueData.queueSettings.schedule
-            ? {
-                ...leagueData.queueSettings.schedule,
-                startTime: leagueData.queueSettings.schedule.startTime,
-                endTime: leagueData.queueSettings.schedule.endTime,
-              }
-            : { days: [], startTime: "", endTime: "" },
-        }
+        ...leagueData.queueSettings,
+        schedule: leagueData.queueSettings.schedule
+          ? {
+            ...leagueData.queueSettings.schedule,
+            startTime: leagueData.queueSettings.schedule.startTime,
+            endTime: leagueData.queueSettings.schedule.endTime,
+          }
+          : { days: [], startTime: "", endTime: "" },
+      }
       : {
-          alwaysOn: false,
-          schedule: { days: [], startTime: "", endTime: "" },
-        },
+        alwaysOn: false,
+        schedule: { days: [], startTime: "", endTime: "" },
+      },
     // qualifyingLine: leagueData?.qualifyingLine ? leagueData?.qualifyingLine : 0,
     prizepool: leagueData?.prizepool ? leagueData?.prizepool : 0,
     rules: leagueData?.rules ? leagueData?.rules : null,
@@ -2281,24 +2321,24 @@ export const AddLeague: FC = () => {
       leagueData?.timeLine?.length > 0
         ? leagueData?.timeLine
         : [
-            {
-              title: "",
-              titleAr: "",
-              startDate: "",
-              endDate: "",
-              // description: ""
-            },
-          ],
+          {
+            title: "",
+            titleAr: "",
+            startDate: "",
+            endDate: "",
+            // description: ""
+          },
+        ],
     customRegistrationFields:
       leagueData?.customRegistrationFields?.length > 0
         ? leagueData?.customRegistrationFields
         : [
-            {
-              fieldName: "Game ID",
-              fieldType: "text",
-              required: true, // First field is required by default
-            },
-          ],
+          {
+            fieldName: "Game ID",
+            fieldType: "text",
+            required: true, // First field is required by default
+          },
+        ],
     logo: leagueData?.logo ? leagueData?.logo : null,
     startDate: leagueData?.startDate ? leagueData?.startDate : "",
     endDate: leagueData?.endDate ? leagueData?.endDate : "",
@@ -2338,8 +2378,8 @@ export const AddLeague: FC = () => {
       ...(values.messages &&
         values.messages.length > 0 &&
         values.messages.some((msg) => msg && msg.trim().length > 0) && {
-          messages: values.messages,
-        }),
+        messages: values.messages,
+      }),
 
       ...(values.randomMessages &&
         values.randomMessages.length > 0 &&
@@ -2521,24 +2561,21 @@ export const AddLeague: FC = () => {
               {[1, 2, 3, 4].map((num) => (
                 <div
                   key={num}
-                  className={`leg_steps--num flex items-center gap-[0.35rem] ${
-                    step >= num ? "active-step" : ""
-                  }`}
+                  className={`leg_steps--num flex items-center gap-[0.35rem] ${step >= num ? "active-step" : ""
+                    }`}
                   onClick={() => handleStepClick(num, validateForm, values)}
                   style={{ cursor: "pointer" }}
                 >
                   <span
-                    className={`steps-num leading-none ${
-                      step >= num ? "bg-[#007EFF]" : "bg-light-border"
-                    } w-[1.67rem] h-[1.67rem] flex items-center justify-center text-white rounded-[1.67rem]`}
+                    className={`steps-num leading-none ${step >= num ? "bg-[#007EFF]" : "bg-light-border"
+                      } w-[1.67rem] h-[1.67rem] flex items-center justify-center text-white rounded-[1.67rem]`}
                   >
                     {num}
                   </span>
                   {num !== 4 && (
                     <span
-                      className={`step-line inline-block w-[1rem] h-[0.1rem] ${
-                        step > num ? "bg-[#007EFF]" : "bg-light-border"
-                      } rounded-[0.2rem]`}
+                      className={`step-line inline-block w-[1rem] h-[0.1rem] ${step > num ? "bg-[#007EFF]" : "bg-light-border"
+                        } rounded-[0.2rem]`}
                     ></span>
                   )}
                 </div>
