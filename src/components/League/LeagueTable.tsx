@@ -38,6 +38,11 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({
   const menuRef = useRef(null);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+
+  let role = localStorage.getItem("admin");
+  let jsonValue = JSON.parse(role as any);
+  console.log("jsonValue", jsonValue);
+
   const partnerId = window.location.pathname.split("/")[1];
   const thead = {
     id: (
@@ -177,18 +182,24 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({
                 </span>
               </td>
               <td className="text-[1.0625rem] py-3 flex space-x-3 justify-center">
-                <button
-                  onClick={() =>
-                    setOpen(open === league._id ? null : league._id)
-                  }
-                  style={{
-                    background:
-                      "radial-gradient(circle, #39415C 0%, #555F83 100%)",
-                  }}
-                  className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
-                >
-                  <img src={dotIcon} alt="Menu" style={{ width: "1.26rem" }} />
-                </button>
+                {jsonValue?.role !== "Operator" && (
+                  <button
+                    onClick={() =>
+                      setOpen(open === league._id ? null : league._id)
+                    }
+                    style={{
+                      background:
+                        "radial-gradient(circle, #39415C 0%, #555F83 100%)",
+                    }}
+                    className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
+                  >
+                    <img
+                      src={dotIcon}
+                      alt="Menu"
+                      style={{ width: "1.26rem" }}
+                    />
+                  </button>
+                )}
                 {open === league?._id && (
                   <div
                     className="absolute right-0 z-50 mt-10 w-52 origin-top-right rounded-xl shadow-2xl ring-1 ring-gray-700 transform transition-all duration-300 ease-out"
@@ -199,6 +210,7 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({
                   >
                     <div className="p-2 space-y-0.5">
                       {/* Edit Button */}
+
                       <button
                         onClick={() =>
                           navigate(`/${partnerId}/leagues/edit/${league._id}`, {
