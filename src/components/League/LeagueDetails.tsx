@@ -493,7 +493,6 @@ const LeagueDetails: React.FC = () => {
                           value={participantsPerPage}
                           onChange={handlePerPageChange}
                         >
-                          <option value={5}>5</option>
                           <option value={10}>10</option>
                           <option value={25}>25</option>
                           <option value={50}>50</option>
@@ -729,7 +728,6 @@ const LeagueDetails: React.FC = () => {
                           value={matchesPerPage}
                           onChange={handlePerPageChange}
                         >
-                          <option value={5}>5</option>
                           <option value={10}>10</option>
                           <option value={25}>25</option>
                           <option value={50}>50</option>
@@ -914,7 +912,6 @@ const LeagueDetails: React.FC = () => {
                           value={ticketsPerPage}
                           onChange={handlePerPageChange}
                         >
-                          <option value={5}>5</option>
                           <option value={10}>10</option>
                           <option value={25}>25</option>
                           <option value={50}>50</option>
