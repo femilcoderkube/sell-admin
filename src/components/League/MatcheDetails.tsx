@@ -408,6 +408,12 @@ const MatchDetails = () => {
     }
   }, [messageData]);
 
+  useEffect(() => {
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
   const handleBack = () => {
     navigate(-1);
   };
