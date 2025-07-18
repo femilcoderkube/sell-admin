@@ -47,8 +47,8 @@ export const fetchLeagueMatches = createAsyncThunk(
       leagueId: string;
       page: number;
       matchesPerPage: number;
-      searchKey: string;
-      status: string;
+      searchKey?: string;
+      status?: string;
     },
     { rejectWithValue }
   ) => {

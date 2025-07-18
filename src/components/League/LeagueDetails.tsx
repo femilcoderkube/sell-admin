@@ -69,6 +69,7 @@ const LeagueDetails: React.FC = () => {
   const debouncedSetSearchKey = useCallback(
     debounce((value) => {
       setSearchKey(value);
+      // setMatchesPage(1);
     }, 300), // 300ms debounce delay
     [] // Empty dependency array to ensure debounce is created only once
   );
@@ -117,19 +118,37 @@ const LeagueDetails: React.FC = () => {
     fetchParticipants();
   }, [fetchParticipants]);
 
-  useEffect(() => {
-    if (lid) {
-      dispatch(
-        fetchLeagueMatches({
-          leagueId: lid,
-          page: matchesCurrentPage,
-          matchesPerPage: matchesPerPage, // FIXED: was perPage
-          searchKey: searchKey ? searchKey : "",
-          status: status === "all" ? "" : status,
-        })
-      );
-    }
+  // useEffect(() => {
+  //   if (lid) {
+  //     dispatch(
+  //       fetchLeagueMatches({
+  //         leagueId: lid,
+  //         page: matchesCurrentPage,
+  //         matchesPerPage: matchesPerPage, // FIXED: was perPage
+  //         searchKey: searchKey ? searchKey : "",
+  //         status: status === "all" ? "" : status,
+  //       })
+  //     );
+  //   }
+  // }, [dispatch, lid, matchesCurrentPage, matchesPerPage, searchKey, status]);
+
+  const getLeagueMatches = useCallback(() => {
+    if (!lid) return;
+
+    const payload = {
+      leagueId: lid,
+      page: matchesCurrentPage,
+      matchesPerPage: matchesPerPage,
+      ...(searchKey && searchKey.trim() !== "" && { searchKey }),
+      ...(status !== "all" && { status }),
+    };
+
+    dispatch(fetchLeagueMatches(payload));
   }, [dispatch, lid, matchesCurrentPage, matchesPerPage, searchKey, status]);
+
+  useEffect(() => {
+    getLeagueMatches();
+  }, [getLeagueMatches]);
 
   useEffect(() => {
     if (lid) {
