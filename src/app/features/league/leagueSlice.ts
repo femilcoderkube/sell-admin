@@ -53,9 +53,21 @@ export const fetchLeagueMatches = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await axiosInstance.get(
-        `/LeagueMatch?leagueId=${leagueId}&page=${page}&limit=${matchesPerPage}&searchKey=${searchKey}&status=${status}`
-      );
+      const params = new URLSearchParams();
+
+      params.append("leagueId", leagueId);
+      params.append("page", String(page));
+      params.append("limit", String(matchesPerPage));
+
+      if (searchKey && searchKey.trim() !== "") {
+        params.append("searchKey", searchKey);
+      }
+
+      if (status && status !== "all") {
+        params.append("status", status);
+      }
+
+      const response = await axiosInstance.get(`/LeagueMatch?${params.toString()}`);
       return response.data;
     } catch (error: any) {
       console.log("err", error);
@@ -65,6 +77,7 @@ export const fetchLeagueMatches = createAsyncThunk(
     }
   }
 );
+
 export const fetchLeagueMatchesByID = createAsyncThunk(
   "leagues/fetchLeagueMatchesByID",
   async ({ matcheId }: { matcheId: string }, { rejectWithValue }) => {

@@ -69,7 +69,7 @@ const LeagueDetails: React.FC = () => {
   const debouncedSetSearchKey = useCallback(
     debounce((value) => {
       setSearchKey(value);
-      // setMatchesPage(1);
+      dispatch(setMatchesPage(1));
     }, 300), // 300ms debounce delay
     [] // Empty dependency array to ensure debounce is created only once
   );
