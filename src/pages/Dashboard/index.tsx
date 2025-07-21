@@ -65,14 +65,14 @@ const DashboardCard = ({ title, value, delay = 0, color = "emerald" }) => {
   }, [delay]);
 
   return (
-    <Link
-      to={
-        title === "Total Leagues"
-          ? `/${partnerId}/leagues`
-          : title === "Total Users"
-          ? "/user-controll/all-user"
-          : ""
-      }
+    <div
+      // to={
+      //   title === "Total Leagues"
+      //     ? `/${partnerId}/leagues`
+      //     : title === "Total Users"
+      //     ? "/user-controll/all-user"
+      //     : ""
+      // }
       className={`bg-gradient-to-br rounded-xl p-6 shadow-lg transform transition-all duration-700 hover:scale-105 hover:shadow-xl ${
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
       } ${
@@ -89,7 +89,7 @@ const DashboardCard = ({ title, value, delay = 0, color = "emerald" }) => {
           </div>
         </div>
       </div>
-    </Link>
+    </div>
   );
 };
 
