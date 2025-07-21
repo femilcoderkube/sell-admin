@@ -149,7 +149,7 @@ export const fetchLeagueParticipants = createAsyncThunk(
       params.append("leagueId", leagueId);
       params.append("page", String(page));
       params.append("limit", String(participantsPerPage));
-
+      console.log("searchKey", searchKey);
       if (searchKey && searchKey.trim() !== "") {
         params.append("searchKey", searchKey);
       }

@@ -120,7 +120,7 @@ const LeagueDetails: React.FC = () => {
           leagueId: lid,
           page: participantsCurrentPage,
           participantsPerPage: participantsPerPage,
-          ...(participantsSearchKey && participantsSearchKey.trim() !== "" && { participantsSearchKey }),
+          ...(participantsSearchKey && participantsSearchKey.trim() !== "" && {searchKey: participantsSearchKey }),
         })
       );
     }
