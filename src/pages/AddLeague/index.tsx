@@ -92,6 +92,7 @@ interface League {
   endDate: string;
   messages: string[]; // Changed from single message to array
   randomMessages: Array<{ randomText: string; tags: string[] }>;
+  isWeekOfTheStar: boolean; // <-- NEW KEY
 }
 
 interface StepProps {
@@ -330,6 +331,7 @@ const validationSchema = Yup.object().shape({
   //       ? !!value[0].randomText.replace(/<[^>]+>/g, "").trim()
   //       : false
   //   ),
+  isWeekOfTheStar: Yup.boolean(), // <-- NEW KEY, no required
 });
 
 const LeagueStep1: FC<StepProps> = ({ step }) => {
@@ -341,7 +343,7 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
     setFieldValue,
     handleChange,
     setFieldTouched,
-  } = useFormikContext();
+  } = useFormikContext<any>();
 
   const loadGameOptions = async (
     search: string,
@@ -791,6 +793,19 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
     height: 300px;
 }
       `}</style>
+      <div className="check_setting flex items-center justify-between w-full text-[0.78125rem] text-custom-gray mb-4 focus:outline-0 focus:!border focus:!border-[#2792FF] py-[0.92rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal">
+        <span className="text-white font-medium">Is Week Of The Star?</span>
+        <label className="inline-flex items-center cursor-pointer">
+          <Field
+            type="checkbox"
+            name="isWeekOfTheStar"
+            checked={values.isWeekOfTheStar}
+            onChange={() => setFieldValue("isWeekOfTheStar", !values.isWeekOfTheStar)}
+            className="sr-only peer"
+          />
+          <div className="relative w-9 h-5 bg-custom-gray focus:outline-none rounded-full peer dark:bg-custom-gray peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-primary-gradient dark:peer-checked:bg-primary-gradient"></div>
+        </label>
+      </div>
     </div>
   );
 };
@@ -2347,6 +2362,10 @@ export const AddLeague: FC = () => {
       leagueData?.randomMessages?.length > 0
         ? leagueData.randomMessages
         : [{ randomText: "", tags: [] }],
+    isWeekOfTheStar:
+      typeof leagueData?.isWeekOfTheStar === "boolean"
+        ? leagueData.isWeekOfTheStar
+        : false, // default false
   });
 
   const handleSubmit = (values: League) => {
@@ -2388,6 +2407,7 @@ export const AddLeague: FC = () => {
             (item.randomText && item.randomText.trim().length > 0) ||
             (item.tags && item.tags.length > 0)
         ) && { randomMessages: values.randomMessages }),
+      isWeekOfTheStar: values.isWeekOfTheStar, // <-- pass to backend
     };
 
     if (leagueData?._id) {
