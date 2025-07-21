@@ -33,11 +33,7 @@ const LeagueDetails: React.FC = () => {
     "in_dispute",
   ];
 
-  const ticketOptions = [
-    "all",
-    "open",
-    "closed",
-  ];
+  const ticketOptions = ["all", "open", "closed"];
   const { lid } = useParams<{ lid: string }>();
   const partnerId = window.location.pathname.split("/")[1];
   const dispatch = useDispatch<AppDispatch>();
@@ -74,7 +70,9 @@ const LeagueDetails: React.FC = () => {
     [] // Empty dependency array to ensure debounce is created only once
   );
 
-  const [selectedParticipants, setSelectedParticipants] = useState<any | null>(null);
+  const [selectedParticipants, setSelectedParticipants] = useState<any | null>(
+    null
+  );
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [searchKey, setSearchKey] = useState("");
   const [status, setStatus] = useState("all");
@@ -85,11 +83,11 @@ const LeagueDetails: React.FC = () => {
   const handlePerPageChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       if (activeTab === "Participants") {
-        dispatch(setParticipantsPerPage(Number(e.target.value)))
+        dispatch(setParticipantsPerPage(Number(e.target.value)));
       } else if (activeTab === "Matches") {
-        dispatch(setMatchesperPage(Number(e.target.value)))
+        dispatch(setMatchesperPage(Number(e.target.value)));
       } else if (activeTab === "Tickets") {
-        dispatch(setTicketsPerPage(Number(e.target.value)))
+        dispatch(setTicketsPerPage(Number(e.target.value)));
       }
     },
     [dispatch, activeTab]
@@ -216,7 +214,7 @@ const LeagueDetails: React.FC = () => {
   const handleEdit = (data: any) => {
     setSelectedParticipants(data);
     setIsEditModalOpen(true);
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
@@ -285,10 +283,11 @@ const LeagueDetails: React.FC = () => {
                 <div>
                   <span className="text-gray-400 block text-sm">Active</span>
                   <span
-                    className={`py-1 px-3 rounded-lg text-sm font-medium ${leagueDetail?.isActive
-                      ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                      : "bg-red-500/20 text-red-400 border border-red-500/30"
-                      }`}
+                    className={`py-1 px-3 rounded-lg text-sm font-medium ${
+                      leagueDetail?.isActive
+                        ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                        : "bg-red-500/20 text-red-400 border border-red-500/30"
+                    }`}
                   >
                     {leagueDetail?.isActive ? "Yes" : "No"}
                   </span>
@@ -361,10 +360,11 @@ const LeagueDetails: React.FC = () => {
             {tabs.map((tab) => (
               <button
                 key={tab}
-                className={`flex-1 py-4 px-6 text-lg font-medium transition-all duration-300 relative ${activeTab === tab
-                  ? "text-white bg-gradient-to-r from-blue-500/20 to-purple-500/20 border-b-2 border-blue-500"
-                  : "text-gray-400 hover:text-white hover:bg-gray-700/30"
-                  }`}
+                className={`flex-1 py-4 px-6 text-lg font-medium transition-all duration-300 relative ${
+                  activeTab === tab
+                    ? "text-white bg-gradient-to-r from-blue-500/20 to-purple-500/20 border-b-2 border-blue-500"
+                    : "text-gray-400 hover:text-white hover:bg-gray-700/30"
+                }`}
                 onClick={() => setActiveTab(tab)}
               >
                 {tab}
@@ -436,10 +436,11 @@ const LeagueDetails: React.FC = () => {
                               (participant: any, index: number) => (
                                 <tr
                                   key={participant?._id}
-                                  className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-blue-500/10 hover:to-purple-500/10 transition-all duration-200 ${index % 2 === 0
-                                    ? "bg-gray-800/20"
-                                    : "bg-gray-800/10"
-                                    }`}
+                                  className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-blue-500/10 hover:to-purple-500/10 transition-all duration-200 ${
+                                    index % 2 === 0
+                                      ? "bg-gray-800/20"
+                                      : "bg-gray-800/10"
+                                  }`}
                                 >
                                   <td className="py-4 px-6 text-gray-300">
                                     {(participantsCurrentPage - 1) * 5 +
@@ -457,17 +458,19 @@ const LeagueDetails: React.FC = () => {
                                     </div>
                                   </td>
                                   <td className="py-4 px-6 text-gray-300">
-                                    {participant?.otherFields?.[0]?.value || "—"}
+                                    {participant?.otherFields?.[0]?.value ||
+                                      "—"}
                                   </td>
                                   <td className="py-4 px-6 text-gray-300">
                                     {participant?.gameId}
                                   </td>
                                   <td className="py-4 px-6">
                                     <span
-                                      className={`px-3 py-1 rounded-full text-sm font-medium ${participant?.isTeamJoin
-                                        ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                                        : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
-                                        }`}
+                                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                        participant?.isTeamJoin
+                                          ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                                          : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
+                                      }`}
                                     >
                                       {participant?.isTeamJoin ? "Yes" : "No"}
                                     </span>
@@ -486,7 +489,11 @@ const LeagueDetails: React.FC = () => {
                                       }}
                                       className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
                                     >
-                                      <img src={edit} alt="Edit" style={{ width: "1.26rem" }} />
+                                      <img
+                                        src={edit}
+                                        alt="Edit"
+                                        style={{ width: "1.26rem" }}
+                                      />
                                     </button>
                                   </td>
                                 </tr>
@@ -662,10 +669,11 @@ const LeagueDetails: React.FC = () => {
                             {matches?.map((match: any, index: number) => (
                               <tr
                                 key={match?._id}
-                                className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-yellow-500/10 hover:to-orange-500/10 transition-all duration-200 ${index % 2 === 0
-                                  ? "bg-gray-800/20"
-                                  : "bg-gray-800/10"
-                                  }`}
+                                className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-yellow-500/10 hover:to-orange-500/10 transition-all duration-200 ${
+                                  index % 2 === 0
+                                    ? "bg-gray-800/20"
+                                    : "bg-gray-800/10"
+                                }`}
                               >
                                 <td className="py-4 px-6 font-medium text-blue-300">
                                   {(matchesCurrentPage - 1) * 5 + index + 1}
@@ -688,14 +696,15 @@ const LeagueDetails: React.FC = () => {
                                 </td>
                                 <td className="py-4 px-6">
                                   <span
-                                    className={`px-3 py-1 rounded-full text-sm font-medium ${match?.status === "completed"
-                                      ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                                      : match?.status === "cancelled"
+                                    className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                      match?.status === "completed"
+                                        ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                                        : match?.status === "cancelled"
                                         ? "bg-red-500/20 text-red-400 border border-red-500/30"
                                         : match?.status === "in_progress"
-                                          ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
-                                          : "bg-purple-500/20 text-purple-400 border border-purple-500/30"
-                                      }`}
+                                        ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                                        : "bg-purple-500/20 text-purple-400 border border-purple-500/30"
+                                    }`}
                                   >
                                     {match?.status
                                       ?.replace("_", " ")
@@ -870,10 +879,11 @@ const LeagueDetails: React.FC = () => {
                             {tickets?.map((ticket: any, index: number) => (
                               <tr
                                 key={ticket?._id}
-                                className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-yellow-500/10 hover:to-orange-500/10 transition-all duration-200 ${index % 2 === 0
-                                  ? "bg-gray-800/20"
-                                  : "bg-gray-800/10"
-                                  }`}
+                                className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-yellow-500/10 hover:to-orange-500/10 transition-all duration-200 ${
+                                  index % 2 === 0
+                                    ? "bg-gray-800/20"
+                                    : "bg-gray-800/10"
+                                }`}
                               >
                                 <td className="py-4 px-6 font-medium text-blue-300">
                                   {(ticketsCurrentPage - 1) * 5 + index + 1}
@@ -885,10 +895,11 @@ const LeagueDetails: React.FC = () => {
 
                                 <td className="py-4 px-6">
                                   <span
-                                    className={`px-3 py-1 rounded-full text-sm font-medium ${ticket?.status === "open"
-                                      ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
-                                      : "bg-green-500/20 text-green-400 border border-green-500/30"
-                                      }`}
+                                    className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                      ticket?.status === "open"
+                                        ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                                        : "bg-green-500/20 text-green-400 border border-green-500/30"
+                                    }`}
                                   >
                                     {ticket?.status}
                                   </span>
@@ -985,7 +996,6 @@ const LeagueDetails: React.FC = () => {
         selectedParticipants={selectedParticipants}
         fetchParticipants={fetchParticipants}
       />
-
     </div>
   );
 };

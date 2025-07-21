@@ -16,6 +16,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { socket } from "../../app/socket/socket";
 import { SOCKET } from "../../utils/constant";
+import AttachmentModal from "./AttachmentModal";
 
 interface MatchScore {
   yourScore: number;
@@ -339,7 +340,7 @@ const MatchDetails = () => {
   const [messageData, setMessageData] = useState([]);
   const [sendMessage, setSendMessage] = useState<undefined>(undefined);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedAttachment, setSelectedAttachment] = useState(null);
+  const [selectedAttachment, setSelectedAttachment] = useState([]);
   const { matcheDetail, loading, error } = useSelector(
     (state: RootState) => state.leagues
   ) as {
@@ -414,6 +415,12 @@ const MatchDetails = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (selectedAttachment) {
+      console.log("selectedAttachment", selectedAttachment);
+    }
+  }, [selectedAttachment]);
+
   const handleBack = () => {
     navigate(-1);
   };
@@ -433,7 +440,7 @@ const MatchDetails = () => {
     });
   };
 
-  const openModal = (attachment) => {
+  const openModal = (attachment: any) => {
     setSelectedAttachment(attachment);
     setIsModalOpen(true);
   };
@@ -624,10 +631,19 @@ const MatchDetails = () => {
                           Team
                         </th>
                         <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
+                          Player
+                        </th>
+                        <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
                           Team 1
                         </th>
                         <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
                           Team 2
+                        </th>
+                        <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
+                          Notes
+                        </th>
+                        <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
+                          Submitted Time
                         </th>
                         <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
                           Proof
@@ -639,37 +655,32 @@ const MatchDetails = () => {
                     </thead>
                     <tbody>
                       {matcheDetail?.matchScores?.map((score, index) => {
+                        const players =
+                          score?.submittedBy === "team1"
+                            ? matcheDetail?.team1
+                            : score?.submittedBy === "team2"
+                            ? matcheDetail?.team2
+                            : [];
+                        const usernames = players
+                          .map((item) => item?.participant?.userId?.username)
+                          .join(", ");
                         return (
                           <tr key={score._id} className="bg-gray-700/30">
                             <td className="p-4 border-b border-gray-700/50">
-                              <TeamDropdown
+                              {score?.submittedBy === "team1"
+                                ? "Team 1"
+                                : score?.submittedBy === "team2"
+                                ? "Team 2"
+                                : "Admin"}
+                              {/* <TeamDropdown
                                 score={score}
                                 index={index}
                                 matchData={matcheDetail}
-                              />
+                              /> */}
                             </td>
-                            {/* <td className="p-4 border-b border-gray-700/50">
-                              <div className="flex items-center gap-2">
-                                <span
-                                  className={`w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm ${
-                                    score?.submittedBy === "team1"
-                                      ? "bg-[#46A2FF]"
-                                      : score?.submittedBy === "team2"
-                                      ? "bg-orange-500"
-                                      : "bg-green-500"
-                                  }`}
-                                >
-                                  {index + 1}
-                                </span>
-                                <span className="font-bold text-white">
-                                  {score?.submittedBy === "team1"
-                                    ? "Team 1"
-                                    : score?.submittedBy === "team2"
-                                    ? "Team 2"
-                                    : "Admin"}
-                                </span>
-                              </div>
-                            </td> */}
+                            <td className="p-4 border-b border-gray-700/50">
+                              {usernames}
+                            </td>
                             <td className="p-4 border-b border-gray-700/50">
                               <p className="font-semibold text-[#46A2FF] text-lg">
                                 {score?.submittedBy === "team1"
@@ -689,13 +700,15 @@ const MatchDetails = () => {
                               </p>
                             </td>
                             <td className="p-4 border-b border-gray-700/50">
+                              {score?.description}
+                            </td>
+                            <td className="p-4 border-b border-gray-700/50">
+                              {new Date(score?.submittedAt)?.toLocaleString()}
+                            </td>
+                            <td className="p-4 border-b border-gray-700/50">
                               <button
                                 className="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
-                                onClick={() =>
-                                  openModal(
-                                    `${baseURL}/api/v1/${score?.attachment}`
-                                  )
-                                }
+                                onClick={() => openModal(score?.attachment)}
                               >
                                 <img
                                   src={viewIcon}
@@ -928,44 +941,11 @@ const MatchDetails = () => {
           </div>
         </div>
         {isModalOpen && selectedAttachment && (
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-gray-800/95 backdrop-blur-sm shadow-2xl rounded-2xl max-w-2xl w-full max-h-[95vh] overflow-hidden relative border border-gray-700/50">
-              {/* Header */}
-              <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-700/50 bg-gray-800/50">
-                <h2 className="text-white text-xl font-semibold">
-                  Proof Attachment
-                </h2>
-                <button
-                  className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-700/50 hover:bg-gray-600/50 transition-colors duration-200 text-gray-300 hover:text-white"
-                  onClick={closeModal}
-                  aria-label="Close modal"
-                >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-
-              {/* Image Container */}
-              <div className="px-5 py-6 bg-gray-800/30 flex items-center justify-center min-h-[60vh] max-h-[75vh] overflow-hidden">
-                <img
-                  src={selectedAttachment}
-                  alt="Proof attachment"
-                  className="max-w-full max-h-full object-contain rounded-lg shadow-lg ring-1 ring-gray-600/30"
-                />
-              </div>
-            </div>
-          </div>
+          <AttachmentModal
+            isModalOpen={isModalOpen}
+            closeModal={closeModal}
+            attachments={selectedAttachment?.filter((val: any) => val != null)}
+          />
         )}
       </div>
     </div>
