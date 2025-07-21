@@ -39,9 +39,8 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
-  let role = localStorage.getItem("admin");
-  let jsonValue = JSON.parse(role as any);
-  console.log("jsonValue", jsonValue);
+  const role = localStorage.getItem("admin");
+  const jsonValue = JSON.parse(role as any);
 
   const partnerId = window.location.pathname.split("/")[1];
   const thead = {

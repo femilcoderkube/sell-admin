@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { LeagueState, League } from "../../types";
+import { LeagueState, League, AssignLeaguePayload } from "../../types";
 import axiosInstance from "../../../axios";
 import toast from "react-hot-toast";
 import moment from "moment-timezone";
@@ -13,6 +13,7 @@ const initialState: LeagueState = {
   totalCount: 0,
   searchTerm: "",
   leagueDetail: null,
+  operatorDetail: null,
   matcheDetail: null,
   participants: [],
   participantsLoading: false,
@@ -132,12 +133,29 @@ export const fetchLeagueParticipants = createAsyncThunk(
       leagueId,
       page,
       participantsPerPage,
-    }: { leagueId: string; page: number; participantsPerPage: number },
+      searchKey,
+    }: {
+      leagueId: string;
+      page: number;
+      participantsPerPage: number;
+      searchKey?: string;
+    },
     { rejectWithValue }
   ) => {
     try {
+
+      const params = new URLSearchParams();
+
+      params.append("leagueId", leagueId);
+      params.append("page", String(page));
+      params.append("limit", String(participantsPerPage));
+
+      if (searchKey && searchKey.trim() !== "") {
+        params.append("searchKey", searchKey);
+      }
+
       const response = await axiosInstance.get(
-        `/LeaguesParticipants?leagueId=${leagueId}&page=${page}&limit=${participantsPerPage}`
+        `/LeaguesParticipants?${params.toString()}`
       );
       return response.data;
     } catch (error: any) {
@@ -149,6 +167,7 @@ export const fetchLeagueParticipants = createAsyncThunk(
     }
   }
 );
+
 export const fetchLeagueTickets = createAsyncThunk(
   "leagues/fetchLeagueTickets",
   async (
@@ -512,6 +531,43 @@ export const updateParticipants = createAsyncThunk(
   }
 );
 
+export const fetchOperatorList = createAsyncThunk(
+  "leagues/fetchOperatorList",
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(`/admin/operatorlist?id=${id}`);
+      return response.data;
+    } catch (error: any) {
+      console.log("err 4", error);
+
+      return rejectWithValue(
+        error.response?.data?.message || "Error fetching league"
+      );
+    }
+  }
+);
+
+export const assignLeague = createAsyncThunk(
+  "leagues/assignLeague",
+  async ({ operatorIds, leagueId }: AssignLeaguePayload, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post("/assignLeague", {
+        operatorIds,
+        leagueId,
+      });
+
+      return response.data;
+    } catch (error: any) {
+      console.log("err 4", error);
+
+      return rejectWithValue(
+        error.response?.data?.message || "Error assigning league"
+      );
+    }
+  }
+);
+
+
 const leagueSlice = createSlice({
   name: "leagues",
   initialState,
@@ -569,7 +625,7 @@ const leagueSlice = createSlice({
       })
       .addCase(fetchLeagueTickets.fulfilled, (state, action) => {
         state.ticketsLoading = false;
-        state.tickets = action.payload.data.result;
+        state.tickets = action.payload.data;
         state.ticketsTotalCount = action.payload.data.totalItem;
       })
       .addCase(fetchLeagueTickets.rejected, (state, action) => {
@@ -719,7 +775,18 @@ const leagueSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
         toast.error("Failed to add match scores!");
-      });
+      })
+      .addCase(fetchOperatorList.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchOperatorList.fulfilled, (state, action) => {
+        state.loading = false;
+        state.operatorDetail = action.payload.data;
+      })
+      .addCase(fetchOperatorList.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
   },
 });
 

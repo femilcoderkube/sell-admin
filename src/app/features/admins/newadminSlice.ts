@@ -69,10 +69,12 @@ export const createAdmin = createAsyncThunk(
 export const fetchAccessModules = createAsyncThunk(
   "newadmin/fetchAccessModules",
   async (
-_, { rejectWithValue }
+    role: string, { rejectWithValue }
   ) => {
     try {
-      const response = await axiosInstance.get("/AdminAccess/modules");
+      const response = await axiosInstance.get("/AdminAccess/modules", {
+        params: { role },
+      });
       return response.data.data?.modules || [];
     } catch (error: any) {
       return rejectWithValue(

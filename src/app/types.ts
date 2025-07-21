@@ -146,6 +146,7 @@ export interface LeagueState {
   totalCount: number;
   searchTerm: string;
   leagueDetail: League | null;
+  operatorDetail: any | null;
   matcheDetail: null;
   participants: any[];
   participantsLoading: boolean;
@@ -260,4 +261,9 @@ export interface UsersState {
   searchTerm: string;
   userDetail: User | null;
   bannedUsers: User[];
+}
+
+export interface AssignLeaguePayload {
+  operatorIds: string[];
+  leagueId: string;
 }

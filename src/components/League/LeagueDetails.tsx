@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, Link } from "react-router-dom";
 import { debounce } from "lodash";
@@ -8,20 +8,22 @@ import {
   fetchLeagueParticipants,
   setParticipantsPage,
   setMatchesPage,
-  fetchLeagueMatchesByID,
+  // fetchLeagueMatchesByID,
   fetchLeagueTickets,
   setTicketsPage,
   generateExcelFile,
   setParticipantsPerPage,
   setMatchesperPage,
   setTicketsPerPage,
+  fetchOperatorList,
+  assignLeague,
 } from "../../app/features/league/leagueSlice";
 import { RootState, AppDispatch } from "../../app/store";
 import HandLogoLoader from "../Loader/Loader";
 import viewIcon from "../../assets/images/eye_icon.svg";
 import { baseURL } from "../../axios";
 import edit from "../../assets/images/Edit.svg";
-import CommonModal from "./CommonModal";
+// import CommonModal from "./CommonModal";
 import ParticipantsEditModel from "./ParticipantsEditModel";
 
 const LeagueDetails: React.FC = () => {
@@ -59,26 +61,24 @@ const LeagueDetails: React.FC = () => {
     ticketsTotalCount,
     ticketsCurrentPage,
     ticketsPerPage,
-    perPage,
+    // perPage,
+    operatorDetail,
   } = useSelector((state: RootState) => state.leagues);
 
-  const debouncedSetSearchKey = useCallback(
-    debounce((value) => {
-      setSearchKey(value);
-      dispatch(setMatchesPage(1));
-    }, 300), // 300ms debounce delay
-    [] // Empty dependency array to ensure debounce is created only once
-  );
-
-  const [selectedParticipants, setSelectedParticipants] = useState<any | null>(
-    null
-  );
+  const [selectedParticipants, setSelectedParticipants] = useState<any | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [searchKey, setSearchKey] = useState("");
+  const [participantsSearchKey, setParticipantsSearchKey] = useState("");
   const [status, setStatus] = useState("all");
   const [ticketStatus, setTicketStatus] = useState("all");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [operator, setOperator] = useState<string[]>([]);
+
   // State for active tab
   const [activeTab, setActiveTab] = React.useState("Matches");
+
+  const role = localStorage.getItem("admin");
+  const jsonValue = JSON.parse(role as any);
 
   const handlePerPageChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -93,10 +93,23 @@ const LeagueDetails: React.FC = () => {
     [dispatch, activeTab]
   );
 
+  const debouncedSetSearchKey = useCallback(
+    debounce((value) => {
+      if (activeTab === "Participants") {
+        setParticipantsSearchKey(value);
+      } else if (activeTab === "Matches") {
+        setSearchKey(value);
+      }
+      dispatch(setMatchesPage(1));
+    }, 300),
+    [activeTab, dispatch]
+  );
+
   // Fetch league details and paginated data when component mounts or page changes
   useEffect(() => {
     if (lid) {
       dispatch(fetchLeagueById(lid));
+      dispatch(fetchOperatorList(lid));
     }
   }, [dispatch, lid]);
 
@@ -107,10 +120,11 @@ const LeagueDetails: React.FC = () => {
           leagueId: lid,
           page: participantsCurrentPage,
           participantsPerPage: participantsPerPage,
+          ...(participantsSearchKey && participantsSearchKey.trim() !== "" && { participantsSearchKey }),
         })
       );
     }
-  }, [dispatch, lid, participantsCurrentPage, participantsPerPage]);
+  }, [dispatch, lid, participantsCurrentPage, participantsPerPage, participantsSearchKey]);
 
   useEffect(() => {
     fetchParticipants();
@@ -216,11 +230,46 @@ const LeagueDetails: React.FC = () => {
     setIsEditModalOpen(true);
   };
 
+  const handleCheckboxChange = (id: string) => {
+    setOperator((prev) =>
+      prev.includes(id) ? prev.filter((op) => op !== id) : [...prev, id]
+    );
+  };
+
+  const selectedLabels = Array.isArray(operatorDetail)
+    ? operatorDetail
+      .filter((op: any) => operator.includes(op._id))
+      .map((op: any) => op.userName)
+      .join(', ')
+    : '';
+
+
+
+  const handleAssignLeague = () => {
+    if (!operator || operator.length === 0 || !lid || lid.length === 0) {
+      console.warn("Please select at least one operator and one league.");
+      return;
+    }
+
+    dispatch(assignLeague({ operatorIds: operator, leagueId: lid }))
+      .unwrap()
+    // .then((res) => {
+    //   console.log("Leagues assigned successfully:", res);
+    //   // Optionally show success toast or close modal
+    // })
+    // .catch((err) => {
+    //   console.error("Failed to assign leagues:", err);
+    //   // Optionally show error toast or alert
+    // });
+  };
+
+
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
-        <div className="bg-gradient-to-r from-gray-800/60 to-gray-700/60 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-6 mb-6 shadow-2xl">
+        <div className="relative z-10 bg-gradient-to-r from-gray-800/60 to-gray-700/60 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-6 mb-6 shadow-2xl">
           <div className="nf_legue_head--con gap-6 flex-col lg:flex-row flex-wrap flex justify-between items-center">
             <div className="legue__head_left-con flex items-center gap-6">
               <div className="relative">
@@ -242,6 +291,65 @@ const LeagueDetails: React.FC = () => {
               </div>
             </div>
             <div className="legue__head_right-con flex gap-3">
+              {jsonValue?.role !== "Operator" && (
+                <>
+                  <div className="relative inline-block w-64">
+                    {/* Trigger Box */}
+                    <div
+                      className="bg-gray-700 text-white border border-gray-600/50 rounded-xl px-4 py-2 shadow-md cursor-pointer py-3"
+                      onClick={() => setIsDropdownOpen((prev) => !prev)}
+                    >
+                      {selectedLabels || "Select Operators"}
+                    </div>
+
+                    {/* Dropdown Content */}
+                    {isDropdownOpen && (
+                      <>
+                        <div className="absolute z-10 w-full mt-2 bg-gray-800 border border-gray-600 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                          {Array.isArray(operatorDetail) && operatorDetail.length > 0 ? (
+                            operatorDetail.map((option: any) => (
+                              <label
+                                key={option._id}
+                                className="flex items-center px-4 py-2 hover:bg-gray-700 text-white cursor-pointer"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={operator.includes(option._id)}
+                                  onChange={() => handleCheckboxChange(option._id)}
+                                  style={{ backgroundPosition: "center" }}
+                                  className="form-checkbox h-4 w-4 text-blue-500 bg-gray-800 border-gray-600 rounded mr-3"
+                                />
+                                <span>{option.userName}</span>
+                              </label>
+                            ))
+                          ) : (
+                            <p className="text-gray-400 p-2">No operators available</p>
+                          )}
+                        </div>
+                      </>
+                    )}
+                    <svg
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/40 pointer-events-none w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </div>
+                  <button
+                    onClick={handleAssignLeague}
+                    className="bg-gradient-to-r from-gray-700 to-gray-600 hover:from-blue-600 hover:to-blue-700 font-medium flex items-center gap-2 text-white text-lg py-3 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-blue-500/25 border border-gray-600/50"
+                  >
+                    Assign
+                  </button>
+                </>
+              )}
               <Link
                 to={`/${partnerId}/leagues`}
                 className="bg-gradient-to-r from-gray-700 to-gray-600 hover:from-blue-600 hover:to-blue-700 font-medium flex items-center gap-2 text-white text-lg py-3 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-blue-500/25 border border-gray-600/50"
@@ -367,7 +475,15 @@ const LeagueDetails: React.FC = () => {
                 }`}
                 onClick={() => setActiveTab(tab)}
               >
-                {tab}
+                <div className="flex items-center justify-center gap-2">
+                  <span>{tab}</span>
+                  {tab === "Tickets" && (
+                    <span className="bg-blue-500/30 text-blue-300 text-sm px-2 py-0.5 rounded-full">
+                      {tickets?.totalOpen}
+                    </span>
+                  )}
+                </div>
+
                 {activeTab === tab && (
                   <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500"></div>
                 )}
@@ -386,7 +502,13 @@ const LeagueDetails: React.FC = () => {
                     </div>
                     Participants
                   </h4>
-                  <div>
+                  <div className="flex justify-center gap-3">
+                    <input
+                      type="text"
+                      placeholder="Search..."
+                      onChange={(e) => debouncedSetSearchKey(e.target.value)}
+                      className="w-full py-2 px-4 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    />
                     <button
                       className="py-2 px-4 bg-gradient-to-r from-blue-500 to-blue-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
                       onClick={handleExportParticipants}
@@ -443,7 +565,7 @@ const LeagueDetails: React.FC = () => {
                                   }`}
                                 >
                                   <td className="py-4 px-6 text-gray-300">
-                                    {(participantsCurrentPage - 1) * 5 +
+                                    {(participantsCurrentPage - 1) * participantsPerPage +
                                       index +
                                       1}
                                   </td>
@@ -676,7 +798,7 @@ const LeagueDetails: React.FC = () => {
                                 }`}
                               >
                                 <td className="py-4 px-6 font-medium text-blue-300">
-                                  {(matchesCurrentPage - 1) * 5 + index + 1}
+                                  {(matchesCurrentPage - 1) * matchesPerPage + index + 1}
                                 </td>
                                 <td className="py-4 px-6 font-medium text-blue-300">
                                   {match?.team1
@@ -850,7 +972,7 @@ const LeagueDetails: React.FC = () => {
                   <div className="text-custom-gray bg-red-500/10 border border-red-500/20 rounded-xl p-4">
                     Error: {ticketsError}
                   </div>
-                ) : tickets?.length > 0 ? (
+                ) : tickets?.result?.length > 0 ? (
                   <>
                     <div className="bg-gray-800/30 rounded-2xl overflow-hidden border border-gray-700/30 shadow-lg">
                       <div className="overflow-x-auto">
@@ -876,7 +998,7 @@ const LeagueDetails: React.FC = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {tickets?.map((ticket: any, index: number) => (
+                            {tickets?.result?.map((ticket: any, index: number) => (
                               <tr
                                 key={ticket?._id}
                                 className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-yellow-500/10 hover:to-orange-500/10 transition-all duration-200 ${
@@ -886,7 +1008,7 @@ const LeagueDetails: React.FC = () => {
                                 }`}
                               >
                                 <td className="py-4 px-6 font-medium text-blue-300">
-                                  {(ticketsCurrentPage - 1) * 5 + index + 1}
+                                  {(ticketsCurrentPage - 1) * ticketsPerPage + index + 1}
                                 </td>
                                 <td className="py-4 px-6 font-medium text-blue-300">
                                   {/* {ticket?.raiserID?.username} */}
@@ -930,7 +1052,7 @@ const LeagueDetails: React.FC = () => {
 
                     <div className="flex justify-between items-center mt-6 bg-gray-800/30 rounded-xl p-4 border border-gray-700/30">
                       <div className="text-gray-300 font-medium">
-                        Showing {tickets.length} of {ticketsTotalCount} tickets
+                        Showing {tickets.result.length} of {ticketsTotalCount} tickets
                       </div>
                       <div className="nf_max-al bg-input-color gap-2 flex items-center pl-2 pr-1 rounded-[0.625rem]">
                         <span className="text-[1.0625rem] text-custom-gray whitespace-nowrap ">

@@ -287,7 +287,7 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      dispatch(fetchAccessModules() as any);
+      dispatch(fetchAccessModules(formValues?.role));
       // Clear validation cache when modal opens
       validationCache.clear();
     } else {
@@ -305,7 +305,7 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
       setShowPassword(false);
       setPasswordStrength({ strength: "", color: "", percentage: 0 });
     }
-  }, [isOpen, dispatch]);
+  }, [isOpen, dispatch, formValues?.role]);
 
   useEffect(() => {
     if (accessModules && accessModules.length > 0 && modules.length === 0) {
@@ -343,13 +343,13 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
       prev.map((module) =>
         module.key === moduleKey
           ? {
-              ...module,
-              hasAccess: !module.hasAccess,
-              subModules: module.subModules?.map((sub) => ({
-                ...sub,
-                hasAccess: !module.hasAccess ? false : sub.hasAccess,
-              })),
-            }
+            ...module,
+            hasAccess: !module.hasAccess,
+            subModules: module.subModules?.map((sub) => ({
+              ...sub,
+              hasAccess: !module.hasAccess ? false : sub.hasAccess,
+            })),
+          }
           : module
       )
     );
@@ -371,13 +371,13 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
       prev.map((module) =>
         module.key === moduleKey
           ? {
-              ...module,
-              subModules: module.subModules?.map((sub) =>
-                sub.key === subModuleKey
-                  ? { ...sub, hasAccess: !sub.hasAccess }
-                  : sub
-              ),
-            }
+            ...module,
+            subModules: module.subModules?.map((sub) =>
+              sub.key === subModuleKey
+                ? { ...sub, hasAccess: !sub.hasAccess }
+                : sub
+            ),
+          }
           : module
       )
     );
@@ -458,9 +458,8 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
 
   return (
     <div
-      className={`fixed top-0 left-0 right-0 z-50 flex justify-center items-center w-full h-screen bg-black bg-opacity-50 transition-opacity ${
-        isOpen ? "opacity-100 visible" : "opacity-0 invisible"
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50 flex justify-center items-center w-full h-screen bg-black bg-opacity-50 transition-opacity ${isOpen ? "opacity-100 visible" : "opacity-0 invisible"
+        }`}
     >
       <div className="relative p-4 w-full max-w-4xl max-h-full mx-auto">
         <div className="relative bg-dark-blue rounded-lg shadow-sm dark:bg-gray-700">
@@ -526,6 +525,14 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
                         as="select"
                         name="role"
                         className="w-full p-3 rounded-lg bg-gray-800 text-white border border-light-border focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        onChange={(e: any) => {
+                          const newRole = e.target.value;
+                          setFieldValue("role", newRole);
+                          setFormValues((prev) => ({
+                            ...prev,
+                            role: newRole,
+                          }));
+                        }}
                       >
                         <option value="" label="Select a role" />
                         {roleOptions.map((option) => (
@@ -607,13 +614,12 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
                               Password Strength:
                             </span>
                             <span
-                              className={`text-xs font-medium ${
-                                passwordStrength.strength === "Weak"
-                                  ? "text-red-400"
-                                  : passwordStrength.strength === "Medium"
+                              className={`text-xs font-medium ${passwordStrength.strength === "Weak"
+                                ? "text-red-400"
+                                : passwordStrength.strength === "Medium"
                                   ? "text-yellow-400"
                                   : "text-green-400"
-                              }`}
+                                }`}
                             >
                               {passwordStrength.strength}
                             </span>
@@ -788,11 +794,10 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
                                   className="p-2 text-gray-400 hover:text-white transition-colors duration-200"
                                 >
                                   <svg
-                                    className={`w-5 h-5 transform transition-transform duration-200 ${
-                                      expandedModules.has(module.key)
-                                        ? "rotate-180"
-                                        : ""
-                                    }`}
+                                    className={`w-5 h-5 transform transition-transform duration-200 ${expandedModules.has(module.key)
+                                      ? "rotate-180"
+                                      : ""
+                                      }`}
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24"
@@ -834,11 +839,10 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
                                   {module.subModules.map((subModule) => (
                                     <div
                                       key={subModule.key}
-                                      className={`flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${
-                                        module.hasAccess
-                                          ? "bg-gray-800 border-gray-600 hover:border-gray-500"
-                                          : "bg-gray-800/50 border-gray-700 opacity-50"
-                                      }`}
+                                      className={`flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${module.hasAccess
+                                        ? "bg-gray-800 border-gray-600 hover:border-gray-500"
+                                        : "bg-gray-800/50 border-gray-700 opacity-50"
+                                        }`}
                                     >
                                       <label className="relative inline-flex items-center cursor-pointer">
                                         <input
