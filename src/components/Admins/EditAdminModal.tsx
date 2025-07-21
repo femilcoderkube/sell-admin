@@ -16,7 +16,7 @@ interface ModalProps {
 // Define available roles
 const roleOptions = [
   { value: "admin", label: "Admin" },
-  { value: "operator", label: "Operator" },
+  { value: "Operator", label: "Operator" },
 ];
 
 // Validation schema
@@ -26,7 +26,7 @@ const adminSchema = Yup.object({
     .min(3, "Username must be at least 3 characters"),
   role: Yup.string()
     .required("Role is required")
-    .oneOf(["admin", "operator"], "Invalid role selected"),
+    .oneOf(["admin", "Operator"], "Invalid role selected"),
   phoneNumber: Yup.string()
     .matches(/^\+?[1-9]\d{1,14}$/, "Invalid phone number")
     .required("Phone number is required"),
@@ -59,7 +59,7 @@ export const EditAdminModal: React.FC<ModalProps> = ({
       if (currentUserRole === "Superadmin" || currentUserRole === "superadmin") {
         // SuperAdmin can edit both Admin and Operator
         setCanEdit(true);
-      } else if (currentUserRole === "admin" && selectedAdmin.role === "operator") {
+      } else if (currentUserRole === "admin" && selectedAdmin.role === "Operator") {
         // Admin can only edit Operator
         setCanEdit(true);
       } else {
