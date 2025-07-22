@@ -30,7 +30,7 @@ const adminSchema = Yup.object({
   phoneNumber: Yup.string()
     .matches(/^\+?[1-9]\d{1,14}$/, "Invalid phone number")
     .required("Phone number is required"),
-  isActive: Yup.boolean().required("Active status is required"),
+  // isActive: Yup.boolean().required("Active status is required"),
 });
 
 export const EditAdminModal: React.FC<ModalProps> = ({
@@ -46,7 +46,7 @@ export const EditAdminModal: React.FC<ModalProps> = ({
       // Get admin data from localStorage
       const adminData = localStorage.getItem("admin");
       let currentUserRole = "";
-      
+
       if (adminData) {
         try {
           const parsedAdminData = JSON.parse(adminData);
@@ -55,11 +55,17 @@ export const EditAdminModal: React.FC<ModalProps> = ({
           console.error("Error parsing admin data from localStorage", error);
         }
       }
-  
-      if (currentUserRole === "Superadmin" || currentUserRole === "superadmin") {
+
+      if (
+        currentUserRole === "Superadmin" ||
+        currentUserRole === "superadmin"
+      ) {
         // SuperAdmin can edit both Admin and Operator
         setCanEdit(true);
-      } else if (currentUserRole === "admin" && selectedAdmin.role === "Operator") {
+      } else if (
+        currentUserRole === "admin" &&
+        selectedAdmin.role === "Operator"
+      ) {
         // Admin can only edit Operator
         setCanEdit(true);
       } else {
@@ -74,20 +80,19 @@ export const EditAdminModal: React.FC<ModalProps> = ({
       userName: selectedAdmin?.userName || "",
       role: selectedAdmin?.role || "",
       phoneNumber: selectedAdmin?.phoneNumber || "",
-      isActive: selectedAdmin?.isActive ?? true,
+      // isActive: selectedAdmin?.isActive ?? true,
     },
     validationSchema: adminSchema,
     enableReinitialize: true,
     onSubmit: async (values) => {
       if (!selectedAdmin || !canEdit) return;
 
-
       const data = {
         userName: values.userName,
         role: values.role,
         phoneNumber: values.phoneNumber,
-        isActive: values.isActive,
-      }
+        // isActive: values.isActive,
+      };
 
       const resultAction = await dispatch(
         updateAdmin({ id: selectedAdmin._id, admin: data })
@@ -99,17 +104,29 @@ export const EditAdminModal: React.FC<ModalProps> = ({
       }
     },
   });
-  const Switch = ({ checked, onChange, id }: { checked: boolean; onChange: (v: boolean) => void; id: string }) => (
+  const Switch = ({
+    checked,
+    onChange,
+    id,
+  }: {
+    checked: boolean;
+    onChange: (v: boolean) => void;
+    id: string;
+  }) => (
     <button
       type="button"
       id={id}
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none ${checked ? "bg-blue-600" : "bg-gray-400"}`}
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none ${
+        checked ? "bg-blue-600" : "bg-gray-400"
+      }`}
       onClick={() => onChange(!checked)}
       aria-pressed={checked}
     >
       <span className="sr-only">Toggle</span>
       <span
-        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${checked ? "translate-x-6" : "translate-x-1"}`}
+        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
+          checked ? "translate-x-6" : "translate-x-1"
+        }`}
       />
     </button>
   );
@@ -168,7 +185,9 @@ export const EditAdminModal: React.FC<ModalProps> = ({
                       Username
                     </label>
                     {formik.touched.userName && formik.errors.userName && (
-                      <p className="text-red-600 !m-0 mt-1">{formik.errors.userName}</p>
+                      <p className="text-red-600 !m-0 mt-1">
+                        {formik.errors.userName}
+                      </p>
                     )}
                   </div>
 
@@ -192,7 +211,9 @@ export const EditAdminModal: React.FC<ModalProps> = ({
                       Role
                     </label>
                     {formik.touched.role && formik.errors.role && (
-                      <p className="text-red-600 !m-0 mt-1">{formik.errors.role}</p>
+                      <p className="text-red-600 !m-0 mt-1">
+                        {formik.errors.role}
+                      </p>
                     )}
                   </div>
 
@@ -210,22 +231,29 @@ export const EditAdminModal: React.FC<ModalProps> = ({
                     >
                       Phone Number
                     </label>
-                    {formik.touched.phoneNumber && formik.errors.phoneNumber && (
-                      <p className="text-red-600 !m-0 mt-1">{formik.errors.phoneNumber}</p>
-                    )}
+                    {formik.touched.phoneNumber &&
+                      formik.errors.phoneNumber && (
+                        <p className="text-red-600 !m-0 mt-1">
+                          {formik.errors.phoneNumber}
+                        </p>
+                      )}
                   </div>
 
-                  <div className="flex items-center mb-4">
-                      <label htmlFor="isActive" className="text-white mr-3 ml-3">Is Active</label>
-                     <Switch
-                  checked={formik.values.isActive}
-                  onChange={() => {
-                    formik.setFieldValue("isActive", !formik.values.isActive);
-                  }}
-                  id="isActive"
-                />
-
-                  </div>
+                  {/* <div className="flex items-center mb-4">
+                    <label htmlFor="isActive" className="text-white mr-3 ml-3">
+                      Is Active
+                    </label>
+                    <Switch
+                      checked={formik.values.isActive}
+                      onChange={() => {
+                        formik.setFieldValue(
+                          "isActive",
+                          !formik.values.isActive
+                        );
+                      }}
+                      id="isActive"
+                    />
+                  </div> */}
                 </>
               )}
             </div>
