@@ -851,12 +851,17 @@ const MatchDetails = () => {
                                       <div>
                                         {message.messages.map(
                                           (msg: string, index: number) => (
-                                            <p
-                                              key={index}
-                                              dangerouslySetInnerHTML={{
-                                                __html: msg,
-                                              }}
-                                            />
+                                            <div className="flex gap-1">
+                                              <span className="font-semibold">
+                                                System:
+                                              </span>
+                                              <p
+                                                key={index}
+                                                dangerouslySetInnerHTML={{
+                                                  __html: msg,
+                                                }}
+                                              />
+                                            </div>
                                           )
                                         )}
                                       </div>
@@ -866,14 +871,20 @@ const MatchDetails = () => {
                                       <div>
                                         {message.randomMessages.map(
                                           (randomMsg: any, index: number) => (
-                                            <div className="flex">
-                                              <p
-                                                key={randomMsg._id}
-                                                dangerouslySetInnerHTML={{
-                                                  __html: randomMsg.randomText,
-                                                }}
-                                              />
-                                              <span>: {randomMsg.tags}</span>
+                                            <div className="flex gap-1">
+                                              <span className="font-semibold">
+                                                System:
+                                              </span>
+                                              <div className="flex">
+                                                <p
+                                                  key={randomMsg._id}
+                                                  dangerouslySetInnerHTML={{
+                                                    __html:
+                                                      randomMsg.randomText,
+                                                  }}
+                                                />
+                                                <span>: {randomMsg.tags}</span>
+                                              </div>
                                             </div>
                                           )
                                         )}
