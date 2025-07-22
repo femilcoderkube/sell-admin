@@ -685,7 +685,7 @@ const MatchDetails = () => {
                               /> */}
                             </td>
                             <td className="p-4 border-b border-gray-700/50">
-                              {usernames}
+                              {usernames ? usernames : "-"}
                             </td>
                             <td className="p-4 border-b border-gray-700/50">
                               <p className="font-semibold text-[#46A2FF] text-lg">
@@ -706,22 +706,26 @@ const MatchDetails = () => {
                               </p>
                             </td>
                             <td className="p-4 border-b border-gray-700/50">
-                              {score?.description}
+                              {score?.description ? score?.description : "-"}
                             </td>
                             <td className="p-4 border-b border-gray-700/50">
                               {new Date(score?.submittedAt)?.toLocaleString()}
                             </td>
                             <td className="p-4 border-b border-gray-700/50">
-                              <button
-                                className="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
-                                onClick={() => openModal(score?.attachment)}
-                              >
-                                <img
-                                  src={viewIcon}
-                                  alt="View"
-                                  className="w-5 h-5"
-                                />
-                              </button>
+                              {score?.submittedBy !== "admin" ? (
+                                <button
+                                  className="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
+                                  onClick={() => openModal(score?.attachment)}
+                                >
+                                  <img
+                                    src={viewIcon}
+                                    alt="View"
+                                    className="w-5 h-5"
+                                  />
+                                </button>
+                              ) : (
+                                "-"
+                              )}
                             </td>
                             <td className="p-4 border-b border-gray-700/50">
                               {score?.isActive === false ? (
@@ -744,6 +748,9 @@ const MatchDetails = () => {
                         <tr className="bg-gray-600/40">
                           <td className="p-4 border-b border-gray-700/50 font-bold text-white">
                             Admin
+                          </td>
+                          <td className="p-4 border-b border-gray-700/50 font-bold text-white">
+                            -
                           </td>
                           <td className="p-4 border-b border-gray-700/50">
                             <input
@@ -783,7 +790,10 @@ const MatchDetails = () => {
                               </p>
                             )}
                           </td>
-                          <td className="p-4 border-b border-gray-700/50"></td>
+                          <td className="p-4 border-b border-gray-700/50">-</td>
+                          <td className="p-4 border-b border-gray-700/50">-</td>
+                          <td className="p-4 border-b border-gray-700/50">-</td>
+
                           <td className="p-4 border-b border-gray-700/50">
                             <div className="flex items-center gap-2">
                               <button
