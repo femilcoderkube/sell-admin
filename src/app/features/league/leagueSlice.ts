@@ -597,6 +597,28 @@ export const assignLeague = createAsyncThunk(
     }
   }
 );
+export const deassignLeague = createAsyncThunk(
+  "leagues/deassignLeague",
+  async (
+    { operatorIds, leagueId }: AssignLeaguePayload,
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axiosInstance.post("/assignLeague/deassign", {
+        operatorIds,
+        leagueId,
+      });
+
+      return response.data;
+    } catch (error: any) {
+      console.log("err 4", error);
+
+      return rejectWithValue(
+        error.response?.data?.message || "Error deassigning league"
+      );
+    }
+  }
+);
 
 const leagueSlice = createSlice({
   name: "leagues",

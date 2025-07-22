@@ -17,6 +17,7 @@ import {
   setTicketsPerPage,
   fetchOperatorList,
   assignLeague,
+  deassignLeague,
   setOperatorsPage,
   setOperatorsPerPage,
 } from "../../app/features/league/leagueSlice";
@@ -313,6 +314,30 @@ const LeagueDetails: React.FC = () => {
         toast.error("Failed to assign operators!");
       });
   };
+
+  const handleDeassignLeague = () => {
+    if (!operator || operator.length === 0 || !lid || lid.length === 0) {
+      toast.error("Please select at least one operator.");
+      return;
+    }
+    dispatch(deassignLeague({ operatorIds: operator, leagueId: lid }))
+      .unwrap()
+      .then((res) => {
+        toast.success("Operators deassigned successfully!");
+        setOperator([]); // Clear selection
+        fetchOperators(); // Refresh operator list
+      })
+      .catch((err) => {
+        toast.error("Failed to deassign operators!");
+      });
+  };
+
+  const showDeassignButton =
+    operator.length > 0 && operators?.length > 0
+      ? operator.every(
+          (opId) => operators.find((op: any) => op._id === opId)?.isAssigned
+        )
+      : false;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
@@ -1125,10 +1150,18 @@ const LeagueDetails: React.FC = () => {
 
                     {operator?.length > 0 && (
                       <button
-                        onClick={handleAssignLeague}
-                        className="py-2 px-4 bg-gradient-to-r from-blue-500 to-blue-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
+                        onClick={
+                          showDeassignButton
+                            ? handleDeassignLeague
+                            : handleAssignLeague
+                        }
+                        className={`py-2 px-4 bg-gradient-to-r ${
+                          showDeassignButton
+                            ? "from-red-500 to-red-500"
+                            : "from-blue-500 to-blue-500"
+                        } text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm`}
                       >
-                        Assign
+                        {showDeassignButton ? "Deassign" : "Assign"}
                       </button>
                     )}
                   </div>
