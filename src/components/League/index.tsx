@@ -13,6 +13,8 @@ import { RootState } from "../../app/store";
 import { Pagination } from "../ui/Pagination";
 import HandLogoLoader from "../Loader/Loader";
 import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
+import { fetchRole } from "../../app/features/admins/adminSlice";
+import { logout } from "../../app/features/auth/authSlice";
 
 export * from "./LeagueTable";
 
@@ -33,6 +35,26 @@ export const League: React.FC = ({ title }: any) => {
   const partnerId = window.location.pathname.split("/")[1];
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [deleteId, setDeleteId] = useState<string>("");
+
+  const { role } = useSelector((state: RootState) => state.admins);
+  const roles = localStorage.getItem("admin");
+  const jsonValue = JSON.parse(roles as any);
+
+  useEffect(() => {
+    if (role?.role) {
+      if (jsonValue.role !== role?.role) {
+        console.log("lofg pade chhe");
+        window.location.href = "/login";
+        dispatch(logout());
+      }
+    }
+  }, [role]);
+
+  useEffect(() => {
+    if (jsonValue.role !== "Superadmin") {
+      dispatch(fetchRole());
+    }
+  }, []);
 
   useEffect(() => {
     if (deleteId) {

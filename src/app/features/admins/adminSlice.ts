@@ -5,6 +5,7 @@ import axiosInstance from "../../../axios";
 const initialState: AdminState = {
   admins: [],
   dashboard: [],
+  role: null,
   loading: false,
   error: null,
   currentPage: 1,
@@ -45,6 +46,19 @@ export const fetchDashboard = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get("/admin/dashboard");
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error fetching dashboard data"
+      );
+    }
+  }
+);
+export const fetchRole = createAsyncThunk(
+  "admin/fetchRole",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get("/admin/role");
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -177,6 +191,17 @@ const adminSlice = createSlice({
         state.dashboard = action.payload.data;
       })
       .addCase(fetchDashboard.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchRole.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchRole.fulfilled, (state, action) => {
+        state.loading = false;
+        state.role = action.payload.data;
+      })
+      .addCase(fetchRole.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
