@@ -66,20 +66,9 @@ const DashboardCard = ({ title, value, delay = 0, color = "emerald" }) => {
 
   return (
     <div
-      // to={
-      //   title === "Total Leagues"
-      //     ? `/${partnerId}/leagues`
-      //     : title === "Total Users"
-      //     ? "/user-controll/all-user"
-      //     : ""
-      // }
-      className={`bg-gradient-to-br rounded-xl p-6 shadow-lg transform transition-all duration-700 hover:scale-105 hover:shadow-xl ${
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-      } ${
-        title === "Total Leagues" || title === "Total Users"
-          ? "cursor-pointer"
-          : "cursor-default"
-      }`}
+
+      className={`bg-gradient-to-br rounded-xl p-6 shadow-lg transform transition-all duration-700 hover:scale-105 hover:shadow-xl cursor-default ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+        } `}
     >
       <div className="flex items-center justify-between mb-4">
         <div className="text-left">
