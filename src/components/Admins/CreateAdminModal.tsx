@@ -11,6 +11,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { checkAdminExists } from "../../app/features/admins/adminSlice";
 import { AppDispatch } from "../../app/store";
+import toast from "react-hot-toast";
 
 interface CreateAdminModalProps {
   isOpen: boolean;
@@ -414,6 +415,7 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
           adminAccess: { modules },
         })
       ).unwrap();
+      toast.success(`${formValues?.role?.toLowerCase()} created successfully`)
       await dispatch(
         fetchAdmin({ page: 1, perPage: 10, searchTerm: "" })
       ).unwrap();
