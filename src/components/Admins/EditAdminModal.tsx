@@ -6,6 +6,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { AdminType } from "../../app/types";
 import { fetchAdmin, updateAdmin } from "../../app/features/admins/adminSlice";
+import toast from "react-hot-toast";
 
 interface ModalProps {
   show: boolean;
@@ -99,6 +100,7 @@ export const EditAdminModal: React.FC<ModalProps> = ({
       );
 
       if (updateAdmin.fulfilled.match(resultAction)) {
+        toast.success(`${values?.role?.toLowerCase()} created successfully`);
         dispatch(fetchAdmin({ page: 1, perPage: 10, searchTerm: "" }));
         onClose();
       }
