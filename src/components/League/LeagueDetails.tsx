@@ -86,6 +86,8 @@ const LeagueDetails: React.FC = () => {
   const [operatorSearchKey, setOperatorSearchKey] = useState("");
   // State for active tab
   const [activeTab, setActiveTab] = React.useState("Matches");
+  const role = localStorage.getItem("admin");
+  const jsonValue = JSON.parse(role as any);
 
   const handlePerPageChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -175,7 +177,9 @@ const LeagueDetails: React.FC = () => {
   ]);
 
   useEffect(() => {
-    fetchOperators();
+    if (jsonValue?.role === "Superadmin" || jsonValue?.role === "admin") {
+      fetchOperators();
+    }
   }, [fetchOperators]);
 
   const getLeagueMatches = useCallback(() => {
@@ -230,6 +234,11 @@ const LeagueDetails: React.FC = () => {
   }
 
   const tabs = ["Participants", "Matches", "Tickets", "Operators"];
+  console.log("jsonValue", jsonValue);
+  const filteredTabs =
+    jsonValue?.role === "Superadmin" || jsonValue?.role === "admin"
+      ? tabs
+      : tabs.filter((tab) => tab !== "Operators");
 
   // Pagination handlers
   const handleParticipantsPageChange = (page: number) => {
@@ -273,35 +282,6 @@ const LeagueDetails: React.FC = () => {
     setIsEditModalOpen(true);
   };
 
-  // const handleCheckboxChange = (id: string) => {
-  //   setOperator((prev) =>
-  //     prev.includes(id) ? prev.filter((op) => op !== id) : [...prev, id]
-  //   );
-  // };
-
-  // const selectedLabels = Array.isArray(operatorDetail)
-  //   ? operatorDetail
-  //       .filter((op: any) => operator.includes(op._id))
-  //       .map((op: any) => op.userName)
-  //       .join(", ")
-  //   : "";
-
-  // const handleAssignLeague = () => {
-  //   if (!operator || operator.length === 0 || !lid || lid.length === 0) {
-  //     console.warn("Please select at least one operator and one league.");
-  //     return;
-  //   }
-
-  //   dispatch(assignLeague({ operatorIds: operator, leagueId: lid })).unwrap();
-  //   // .then((res) => {
-  //   //   console.log("Leagues assigned successfully:", res);
-  //   //   // Optionally show success toast or close modal
-  //   // })
-  //   // .catch((err) => {
-  //   //   console.error("Failed to assign leagues:", err);
-  //   //   // Optionally show error toast or alert
-  //   // });
-  // };
   const handleCheckboxChange = (id: string) => {
     setOperator((prev) =>
       prev.includes(id) ? prev.filter((op) => op !== id) : [...prev, id]
@@ -475,7 +455,7 @@ const LeagueDetails: React.FC = () => {
         {/* Tabs Navigation */}
         <div className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-2xl  overflow-hidden shadow-xl">
           <div className="flex border-b border-gray-700/50">
-            {tabs.map((tab) => (
+            {filteredTabs.map((tab) => (
               <button
                 key={tab}
                 className={`flex-1 py-4 px-6 text-lg font-medium transition-all duration-300 relative ${
