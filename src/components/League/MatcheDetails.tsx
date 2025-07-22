@@ -410,6 +410,12 @@ const MatchDetails = () => {
   }, [messageData]);
 
   useEffect(() => {
+    if (messageData) {
+      console.log("messageData", messageData);
+    }
+  }, [messageData]);
+
+  useEffect(() => {
     return () => {
       socket.disconnect();
     };
@@ -819,7 +825,117 @@ const MatchDetails = () => {
                   <span className="text-[#46A2FF] text-lg">💬</span>
                   Chat
                 </h3>
+
                 <div
+                  className="h-64 overflow-y-auto bg-gray-900/50 p-4 rounded-lg"
+                  style={{ scrollbarWidth: "thin" }}
+                  ref={scrollRef}
+                >
+                  {messageData?.length > 0 ? (
+                    [...messageData]?.reverse().map((message: any) => {
+                      return (
+                        <div
+                          key={message._id}
+                          className={`p-1 flex ${
+                            message?.isAdmin
+                              ? "text-blue-200 justify-end"
+                              : "text-gray-200 justify-start"
+                          }`}
+                        >
+                          {message.isSystemMsg ? (
+                            <div className="text-gray-200 justify-start">
+                              <div className="inline-block rounded-lg bg-gray-700/30">
+                                <div className="flex items-start space-x-2 px-3 py-2 rounded-lg">
+                                  <div className="text-sm break-words">
+                                    {message.messages?.length > 0 && (
+                                      <div>
+                                        {message.messages.map(
+                                          (msg: string, index: number) => (
+                                            <p
+                                              key={index}
+                                              dangerouslySetInnerHTML={{
+                                                __html: msg,
+                                              }}
+                                            />
+                                          )
+                                        )}
+                                      </div>
+                                    )}
+
+                                    {message.randomMessages?.length > 0 && (
+                                      <div>
+                                        {message.randomMessages.map(
+                                          (randomMsg: any, index: number) => (
+                                            <div className="flex">
+                                              <p
+                                                key={randomMsg._id}
+                                                dangerouslySetInnerHTML={{
+                                                  __html: randomMsg.randomText,
+                                                }}
+                                              />
+                                              <span>: {randomMsg.tags}</span>
+                                            </div>
+                                          )
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                  <span className="text-xs text-gray-400 self-end">
+                                    {new Date(
+                                      message.dateTime
+                                    ).toLocaleTimeString([], {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    })}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div
+                              className={`p-1 flex ${
+                                message?.isAdmin
+                                  ? "text-blue-200 justify-end"
+                                  : "text-gray-200 justify-start"
+                              }`}
+                            >
+                              <div
+                                className={`inline-block rounded-lg ${
+                                  message?.isAdmin
+                                    ? "bg-blue-600/30"
+                                    : "bg-gray-700/30"
+                                }`}
+                              >
+                                <div className="flex items-start space-x-2 px-3 py-2 rounded-lg">
+                                  <p className="text-sm break-words">
+                                    <span className="font-semibold">
+                                      {message?.isAdmin
+                                        ? "Admin"
+                                        : message?.senderId?.username}
+                                    </span>
+                                    : {message?.msg}
+                                  </p>
+                                  <span className="text-xs text-gray-400 self-end">
+                                    {new Date(
+                                      message?.dateTime
+                                    ).toLocaleTimeString([], {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    })}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <p className="text-gray-300">No messages yet.</p>
+                  )}
+                </div>
+
+                {/* <div
                   className="h-64 overflow-y-auto bg-gray-900/50 p-4 rounded-lg"
                   style={{ scrollbarWidth: "thin" }}
                   ref={scrollRef}
@@ -871,7 +987,7 @@ const MatchDetails = () => {
                   ) : (
                     <p className="text-gray-300">No messages yet.</p>
                   )}
-                </div>
+                </div> */}
                 <div className="mt-4 flex gap-2">
                   <input
                     type="text"

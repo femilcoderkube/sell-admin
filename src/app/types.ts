@@ -147,6 +147,12 @@ export interface LeagueState {
   searchTerm: string;
   leagueDetail: League | null;
   operatorDetail: any | null;
+  operators: any;
+  operatorsLoading: any;
+  operatorsError: any;
+  operatorsCurrentPage: any;
+  operatorsPerPage: any;
+  operatorsTotalCount: any;
   matcheDetail: null;
   participants: any[];
   participantsLoading: boolean;

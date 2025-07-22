@@ -14,6 +14,12 @@ const initialState: LeagueState = {
   searchTerm: "",
   leagueDetail: null,
   operatorDetail: null,
+  operators: [],
+  operatorsLoading: false,
+  operatorsError: null,
+  operatorsCurrentPage: 1,
+  operatorsPerPage: 10,
+  operatorsTotalCount: 0,
   matcheDetail: null,
   participants: [],
   participantsLoading: false,
@@ -68,7 +74,9 @@ export const fetchLeagueMatches = createAsyncThunk(
         params.append("status", status);
       }
 
-      const response = await axiosInstance.get(`/LeagueMatch?${params.toString()}`);
+      const response = await axiosInstance.get(
+        `/LeagueMatch?${params.toString()}`
+      );
       return response.data;
     } catch (error: any) {
       console.log("err", error);
@@ -143,7 +151,6 @@ export const fetchLeagueParticipants = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-
       const params = new URLSearchParams();
 
       params.append("leagueId", leagueId);
@@ -175,8 +182,13 @@ export const fetchLeagueTickets = createAsyncThunk(
       leagueId,
       page,
       ticketsPerPage,
-      status
-    }: { leagueId: string; page: number; ticketsPerPage: number; status: string },
+      status,
+    }: {
+      leagueId: string;
+      page: number;
+      ticketsPerPage: number;
+      status: string;
+    },
     { rejectWithValue }
   ) => {
     try {
@@ -516,12 +528,12 @@ export const generateExcelFile = createAsyncThunk(
 
 export const updateParticipants = createAsyncThunk(
   "participants/updateParticipants",
-  async (
-    { id, data }: { id: string; data: any },
-    { rejectWithValue }
-  ) => {
+  async ({ id, data }: { id: string; data: any }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.put(`/LeaguesParticipants?id=${id}`, data);
+      const response = await axiosInstance.put(
+        `/LeaguesParticipants?id=${id}`,
+        data
+      );
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -533,15 +545,31 @@ export const updateParticipants = createAsyncThunk(
 
 export const fetchOperatorList = createAsyncThunk(
   "leagues/fetchOperatorList",
-  async (id: string, { rejectWithValue }) => {
+  async (
+    {
+      id,
+      page,
+      perPage,
+      searchKey,
+    }: { id: string; page: number; perPage: number; searchKey?: string },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await axiosInstance.get(`/admin/operatorlist?id=${id}`);
+      const params = new URLSearchParams();
+      params.append("id", id);
+      params.append("page", String(page));
+      params.append("limit", String(perPage));
+      if (searchKey && searchKey.trim() !== "") {
+        params.append("searchKey", searchKey);
+      }
+      const response = await axiosInstance.get(
+        `/admin/operatorlist?${params.toString()}`
+      );
       return response.data;
     } catch (error: any) {
-      console.log("err 4", error);
-
+      console.log("err operator list", error);
       return rejectWithValue(
-        error.response?.data?.message || "Error fetching league"
+        error.response?.data?.message || "Error fetching operator list"
       );
     }
   }
@@ -549,7 +577,10 @@ export const fetchOperatorList = createAsyncThunk(
 
 export const assignLeague = createAsyncThunk(
   "leagues/assignLeague",
-  async ({ operatorIds, leagueId }: AssignLeaguePayload, { rejectWithValue }) => {
+  async (
+    { operatorIds, leagueId }: AssignLeaguePayload,
+    { rejectWithValue }
+  ) => {
     try {
       const response = await axiosInstance.post("/assignLeague", {
         operatorIds,
@@ -566,7 +597,6 @@ export const assignLeague = createAsyncThunk(
     }
   }
 );
-
 
 const leagueSlice = createSlice({
   name: "leagues",
@@ -603,6 +633,13 @@ const leagueSlice = createSlice({
     },
     setTicketsPage: (state, action: PayloadAction<number>) => {
       state.ticketsCurrentPage = action.payload;
+    },
+    setOperatorsPerPage: (state, action: PayloadAction<number>) => {
+      state.operatorsPerPage = action.payload;
+      state.operatorsCurrentPage = 1;
+    },
+    setOperatorsPage: (state, action: PayloadAction<number>) => {
+      state.operatorsCurrentPage = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -777,16 +814,18 @@ const leagueSlice = createSlice({
         toast.error("Failed to add match scores!");
       })
       .addCase(fetchOperatorList.pending, (state) => {
-        state.loading = true;
+        state.operatorsLoading = true;
       })
       .addCase(fetchOperatorList.fulfilled, (state, action) => {
-        state.loading = false;
-        state.operatorDetail = action.payload.data;
+        state.operatorsLoading = false;
+        state.operators = action.payload.data.result;
+        state.operatorsTotalCount = action.payload.data.totalItem;
+        state.operatorDetail = action.payload.data; // Maintain backward compatibility
       })
       .addCase(fetchOperatorList.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
+        state.operatorsLoading = false;
+        state.operatorsError = action.payload as string;
+      });
   },
 });
 
@@ -800,6 +839,8 @@ export const {
   setMatchesPage,
   setTicketsPerPage,
   setTicketsPage,
+  setOperatorsPerPage,
+  setOperatorsPage,
 } = leagueSlice.actions;
 
 export default leagueSlice.reducer;

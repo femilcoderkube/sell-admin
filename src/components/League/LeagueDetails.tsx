@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, Link } from "react-router-dom";
 import { debounce } from "lodash";
@@ -17,6 +17,8 @@ import {
   setTicketsPerPage,
   fetchOperatorList,
   assignLeague,
+  setOperatorsPage,
+  setOperatorsPerPage,
 } from "../../app/features/league/leagueSlice";
 import { RootState, AppDispatch } from "../../app/store";
 import HandLogoLoader from "../Loader/Loader";
@@ -25,6 +27,7 @@ import { baseURL } from "../../axios";
 import edit from "../../assets/images/Edit.svg";
 // import CommonModal from "./CommonModal";
 import ParticipantsEditModel from "./ParticipantsEditModel";
+import toast from "react-hot-toast";
 
 const LeagueDetails: React.FC = () => {
   const statusOptions = [
@@ -62,32 +65,39 @@ const LeagueDetails: React.FC = () => {
     ticketsCurrentPage,
     ticketsPerPage,
     // perPage,
-    operatorDetail,
+    operators,
+    operatorsLoading,
+    operatorsError,
+    operatorsCurrentPage,
+    operatorsPerPage,
+    operatorsTotalCount,
   } = useSelector((state: RootState) => state.leagues);
 
-  const [selectedParticipants, setSelectedParticipants] = useState<any | null>(null);
+  const [selectedParticipants, setSelectedParticipants] = useState<any | null>(
+    null
+  );
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [searchKey, setSearchKey] = useState("");
   const [participantsSearchKey, setParticipantsSearchKey] = useState("");
   const [status, setStatus] = useState("all");
   const [ticketStatus, setTicketStatus] = useState("all");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [operator, setOperator] = useState<string[]>([]);
 
+  const [operator, setOperator] = useState<string[]>([]);
+  const [operatorSearchKey, setOperatorSearchKey] = useState("");
   // State for active tab
   const [activeTab, setActiveTab] = React.useState("Matches");
 
-  const role = localStorage.getItem("admin");
-  const jsonValue = JSON.parse(role as any);
-
   const handlePerPageChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const value = Number(e.target.value);
       if (activeTab === "Participants") {
-        dispatch(setParticipantsPerPage(Number(e.target.value)));
+        dispatch(setParticipantsPerPage(value));
       } else if (activeTab === "Matches") {
-        dispatch(setMatchesperPage(Number(e.target.value)));
+        dispatch(setMatchesperPage(value));
       } else if (activeTab === "Tickets") {
-        dispatch(setTicketsPerPage(Number(e.target.value)));
+        dispatch(setTicketsPerPage(value));
+      } else if (activeTab === "Operators") {
+        dispatch(setOperatorsPerPage(value));
       }
     },
     [dispatch, activeTab]
@@ -99,8 +109,12 @@ const LeagueDetails: React.FC = () => {
         setParticipantsSearchKey(value);
       } else if (activeTab === "Matches") {
         setSearchKey(value);
+      } else if (activeTab === "Operators") {
+        setOperatorSearchKey(value);
       }
       dispatch(setMatchesPage(1));
+      dispatch(setParticipantsPage(1));
+      dispatch(setOperatorsPage(1));
     }, 300),
     [activeTab, dispatch]
   );
@@ -109,7 +123,6 @@ const LeagueDetails: React.FC = () => {
   useEffect(() => {
     if (lid) {
       dispatch(fetchLeagueById(lid));
-      dispatch(fetchOperatorList(lid));
     }
   }, [dispatch, lid]);
 
@@ -120,29 +133,50 @@ const LeagueDetails: React.FC = () => {
           leagueId: lid,
           page: participantsCurrentPage,
           participantsPerPage: participantsPerPage,
-          ...(participantsSearchKey && participantsSearchKey.trim() !== "" && {searchKey: participantsSearchKey }),
+          ...(participantsSearchKey &&
+            participantsSearchKey.trim() !== "" && {
+              searchKey: participantsSearchKey,
+            }),
         })
       );
     }
-  }, [dispatch, lid, participantsCurrentPage, participantsPerPage, participantsSearchKey]);
+  }, [
+    dispatch,
+    lid,
+    participantsCurrentPage,
+    participantsPerPage,
+    participantsSearchKey,
+  ]);
 
   useEffect(() => {
     fetchParticipants();
   }, [fetchParticipants]);
 
-  // useEffect(() => {
-  //   if (lid) {
-  //     dispatch(
-  //       fetchLeagueMatches({
-  //         leagueId: lid,
-  //         page: matchesCurrentPage,
-  //         matchesPerPage: matchesPerPage, // FIXED: was perPage
-  //         searchKey: searchKey ? searchKey : "",
-  //         status: status === "all" ? "" : status,
-  //       })
-  //     );
-  //   }
-  // }, [dispatch, lid, matchesCurrentPage, matchesPerPage, searchKey, status]);
+  const fetchOperators = useCallback(() => {
+    if (lid) {
+      dispatch(
+        fetchOperatorList({
+          id: lid,
+          page: operatorsCurrentPage,
+          perPage: operatorsPerPage,
+          ...(operatorSearchKey &&
+            operatorSearchKey.trim() !== "" && {
+              searchKey: operatorSearchKey,
+            }),
+        })
+      );
+    }
+  }, [
+    dispatch,
+    lid,
+    operatorsCurrentPage,
+    operatorsPerPage,
+    operatorSearchKey,
+  ]);
+
+  useEffect(() => {
+    fetchOperators();
+  }, [fetchOperators]);
 
   const getLeagueMatches = useCallback(() => {
     if (!lid) return;
@@ -195,7 +229,7 @@ const LeagueDetails: React.FC = () => {
     );
   }
 
-  const tabs = ["Participants", "Matches", "Tickets"];
+  const tabs = ["Participants", "Matches", "Tickets", "Operators"];
 
   // Pagination handlers
   const handleParticipantsPageChange = (page: number) => {
@@ -219,6 +253,15 @@ const LeagueDetails: React.FC = () => {
     }
   };
 
+  const handleOperatorsPageChange = (page: number) => {
+    if (
+      page >= 1 &&
+      page <= Math.ceil(operatorsTotalCount / operatorsPerPage)
+    ) {
+      dispatch(setOperatorsPage(page));
+    }
+  };
+
   const handleExportParticipants = async () => {
     if (lid) {
       await dispatch(generateExcelFile({ lid }));
@@ -230,40 +273,66 @@ const LeagueDetails: React.FC = () => {
     setIsEditModalOpen(true);
   };
 
+  // const handleCheckboxChange = (id: string) => {
+  //   setOperator((prev) =>
+  //     prev.includes(id) ? prev.filter((op) => op !== id) : [...prev, id]
+  //   );
+  // };
+
+  // const selectedLabels = Array.isArray(operatorDetail)
+  //   ? operatorDetail
+  //       .filter((op: any) => operator.includes(op._id))
+  //       .map((op: any) => op.userName)
+  //       .join(", ")
+  //   : "";
+
+  // const handleAssignLeague = () => {
+  //   if (!operator || operator.length === 0 || !lid || lid.length === 0) {
+  //     console.warn("Please select at least one operator and one league.");
+  //     return;
+  //   }
+
+  //   dispatch(assignLeague({ operatorIds: operator, leagueId: lid })).unwrap();
+  //   // .then((res) => {
+  //   //   console.log("Leagues assigned successfully:", res);
+  //   //   // Optionally show success toast or close modal
+  //   // })
+  //   // .catch((err) => {
+  //   //   console.error("Failed to assign leagues:", err);
+  //   //   // Optionally show error toast or alert
+  //   // });
+  // };
   const handleCheckboxChange = (id: string) => {
     setOperator((prev) =>
       prev.includes(id) ? prev.filter((op) => op !== id) : [...prev, id]
     );
   };
 
-  const selectedLabels = Array.isArray(operatorDetail)
-    ? operatorDetail
-      .filter((op: any) => operator.includes(op._id))
-      .map((op: any) => op.userName)
-      .join(', ')
-    : '';
-
-
-
-  const handleAssignLeague = () => {
-    if (!operator || operator.length === 0 || !lid || lid.length === 0) {
-      console.warn("Please select at least one operator and one league.");
-      return;
+  const handleSelectAll = () => {
+    if (operator.length === operators?.length && operators?.length > 0) {
+      setOperator([]);
+    } else {
+      setOperator(operators.map((op: any) => op._id));
     }
-
-    dispatch(assignLeague({ operatorIds: operator, leagueId: lid }))
-      .unwrap()
-    // .then((res) => {
-    //   console.log("Leagues assigned successfully:", res);
-    //   // Optionally show success toast or close modal
-    // })
-    // .catch((err) => {
-    //   console.error("Failed to assign leagues:", err);
-    //   // Optionally show error toast or alert
-    // });
   };
 
-
+  // Add assign league handler
+  const handleAssignLeague = () => {
+    if (!operator || operator.length === 0 || !lid || lid.length === 0) {
+      toast.error("Please select at least one operator.");
+      return;
+    }
+    dispatch(assignLeague({ operatorIds: operator, leagueId: lid }))
+      .unwrap()
+      .then((res) => {
+        toast.success("Operators assigned successfully!");
+        setOperator([]); // Clear selection
+        fetchOperators(); // Refresh operator list
+      })
+      .catch((err) => {
+        toast.error("Failed to assign operators!");
+      });
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
@@ -291,65 +360,6 @@ const LeagueDetails: React.FC = () => {
               </div>
             </div>
             <div className="legue__head_right-con flex gap-3">
-              {jsonValue?.role !== "Operator" && (
-                <>
-                  <div className="relative inline-block w-64">
-                    {/* Trigger Box */}
-                    <div
-                      className="bg-gray-700 text-white border border-gray-600/50 rounded-xl px-4 py-2 shadow-md cursor-pointer py-3"
-                      onClick={() => setIsDropdownOpen((prev) => !prev)}
-                    >
-                      {selectedLabels || "Select Operators"}
-                    </div>
-
-                    {/* Dropdown Content */}
-                    {isDropdownOpen && (
-                      <>
-                        <div className="absolute z-10 w-full mt-2 bg-gray-800 border border-gray-600 rounded-xl shadow-lg max-h-60 overflow-y-auto">
-                          {Array.isArray(operatorDetail) && operatorDetail.length > 0 ? (
-                            operatorDetail.map((option: any) => (
-                              <label
-                                key={option._id}
-                                className="flex items-center px-4 py-2 hover:bg-gray-700 text-white cursor-pointer"
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={operator.includes(option._id)}
-                                  onChange={() => handleCheckboxChange(option._id)}
-                                  style={{ backgroundPosition: "center" }}
-                                  className="form-checkbox h-4 w-4 text-blue-500 bg-gray-800 border-gray-600 rounded mr-3"
-                                />
-                                <span>{option.userName}</span>
-                              </label>
-                            ))
-                          ) : (
-                            <p className="text-gray-400 p-2">No operators available</p>
-                          )}
-                        </div>
-                      </>
-                    )}
-                    <svg
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/40 pointer-events-none w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </div>
-                  <button
-                    onClick={handleAssignLeague}
-                    className="bg-gradient-to-r from-gray-700 to-gray-600 hover:from-blue-600 hover:to-blue-700 font-medium flex items-center gap-2 text-white text-lg py-3 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-blue-500/25 border border-gray-600/50"
-                  >
-                    Assign
-                  </button>
-                </>
-              )}
               <Link
                 to={`/${partnerId}/leagues`}
                 className="bg-gradient-to-r from-gray-700 to-gray-600 hover:from-blue-600 hover:to-blue-700 font-medium flex items-center gap-2 text-white text-lg py-3 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-blue-500/25 border border-gray-600/50"
@@ -383,7 +393,7 @@ const LeagueDetails: React.FC = () => {
                 </div>
               </div>
             </div>
-            <div className="bg-gray-800/40 border border-gray-700/50 rounded-xl p-4 hover:border-blue-500/30 transition-all duration-200">
+            {/* <div className="bg-gray-800/40 border border-gray-700/50 rounded-xl p-4 hover:border-blue-500/30 transition-all duration-200">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
                   <span className="text-white text-sm">⚡</span>
@@ -401,7 +411,7 @@ const LeagueDetails: React.FC = () => {
                   </span>
                 </div>
               </div>
-            </div>
+            </div> */}
             <div className="bg-gray-800/40 border border-gray-700/50 rounded-xl p-4 hover:border-blue-500/30 transition-all duration-200">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
@@ -565,7 +575,8 @@ const LeagueDetails: React.FC = () => {
                                   }`}
                                 >
                                   <td className="py-4 px-6 text-gray-300">
-                                    {(participantsCurrentPage - 1) * participantsPerPage +
+                                    {(participantsCurrentPage - 1) *
+                                      participantsPerPage +
                                       index +
                                       1}
                                   </td>
@@ -798,7 +809,9 @@ const LeagueDetails: React.FC = () => {
                                 }`}
                               >
                                 <td className="py-4 px-6 font-medium text-blue-300">
-                                  {(matchesCurrentPage - 1) * matchesPerPage + index + 1}
+                                  {(matchesCurrentPage - 1) * matchesPerPage +
+                                    index +
+                                    1}
                                 </td>
                                 <td className="py-4 px-6 font-medium text-blue-300">
                                   {match?.team1
@@ -998,53 +1011,57 @@ const LeagueDetails: React.FC = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {tickets?.result?.map((ticket: any, index: number) => (
-                              <tr
-                                key={ticket?._id}
-                                className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-yellow-500/10 hover:to-orange-500/10 transition-all duration-200 ${
-                                  index % 2 === 0
-                                    ? "bg-gray-800/20"
-                                    : "bg-gray-800/10"
-                                }`}
-                              >
-                                <td className="py-4 px-6 font-medium text-blue-300">
-                                  {(ticketsCurrentPage - 1) * ticketsPerPage + index + 1}
-                                </td>
-                                <td className="py-4 px-6 font-medium text-blue-300">
-                                  {/* {ticket?.raiserID?.username} */}
-                                  {ticket?.raiser}
-                                </td>
+                            {tickets?.result?.map(
+                              (ticket: any, index: number) => (
+                                <tr
+                                  key={ticket?._id}
+                                  className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-yellow-500/10 hover:to-orange-500/10 transition-all duration-200 ${
+                                    index % 2 === 0
+                                      ? "bg-gray-800/20"
+                                      : "bg-gray-800/10"
+                                  }`}
+                                >
+                                  <td className="py-4 px-6 font-medium text-blue-300">
+                                    {(ticketsCurrentPage - 1) * ticketsPerPage +
+                                      index +
+                                      1}
+                                  </td>
+                                  <td className="py-4 px-6 font-medium text-blue-300">
+                                    {/* {ticket?.raiserID?.username} */}
+                                    {ticket?.raiser}
+                                  </td>
 
-                                <td className="py-4 px-6">
-                                  <span
-                                    className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                      ticket?.status === "open"
-                                        ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
-                                        : "bg-green-500/20 text-green-400 border border-green-500/30"
-                                    }`}
-                                  >
-                                    {ticket?.status}
-                                  </span>
-                                </td>
-                                <td className="py-4 px-6 text-gray-300">
-                                  {new Date(
-                                    ticket?.createdAt
-                                  ).toLocaleDateString()}
-                                </td>
-                                <td className="py-4 px-6">
-                                  <Link
-                                    to={`/${partnerId}/leagues/${lid}/${ticket?.matchId}`}
-                                    className="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
-                                  >
-                                    <img
-                                      src={viewIcon}
-                                      alt="View"
-                                      className="w-5 h-5"
-                                    />
-                                  </Link>
-                                </td>
-                              </tr>
-                            ))}
+                                  <td className="py-4 px-6">
+                                    <span
+                                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                        ticket?.status === "open"
+                                          ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                                          : "bg-green-500/20 text-green-400 border border-green-500/30"
+                                      }`}
+                                    >
+                                      {ticket?.status}
+                                    </span>
+                                  </td>
+                                  <td className="py-4 px-6 text-gray-300">
+                                    {new Date(
+                                      ticket?.createdAt
+                                    ).toLocaleDateString()}
+                                  </td>
+                                  <td className="py-4 px-6">
+                                    <Link
+                                      to={`/${partnerId}/leagues/${lid}/${ticket?.matchId}`}
+                                      className="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
+                                    >
+                                      <img
+                                        src={viewIcon}
+                                        alt="View"
+                                        className="w-5 h-5"
+                                      />
+                                    </Link>
+                                  </td>
+                                </tr>
+                              )
+                            )}
                           </tbody>
                         </table>
                       </div>
@@ -1052,7 +1069,8 @@ const LeagueDetails: React.FC = () => {
 
                     <div className="flex justify-between items-center mt-6 bg-gray-800/30 rounded-xl p-4 border border-gray-700/30">
                       <div className="text-gray-300 font-medium">
-                        Showing {tickets.result.length} of {ticketsTotalCount} tickets
+                        Showing {tickets.result.length} of {ticketsTotalCount}{" "}
+                        tickets
                       </div>
                       <div className="nf_max-al bg-input-color gap-2 flex items-center pl-2 pr-1 rounded-[0.625rem]">
                         <span className="text-[1.0625rem] text-custom-gray whitespace-nowrap ">
@@ -1102,6 +1120,189 @@ const LeagueDetails: React.FC = () => {
                   <div className="text-center py-12 bg-gray-800/20 rounded-xl border-2 border-dashed border-gray-600/30">
                     <div className="text-gray-400 text-lg">
                       No tickets found.
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === "Operators" && (
+              <div>
+                <div className="flex items-center justify-between">
+                  <h4 className="font-bold text-2xl text-white mb-6 flex items-center gap-3">
+                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+                      <span className="text-white text-sm">👥</span>
+                    </div>
+                    Operators
+                  </h4>
+                  <div className="flex items-center justify-between gap-3">
+                    <input
+                      type="text"
+                      placeholder="Search..."
+                      onChange={(e) => debouncedSetSearchKey(e.target.value)}
+                      className="w-full py-2 px-4 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    />
+
+                    {operator?.length > 0 && (
+                      <button
+                        onClick={handleAssignLeague}
+                        className="py-2 px-4 bg-gradient-to-r from-blue-500 to-blue-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
+                      >
+                        Assign
+                      </button>
+                    )}
+                  </div>
+                </div>
+                {operatorsLoading ? (
+                  <HandLogoLoader />
+                ) : operatorsError ? (
+                  <div className="text-custom-gray bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+                    Error: {operatorsError}
+                  </div>
+                ) : operators?.length > 0 ? (
+                  <>
+                    <div className="bg-gray-800/30 rounded-2xl overflow-hidden border border-gray-700/30 shadow-lg">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-lg text-white border-collapse">
+                          <thead>
+                            <tr className="bg-gradient-to-r from-gray-800/80 to-gray-700/80 text-gray-300">
+                              <th className="py-4 px-6 text-left font-semibold">
+                                <input
+                                  type="checkbox"
+                                  onChange={handleSelectAll}
+                                  checked={
+                                    operator.length === operators?.length &&
+                                    operators?.length > 0
+                                  }
+                                  className="appearance-none h-4 w-4 rounded bg-gray-700/50 border border-gray-600/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-200"
+                                />
+                              </th>
+                              <th className="py-4 px-6 text-left font-semibold">
+                                #
+                              </th>
+                              <th className="py-4 px-6 text-left font-semibold">
+                                User Name
+                              </th>
+                              <th className="py-4 px-6 text-left font-semibold">
+                                Email
+                              </th>
+                              <th className="py-4 px-6 text-left font-semibold">
+                                Assigned
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {operators?.map(
+                              (operatorItem: any, index: number) => (
+                                <tr
+                                  key={operatorItem?._id}
+                                  className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-blue-500/10 hover:to-purple-500/10 transition-all duration-200 ${
+                                    index % 2 === 0
+                                      ? "bg-gray-800/20"
+                                      : "bg-gray-800/10"
+                                  }`}
+                                >
+                                  <td className="py-4 px-6">
+                                    <input
+                                      type="checkbox"
+                                      checked={operator.includes(
+                                        operatorItem._id
+                                      )}
+                                      onChange={() =>
+                                        handleCheckboxChange(operatorItem._id)
+                                      }
+                                      className="appearance-none h-4 w-4 rounded bg-gray-700/50 border border-gray-600/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-200"
+                                    />
+                                  </td>
+                                  <td className="py-4 px-6 text-gray-300">
+                                    {(operatorsCurrentPage - 1) *
+                                      operatorsPerPage +
+                                      index +
+                                      1}
+                                  </td>
+                                  <td className="py-4 px-6 font-medium">
+                                    <div className="flex items-center gap-3">
+                                      <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-sm font-bold">
+                                        {operatorItem?.userName?.charAt(0)}
+                                      </div>
+                                      {operatorItem?.userName}
+                                    </div>
+                                  </td>
+                                  <td className="py-4 px-6 text-gray-300">
+                                    {operatorItem?.email}
+                                  </td>
+                                  <td className="py-4 px-6">
+                                    <span
+                                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                        operatorItem?.isAssigned
+                                          ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                                          : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
+                                      }`}
+                                    >
+                                      {operatorItem?.isAssigned ? "Yes" : "No"}
+                                    </span>
+                                  </td>
+                                </tr>
+                              )
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center mt-6 bg-gray-800/30 rounded-xl p-4 border border-gray-700/30">
+                      <div className="text-gray-300 font-medium">
+                        Showing {operators.length} of {operatorsTotalCount}{" "}
+                        operators
+                      </div>
+                      <div className="nf_max-al bg-input-color gap-2 flex items-center pl-2 pr-1 rounded-[0.625rem]">
+                        <span className="text-[1.0625rem] text-custom-gray whitespace-nowrap">
+                          Show max:
+                        </span>
+                        <select
+                          name="selectedFruit"
+                          className="font-medium focus:outline-0 bg-[#242B3C] text-white py-[0.4rem] px-2 rounded-[0.52rem] text-[1.0625rem]"
+                          value={operatorsPerPage}
+                          onChange={handlePerPageChange}
+                        >
+                          <option value={10}>10</option>
+                          <option value={25}>25</option>
+                          <option value={50}>50</option>
+                        </select>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() =>
+                            handleOperatorsPageChange(operatorsCurrentPage - 1)
+                          }
+                          disabled={operatorsCurrentPage === 1}
+                          className="py-2 px-4 bg-gradient-to-r from-gray-700 to-gray-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
+                        >
+                          Previous
+                        </button>
+                        <span className="py-2 px-4 text-white bg-gray-800/50 rounded-lg border border-gray-600/30 font-medium">
+                          Page {operatorsCurrentPage} of{" "}
+                          {Math.ceil(operatorsTotalCount / operatorsPerPage)}
+                        </span>
+                        <button
+                          onClick={() =>
+                            handleOperatorsPageChange(operatorsCurrentPage + 1)
+                          }
+                          disabled={
+                            operatorsCurrentPage >=
+                            Math.ceil(operatorsTotalCount / operatorsPerPage)
+                          }
+                          className="py-2 px-4 bg-gradient-to-r from-gray-700 to-gray-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center py-12 bg-gray-800/20 rounded-xl border-2 border-dashed border-gray-600/30">
+                    <div className="text-gray-400 text-lg">
+                      No operators found.
                     </div>
                   </div>
                 )}
