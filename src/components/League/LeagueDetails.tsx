@@ -874,7 +874,7 @@ const LeagueDetails: React.FC = () => {
                                       []
                                     )}
                                 </td>
-                                <td className="py-4 px-6 font-medium text-purple-300">
+                                <td className="py-4 px-6 font-medium text-blue-300">
                                   {match?.team2
                                     ?.map((p: any) => (
                                       <span key={p._id}>
