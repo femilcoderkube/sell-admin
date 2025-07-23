@@ -1,19 +1,39 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { RootState } from "../../app/store";
 import { fetchRole } from "../../app/features/admins/adminSlice";
 import { logout } from "../../app/features/auth/authSlice";
+import {
+  deleteTournament,
+  fetchTournaments,
+  setPage,
+  setPerPage,
+} from "../../app/features/tournament/tournamentSlice";
+import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
+import { Pagination } from "../ui/Pagination";
+import { LeagueTable } from "../League";
+import HandLogoLoader from "../Loader/Loader";
+import { TournamentTable } from "./TournamentTable";
 
 export const Tournamentes: React.FC = ({ title }: any) => {
   const dispatch = useDispatch();
 
   const partnerId = window.location.pathname.split("/")[1];
-
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const [deleteId, setDeleteId] = useState<string>("");
   const { role } = useSelector((state: RootState) => state.admins);
   const roles = localStorage.getItem("admin");
   const jsonValue = JSON.parse(roles as any);
-
+  const {
+    tournaments,
+    loading,
+    error,
+    currentPage,
+    perPage,
+    totalCount,
+    searchTerm,
+  } = useSelector((state: RootState) => state.tournaments);
   useEffect(() => {
     if (role?.role) {
       if (jsonValue.role !== role?.role) {
@@ -29,6 +49,51 @@ export const Tournamentes: React.FC = ({ title }: any) => {
     }
   }, []);
 
+  useEffect(() => {
+    if (deleteId) {
+      setIsDeleteModalOpen(true);
+    }
+  }, [deleteId]);
+
+  useEffect(() => {
+    dispatch(
+      fetchTournaments({
+        partnerId: partnerId,
+        page: currentPage,
+        perPage,
+        searchTerm,
+      })
+    );
+  }, [dispatch, currentPage, perPage, searchTerm]);
+
+  // Handle per-page selection change
+  const handlePerPageChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      dispatch(setPerPage(Number(e.target.value)));
+    },
+    [dispatch]
+  );
+
+  // Handle pagination navigation
+  const handlePageChange = useCallback(
+    (page: number) => {
+      if (page >= 1 && page <= Math.ceil(totalCount / perPage)) {
+        dispatch(setPage(page));
+      }
+    },
+    [dispatch, totalCount, perPage]
+  );
+
+  // Calculate total pages
+  const totalPages = Math.ceil(totalCount / perPage);
+
+  const handleDeleteLeague = async () => {
+    dispatch(deleteTournament(deleteId));
+    dispatch(fetchTournaments({ partnerId: partnerId, page: 1 }));
+    dispatch(setPage(1));
+    setIsDeleteModalOpen(false);
+  };
+
   return (
     <>
       <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-between items-center pt-3 pb-[2rem] border-b border-light-border">
@@ -43,6 +108,8 @@ export const Tournamentes: React.FC = ({ title }: any) => {
             <select
               name="perPage"
               className="font-medium focus:outline-0 bg-light-blue text-white py-[0.4rem] px-2 rounded-[0.52rem] text-[1.0625rem]"
+              value={perPage}
+              onChange={handlePerPageChange}
             >
               <option value={10}>10</option>
               <option value={25}>25</option>
@@ -110,6 +177,37 @@ export const Tournamentes: React.FC = ({ title }: any) => {
           )}
         </div>
       </div>
+      {loading ? (
+        <HandLogoLoader />
+      ) : tournaments.length > 0 ? (
+        <TournamentTable
+          currentPage={currentPage}
+          tournaments={tournaments}
+          onDeleteClick={(leagueId) => setDeleteId(leagueId)}
+        />
+      ) : (
+        <div className="text-custom-gray flex items-center justify-center h-20">
+          No data found.
+        </div>
+      )}
+
+      {!loading && totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => handlePageChange(page)}
+          onPagePrvious={() => handlePageChange(currentPage - 1)}
+          onPageNext={() => handlePageChange(currentPage + 1)}
+        />
+      )}
+      <DeleteConfirmationModal
+        show={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setDeleteId("");
+        }}
+        onDelete={handleDeleteLeague}
+      />
     </>
   );
 };

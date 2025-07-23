@@ -241,6 +241,17 @@ export const generateRoutes = (adminside: any[]): RoutesProps[] => {
       partnerColor: undefined,
     },
     {
+      label: "Edit Tournamente",
+      icon: <NafesLeagueIcon />,
+      path: "/:id/tournament/edit/:lid",
+      dark_svg: downarr,
+      white_svg: white_arr,
+      component: <AddTournament />,
+      auth: true,
+      isShow: false,
+      partnerColor: undefined,
+    },
+    {
       label: "League Details",
       icon: <NafesLeagueIcon />,
       path: "/:id/leagues/:lid",

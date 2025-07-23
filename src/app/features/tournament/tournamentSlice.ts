@@ -200,6 +200,25 @@ export const deleteTournament = createAsyncThunk(
   }
 );
 
+export const toggleTournament = createAsyncThunk(
+  "tournaments/toggleTournament",
+  async (
+    { id, isHidden }: { id: string; isHidden: boolean },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axiosInstance.put(`/Tournament?id=${id}`, {
+        isHidden,
+      });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error updating tournament"
+      );
+    }
+  }
+);
+
 const tournamentSlice = createSlice({
   name: "tournaments",
   initialState,
