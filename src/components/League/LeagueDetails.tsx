@@ -235,7 +235,7 @@ const LeagueDetails: React.FC = () => {
   }
 
   const tabs = ["Participants", "Matches", "Tickets", "Operators"];
-  console.log("jsonValue", jsonValue);
+
   const filteredTabs =
     jsonValue?.role === "Superadmin" || jsonValue?.role === "admin"
       ? tabs
