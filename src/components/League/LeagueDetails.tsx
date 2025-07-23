@@ -822,7 +822,11 @@ const LeagueDetails: React.FC = () => {
                                   {match?.team1
                                     ?.map(
                                       (p: any) =>
-                                        p.participant?.userId?.username
+                                        `${
+                                          p.participant?.userId?.username
+                                            ? p.participant?.userId?.username
+                                            : ""
+                                        } (${p.score})`
                                     )
                                     .join(", ")}
                                 </td>
@@ -830,7 +834,11 @@ const LeagueDetails: React.FC = () => {
                                   {match?.team2
                                     ?.map(
                                       (p: any) =>
-                                        p.participant?.userId?.username
+                                        `${
+                                          p.participant?.userId?.username
+                                            ? p.participant?.userId?.username
+                                            : ""
+                                        } (${p.score})`
                                     )
                                     .join(", ")}
                                 </td>
