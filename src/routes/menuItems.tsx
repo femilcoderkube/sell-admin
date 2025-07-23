@@ -29,6 +29,8 @@ import { LeagueDetail } from "../pages/League/leagueDetail";
 import { MatcheDetail } from "../pages/League/MatcheDetail";
 import { UserDetail } from "../pages/Users/userDetail";
 import { ChatDetail } from "../pages/League/ChatDetail";
+import { Tournament } from "../pages/Tournament";
+import { AddTournament } from "../pages/AddTournamente";
 
 // Helper function to convert snake_case to Title Case
 const toTitleCase = (str: string) =>
@@ -48,7 +50,7 @@ const toPath = (str: string) =>
 // Component mapping for modules and submodules (store component types)
 const componentMap: { [key: string]: React.ComponentType<any> } = {
   LEAGUE: NafesLeague,
-  TOURNAMENT: NafesLeague,
+  TOURNAMENT: Tournament,
   ALL_USER: Users,
   ALL_TEAM: AllTeams,
   BANNED_USER: BannedUsers,
@@ -80,6 +82,9 @@ const iconMap: { [key: string]: React.ComponentType<any> } = {
 
 // Function to generate routes from adminside data
 export const generateRoutes = (adminside: any[]): RoutesProps[] => {
+  const role = localStorage.getItem("admin");
+  const jsonValue = JSON.parse(role as any);
+
   const dynamicRoutes: RoutesProps[] = adminside
     .filter((module) => module.hasAccess)
     .map((module) => {
@@ -175,24 +180,62 @@ export const generateRoutes = (adminside: any[]): RoutesProps[] => {
       isShow: true,
       partnerColor: undefined,
     },
+    // {
+    //   label: "Add League",
+    //   icon: <NafesLeagueIcon />,
+    //   path: "/:id/leagues/add",
+    //   dark_svg: downarr,
+    //   white_svg: white_arr,
+    //   component: <AddLeague />,
+    //   auth: true,
+    //   isShow: false,
+    //   partnerColor: undefined,
+    // },
+    // {
+    //   label: "Edit League",
+    //   icon: <NafesLeagueIcon />,
+    //   path: "/:id/leagues/edit/:lid",
+    //   dark_svg: downarr,
+    //   white_svg: white_arr,
+    //   component: <AddLeague />,
+    //   auth: true,
+    //   isShow: false,
+    //   partnerColor: undefined,
+    // },
+
+    ...(jsonValue?.role !== "Operator"
+      ? [
+          {
+            label: "Add League",
+            icon: <NafesLeagueIcon />,
+            path: "/:id/leagues/add",
+            dark_svg: downarr,
+            white_svg: white_arr,
+            component: <AddLeague />,
+            auth: true,
+            isShow: false,
+            partnerColor: undefined,
+          },
+          {
+            label: "Edit League",
+            icon: <NafesLeagueIcon />,
+            path: "/:id/leagues/edit/:lid",
+            dark_svg: downarr,
+            white_svg: white_arr,
+            component: <AddLeague />,
+            auth: true,
+            isShow: false,
+            partnerColor: undefined,
+          },
+        ]
+      : []),
     {
-      label: "Add League",
+      label: "Add Tournamente",
       icon: <NafesLeagueIcon />,
-      path: "/:id/leagues/add",
+      path: "/:id/tournament/add",
       dark_svg: downarr,
       white_svg: white_arr,
-      component: <AddLeague />,
-      auth: true,
-      isShow: false,
-      partnerColor: undefined,
-    },
-    {
-      label: "Edit League",
-      icon: <NafesLeagueIcon />,
-      path: "/:id/leagues/edit/:lid",
-      dark_svg: downarr,
-      white_svg: white_arr,
-      component: <AddLeague />,
+      component: <AddTournament />,
       auth: true,
       isShow: false,
       partnerColor: undefined,
@@ -241,6 +284,7 @@ export const generateRoutes = (adminside: any[]): RoutesProps[] => {
       isShow: false,
       partnerColor: undefined,
     },
+
     ...dynamicRoutes,
   ];
 };

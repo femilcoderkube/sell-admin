@@ -6,6 +6,7 @@ import badgeReducer from "./features/badge/badgeSlice";
 import deviceReducer from "./features/devices/deviceSlice";
 import gameReducer from "./features/games/gameSlice";
 import leaguesReducer from "./features/league/leagueSlice";
+import tournamentReducer from "./features/tournament/tournamentSlice";
 import adminReducer from "./features/admins/adminSlice";
 import newadminReducer from "./features/admins/newadminSlice";
 import adminAccessReducer from "./features/admins/adminAccessSlice";
@@ -23,6 +24,7 @@ export const store = configureStore({
     device: deviceReducer,
     game: gameReducer,
     leagues: leaguesReducer,
+    tournaments: tournamentReducer,
     admins: adminReducer,
     newadmin: newadminReducer,
     boolean: booleanReducer,

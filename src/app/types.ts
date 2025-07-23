@@ -274,3 +274,84 @@ export interface AssignLeaguePayload {
   operatorIds: string[];
   leagueId: string;
 }
+export interface Tournament {
+  id?: string;
+  title: string;
+  titleAr: string;
+  partner: string;
+  game: string;
+  platform: string;
+  tournamentType: string;
+  minPlayersPerTeam?: number;
+  maxPlayersPerTeam?: number;
+  maxParticipants: number;
+  description: string;
+  descriptionAr: string;
+  prizepool: number;
+  rules: string;
+  isActive: boolean;
+  isHidden?: boolean;
+  customRegistrationFields: Array<{
+    fieldName: string;
+    fieldType: string;
+    required: boolean;
+  }>;
+  timeLine: Array<{
+    title: string;
+    titleAr: string;
+    startDate: string;
+    endDate: string;
+  }>;
+  logo: string;
+  internalPhoto: string;
+  headerPhoto: string;
+  startDate: string;
+  endDate: string;
+  messages: string[];
+  randomMessages: Array<{
+    randomText: string;
+    tags: string[];
+  }>;
+}
+
+export interface TournamentState {
+  tournaments: Tournament[];
+  loading: boolean;
+  error: string | null;
+  currentPage: number;
+  perPage: number;
+  totalCount: number;
+  searchTerm: string;
+  tournamentDetail: Tournament | null;
+  operatorDetail: any | null;
+  operators: any[];
+  operatorsLoading: boolean;
+  operatorsError: string | null;
+  operatorsCurrentPage: number;
+  operatorsPerPage: number;
+  operatorsTotalCount: number;
+  matcheDetail: any | null;
+  participants: any[];
+  participantsLoading: boolean;
+  participantsError: string | null;
+  participantsCurrentPage: number;
+  participantsPerPage: number;
+  participantsTotalCount: number;
+  matches: any[];
+  matchesLoading: boolean;
+  matchesError: string | null;
+  matchesCurrentPage: number;
+  matchesPerPage: number;
+  matchesTotalCount: number;
+  tickets: any[];
+  ticketsLoading: boolean;
+  ticketsError: string | null;
+  ticketsTotalCount: number;
+  ticketsCurrentPage: number;
+  ticketsPerPage: number;
+}
+
+export interface AssignTournamentPayload {
+  operatorIds: string[];
+  tournamentId: string;
+}
