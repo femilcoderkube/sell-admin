@@ -204,6 +204,10 @@ const adminSlice = createSlice({
       .addCase(fetchRole.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+
+        localStorage.removeItem("token");
+        localStorage.removeItem("admin");
+        window.location.href = "/login";
       })
       .addCase(addAdmin.pending, (state) => {
         state.loading = true;
