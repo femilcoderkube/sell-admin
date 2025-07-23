@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import axiosInstance from "../../../axios";
+import toast from "react-hot-toast";
 
 interface AccessModule {
   _id: string;
@@ -93,6 +94,7 @@ const adminAccessSlice = createSlice({
       .addCase(updateAdminAccess.fulfilled, (state, action) => {
         state.loading = false;
         state.modules = action.payload.modules || [];
+        toast.success("Access was successful.");
       })
       .addCase(updateAdminAccess.rejected, (state, action) => {
         state.loading = false;
