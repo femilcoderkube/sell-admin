@@ -44,6 +44,7 @@ export const League: React.FC = ({ title }: any) => {
     if (role?.role) {
       if (jsonValue.role !== role?.role) {
         console.log("lofg pade chhe");
+        window.location.href = "/login";
         dispatch(logout());
       }
     }
