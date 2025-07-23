@@ -818,7 +818,7 @@ const LeagueDetails: React.FC = () => {
                                     index +
                                     1}
                                 </td>
-                                <td className="py-4 px-6 font-medium text-blue-300">
+                                {/* <td className="py-4 px-6 font-medium text-blue-300">
                                   {match?.team1
                                     ?.map(
                                       (p: any) =>
@@ -841,6 +841,70 @@ const LeagueDetails: React.FC = () => {
                                         } (${p.score})`
                                     )
                                     .join(", ")}
+                                </td> */}
+                                <td className="py-4 px-6 font-medium text-blue-300">
+                                  {match?.team1
+                                    ?.map((p: any) => (
+                                      <span key={p._id}>
+                                        {p.participant?.userId?.username}{" "}
+                                        <span
+                                          className={`${
+                                            p?.score < 0
+                                              ? "text-red-500"
+                                              : "text-green-500"
+                                          }`}
+                                        >
+                                          {p?.score > 0
+                                            ? `(+${p?.score})`
+                                            : `(${p?.score})`}
+                                        </span>
+                                      </span>
+                                    ))
+                                    .reduce(
+                                      (
+                                        acc: any,
+                                        curr: any,
+                                        index: number,
+                                        array: any[]
+                                      ) => {
+                                        return acc.length === 0
+                                          ? [curr]
+                                          : [...acc, ", ", curr];
+                                      },
+                                      []
+                                    )}
+                                </td>
+                                <td className="py-4 px-6 font-medium text-purple-300">
+                                  {match?.team2
+                                    ?.map((p: any) => (
+                                      <span key={p._id}>
+                                        {p.participant?.userId?.username}{" "}
+                                        <span
+                                          className={`${
+                                            p?.score < 0
+                                              ? "text-red-500"
+                                              : "text-green-500"
+                                          }`}
+                                        >
+                                          {p?.score > 0
+                                            ? `(+${p.score})`
+                                            : `(${p.score})`}
+                                        </span>
+                                      </span>
+                                    ))
+                                    .reduce(
+                                      (
+                                        acc: any,
+                                        curr: any,
+                                        index: number,
+                                        array: any[]
+                                      ) => {
+                                        return acc.length === 0
+                                          ? [curr]
+                                          : [...acc, ", ", curr];
+                                      },
+                                      []
+                                    )}
                                 </td>
                                 <td className="py-4 px-6">
                                   <span
