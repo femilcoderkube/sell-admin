@@ -5,7 +5,8 @@ import AuthRoute from "./routes/AuthRoute";
 import { useEffect, useMemo, useState } from "react";
 import { RoutesProps } from "./utils";
 import { generateRoutes } from "./routes/menuItems";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchRole } from "./app/features/admins/adminSlice";
 // import moment from "moment-timezone";
 
 export const App = () => {
