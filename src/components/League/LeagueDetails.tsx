@@ -908,7 +908,7 @@ const LeagueDetails: React.FC = () => {
                                 </td>
                                 <td className="py-4 px-6">
                                   <span
-                                    className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                    className={`px-3 py-1 whitespace-nowrap rounded-full text-sm font-medium ${
                                       match?.status === "completed"
                                         ? "bg-green-500/20 text-green-400 border border-green-500/30"
                                         : match?.status === "cancelled"
