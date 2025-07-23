@@ -1797,14 +1797,14 @@ export const AddTournament: FC = () => {
         updateTournament({ id: tournamentData._id, tournament: bodyData })
       ).then((result) => {
         if (updateTournament.fulfilled.match(result)) {
-          navigate(`/${pID}/tournaments`);
+          navigate(`/${pID}/tournament`);
         }
         setShowModal(false);
       });
     } else {
       dispatch(addTournament(bodyData)).then((result) => {
         if (addTournament.fulfilled.match(result)) {
-          navigate(`/${pID}/tournaments`);
+          navigate(`/${pID}/tournament`);
         }
         setShowModal(false);
       });
@@ -1864,7 +1864,7 @@ export const AddTournament: FC = () => {
     if (step > 1) {
       setStep(step - 1);
     } else {
-      navigate(`/${pID}/tournaments`);
+      navigate(`/${pID}/tournament`);
     }
   };
 
