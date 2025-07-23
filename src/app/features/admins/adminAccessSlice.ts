@@ -94,7 +94,7 @@ const adminAccessSlice = createSlice({
       .addCase(updateAdminAccess.fulfilled, (state, action) => {
         state.loading = false;
         state.modules = action.payload.modules || [];
-        toast.success("Access was successful.");
+        toast.success("Access rights have been updated.");
       })
       .addCase(updateAdminAccess.rejected, (state, action) => {
         state.loading = false;
