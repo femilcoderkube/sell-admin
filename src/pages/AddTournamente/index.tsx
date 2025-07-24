@@ -1807,7 +1807,7 @@ export const AddTournament: FC = () => {
     partner: tournamentData?.partner?._id
       ? {
           value: tournamentData.partner._id,
-          label: tournamentData.partner.name,
+          label: tournamentData.partner.nameEn,
         }
       : null,
     game: tournamentData?.game?._id

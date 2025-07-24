@@ -146,7 +146,7 @@ export const TournamentTable: React.FC<TournamentCardProps> = ({
                       Partner
                     </div>
                     <div className="text-sm font-bold text-white">
-                      {tournament?.nameEn}
+                      {tournament?.partner?.nameEn}
                     </div>
                   </div>
                 </div>
