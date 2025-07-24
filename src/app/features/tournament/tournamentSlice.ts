@@ -203,12 +203,12 @@ export const deleteTournament = createAsyncThunk(
 export const toggleTournament = createAsyncThunk(
   "tournaments/toggleTournament",
   async (
-    { id, isHidden }: { id: string; isHidden: boolean },
+    { id, isActive }: { id: string; isActive: boolean },
     { rejectWithValue }
   ) => {
     try {
       const response = await axiosInstance.put(`/Tournament?id=${id}`, {
-        isHidden,
+        isActive,
       });
       return response.data;
     } catch (error: any) {

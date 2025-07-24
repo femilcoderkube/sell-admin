@@ -1954,7 +1954,7 @@ export const AddTournament: FC = () => {
     if (step > 1) {
       setStep(step - 1);
     } else {
-      navigate(`/${pID}/tournament`);
+      navigate(-1);
     }
   };
 

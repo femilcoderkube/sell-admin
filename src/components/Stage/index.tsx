@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { RootState } from "../../app/store";
 import { fetchRole } from "../../app/features/admins/adminSlice";
 import { logout } from "../../app/features/auth/authSlice";
@@ -12,91 +12,50 @@ import {
 } from "../../app/features/tournament/tournamentSlice";
 import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
 import { Pagination } from "../ui/Pagination";
-import { LeagueTable } from "../League";
 import HandLogoLoader from "../Loader/Loader";
-import { TournamentTable } from "./TournamentTable";
 
 export const Stages: React.FC = ({ title }: any) => {
   const dispatch = useDispatch();
 
   const partnerId = window.location.pathname.split("/")[1];
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
-  const [deleteId, setDeleteId] = useState<string>("");
+  const id = window.location.pathname.split("/")[3];
+
   const { role } = useSelector((state: RootState) => state.admins);
   const roles = localStorage.getItem("admin");
   const jsonValue = JSON.parse(roles as any);
-  const {
-    tournaments,
-    loading,
-    error,
-    currentPage,
-    perPage,
-    totalCount,
-    searchTerm,
-  } = useSelector((state: RootState) => state.tournaments);
-  useEffect(() => {
-    if (role?.role) {
-      if (jsonValue.role !== role?.role) {
-        console.log("lofg pade chhe");
-        dispatch(logout());
-      }
-    }
-  }, [role]);
 
-  useEffect(() => {
-    if (jsonValue.role !== "Superadmin") {
-      dispatch(fetchRole());
-    }
-  }, []);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    if (deleteId) {
-      setIsDeleteModalOpen(true);
-    }
-  }, [deleteId]);
-
-  useEffect(() => {
-    dispatch(
-      fetchTournaments({
-        partnerId: partnerId,
-        page: currentPage,
-        perPage,
-        searchTerm,
-      })
-    );
-  }, [dispatch, currentPage, perPage, searchTerm]);
-
-  // Handle per-page selection change
-  const handlePerPageChange = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
-      dispatch(setPerPage(Number(e.target.value)));
-    },
-    [dispatch]
-  );
-
-  // Handle pagination navigation
-  const handlePageChange = useCallback(
-    (page: number) => {
-      if (page >= 1 && page <= Math.ceil(totalCount / perPage)) {
-        dispatch(setPage(page));
-      }
-    },
-    [dispatch, totalCount, perPage]
-  );
-
-  // Calculate total pages
-  const totalPages = Math.ceil(totalCount / perPage);
-
-  const handleDeleteLeague = async () => {
-    dispatch(deleteTournament(deleteId));
-    dispatch(fetchTournaments({ partnerId: partnerId, page: 1 }));
-    dispatch(setPage(1));
-    setIsDeleteModalOpen(false);
+  const btnBack = () => {
+    navigate(-1);
   };
-
   return (
     <>
       <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-between items-center pt-3 pb-[2rem] border-b border-light-border">
+        <Link
+          to={""}
+          className="flex items-center gap-2 hover:opacity-[0.75] duration-300 text-white font-base lg:text-[1.26rem] py-2"
+          onClick={btnBack}
+        >
+          <span>
+            <svg
+              width="1.26rem"
+              height="1.26rem"
+              viewBox="0 0 20 20"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M13.125 3.75L6.875 10L13.125 16.25"
+                stroke="white"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
+          Back
+        </Link>
         <div className="legue__head_left-con">
           <h3 className="font-bold text-[1.5rem] text-white">{title}</h3>
         </div>
@@ -108,8 +67,6 @@ export const Stages: React.FC = ({ title }: any) => {
             <select
               name="perPage"
               className="font-medium focus:outline-0 bg-light-blue text-white py-[0.4rem] px-2 rounded-[0.52rem] text-[1.0625rem]"
-              value={perPage}
-              onChange={handlePerPageChange}
             >
               <option value={10}>10</option>
               <option value={25}>25</option>
@@ -123,7 +80,7 @@ export const Stages: React.FC = ({ title }: any) => {
             <div className="relative">
               <input
                 className="text-white font-medium block placeholder-custom-gray bg-input-color w-full sm:w-[20.8rem] text-gray-700 border rounded-2xl py-[0.6rem] pl-[2.5rem] pr-3 text-[1.0625rem] focus:outline-none border-0"
-                placeholder="Search Tournamente"
+                placeholder="Search Stage"
                 type="text"
                 name="search"
               />
@@ -154,7 +111,7 @@ export const Stages: React.FC = ({ title }: any) => {
           {jsonValue?.role !== "Operator" && (
             <Link
               className="bg-primary-gradient whitespace-nowrap sm:w-auto w-full font-medium flex hover:opacity-[0.85] duration-300 items-center gap-2 bg-[#46A2FF] hover:bg-blue-700 text-white font-base text-[1.0625rem] py-[0.6rem] px-4 rounded-[0.52rem]"
-              to={`/${partnerId}/tournament/add`}
+              to={`/${partnerId}/tournament/${id}/stage/add`}
             >
               <span>
                 <svg
@@ -172,42 +129,11 @@ export const Stages: React.FC = ({ title }: any) => {
                   />
                 </svg>
               </span>
-              Add Tournamente
+              Add New Stage
             </Link>
           )}
         </div>
       </div>
-      {loading ? (
-        <HandLogoLoader />
-      ) : tournaments.length > 0 ? (
-        <TournamentTable
-          currentPage={currentPage}
-          tournaments={tournaments}
-          onDeleteClick={(leagueId) => setDeleteId(leagueId)}
-        />
-      ) : (
-        <div className="text-custom-gray flex items-center justify-center h-20">
-          No data found.
-        </div>
-      )}
-
-      {!loading && totalPages > 1 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => handlePageChange(page)}
-          onPagePrvious={() => handlePageChange(currentPage - 1)}
-          onPageNext={() => handlePageChange(currentPage + 1)}
-        />
-      )}
-      <DeleteConfirmationModal
-        show={isDeleteModalOpen}
-        onClose={() => {
-          setIsDeleteModalOpen(false);
-          setDeleteId("");
-        }}
-        onDelete={handleDeleteLeague}
-      />
     </>
   );
 };

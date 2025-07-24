@@ -1,13 +1,11 @@
 import React from "react";
 import { Layout } from "../../components/layout";
+import { Team } from "../../components/Team";
 
-export const AllTeams: React.FC = () => {
+export const AllTeams: React.FC = ({ title }: any) => {
   return (
     <Layout>
-    <div style={{ padding: 40, textAlign: 'center', color: 'white'  }}>
-      <h1>All Teams</h1>
-      <p>This is a dummy All Teams page. Design or add content here.</p>
-    </div>
+      <Team title={title} />
     </Layout>
   );
-}; 
+};

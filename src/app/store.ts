@@ -7,6 +7,8 @@ import deviceReducer from "./features/devices/deviceSlice";
 import gameReducer from "./features/games/gameSlice";
 import leaguesReducer from "./features/league/leagueSlice";
 import tournamentReducer from "./features/tournament/tournamentSlice";
+import tournamentStageSlice from "./features/tournament/tournamentStageSlice";
+import teamReducer from "./features/team/teamSlice";
 import adminReducer from "./features/admins/adminSlice";
 import newadminReducer from "./features/admins/newadminSlice";
 import adminAccessReducer from "./features/admins/adminAccessSlice";
@@ -25,6 +27,8 @@ export const store = configureStore({
     game: gameReducer,
     leagues: leaguesReducer,
     tournaments: tournamentReducer,
+    tournamentStage: tournamentStageSlice,
+    teams: teamReducer,
     admins: adminReducer,
     newadmin: newadminReducer,
     boolean: booleanReducer,

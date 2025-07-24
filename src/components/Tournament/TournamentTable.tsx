@@ -181,7 +181,7 @@ export const TournamentTable: React.FC<TournamentCardProps> = ({
                       className="w-full flex items-center px-4 py-3 text-sm font-medium text-gray-100 hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-blue-500/20 rounded-xl transition-all duration-200 group/menu border border-transparent hover:border-blue-500/30"
                       onClick={() =>
                         navigate(
-                          `/${partnerId}/tournament/stage/${tournament?._id}`,
+                          `/${partnerId}/tournament/${tournament?._id}/stage`,
                           {
                             state: { tournament },
                           }
@@ -203,7 +203,7 @@ export const TournamentTable: React.FC<TournamentCardProps> = ({
               </div>
               <div className="flex items-center justify-between px-4 py-3 bg-slate-800/30 rounded-xl border border-slate-600/20">
                 <div className="flex items-center gap-3">
-                  {!tournament?.isHidden ? (
+                  {!tournament?.isActive ? (
                     <EyeOff className="w-4 h-4 text-slate-400" />
                   ) : (
                     <Eye className="w-4 h-4 text-slate-400" />
@@ -216,12 +216,12 @@ export const TournamentTable: React.FC<TournamentCardProps> = ({
                   <input
                     type="checkbox"
                     className="sr-only peer"
-                    checked={tournament?.isHidden}
+                    checked={tournament?.isActive}
                     onChange={async () => {
                       await dispatch(
                         toggleTournament({
                           id: tournament._id,
-                          isHidden: !tournament?.isHidden,
+                          isActive: !tournament?.isActive,
                         })
                       );
                       dispatch(
