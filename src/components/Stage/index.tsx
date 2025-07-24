@@ -9,7 +9,6 @@ import {
   fetchTournaments,
   setPage,
   setPerPage,
-  setSearchTerm,
 } from "../../app/features/tournament/tournamentSlice";
 import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
 import { Pagination } from "../ui/Pagination";
@@ -17,7 +16,7 @@ import { LeagueTable } from "../League";
 import HandLogoLoader from "../Loader/Loader";
 import { TournamentTable } from "./TournamentTable";
 
-export const Tournamentes: React.FC = ({ title }: any) => {
+export const Stages: React.FC = ({ title }: any) => {
   const dispatch = useDispatch();
 
   const partnerId = window.location.pathname.split("/")[1];
@@ -95,13 +94,6 @@ export const Tournamentes: React.FC = ({ title }: any) => {
     setIsDeleteModalOpen(false);
   };
 
-  const handleSearchChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      dispatch(setSearchTerm(e.target.value));
-    },
-    [dispatch]
-  );
-
   return (
     <>
       <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-between items-center pt-3 pb-[2rem] border-b border-light-border">
@@ -134,8 +126,6 @@ export const Tournamentes: React.FC = ({ title }: any) => {
                 placeholder="Search Tournamente"
                 type="text"
                 name="search"
-                value={searchTerm}
-                onChange={handleSearchChange}
               />
               <button
                 className="absolute left-[0.52rem] top-[0.6rem]"
