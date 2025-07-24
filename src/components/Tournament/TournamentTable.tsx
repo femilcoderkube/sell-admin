@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
 import { Edit, Eye, EyeOff, Trash2 } from "lucide-react";
 import dotIcon from "../../assets/images/dots.svg";
 import viewIcon from "../../assets/images/eye_icon.svg";
@@ -13,254 +12,221 @@ import {
   toggleTournament,
 } from "../../app/features/tournament/tournamentSlice";
 
-interface TournamentTableProps {
+interface TournamentCardProps {
   currentPage: number;
   tournaments: Tournament[];
   onDeleteClick: (id: string) => void;
 }
 
-export const TournamentTable: React.FC<TournamentTableProps> = ({
+export const TournamentTable: React.FC<TournamentCardProps> = ({
   currentPage,
   tournaments,
   onDeleteClick,
 }) => {
-  const [open, setOpen] = useState<string | null>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
   const role = localStorage.getItem("admin");
   const jsonValue = JSON.parse(role as string);
-
   const partnerId = window.location.pathname.split("/")[1];
-  const thead = {
-    id: (
-      <svg
-        width="1.25rem"
-        height="1.25rem"
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M5.45455 8.53846H20M4 15.4615H18.5455M16.8 3L13.0182 21M10.9818 3L7.2 21"
-          stroke="#6B7897"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-    tournament: "TOURNAMENT NAME",
-    players: "PLAYERS PER TEAM",
-    game: "GAME",
-    type: "TYPE",
-    registrations: "REGISTRATIONS",
-    status: "STATUS",
-    date: "ENDING DATE",
-    image: "LOGO",
-    actions: "ACTIONS",
-  };
 
   const handleDelete = (id: string) => {
     onDeleteClick(id);
   };
 
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setOpen(null);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   return (
-    <div id="tournament_table" className="pt-3 overflow-y-auto">
-      <table className="table-auto text-white w-[1180px] lg:w-full">
-        <thead>
-          <tr className="border-b border-light-border">
-            <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
-              {thead.id}
-            </th>
-            <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
-              {thead.tournament}
-            </th>
-            <th className="text-center py-3 text-custom-gray uppercase text-[1.0625rem]">
-              {thead.players}
-            </th>
-            <th className="text-center py-3 text-custom-gray uppercase text-[1.0625rem]">
-              {thead.game}
-            </th>
-            <th className="text-center py-3 text-custom-gray uppercase text-[1.0625rem]">
-              {thead.type}
-            </th>
-            <th className="text-center py-3 text-custom-gray uppercase text-[1.0625rem]">
-              {thead.registrations}
-            </th>
-            <th className="text-center py-3 text-custom-gray uppercase text-[1.0625rem]">
-              {thead.status}
-            </th>
-            <th className="text-center py-3 text-custom-gray uppercase text-[1.0625rem]">
-              {thead.date}
-            </th>
-            <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
-              {thead.image}
-            </th>
-            <th className="py-3 text-custom-gray uppercase text-[1.0625rem] text-center">
-              {thead.actions}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {tournaments.map((tournament, index) => (
-            <tr
-              key={tournament._id || index}
-              className="border-b border-light-border"
-            >
-              <td className="text-[1.0625rem] py-3">
-                {(currentPage - 1) * 10 + index + 1}
-              </td>
-              <td className="text-[1.0625rem] py-3">{tournament.title}</td>
-              <td className="text-center text-[1.0625rem] py-3">
-                {tournament.tournamentType === "Team"
-                  ? `${tournament.minPlayersPerTeam} - ${tournament.maxPlayersPerTeam}`
-                  : "1"}
-              </td>
-              <td className="text-center text-[1.0625rem] py-3">
-                {tournament?.game?.name}
-              </td>
-              <td className="text-center text-[1.0625rem] py-3">
-                {tournament.tournamentType}
-              </td>
-              <td className="text-center text-[1.0625rem] py-3">
-                {tournament.totalRegistrations || 0}
-              </td>
-              <td className="text-center text-[1.0625rem] py-3">
-                {new Date(tournament.endDate) > new Date()
-                  ? "Not finished"
-                  : "Finished"}
-              </td>
-              <td className="text-center text-[1.0625rem] py-3">
-                {new Date(tournament.endDate).toLocaleString()}
-              </td>
-              <td className="text-[1.0625rem] py-3">
-                <span className="inline-block bg-input-color p-[0.4rem] rounded-[0.42rem]">
+    <div id="tournament_cards" className="pt-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {tournaments.map((tournament, index) => (
+          <div
+            key={tournament._id || index}
+            className="group relative overflow-hidden bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800 rounded-2xl shadow-xl hover:shadow-2xl border border-slate-600/30 backdrop-blur-sm transition-all duration-500 hover:scale-[1.02] hover:border-blue-400/40"
+          >
+            {/* Animated Background Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 via-purple-600/5 to-cyan-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+            {/* Status Badge */}
+            <div className="absolute top-4 right-4 z-10">
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide ${
+                  new Date(tournament.endDate) > new Date()
+                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                    : "bg-red-500/20 text-red-300 border border-red-500/30"
+                }`}
+              >
+                {new Date(tournament.endDate) > new Date() ? "ACTIVE" : "ENDED"}
+              </span>
+            </div>
+
+            <div className="relative p-6 text-white flex flex-col gap-3">
+              {/* Card Header: Logo and Title */}
+              <div className="flex items-center gap-4">
+                <div className="relative">
                   <img
                     src={`${baseURL}/api/v1/${tournament.logo}`}
                     alt={tournament.title}
-                    style={{ width: "2rem", height: "2rem" }}
+                    className="w-16 h-16 rounded-xl object-cover border-2 border-slate-600/50 shadow-lg group-hover:border-blue-400/50 transition-all duration-300"
                   />
-                </span>
-              </td>
-              <td className="text-[1.0625rem] py-3 flex space-x-3 justify-center">
-                {jsonValue?.role !== "Operator" && (
-                  <button
-                    onClick={() =>
-                      setOpen(open === tournament._id ? null : tournament._id)
-                    }
-                    style={{
-                      background:
-                        "radial-gradient(circle, #39415C 0%, #555F83 100%)",
-                    }}
-                    className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
-                  >
-                    <img
-                      src={dotIcon}
-                      alt="Menu"
-                      style={{ width: "1.26rem" }}
-                    />
-                  </button>
-                )}
-                {open === tournament?._id && (
-                  <div
-                    ref={menuRef}
-                    className="absolute right-0 z-50 mt-10 w-52 origin-top-right rounded-xl shadow-2xl ring-1 ring-gray-700 transform transition-all duration-300 ease-out"
-                    style={{
-                      background:
-                        "radial-gradient(circle, #39415C 0%, #555F83 100%)",
-                    }}
-                  >
-                    <div className="p-2 space-y-0.5">
-                      <button
-                        onClick={() =>
-                          navigate(
-                            `/${partnerId}/tournament/edit/${tournament._id}`,
-                            {
-                              state: { tournament },
-                            }
-                          )
-                        }
-                        className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-100 hover:bg-gray-700/50 rounded-lg transition-colors duration-200 group"
-                      >
-                        <Edit className="w-4 h-4 text-gray-400 group-hover:text-blue-400 transition-colors" />
-                        <span>Edit Tournament</span>
-                      </button>
-                      <button
-                        onClick={() => handleDelete(tournament._id)}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-100 hover:bg-red-800/30 rounded-lg transition-colors duration-200 group"
-                      >
-                        <Trash2 className="w-4 h-4 text-gray-400 group-hover:text-red-400 transition-colors" />
-                        <span>Delete Tournament</span>
-                      </button>
-                      <div className="h-px bg-gray-600/50 my-1.5"></div>
-                      <div className="flex items-center justify-between px-3 py-2">
-                        <div className="flex items-center gap-2">
-                          {!tournament?.isHidden ? (
-                            <EyeOff className="w-4 h-4 text-gray-400" />
-                          ) : (
-                            <Eye className="w-4 h-4 text-gray-400" />
-                          )}
-                          <span className="text-xs font-medium text-gray-100">
-                            Publish Tournament
-                          </span>
-                        </div>
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-400/20 to-purple-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-xl font-bold text-white mb-1 truncate group-hover:text-blue-300 transition-colors duration-300">
+                    {tournament.title}
+                  </h3>
+                  <p className="text-sm text-slate-400 font-medium">
+                    Tournament #{(currentPage - 1) * 10 + index + 1}
+                  </p>
+                </div>
+              </div>
 
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            className="sr-only peer"
-                            checked={tournament?.isHidden}
-                            onChange={async () => {
-                              await dispatch(
-                                toggleTournament({
-                                  id: tournament._id,
-                                  isHidden: !tournament?.isHidden,
-                                })
-                              );
-                              dispatch(
-                                fetchTournaments({
-                                  partnerId: partnerId,
-                                  page: 1,
-                                  perPage: 0,
-                                  searchTerm: "",
-                                })
-                              );
-                            }}
-                          />
-                          <div className="relative w-10 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-400/50 rounded-full peer peer-checked:after:translate-x-[18px] after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-gray-200 after:rounded-full after:h-5 after:w-5 after:transition-all after:shadow-sm peer-checked:bg-blue-400"></div>
-                        </label>
-                      </div>
+              {/* Card Body: Tournament Details */}
+              <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-600/30">
+                    <div className="text-xs text-slate-400 uppercase tracking-wide font-semibold mb-1">
+                      Prizepool
+                    </div>
+                    <div className="text-sm font-bold text-white">
+                      {tournament?.prizepool}
                     </div>
                   </div>
-                )}
-                <Link
-                  to={`/${partnerId}/tournaments/${tournament._id}`}
-                  state={tournament}
-                  style={{
-                    background:
-                      "radial-gradient(circle, #39415C 0%, #555F83 100%)",
-                  }}
-                  className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
-                >
-                  <img src={viewIcon} alt="View" style={{ width: "1.26rem" }} />
-                </Link>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+
+                  <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-600/30">
+                    <div className="text-xs text-slate-400 uppercase tracking-wide font-semibold mb-1">
+                      Registrations
+                    </div>
+                    <div className="text-sm font-bold text-white">
+                      {tournament?.totalRegistrations || 0}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-600/30">
+                    <div className="text-xs text-slate-400 uppercase tracking-wide font-semibold mb-1">
+                      Game
+                    </div>
+                    <div className="text-sm font-bold text-white">
+                      {tournament?.game?.name}
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-600/30">
+                    <div className="text-xs text-slate-400 uppercase tracking-wide font-semibold mb-1">
+                      Type
+                    </div>
+                    <div className="text-sm font-bold text-white">
+                      <span
+                        className={`text-sm font-semibold px-3 py-1 rounded-full ${
+                          tournament?.tournamentType === "Team"
+                            ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                            : "bg-purple-500/20 text-purple-300 border border-purple-500/30"
+                        }`}
+                      >
+                        {tournament?.tournamentType}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-600/30">
+                    <div className="text-xs text-slate-400 uppercase tracking-wide font-semibold mb-1">
+                      Device
+                    </div>
+                    <div className="text-sm font-bold text-white">
+                      {tournament?.platform?.name}
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-600/30">
+                    <div className="text-xs text-slate-400 uppercase tracking-wide font-semibold mb-1">
+                      Partner
+                    </div>
+                    <div className="text-sm font-bold text-white">
+                      {tournament?.nameEn}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card Actions */}
+              <div className="flex justify-between items-center">
+                <div className="flex space-x-2">
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() =>
+                        navigate(
+                          `/${partnerId}/tournament/edit/${tournament._id}`,
+                          {
+                            state: { tournament },
+                          }
+                        )
+                      }
+                      className="w-full flex items-center  px-4 py-3 text-sm font-medium text-gray-100 hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-blue-500/20 rounded-xl transition-all duration-200 group/menu border border-transparent hover:border-blue-500/30"
+                    >
+                      <Edit className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
+                    </button>
+
+                    <button
+                      onClick={() => handleDelete(tournament._id)}
+                      className="w-full flex items-center  px-4 py-3 text-sm font-medium text-gray-100 hover:bg-gradient-to-r hover:from-red-600/20 hover:to-red-500/20 rounded-xl transition-all duration-200 group/menu border border-transparent hover:border-red-500/30"
+                    >
+                      <Trash2 className="w-4 h-4 text-gray-400 group-hover/menu:text-red-400 transition-colors" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Tournament ID Badge */}
+                {/* <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 animate-pulse"></div>
+                  <span className="text-xs text-slate-400 font-mono">
+                    {tournament._id?.slice(-6).toUpperCase()}
+                  </span>
+                </div> */}
+              </div>
+              <div className="flex items-center justify-between px-4 py-3 bg-slate-800/30 rounded-xl border border-slate-600/20">
+                <div className="flex items-center gap-3">
+                  {!tournament?.isHidden ? (
+                    <EyeOff className="w-4 h-4 text-slate-400" />
+                  ) : (
+                    <Eye className="w-4 h-4 text-slate-400" />
+                  )}
+                  <span className="text-sm font-medium text-gray-200">
+                    Publish
+                  </span>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="sr-only peer"
+                    checked={tournament?.isHidden}
+                    onChange={async () => {
+                      await dispatch(
+                        toggleTournament({
+                          id: tournament._id,
+                          isHidden: !tournament?.isHidden,
+                        })
+                      );
+                      dispatch(
+                        fetchTournaments({
+                          partnerId: partnerId,
+                          page: 1,
+                          perPage: 0,
+                          searchTerm: "",
+                        })
+                      );
+                    }}
+                  />
+                  <div className="relative w-11 h-6 bg-slate-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-400/50 rounded-full peer peer-checked:after:translate-x-[22px] after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all after:shadow-lg peer-checked:bg-gradient-to-r peer-checked:from-blue-500 peer-checked:to-blue-400"></div>
+                </label>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

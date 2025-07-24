@@ -58,6 +58,8 @@ interface Tournament {
   endDate: string;
   isActive: boolean;
   messages: string[];
+  registrationStartDate: string;
+  registrationEndDate: string;
   randomMessages: Array<{ randomText: string; tags: string[] }>;
 }
 
@@ -160,24 +162,20 @@ const validationSchema = Yup.object().shape({
   endDate: Yup.date()
     .required("End date is required")
     .min(Yup.ref("startDate"), "End date must be after start date"),
+  registrationStartDate: Yup.date() // Added
+    .required("Registration start date is required")
+    .min(
+      new Date().setTime(0),
+      "Registration start date cannot be in the past"
+    ),
+  registrationEndDate: Yup.date() // Added
+    .required("Registration end date is required")
+    .min(
+      Yup.ref("registrationStartDate"),
+      "Registration end date must be after registration start date"
+    ),
+
   isActive: Yup.boolean(),
-  //   messages: Yup.array()
-  //     .of(Yup.string().required("Message cannot be empty"))
-  //     .min(1, "At least one message is required"),
-  //   randomMessages: Yup.array()
-  //     .of(
-  //       Yup.object().shape({
-  //         randomText: Yup.string().required("Random Message cannot be empty"),
-  //         tags: Yup.array()
-  //           .of(
-  //             Yup.string()
-  //               .min(1, "Tag cannot be empty")
-  //               .required("Tag is required")
-  //           )
-  //           .min(1, "At least one tag is required"),
-  //       })
-  //     )
-  //     .min(1, "At least one random message is required"),
 });
 // Step 1: General Information
 const TournamentStep1: FC<{ step: number }> = ({ step }) => {
@@ -660,6 +658,96 @@ const TournamentStep1: FC<{ step: number }> = ({ step }) => {
           {touched.endDate && errors.endDate && (
             <div className="text-red-500 text-[0.7rem] mt-1">
               {errors.endDate}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Update grid to 2x2 for date fields */}
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="relative float-label-input custom-input">
+          <DatePicker
+            selected={
+              values.registrationStartDate
+                ? new Date(values.registrationStartDate)
+                : null
+            }
+            onChange={(date: Date) =>
+              setFieldValue("registrationStartDate", date.toISOString())
+            }
+            onBlur={() => setFieldTouched("registrationStartDate", true)}
+            showTimeSelect
+            timeFormat="h:mm aa"
+            dateFormat="yyyy-MM-dd h:mm aa"
+            className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+              touched.registrationStartDate && errors.registrationStartDate
+                ? "border border-red-500"
+                : ""
+            }`}
+            id="registrationStartDate"
+            name="registrationStartDate"
+            placeholderText="Select registration start date"
+            autoComplete="off"
+            timeIntervals={15}
+            minDate={new Date()}
+            popperPlacement="bottom-start"
+            wrapperClassName="w-full"
+            calendarClassName="custom-datepicker"
+          />
+          <label
+            htmlFor="registrationStartDate"
+            className="absolute top-3 left-0 translate-y-[0.2rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
+          >
+            Registration Start Date
+          </label>
+          {touched.registrationStartDate && errors.registrationStartDate && (
+            <div className="text-red-500 text-[0.7rem] mt-1">
+              {errors.registrationStartDate}
+            </div>
+          )}
+        </div>
+        <div className="relative float-label-input custom-input">
+          <DatePicker
+            selected={
+              values.registrationEndDate
+                ? new Date(values.registrationEndDate)
+                : null
+            }
+            onChange={(date: Date) =>
+              setFieldValue("registrationEndDate", date.toISOString())
+            }
+            onBlur={() => setFieldTouched("registrationEndDate", true)}
+            showTimeSelect
+            timeFormat="h:mm aa"
+            dateFormat="yyyy-MM-dd h:mm aa"
+            className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+              touched.registrationEndDate && errors.registrationEndDate
+                ? "border border-red-500"
+                : ""
+            }`}
+            id="registrationEndDate"
+            name="registrationEndDate"
+            timeIntervals={15}
+            placeholderText="Select registration end date"
+            autoComplete="off"
+            minDate={
+              values.registrationStartDate
+                ? new Date(values.registrationStartDate)
+                : new Date()
+            }
+            popperPlacement="bottom-start"
+            wrapperClassName="w-full"
+            calendarClassName="custom-datepicker"
+          />
+          <label
+            htmlFor="registrationEndDate"
+            className="absolute top-3 left-0 translate-y-[0.2rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
+          >
+            Registration End Date
+          </label>
+          {touched.registrationEndDate && errors.registrationEndDate && (
+            <div className="text-red-500 text-[0.7rem] mt-1">
+              {errors.registrationEndDate}
             </div>
           )}
         </div>
@@ -1752,6 +1840,8 @@ export const AddTournament: FC = () => {
     internalPhoto: tournamentData?.internalPhoto || null,
     startDate: tournamentData?.startDate || "",
     endDate: tournamentData?.endDate || "",
+    registrationStartDate: tournamentData?.registrationStartDate || "", // Added
+    registrationEndDate: tournamentData?.registrationEndDate || "", // Added
     isActive: tournamentData?.isActive ?? true,
     messages:
       tournamentData?.messages?.length > 0 ? tournamentData.messages : [""],
