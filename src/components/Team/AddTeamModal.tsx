@@ -54,6 +54,9 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({
       } else {
         setBackgroundImageUrl(undefined);
       }
+    } else {
+      setLogoImageUrl(undefined);
+      setBackgroundImageUrl(undefined);
     }
 
     // Cleanup object URLs
@@ -247,8 +250,6 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({
         backgroundImage: values.backgroundImage || undefined,
       };
 
-      console.log("teamData", teamData);
-
       if (selectedTeam) {
         const result = await dispatch(
           updateTeam({ id: selectedTeam._id, team: teamData })
@@ -286,7 +287,9 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({
               <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
                 <div className="w-4 h-4 bg-blue-500 rounded-full" />
               </div>
-              <h3 className="text-xl font-semibold text-white">Add New Team</h3>
+              <h3 className="text-xl font-semibold text-white">
+                {selectedTeam ? "Update Team" : "Add New Team"}
+              </h3>
             </div>
             <button
               onClick={onClose}
@@ -661,7 +664,13 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({
                       className="flex-1 px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-blue-500/25"
                       disabled={isSubmitting}
                     >
-                      {isSubmitting ? "Adding..." : "Add Team"}
+                      {isSubmitting
+                        ? selectedTeam
+                          ? "Updating..."
+                          : "Adding..."
+                        : selectedTeam
+                        ? "Update Team"
+                        : "Add Team"}
                     </button>
                   </div>
                 </div>

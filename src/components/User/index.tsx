@@ -11,6 +11,7 @@ import {
   deleteUser,
   updateUser,
   addUser,
+  generateExcelFile,
 } from "../../app/features/users/usersSlice";
 import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
 import { User as UserType } from "../../app/types";
@@ -117,13 +118,23 @@ export const User: React.FC = ({ title }: any) => {
     }
   };
 
+  const handleExport = async () => {
+    await dispatch(generateExcelFile());
+  };
+
   return (
     <>
       <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-between items-center pt-3 pb-[2rem] border-b border-light-border">
-        <div className="legue__head_left-con">
+        <div className="legue__head_left-con flex gap-2">
           <h3 className="font-bold text-[1.25rem] text-white">
             {title} <span className="text-custom-gray">({totalItem})</span>
           </h3>
+          <button
+            className="py-2 px-4 bg-gradient-to-r from-blue-500 to-blue-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
+            onClick={handleExport}
+          >
+            Export
+          </button>
         </div>
         <div className="legue__head_right-con flex-wrap flex gap-3 flex-1 justify-end">
           <div className="nf_max-al bg-input-color gap-2 flex items-center pl-2 pr-1 rounded-[0.625rem]">

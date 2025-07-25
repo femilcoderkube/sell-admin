@@ -288,3 +288,40 @@ textarea:focus {
   border-width: 0.5px;
   border-radius: 5px;
 }
+
+.ibox-title {
+  background-color: transparent;
+  border: none;
+  border-radius: 10px 10px;
+  margin-bottom: 20px;
+}
+
+.ibox-content {
+  background-color: #0b0d13;
+  border: none;
+  padding: 0;
+}
+
+.ibox-content .dataTables_wrapper > .row:first-child {
+  background-color: transparent;
+  border-bottom: 1px solid #1a1f2d;
+  border-radius: 10px;
+  padding: 15px 15px 10px;
+  margin-bottom: 6px !important;
+}
+
+.ibox-content table.dataTable {
+  border-collapse: collapse !important;
+  border-spacing: 0 6px;
+  margin: 0 !important;
+}
+
+.ibox-content .form-control {
+  background-color: #181d29;
+  border-radius: 6px;
+  border: none;
+}
+
+.ibox-content .input-group.date .form-control {
+  border-radius: 0 6px 6px 0;
+}

@@ -33,6 +33,8 @@ import { Tournament } from "../pages/Tournament";
 import { AddTournament } from "../pages/AddTournamente";
 import { Stage } from "../pages/Stage";
 import { AddStage } from "../pages/AddStage";
+import { Member } from "../pages/Member";
+import { StageList } from "../pages/StageList";
 
 // Helper function to convert snake_case to Title Case
 const toTitleCase = (str: string) =>
@@ -276,9 +278,31 @@ export const generateRoutes = (adminside: any[]): RoutesProps[] => {
       partnerColor: undefined,
     },
     {
+      label: "List Stage",
+      icon: <NafesLeagueIcon />,
+      path: "/:id/tournament/:lid/stage/list",
+      dark_svg: downarr,
+      white_svg: white_arr,
+      component: <StageList title={"List Stage"} />,
+      auth: true,
+      isShow: false,
+      partnerColor: undefined,
+    },
+    {
       label: "Add Stage",
       icon: <NafesLeagueIcon />,
       path: "/:id/tournament/:lid/stage/add",
+      dark_svg: downarr,
+      white_svg: white_arr,
+      component: <AddStage />,
+      auth: true,
+      isShow: false,
+      partnerColor: undefined,
+    },
+    {
+      label: "Edit Stage",
+      icon: <NafesLeagueIcon />,
+      path: "/:id/tournament/:lid/stage/edit/:id",
       dark_svg: downarr,
       white_svg: white_arr,
       component: <AddStage />,
@@ -315,6 +339,17 @@ export const generateRoutes = (adminside: any[]): RoutesProps[] => {
       dark_svg: downarr,
       white_svg: white_arr,
       component: <UserDetail />,
+      auth: true,
+      isShow: false,
+      partnerColor: undefined,
+    },
+    {
+      label: "Teams Members",
+      icon: <NafesLeagueIcon />,
+      path: "/user-controll/all-team/:id",
+      dark_svg: downarr,
+      white_svg: white_arr,
+      component: <Member title={"Teams Members"} />,
       auth: true,
       isShow: false,
       partnerColor: undefined,

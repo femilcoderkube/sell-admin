@@ -2555,6 +2555,16 @@ export const AddLeague: FC = () => {
     });
   };
 
+  // New function to handle direct save
+  const handleDirectSave = (
+    values: League,
+    submitForm: () => Promise<void>
+  ) => {
+    submitForm().then(() => {
+      // setShowModal(true);
+    });
+  };
+
   return (
     <Layout>
       <Formik
@@ -2562,7 +2572,7 @@ export const AddLeague: FC = () => {
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
-        {({ validateForm, values }) => (
+        {({ validateForm, values, submitForm }) => (
           <Form>
             <div className="nf_leg_steps-block">
               <div className="nf_step_head-con flex items-center pb-4 border-b border-light-border">
@@ -2629,20 +2639,35 @@ export const AddLeague: FC = () => {
             {step === 3 && <LeagueStep3 step={step} leagueData={leagueData} />}
             {step === 4 && <LeagueStep4 step={step} />}
 
-            <div className="max-w-[42.5rem] mx-auto genral_form-info mb-4">
-              <div className="flex items-center justify-end gap-2 mt-[1.8rem]">
+            <div
+              className={`max-w-[42.5rem] mx-auto genral_form-info mb-4 flex items-center ${
+                leagueData?._id ? "justify-between" : "justify-end"
+              }`}
+            >
+              {/* Direct Save/Update Button */}
+              {leagueData?._id && (
+                <button
+                  type="button"
+                  onClick={() => handleDirectSave(values, submitForm)}
+                  className="bg-green-600 w-[7.25rem] text-white hover:opacity-[0.75] duration-300 font-medium rounded-lg text-sm px-5 py-2.5  focus:outline-none"
+                >
+                  Direct Update
+                </button>
+              )}
+              <div className="flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={prevStep}
                   disabled={step === 1}
-                  className="bg-gray-gradient w-[6.25rem] mb-4 text-white bg-blue-700 hover:opacity-[0.75] font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 duration-300 focus:outline-none disabled:opacity-50"
+                  className="bg-gray-gradient w-[6.25rem]  text-white bg-blue-700 hover:opacity-[0.75] font-medium rounded-lg text-sm px-5 py-2.5  duration-300 focus:outline-none disabled:opacity-50"
                 >
                   Back
                 </button>
+
                 <button
                   type="button"
                   onClick={() => nextStep(validateForm, values)}
-                  className="bg-primary-gradient w-[6.25rem] mb-4 text-white bg-blue-700 hover:opacity-[0.75] duration-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none disabled:opacity-50"
+                  className="bg-primary-gradient w-[6.25rem]  text-white bg-blue-700 hover:opacity-[0.75] duration-300 font-medium rounded-lg text-sm px-5 py-2.5  focus:outline-none disabled:opacity-50"
                 >
                   {step === 4 ? "Submit" : "Next Step"}
                 </button>

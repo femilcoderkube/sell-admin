@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { Edit, Trash2 } from "lucide-react";
 import dotIcon from "../../assets/images/dots.svg";
 
-import viewIcon from "../../assets/images/eye_icon.svg";
+import viewIcon from "../../assets/images/user_icon.svg";
 import deleteIcon from "../../assets/images/trash_can.svg";
 import editIcon from "../../assets/images/Edit.svg";
 
@@ -137,7 +137,7 @@ export const TeamTable: React.FC<TeamTableProps> = ({
                   <img src={editIcon} alt="View" style={{ width: "1.26rem" }} />
                 </button>
                 <button
-                  onClick={() => onDeleteClick(team._id)}
+                  onClick={() => onDeleteClick(team?._id)}
                   style={{
                     background:
                       "radial-gradient(circle, #39415C 0%, #555F83 100%)",
@@ -150,7 +150,8 @@ export const TeamTable: React.FC<TeamTableProps> = ({
                     style={{ width: "1.26rem" }}
                   />
                 </button>
-                <button
+                <Link
+                  to={`/user-controll/all-team/${team?._id}`}
                   style={{
                     background:
                       "radial-gradient(circle, #39415C 0%, #555F83 100%)",
@@ -158,7 +159,7 @@ export const TeamTable: React.FC<TeamTableProps> = ({
                   className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
                 >
                   <img src={viewIcon} alt="View" style={{ width: "1.26rem" }} />
-                </button>
+                </Link>
               </td>
             </tr>
           ))}

@@ -1,6 +1,6 @@
-import React, { FC } from "react";
+import React, { FC, useEffect } from "react";
 import { Layout } from "../../components/layout";
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { Check } from "lucide-react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
@@ -11,11 +11,13 @@ import {
   createTournamentStage,
   setSelectedStage,
   setStep,
+  updateTournamentStage,
 } from "../../app/features/tournament/tournamentStageSlice";
 
 // Interface for stage settings
 interface StageSettings {
   numberOfGroups?: number;
+  numberOfRounds?: number;
   numberOfQualifiers?: number;
   isDoubleRoundRobin?: boolean;
   isThirdPlaceMatch?: boolean;
@@ -50,15 +52,23 @@ interface FormValues {
   tieBreaker?: string;
   htmlFile?: string;
   cssFile?: string;
+  numberOfRounds?: string;
 }
 
 // Main Component
 export const AddStage: FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
+  const { stage } = location?.state || {};
+
   const { stages, selectedStage, step, loading, error } = useSelector(
     (state: RootState) => state.tournamentStage
   );
+  const id = window.location.pathname.split("/")[3];
+
+  // Determine if editing
+  const isEditing = !!stage?._id;
 
   // Validation schema
   const validationSchema = Yup.object().shape({
@@ -97,29 +107,60 @@ export const AddStage: FC = () => {
     ...(selectedStage === "SingleElimination" && {
       isThirdPlaceMatch: Yup.boolean(),
     }),
+    ...(selectedStage === "DoubleElimination" && {
+      isThirdPlaceMatch: Yup.boolean(),
+    }),
   });
 
   // Initial form values
-  const initialValues: FormValues = {
-    stageName: "",
-    stageNameAr: "",
-    numberOfParticipants: "",
-    numberOfGroups: "",
-    numberOfQualifiers: "",
-    isDoubleRoundRobin: false,
-    isThirdPlaceMatch: false,
-    lossesToBeEliminated: "",
-    killPoints: "",
-    placePoints: "",
-    tieBreaker: "",
-    htmlFile: "",
-    cssFile: "",
-  };
+  const initialValues: FormValues = isEditing
+    ? {
+        stageName: stage.stageName || "",
+        stageNameAr: stage.stageNameAr || "",
+        numberOfParticipants: stage.numberOfParticipants?.toString() || "",
+        numberOfGroups: stage.settings?.numberOfGroups?.toString() || "",
+        numberOfQualifiers:
+          stage.settings?.numberOfQualifiers?.toString() || "",
+        isDoubleRoundRobin: stage.settings?.isDoubleRoundRobin || false,
+        isThirdPlaceMatch: stage.settings?.isThirdPlaceMatch || false,
+        lossesToBeEliminated:
+          stage.settings?.lossesToBeEliminated?.toString() || "",
+        killPoints: stage.settings?.killPoints?.toString() || "",
+        placePoints: stage.settings?.placePoints?.toString() || "",
+        tieBreaker: stage.settings?.tieBreaker || "",
+        htmlFile: stage.settings?.htmlFile || "",
+        cssFile: stage.settings?.cssFile || "",
+        numberOfRounds: stage.settings?.numberOfRounds?.toString() || "",
+      }
+    : {
+        stageName: "",
+        stageNameAr: "",
+        numberOfParticipants: "",
+        numberOfGroups: "",
+        numberOfQualifiers: "",
+        isDoubleRoundRobin: false,
+        isThirdPlaceMatch: false,
+        lossesToBeEliminated: "",
+        killPoints: "",
+        placePoints: "",
+        tieBreaker: "",
+        htmlFile: "",
+        cssFile: "",
+      };
+
+  // Set selected stage for editing
+  useEffect(() => {
+    if (isEditing && stage.stageType) {
+      dispatch(setSelectedStage(stage.stageType));
+      dispatch(setStep("form"));
+    }
+  }, [dispatch, isEditing, stage]);
 
   const btnBack = () => {
     if (step === "form") {
       dispatch(setStep("select"));
       dispatch(clearStageData());
+      navigate(-1);
     } else {
       dispatch(clearStageData());
       navigate(-1);
@@ -150,24 +191,40 @@ export const AddStage: FC = () => {
     } else if (selectedStage === "Custom") {
       settings.htmlFile = values.htmlFile;
       settings.cssFile = values.cssFile;
-    } else if (selectedStage === "SingleElimination") {
+    } else if (
+      selectedStage === "SingleElimination" ||
+      selectedStage === "DoubleElimination"
+    ) {
       settings.isThirdPlaceMatch = values.isThirdPlaceMatch;
     }
 
-    dispatch(
-      createTournamentStage({
-        tournament: "6880897d630f93bdf66b6c9f", // Replace with actual tournament ID
-        stageType: selectedStage!,
-        stageName: values.stageName,
-        stageNameAr: values.stageNameAr,
-        numberOfParticipants: parseInt(values.numberOfParticipants),
-        settings,
-      })
-    ).then((result) => {
-      if (createTournamentStage.fulfilled.match(result)) {
-        navigate(-1); // Redirect back after successful submission
-      }
-    });
+    const stageData = {
+      tournament: id,
+      stageType: selectedStage!,
+      stageName: values.stageName,
+      stageNameAr: values.stageNameAr,
+      numberOfParticipants: parseInt(values.numberOfParticipants),
+      settings,
+    };
+
+    if (isEditing) {
+      dispatch(
+        updateTournamentStage({
+          stageId: stage._id,
+          ...stageData,
+        })
+      ).then((result) => {
+        if (updateTournamentStage.fulfilled.match(result)) {
+          navigate(-1);
+        }
+      });
+    } else {
+      dispatch(createTournamentStage(stageData)).then((result) => {
+        if (createTournamentStage.fulfilled.match(result)) {
+          navigate(-1);
+        }
+      });
+    }
   };
 
   return (
@@ -199,7 +256,7 @@ export const AddStage: FC = () => {
             Back
           </Link>
           <h3 className="flex-1 text-white text-center font-bold text-[1.25rem]">
-            Add new stage
+            {isEditing ? "Edit Stage" : "Add New Stage"}
           </h3>
         </div>
       </div>
@@ -207,7 +264,7 @@ export const AddStage: FC = () => {
       {step === "select" && (
         <div className="leg_steps--con flex items-center justify-center my-[1.67rem] gap-[0.35rem]">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
-            {stages.map((stage) => (
+            {stages?.map((stage) => (
               <div
                 key={stage.id}
                 onClick={() => handleStageToggle(stage.id)}
@@ -667,7 +724,7 @@ export const AddStage: FC = () => {
                     </>
                   )}
 
-                  {/* Single Elimination Specific Fields */}
+                  {/* Single Elimination and Double Elimination Specific Fields */}
                   {selectedStage === "SingleElimination" && (
                     <div className="form-group">
                       <label className="flex items-center gap-2 text-sm text-slate-400">
@@ -693,7 +750,11 @@ export const AddStage: FC = () => {
                         : "bg-blue-500 hover:bg-blue-600"
                     }`}
                   >
-                    {loading ? "Submitting..." : "Submit"}
+                    {loading
+                      ? "Submitting..."
+                      : isEditing
+                      ? "Update"
+                      : "Submit"}
                   </button>
                 </Form>
               )}

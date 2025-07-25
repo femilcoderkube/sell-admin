@@ -27,10 +27,14 @@ interface Stage {
 // Interface for stage state
 interface TournamentStageState {
   stages: Stage[];
+  stagesList: any;
   selectedStage: string | null;
   step: "select" | "form";
   loading: boolean;
   error: string | null;
+  currentPage: 1;
+  perPage: 10;
+  totalCount: 0;
 }
 
 // Initial state
@@ -75,10 +79,46 @@ const initialState: TournamentStageState = {
     // },
   ],
   selectedStage: null,
+  stagesList: [],
   step: "select",
   loading: false,
   error: null,
+  currentPage: 1,
+  perPage: 10,
+  totalCount: 0,
 };
+
+// Async thunk for getting all stages
+export const getTournamentStages = createAsyncThunk(
+  "tournamentStage/getTournamentStages",
+  async (tournamentId: string, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(
+        `/TournamentStage?tournamentId=${tournamentId}`
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch stages"
+      );
+    }
+  }
+);
+
+// Async thunk for deleting a stage
+export const deleteTournamentStage = createAsyncThunk(
+  "tournamentStage/deleteTournamentStage",
+  async (stageId: string, { rejectWithValue }) => {
+    try {
+      await axiosInstance.delete(`/TournamentStage?id=${stageId}`);
+      return stageId;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to delete stage"
+      );
+    }
+  }
+);
 
 // Async thunk for creating a stage
 export const createTournamentStage = createAsyncThunk(
@@ -96,10 +136,41 @@ export const createTournamentStage = createAsyncThunk(
   ) => {
     try {
       const response = await axiosInstance.post("/TournamentStage", stageData);
-      return response.data.data;
+      return response.data;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to create stage"
+      );
+    }
+  }
+);
+
+export const updateTournamentStage = createAsyncThunk(
+  "tournamentStage/updateTournamentStage",
+  async (
+    {
+      stageId,
+      ...stageData
+    }: {
+      stageId: string;
+      tournament: string;
+      stageType: string;
+      stageName: string;
+      stageNameAr?: string;
+      numberOfParticipants: number;
+      settings: StageSettings;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axiosInstance.put(
+        `/TournamentStage?id=${stageId}`,
+        stageData
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to update stage"
       );
     }
   }
@@ -124,9 +195,31 @@ const tournamentStageSlice = createSlice({
         state.selectedStage = null;
       }
     },
+
+    setPerPage: (state, action) => {
+      state.perPage = action.payload;
+      state.currentPage = 1;
+    },
+    setPage: (state, action) => {
+      state.currentPage = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
+      .addCase(getTournamentStages.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getTournamentStages.fulfilled, (state, action) => {
+        state.loading = false;
+        state.stagesList = action.payload.data.result;
+        state.totalCount = action.payload.data.totalItem;
+      })
+      .addCase(getTournamentStages.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        toast.error(action.payload as string);
+      })
       .addCase(createTournamentStage.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -141,10 +234,43 @@ const tournamentStageSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
         toast.error(action.payload as string);
+      })
+      .addCase(deleteTournamentStage.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteTournamentStage.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        toast.success("Stage has been deleted successfully.");
+      })
+      .addCase(deleteTournamentStage.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        toast.error(action.payload as string);
+      })
+      .addCase(updateTournamentStage.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateTournamentStage.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        toast.success("Stage has been updated successfully.");
+      })
+      .addCase(updateTournamentStage.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        toast.error(action.payload as string);
       });
   },
 });
 
-export const { clearStageData, setSelectedStage, setStep } =
-  tournamentStageSlice.actions;
+export const {
+  clearStageData,
+  setSelectedStage,
+  setStep,
+  setPerPage,
+  setPage,
+} = tournamentStageSlice.actions;
 export default tournamentStageSlice.reducer;
