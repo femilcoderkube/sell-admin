@@ -84,7 +84,7 @@ export const Stages: React.FC = ({ title }: any) => {
       icon: Megaphone,
       bgGradient: "from-purple-500 to-purple-600",
       description: "You can add participants manually to this league.",
-      link: `/admin/championship/${id}/bulk_register`,
+      link: `/${partnerId}/tournament/${id}/stage/bulkregistration`,
     },
     {
       id: 4,

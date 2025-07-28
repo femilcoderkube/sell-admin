@@ -349,6 +349,15 @@ export interface TournamentState {
   ticketsTotalCount: number;
   ticketsCurrentPage: number;
   ticketsPerPage: number;
+  bulkJoinLoading?: boolean;
+  bulkJoinError?: string | null;
+  eligibleParticipants: any[]; // Adjust type based on API response (e.g., { team: string }[])
+  eligibleParticipantsLoading: boolean;
+  eligibleParticipantsError: string | null;
+  eligibleParticipantsCurrentPage: number;
+  eligibleParticipantsPerPage: number;
+  eligibleParticipantsTotalCount: number;
+  eligibleParticipantsSearchTerm: string;
 }
 
 export interface AssignTournamentPayload {

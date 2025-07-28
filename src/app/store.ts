@@ -7,6 +7,7 @@ import deviceReducer from "./features/devices/deviceSlice";
 import gameReducer from "./features/games/gameSlice";
 import leaguesReducer from "./features/league/leagueSlice";
 import tournamentReducer from "./features/tournament/tournamentSlice";
+import bulkJoinReducer from "./features/tournament/bulkJoinSlice";
 import tournamentStageSlice from "./features/tournament/tournamentStageSlice";
 import teamReducer from "./features/team/teamSlice";
 import adminReducer from "./features/admins/adminSlice";
@@ -36,6 +37,7 @@ export const store = configureStore({
     users: usersReducer,
     fileUpload: fileUploadReducer,
     bannedUsers: bannedUsersReducer,
+    bulkJoin: bulkJoinReducer,
   },
 });
 

@@ -43,6 +43,13 @@ const initialState: TournamentState = {
   ticketsTotalCount: 0,
   ticketsCurrentPage: 1,
   ticketsPerPage: 10,
+  eligibleParticipants: [], // Adjust type based on API response (e.g., { team: string }[])
+  eligibleParticipantsLoading: false,
+  eligibleParticipantsError: null,
+  eligibleParticipantsCurrentPage: 0,
+  eligibleParticipantsPerPage: 10,
+  eligibleParticipantsTotalCount: 0,
+  eligibleParticipantsSearchTerm: "",
 };
 
 export const fetchTournaments = createAsyncThunk(
@@ -219,6 +226,44 @@ export const toggleTournament = createAsyncThunk(
   }
 );
 
+export const fetchEligibleParticipants = createAsyncThunk(
+  "tournaments/fetchEligibleParticipants",
+  async (
+    {
+      tournamentId,
+      page,
+      perPage,
+      searchTerm,
+    }: {
+      tournamentId: string;
+      page: number;
+      perPage: number;
+      searchTerm: string | null;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axiosInstance.get(
+        `/TournamentParticipants/eligible`,
+        {
+          params: {
+            tournamentId,
+            page,
+            perPage,
+            searchTerm: searchTerm || null, // Handle null searchTerm as in cURL
+          },
+        }
+      );
+      return response.data.data;
+    } catch (error: any) {
+      console.log("err fetch eligible participants", error);
+      return rejectWithValue(
+        error.response?.data?.message || "Error fetching eligible participants"
+      );
+    }
+  }
+);
+
 const tournamentSlice = createSlice({
   name: "tournaments",
   initialState,
@@ -261,6 +306,20 @@ const tournamentSlice = createSlice({
     },
     setOperatorsPage: (state, action: PayloadAction<number>) => {
       state.operatorsCurrentPage = action.payload;
+    },
+    setEligibleParticipantsSearchTerm: (
+      state,
+      action: PayloadAction<string>
+    ) => {
+      state.eligibleParticipantsSearchTerm = action.payload;
+      state.eligibleParticipantsCurrentPage = 1;
+    },
+    setEligibleParticipantsPerPage: (state, action: PayloadAction<number>) => {
+      state.eligibleParticipantsPerPage = action.payload;
+      state.eligibleParticipantsCurrentPage = 1;
+    },
+    setEligibleParticipantsPage: (state, action: PayloadAction<number>) => {
+      state.eligibleParticipantsCurrentPage = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -325,6 +384,21 @@ const tournamentSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
         toast.error("Failed to delete tournament!");
+      })
+      .addCase(fetchEligibleParticipants.pending, (state) => {
+        state.eligibleParticipantsLoading = true;
+        state.eligibleParticipantsError = null;
+      })
+      .addCase(fetchEligibleParticipants.fulfilled, (state, action) => {
+        state.eligibleParticipantsLoading = false;
+        state.eligibleParticipants = action.payload.data?.result || [];
+        state.eligibleParticipantsTotalCount =
+          action.payload.data?.totalItem || 0;
+      })
+      .addCase(fetchEligibleParticipants.rejected, (state, action) => {
+        state.eligibleParticipantsLoading = false;
+        state.eligibleParticipantsError = action.payload as string;
+        toast.error("Failed to fetch eligible participants!");
       });
   },
 });
@@ -341,6 +415,9 @@ export const {
   setTicketsPage,
   setOperatorsPerPage,
   setOperatorsPage,
+  setEligibleParticipantsSearchTerm,
+  setEligibleParticipantsPerPage,
+  setEligibleParticipantsPage,
 } = tournamentSlice.actions;
 
 export default tournamentSlice.reducer;

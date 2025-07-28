@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import deleteIcon from "../../assets/images/trash_can.svg";
 import editIcon from "../../assets/images/Edit.svg";
 import viewIcon from "../../assets/images/eye_icon.svg";
+import rightIcon from "../../assets/images/rightarrow.svg";
 import { PlusIcon, SearchIcon } from "../ui"; // Adjust path to your HandLogoLoader component
 import {
   getTournamentStages,
@@ -165,8 +166,8 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                           style={{ width: "1.26rem" }}
                         />
                       </button>
-                      {/* <Link
-                        to={`/${partnerId}/tournament/${tournamentId}/stage/view/${stage._id}`}
+                      <Link
+                        to={`/${partnerId}/tournament/${tournamentId}/stage/list/seed/${stage._id}`}
                         style={{
                           background:
                             "radial-gradient(circle, #39415C 0%, #555F83 100%)",
@@ -174,11 +175,11 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                         className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
                       >
                         <img
-                          src={viewIcon}
+                          src={rightIcon}
                           alt="View"
                           style={{ width: "1.26rem" }}
                         />
-                      </Link> */}
+                      </Link>
                     </div>
                   </div>
                 </div>
