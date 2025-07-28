@@ -1,45 +1,98 @@
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { PlusIcon } from "../ui";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, Search, Shuffle, Unlock, X } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchNotInStageParticipants } from "../../app/features/tournament/notInStageSlice";
+import { RootState } from "../../app/store";
+import toast from "react-hot-toast";
+import { updateTournamentStage } from "../../app/features/tournament/tournamentStageSlice";
+
+// Mock function to fetch player details (replace with actual API call)
+const fetchPlayerDetails = async (ids) => {
+  // Simulated API response (replace with actual API call)
+  return ids.map((id) => ({
+    id,
+    name: `Player ${id.slice(-4)}`, // Placeholder name
+    team: `Team ${id.slice(-4)}`, // Placeholder team
+  }));
+};
 
 export const Seeds: React.FC<{ title: string }> = ({ title }) => {
   const navigate = useNavigate();
-  const [selectedPlayers, setSelectedPlayers] = useState([]);
+  const dispatch = useDispatch();
+
+  const tournamentId = window.location.pathname.split("/")[3];
+  const stageId = window.location.pathname.split("/")[7];
+
+  // State for UI and data
+  const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [currentSeed, setCurrentSeed] = useState(null);
-  const partnerId = window.location.pathname.split("/")[1];
-  const tournamentId = window.location.pathname.split("/")[3];
+  const [currentSeed, setCurrentSeed] = useState<number | null>(null);
+  const [seedingList, setSeedingList] = useState<
+    {
+      seed: number;
+      player: { id: string; name: string; team: string } | null;
+    }[]
+  >([]);
+  const [playerDetails, setPlayerDetails] = useState<
+    { id: string; name: string; team: string }[]
+  >([]);
 
-  // Mock data for available players
-  const availablePlayers = [
-    { id: 1, name: "Player Alpha", team: "Team Red" },
-    { id: 2, name: "Player Beta", team: "Team Blue" },
-    { id: 3, name: "Player Gamma", team: "Team Green" },
-    { id: 4, name: "Player Delta", team: "Team Yellow" },
-    { id: 5, name: "Player Epsilon", team: "Team Purple" },
-    { id: 6, name: "Player Zeta", team: "Team Orange" },
-  ];
-
-  const [seedingList, setSeedingList] = useState(
-    Array.from({ length: 32 }, (_, i) => ({
-      seed: i + 1,
-      player: null,
-    }))
+  // Redux state
+  const { loading, error, notInStageParticipants } = useSelector(
+    (state: RootState) => state.notInStage
   );
 
-  const filteredPlayers = availablePlayers.filter((player) =>
+  // Fetch participant details and initialize seeding list
+  useEffect(() => {
+    // Fetch not-in-stage participants
+    dispatch(
+      fetchNotInStageParticipants({
+        tournamentId,
+        stageId,
+      })
+    );
+
+    // Initialize seeding list (example: 8 seeds, adjust based on your needs)
+    setSeedingList(
+      Array.from({ length: 8 }, (_, index) => ({
+        seed: index + 1,
+        player: null,
+      }))
+    );
+  }, [dispatch, tournamentId, stageId]);
+
+  // Fetch player details when notInStageParticipants changes
+  useEffect(() => {
+    const loadPlayerDetails = async () => {
+      const details = await fetchPlayerDetails(notInStageParticipants);
+      setPlayerDetails(details);
+    };
+    if (notInStageParticipants.length > 0) {
+      loadPlayerDetails();
+    }
+  }, [notInStageParticipants]);
+
+  // Filter players based on search term
+  const filteredPlayers = playerDetails.filter((player) =>
     player.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleAddPlayer = (seed) => {
+  // Handle adding a single player to a seed
+  const handleAddPlayer = (seed: number) => {
     setCurrentSeed(seed);
     setShowAddModal(true);
   };
 
-  const handleSelectPlayer = (player) => {
+  // Handle selecting a player for a seed
+  const handleSelectPlayer = (player: {
+    id: string;
+    name: string;
+    team: string;
+  }) => {
     setSeedingList((prev) =>
       prev.map((item) =>
         item.seed === currentSeed ? { ...item, player } : item
@@ -49,7 +102,8 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
     setCurrentSeed(null);
   };
 
-  const handleBulkSelect = (playerId) => {
+  // Handle bulk selection of players
+  const handleBulkSelect = (playerId: string) => {
     setSelectedPlayers((prev) =>
       prev.includes(playerId)
         ? prev.filter((id) => id !== playerId)
@@ -57,14 +111,15 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
     );
   };
 
+  // Handle bulk addition of players to empty seeds
   const handleBulkAdd = () => {
     const emptySeeds = seedingList.filter((item) => !item.player);
-    const playersToAdd = availablePlayers.filter((p) =>
+    const playersToAdd = playerDetails.filter((p) =>
       selectedPlayers.includes(p.id)
     );
 
     setSeedingList((prev) =>
-      prev.map((item, index) => {
+      prev.map((item) => {
         if (!item.player && playersToAdd.length > 0) {
           const player = playersToAdd.shift();
           return { ...item, player };
@@ -77,7 +132,8 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
     setShowBulkModal(false);
   };
 
-  const handleRemovePlayer = (seed) => {
+  // Handle removing a player from a seed
+  const handleRemovePlayer = (seed: number) => {
     setSeedingList((prev) =>
       prev.map((item) =>
         item.seed === seed ? { ...item, player: null } : item
@@ -85,6 +141,22 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
     );
   };
 
+  // Handle saving changes to the server
+  const handleSaveChanges = async () => {
+    const seedIds = seedingList
+      .filter((item) => item.player)
+      .map((item) => item.player!.id);
+
+    try {
+      await dispatch(
+        updateTournamentStage({ stageId: stageId, seed: seedIds })
+      ).unwrap();
+    } catch (error) {
+      console.log("error");
+    }
+  };
+
+  // Navigate back
   const btnBack = () => {
     navigate(-1);
   };
@@ -93,7 +165,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
     <>
       <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-between items-center pt-3 pb-[2rem] border-b border-light-border">
         <Link
-          to={""}
+          to=""
           className="flex items-center gap-2 hover:opacity-[0.75] duration-300 text-white font-base lg:text-[1.26rem] py-2"
           onClick={btnBack}
         >
@@ -117,11 +189,11 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
           Back
         </Link>
         <div className="legue__head_left-con">
-          <h3 className="font-bold text-[1.25rem] text-white">{title} </h3>
+          <h3 className="font-bold text-[1.25rem] text-white">{title}</h3>
         </div>
         <div className="legue__head_right-con flex-wrap flex gap-3 flex-1 justify-end">
           <Link
-            to={""}
+            to=""
             onClick={() => setShowBulkModal(true)}
             className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium px-4 py-2.5 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 whitespace-nowrap"
           >
@@ -138,7 +210,6 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
               <div className="flex items-center gap-3">
                 <h1 className="text-xl font-bold">Seeding</h1>
               </div>
-
               <div className="flex flex-wrap gap-2">
                 <button className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors text-sm">
                   <Shuffle size={16} />
@@ -159,9 +230,8 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                 <div className="col-span-3 text-right">ACTION</div>
               </div>
             </div>
-
             <div className="max-h-96 overflow-y-auto">
-              {seedingList.map((item) => (
+              {seedingList.map((item, index) => (
                 <div
                   key={item.seed}
                   className="border-b border-gray-700 last:border-b-0"
@@ -171,7 +241,6 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                       <div className="col-span-1">
                         <span className="text-sm font-medium">{item.seed}</span>
                       </div>
-
                       <div className="col-span-8">
                         {item.player ? (
                           <div className="flex items-center gap-3">
@@ -191,7 +260,6 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                           <span className="text-gray-500 text-sm">- - -</span>
                         )}
                       </div>
-
                       <div className="col-span-3 flex justify-end">
                         {item.player ? (
                           <button
@@ -218,8 +286,12 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
 
           {/* Save Button */}
           <div className="mt-6 text-center">
-            <button className="px-8 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-medium transition-colors">
-              Save Changes
+            <button
+              onClick={handleSaveChanges}
+              disabled={loading}
+              className="px-8 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg font-medium transition-colors"
+            >
+              {loading ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </div>
@@ -229,7 +301,9 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
             <div className="bg-gray-800 rounded-lg w-full max-w-md max-h-[80vh] overflow-hidden">
               <div className="p-4 border-b border-gray-700 flex items-center justify-between">
-                <h2 className="text-lg font-bold">Add Player</h2>
+                <h2 className="text-lg font-bold">
+                  Add Player to Seed {currentSeed}
+                </h2>
                 <button
                   onClick={() => setShowAddModal(false)}
                   className="text-gray-400 hover:text-white"
@@ -237,7 +311,6 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                   <X size={20} />
                 </button>
               </div>
-
               <div className="p-4">
                 <div className="relative mb-4">
                   <Search
@@ -252,7 +325,6 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                     className="w-full pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
                   />
                 </div>
-
                 <div className="space-y-2 max-h-60 overflow-y-auto">
                   {filteredPlayers.map((player) => (
                     <div
@@ -277,7 +349,6 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                   ))}
                 </div>
               </div>
-
               <div className="p-4 border-t border-gray-700 flex justify-between items-center">
                 <span className="text-sm text-gray-400">
                   {filteredPlayers.length} available
@@ -306,7 +377,6 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                   <X size={20} />
                 </button>
               </div>
-
               <div className="p-4">
                 <div className="relative mb-4">
                   <Search
@@ -321,17 +391,14 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                     className="w-full pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
                   />
                 </div>
-
                 <div className="mb-4 p-3 bg-gray-700 rounded-lg">
                   <label className="flex items-center gap-3 cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={
-                        selectedPlayers.length === availablePlayers.length
-                      }
+                      checked={selectedPlayers.length === playerDetails.length}
                       onChange={(e) => {
                         if (e.target.checked) {
-                          setSelectedPlayers(availablePlayers.map((p) => p.id));
+                          setSelectedPlayers(playerDetails.map((p) => p.id));
                         } else {
                           setSelectedPlayers([]);
                         }
@@ -341,7 +408,6 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                     <span className="text-sm font-medium">Select All</span>
                   </label>
                 </div>
-
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   {filteredPlayers.map((player) => (
                     <div
@@ -372,11 +438,10 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                   ))}
                 </div>
               </div>
-
               <div className="p-4 border-t border-gray-700 flex justify-between items-center">
                 <span className="text-sm text-gray-400">
-                  ({selectedPlayers.length}) selected /{" "}
-                  {availablePlayers.length} available
+                  ({selectedPlayers.length}) selected / {playerDetails.length}{" "}
+                  available
                 </span>
                 <div className="flex gap-2">
                   <button

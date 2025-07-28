@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { RootState } from "../../app/store";
 import { fetchRole } from "../../app/features/admins/adminSlice";
 import { logout } from "../../app/features/auth/authSlice";
@@ -33,6 +33,8 @@ import { PlusIcon } from "../ui";
 export const Stages: React.FC = ({ title }: any) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+
   const { role } = useSelector((state: RootState) => state.admins);
   const roles = localStorage.getItem("admin");
   const jsonValue = JSON.parse(roles as any);
@@ -211,7 +213,12 @@ export const Stages: React.FC = ({ title }: any) => {
                       </div>
                       <h3 className="text-lg font-semibold">{card.title}</h3>
                     </div>
-                    <Link to={card.link}>
+                    <Link
+                      to={card.link}
+                      state={{
+                        type: location?.state?.tournament?.tournamentType,
+                      }}
+                    >
                       <ChevronRight
                         size={20}
                         className="opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-200"

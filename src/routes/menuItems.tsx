@@ -271,7 +271,7 @@ export const generateRoutes = (adminside: any[]): RoutesProps[] => {
     {
       label: "Stage",
       icon: <NafesLeagueIcon />,
-      path: "/:id/tournament/:lid/stage/",
+      path: "/:id/tournament/:lid/stage",
       dark_svg: downarr,
       white_svg: white_arr,
       component: <Stage title={"Stages"} />,
@@ -291,7 +291,7 @@ export const generateRoutes = (adminside: any[]): RoutesProps[] => {
       partnerColor: undefined,
     },
     {
-      label: "List Stage",
+      label: "Seed",
       icon: <NafesLeagueIcon />,
       path: "/:id/tournament/:lid/stage/list/seed/:id",
       dark_svg: downarr,

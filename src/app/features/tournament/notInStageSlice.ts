@@ -26,8 +26,12 @@ export const fetchNotInStageParticipants = createAsyncThunk(
       if (stageId) params.stageId = stageId;
 
       const response = await axiosInstance.get(
-        "/TournamentParticipants/not-in-stage"
+        "/TournamentParticipants/not-in-stage",
+        {
+          params,
+        }
       );
+
       return response.data;
     } catch (error: any) {
       console.log("err fetch not-in-stage participants", error);
@@ -51,7 +55,8 @@ const notInStageSlice = createSlice({
       })
       .addCase(fetchNotInStageParticipants.fulfilled, (state, action) => {
         state.loading = false;
-        state.notInStageParticipants = action.payload.data?.result || [];
+        // state.notInStageParticipants = action.payload.data?.result || [];
+        state.notInStageParticipants = action.payload.data || [];
       })
       .addCase(fetchNotInStageParticipants.rejected, (state, action) => {
         state.loading = false;

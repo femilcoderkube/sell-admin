@@ -1,6 +1,6 @@
 import { FC, useState } from "react";
 import { Layout } from "../../components/layout";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AsyncPaginate } from "react-select-async-paginate";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../app/store";
@@ -19,6 +19,8 @@ interface BulkRegistrationProps {
 
 export const BulkRegistration: FC<BulkRegistrationProps> = ({ title }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+
   const tournamentId = window.location.pathname.split("/")[3];
   const effectiveTournamentId = tournamentId;
   const dispatch = useDispatch<AppDispatch>();
@@ -41,7 +43,8 @@ export const BulkRegistration: FC<BulkRegistrationProps> = ({ title }) => {
       // Map response to options
       let options: OptionType[] = response.map((team: any) => ({
         value: team._id, // Adjust based on API response (e.g., team.id)
-        label: team.username,
+        label:
+          location?.state?.type === "Solo" ? team?.username : team?.teamName,
       }));
 
       // Filter options based on search term (client-side)
@@ -81,10 +84,19 @@ export const BulkRegistration: FC<BulkRegistrationProps> = ({ title }) => {
       return;
     }
     try {
-      const payload = {
-        tournament: effectiveTournamentId,
-        participants: selectedTeams.map((team) => ({ team: team.value })),
-      };
+      let payload = {};
+      if (location?.state?.type === "Solo") {
+        payload = {
+          tournament: effectiveTournamentId,
+          participants: selectedTeams.map((team) => ({ user: team.value })),
+        };
+      } else {
+        payload = {
+          tournament: effectiveTournamentId,
+          participants: selectedTeams.map((team) => ({ team: team.value })),
+        };
+      }
+
       await dispatch(bulkJoinTournament(payload)).unwrap();
       setSelectedTeams([]); // Clear selection after success
       navigate(-1); // Navigate back after successful submission
@@ -132,14 +144,20 @@ export const BulkRegistration: FC<BulkRegistrationProps> = ({ title }) => {
       </div>
       <div className="py-4">
         <label className="text-white font-medium text-[1rem] mb-2 block">
-          Add new players
+          {location?.state?.type === "Solo"
+            ? "Add new players"
+            : "Add new teams"}
         </label>
         <AsyncPaginate
           value={selectedTeams}
           onChange={handleChange}
           loadOptions={loadOptions}
           isMulti // Enable multi-select
-          placeholder="Search and select teams..."
+          placeholder={
+            location?.state?.type === "Solo"
+              ? "Search and select users..."
+              : "Search and select teams..."
+          }
           isLoading={eligibleParticipantsLoading}
           isSearchable={true}
           debounceTimeout={300}

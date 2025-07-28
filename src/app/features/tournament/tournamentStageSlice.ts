@@ -105,6 +105,25 @@ export const getTournamentStages = createAsyncThunk(
   }
 );
 
+export const getSeeds = createAsyncThunk(
+  "tournamentStage/getSeeds",
+  async (
+    { id, tournamentId }: { id: string; tournamentId: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axiosInstance.get(
+        `/TournamentStage/seeds?id=${id}&tournamentId=${tournamentId}`
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch seeds"
+      );
+    }
+  }
+);
+
 // Async thunk for deleting a stage
 export const deleteTournamentStage = createAsyncThunk(
   "tournamentStage/deleteTournamentStage",
@@ -152,13 +171,14 @@ export const updateTournamentStage = createAsyncThunk(
       stageId,
       ...stageData
     }: {
-      stageId: string;
-      tournament: string;
-      stageType: string;
-      stageName: string;
+      stageId?: string;
+      tournament?: string;
+      stageType?: string;
+      stageName?: string;
       stageNameAr?: string;
-      numberOfParticipants: number;
-      settings: StageSettings;
+      numberOfParticipants?: number;
+      settings?: StageSettings;
+      seed?: any;
     },
     { rejectWithValue }
   ) => {
@@ -259,6 +279,20 @@ const tournamentStageSlice = createSlice({
         toast.success("Stage has been updated successfully.");
       })
       .addCase(updateTournamentStage.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        toast.error(action.payload as string);
+      })
+      .addCase(getSeeds.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getSeeds.fulfilled, (state, action) => {
+        state.loading = false;
+        // Assuming the response contains seeds data, store it in the state
+        state.stagesList = action.payload.data; // Adjust based on your API response structure
+      })
+      .addCase(getSeeds.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
         toast.error(action.payload as string);

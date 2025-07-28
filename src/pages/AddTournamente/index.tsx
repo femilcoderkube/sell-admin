@@ -821,8 +821,14 @@ const TournamentStep1: FC<{ step: number }> = ({ step }) => {
 
 // Step 2: Tournament Details
 const TournamentStep2: FC<{ step: number }> = ({ step }) => {
-  const { values, errors, touched, setFieldValue, handleChange } =
-    useFormikContext<Tournament>();
+  const {
+    values,
+    errors,
+    touched,
+    setFieldValue,
+    handleChange,
+    setFieldTouched,
+  } = useFormikContext<Tournament>();
 
   return (
     <div className="max-w-[42.5rem] mx-auto genral_form-info mb-4">

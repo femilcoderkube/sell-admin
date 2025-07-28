@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import deleteIcon from "../../assets/images/trash_can.svg";
 import editIcon from "../../assets/images/Edit.svg";
 import viewIcon from "../../assets/images/eye_icon.svg";
@@ -33,7 +33,8 @@ interface Stage {
 export const StageLists: React.FC<{ title: string }> = ({ title }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const location = useLocation();
+  console.log("location", location);
   const partnerId = window.location.pathname.split("/")[1];
   const tournamentId = window.location.pathname.split("/")[3];
 
@@ -168,6 +169,10 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                       </button>
                       <Link
                         to={`/${partnerId}/tournament/${tournamentId}/stage/list/seed/${stage._id}`}
+                        state={{
+                          seed: stage?.seed,
+                          type: location?.state?.type,
+                        }}
                         style={{
                           background:
                             "radial-gradient(circle, #39415C 0%, #555F83 100%)",
