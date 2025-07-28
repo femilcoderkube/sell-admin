@@ -38,11 +38,9 @@ export const BulkRegistration: FC<BulkRegistrationProps> = ({ title }) => {
         })
       ).unwrap();
 
-      console.log("response", response);
-
       // Map response to options
       let options: OptionType[] = response.map((team: any) => ({
-        value: team.username, // Adjust based on API response (e.g., team.id)
+        value: team._id, // Adjust based on API response (e.g., team.id)
         label: team.username,
       }));
 
@@ -134,7 +132,7 @@ export const BulkRegistration: FC<BulkRegistrationProps> = ({ title }) => {
       </div>
       <div className="py-4">
         <label className="text-white font-medium text-[1rem] mb-2 block">
-          Select Eligible Teams
+          Add new players
         </label>
         <AsyncPaginate
           value={selectedTeams}
@@ -149,9 +147,9 @@ export const BulkRegistration: FC<BulkRegistrationProps> = ({ title }) => {
             control: (base) => ({
               ...base,
               minHeight: "40px",
-              backgroundColor: "#1a1a1a", // Match dark theme
-              borderColor: eligibleParticipantsError ? "red" : "#4a4a4a",
-              color: "white",
+              backgroundColor: "#212739",
+              "&:hover": { borderColor: "#2792FF" },
+              "&:focus": { borderColor: "#2792FF" },
             }),
             menu: (base) => ({
               ...base,
@@ -176,15 +174,28 @@ export const BulkRegistration: FC<BulkRegistrationProps> = ({ title }) => {
             }),
             input: (base) => ({
               ...base,
-              color: "white",
+              color: "#fff",
+              fontSize: "0.78125rem",
             }),
             placeholder: (base) => ({
               ...base,
-              color: "#a0a0a0",
+              color: "#6B7280",
+              fontSize: "0.78125rem",
             }),
             singleValue: (base) => ({
               ...base,
               color: "white",
+            }),
+            option: (base, { isFocused, isSelected }) => ({
+              ...base,
+              backgroundColor: isSelected
+                ? "#007EFF"
+                : isFocused
+                ? "#2B3245"
+                : "#212739",
+              color: "#fff",
+              fontSize: "0.78125rem",
+              padding: "0.5rem 0.75rem",
             }),
           }}
         />
@@ -193,7 +204,7 @@ export const BulkRegistration: FC<BulkRegistrationProps> = ({ title }) => {
             {eligibleParticipantsError}
           </p>
         )}
-        <div className="mt-4">
+        {/* <div className="mt-4">
           <h4 className="text-white font-medium text-[1rem] mb-2">
             Selected Teams:
           </h4>
@@ -206,13 +217,13 @@ export const BulkRegistration: FC<BulkRegistrationProps> = ({ title }) => {
           ) : (
             <p className="text-gray-400">No teams selected</p>
           )}
-        </div>
+        </div> */}
         <button
           onClick={handleSubmit}
           disabled={eligibleParticipantsLoading || !selectedTeams.length}
           className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed"
         >
-          Add Selected Teams
+          Add
         </button>
       </div>
     </Layout>

@@ -8,6 +8,7 @@ import gameReducer from "./features/games/gameSlice";
 import leaguesReducer from "./features/league/leagueSlice";
 import tournamentReducer from "./features/tournament/tournamentSlice";
 import bulkJoinReducer from "./features/tournament/bulkJoinSlice";
+import notInStageReducer from "./features/tournament/notInStageSlice";
 import tournamentStageSlice from "./features/tournament/tournamentStageSlice";
 import teamReducer from "./features/team/teamSlice";
 import adminReducer from "./features/admins/adminSlice";
@@ -38,6 +39,7 @@ export const store = configureStore({
     fileUpload: fileUploadReducer,
     bannedUsers: bannedUsersReducer,
     bulkJoin: bulkJoinReducer,
+    notInStage: notInStageReducer,
   },
 });
 

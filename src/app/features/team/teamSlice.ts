@@ -28,6 +28,8 @@ interface TeamState {
   totalCount: number;
   searchTerm: string;
   teamDetail: Team | null;
+  joinTeamSuccess: boolean;
+  leaveTeamSuccess: boolean;
 }
 
 const initialState: TeamState = {
@@ -39,7 +41,15 @@ const initialState: TeamState = {
   totalCount: 0,
   searchTerm: "",
   teamDetail: null,
+  joinTeamSuccess: false,
+  leaveTeamSuccess: false,
 };
+
+interface TeamActionPayload {
+  teamId: string;
+  userId: string;
+  role?: "Player" | "Coach" | "Manager" | "President";
+}
 
 export const fetchTeams = createAsyncThunk(
   "teams/fetchTeams",
@@ -137,6 +147,44 @@ export const deleteTeam = createAsyncThunk(
   }
 );
 
+export const joinTeam = createAsyncThunk(
+  "teams/joinTeam",
+  async (payload: TeamActionPayload, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post("/Team/join", payload, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data;
+    } catch (error: any) {
+      console.log("err joinTeam", error);
+      return rejectWithValue(
+        error.response?.data?.message || "Error joining team"
+      );
+    }
+  }
+);
+
+export const leaveTeam = createAsyncThunk(
+  "teams/leaveTeam",
+  async (payload: TeamActionPayload, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post("/Team/leave", payload, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data;
+    } catch (error: any) {
+      console.log("err leaveTeam", error);
+      return rejectWithValue(
+        error.response?.data?.message || "Error leaving team"
+      );
+    }
+  }
+);
+
 const teamSlice = createSlice({
   name: "teams",
   initialState,
@@ -151,6 +199,12 @@ const teamSlice = createSlice({
     },
     setPage: (state, action: PayloadAction<number>) => {
       state.currentPage = action.payload;
+    },
+    resetJoinTeamSuccess: (state) => {
+      state.joinTeamSuccess = false;
+    },
+    resetLeaveTeamSuccess: (state) => {
+      state.leaveTeamSuccess = false;
     },
   },
   extraReducers: (builder) => {
@@ -213,10 +267,48 @@ const teamSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
         toast.error("Failed to delete team!");
+      })
+      .addCase(joinTeam.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.joinTeamSuccess = false;
+      })
+      .addCase(joinTeam.fulfilled, (state, action) => {
+        state.loading = false;
+        state.joinTeamSuccess = true;
+        toast.success("Joined team successfully!");
+      })
+      .addCase(joinTeam.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        state.joinTeamSuccess = false;
+        toast.error(action.payload as string);
+      })
+      .addCase(leaveTeam.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.leaveTeamSuccess = false;
+      })
+      .addCase(leaveTeam.fulfilled, (state, action) => {
+        state.loading = false;
+        state.leaveTeamSuccess = true;
+        toast.success("Left team successfully!");
+      })
+      .addCase(leaveTeam.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        state.leaveTeamSuccess = false;
+        toast.error("Failed to leave team!");
       });
   },
 });
 
-export const { setSearchTerm, setPerPage, setPage } = teamSlice.actions;
+export const {
+  setSearchTerm,
+  setPerPage,
+  setPage,
+  resetJoinTeamSuccess,
+  resetLeaveTeamSuccess,
+} = teamSlice.actions;
 
 export default teamSlice.reducer;

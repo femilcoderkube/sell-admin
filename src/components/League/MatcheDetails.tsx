@@ -349,6 +349,8 @@ const MatchDetails = () => {
     error: string | null;
   };
 
+  console.log("matcheDetail", matcheDetail);
+
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Formik setup with Yup validation
@@ -406,12 +408,6 @@ const MatchDetails = () => {
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messageData]);
-
-  useEffect(() => {
-    if (messageData) {
-      console.log("messageData", messageData);
     }
   }, [messageData]);
 
@@ -667,9 +663,14 @@ const MatchDetails = () => {
                             : score?.submittedBy === "team2"
                             ? matcheDetail?.team2
                             : [];
+
+                        console.log("players", players);
                         const usernames = players
                           .map((item) => item?.participant?.userId?.username)
                           .join(", ");
+                        // const usernames = players
+                        //   .map((item) => item?.participant?.otherFields)
+                        //   .join(", ");
                         return (
                           <tr key={score._id} className="bg-gray-700/30">
                             <td className="p-4 border-b border-gray-700/50">
