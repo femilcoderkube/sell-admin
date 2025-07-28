@@ -254,6 +254,7 @@ export const fetchEligibleParticipants = createAsyncThunk(
           },
         }
       );
+  
       return response.data.data;
     } catch (error: any) {
       console.log("err fetch eligible participants", error);

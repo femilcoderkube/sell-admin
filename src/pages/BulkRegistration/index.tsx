@@ -1,6 +1,6 @@
 import { FC, useState } from "react";
 import { Layout } from "../../components/layout";
-import { Link, useNavigate, useParams } from "react-router-dom"; // Updated import
+import { Link, useNavigate } from "react-router-dom";
 import { AsyncPaginate } from "react-select-async-paginate";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../app/store";
@@ -27,11 +27,7 @@ export const BulkRegistration: FC<BulkRegistrationProps> = ({ title }) => {
   const [selectedTeams, setSelectedTeams] = useState<OptionType[]>([]);
 
   // Function to load options for AsyncPaginate
-  const loadOptions = async (
-    search: string,
-    loadedOptions: OptionType[],
-    { page }: { page: number }
-  ) => {
+  const loadOptions = async (search: string, loadedOptions: OptionType[]) => {
     try {
       if (!effectiveTournamentId) {
         throw new Error("Tournament ID is missing");
@@ -39,30 +35,34 @@ export const BulkRegistration: FC<BulkRegistrationProps> = ({ title }) => {
       const response = await dispatch(
         fetchEligibleParticipants({
           tournamentId: effectiveTournamentId,
-          page,
-          perPage: 10,
-          searchTerm: search || null,
         })
       ).unwrap();
 
-      const options: OptionType[] = response.data.result.map((team: any) => ({
-        value: team.team, // Adjust based on API response (e.g., team.id)
-        label: team.name || team.team, // Adjust based on API response (e.g., team.name)
+      console.log("response", response);
+
+      // Map response to options
+      let options: OptionType[] = response.map((team: any) => ({
+        value: team.username, // Adjust based on API response (e.g., team.id)
+        label: team.username,
       }));
 
-      const hasMore = page * 10 < (response.data.totalItem || 0);
+      // Filter options based on search term (client-side)
+      if (search) {
+        options = options.filter((option) =>
+          option.label.toLowerCase().includes(search.toLowerCase())
+        );
+      }
+
+      // Limit to 100 options
+      options = options.slice(0, 100);
 
       return {
         options,
-        hasMore,
-        additional: { page: page + 1 },
       };
     } catch (error) {
       console.error("Error loading options:", error);
       return {
         options: [],
-        hasMore: false,
-        additional: { page },
       };
     }
   };
@@ -144,7 +144,6 @@ export const BulkRegistration: FC<BulkRegistrationProps> = ({ title }) => {
           placeholder="Search and select teams..."
           isLoading={eligibleParticipantsLoading}
           isSearchable={true}
-          additional={{ page: 1 }}
           debounceTimeout={300}
           styles={{
             control: (base) => ({
