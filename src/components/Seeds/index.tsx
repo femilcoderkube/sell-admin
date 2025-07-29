@@ -97,10 +97,10 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
     if (window.bracketsViewer && config) {
       window.bracketsViewer.render(
         {
-          stages: config.stage,
-          matches: config.match,
-          matchGames: config.match_game,
-          participants: config.participant,
+          stages: config?.stage,
+          matches: config?.match,
+          matchGames: config?.match_game ?? [],
+          participants: config?.participant,
         },
         {
           selector: "#first",
