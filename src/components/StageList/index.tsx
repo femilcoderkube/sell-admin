@@ -117,9 +117,9 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
         {!loading && !error && stagesList.length === 0 && (
           <div className="text-white text-center">No stages found.</div>
         )}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="flex gap-4 flex-wrap">
           {!loading && stagesList.length > 0 && (
-            <div>
+            <div className="w-full lg:w-[350px]">
               {stagesList.map((stage: Stage) => (
                 <div
                   key={stage._id}
@@ -212,7 +212,8 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
               ))}
             </div>
           )}
-          <div>
+          <div className="w-full lg:w-[1px] h-[1px] lg:h-auto bg-slate-600 "></div>
+          <div className="flex-1">
             <div
               className="nf_stage-quick_scores nf_back-section nf_topbar nf_tournaments-topbar"
               style={{}}
@@ -388,6 +389,106 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
               >
                 Complete Round
               </a>
+            </div>
+
+            <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 items-center mt-5 gap-3 mb-3">
+              <div className="nf_cs-content">
+                <div className="grid grid-cols-3">
+                  <div className="col-4">
+                    <div className="nf_stage-content">
+                      <div className="nf_stage-img">
+                        <img
+                          className=""
+                          height=""
+                          width=""
+                          src="https://staging.saudieleagues.com/storage/teams/qsKhT5GxOb2UxWZILQuOrfZAfAtRficE4qVVMgtI.jpg"
+                        />
+                      </div>
+                      <h3>SR27 Test</h3>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-center">
+                    <div className="nf_stage-content text-center">
+                      <div className="flex content-center justify-center">
+                        <h5 className="">0</h5>
+                        <h5 className="">0</h5>
+                      </div>
+                      <p>In Progress</p>
+                    </div>
+                  </div>
+                  <div className="col-4">
+                    <div className="nf_stage-content">
+                      <div className="nf_stage-img">
+                        <img
+                          className=""
+                          height=""
+                          width=""
+                          src="https://staging.saudieleagues.com/storage/teams/"
+                        />
+                      </div>
+                      <h3>gkdgygygj</h3>
+                    </div>
+                  </div>
+                </div>
+                <div className="nf_stage-bottombar flex my-2">
+                  <p>الدور 1</p>
+                  <p>Jun 16 11:00 PM - Jul 29 12:43 PM</p>
+                </div>
+                <div className="nf_match-list my-3">
+                  <div className="nf-cs-btn flex" style={{}}>
+                    <div className="nf_cs-buttons flex items-center content-center">
+                      <div className="nf_cs-btn-group ">
+                        <button
+                          className="btn btn-nf-gray timechange_data"
+                          data-toggle="modal"
+                          data-target="#changetime"
+                          data-id={34042}
+                        >
+                          <img
+                            className=""
+                            width={14}
+                            height={14}
+                            src="https://staging.saudieleagues.com/public/admin/icons/change_time.svg"
+                          />
+                        </button>
+                        <strong className="text-center"> Change Time</strong>
+                      </div>
+                      <div className="nf_cs-btn-group">
+                        <a
+                          href="https://staging.saudieleagues.com/admin/championship/team_match/result/34042"
+                          className="btn btn-nf-gray"
+                        >
+                          <img
+                            className=""
+                            width={14}
+                            height={14}
+                            src="https://staging.saudieleagues.com/public/admin/icons/setting.svg"
+                          />
+                        </a>
+                        <strong className="text-center"> Manage Match</strong>
+                      </div>
+                      <div className="nf_cs-btn-group">
+                        <div className="nf_cs-btn-group">
+                          <button
+                            className="btn btn-nf-gray quickscore_data"
+                            data-toggle="modal"
+                            data-target="#quickscore"
+                            data-id={34042}
+                          >
+                            <img
+                              className=""
+                              width={14}
+                              height={14}
+                              src="https://staging.saudieleagues.com/public/admin/icons/plus-black.svg"
+                            />
+                          </button>
+                          <strong className="text-center">Quick Scoring</strong>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
