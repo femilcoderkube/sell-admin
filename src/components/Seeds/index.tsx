@@ -33,8 +33,9 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const seed = location?.state?.seed;
-  console.log("seed", seed);
+
   const stage = location?.state?.stage;
+  const config = location?.state?.stage?.config;
 
   const tournamentId = window.location.pathname.split("/")[3];
   const stageId = window.location.pathname.split("/")[7];
@@ -91,6 +92,22 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
       }))
     );
   }, [dispatch, tournamentId, stageId]);
+
+  useEffect(() => {
+    if (window.bracketsViewer && config) {
+      window.bracketsViewer.render(
+        {
+          stages: config.stage,
+          matches: config.match,
+          matchGames: config.match_game,
+          participants: config.participant,
+        },
+        {
+          selector: "#first",
+        }
+      );
+    }
+  }, [config]);
 
   // Fetch player details when notInStageParticipants changes
   useEffect(() => {
@@ -205,7 +222,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
 
   return (
     <>
-      <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-between items-center pt-3 pb-[2rem] border-b border-light-border">
+      <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-start items-center pt-3 pb-[2rem] border-b border-light-border">
         <Link
           to=""
           className="flex items-center gap-2 hover:opacity-[0.75] duration-300 text-white font-base lg:text-[1.26rem] py-2"
@@ -233,7 +250,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
         <div className="legue__head_left-con">
           <h3 className="font-bold text-[1.25rem] text-white">{title}</h3>
         </div>
-        <div className="legue__head_right-con flex-wrap flex gap-3 flex-1 justify-end">
+        {/* <div className="legue__head_right-con flex-wrap flex gap-3 flex-1 justify-end">
           <Link
             to=""
             onClick={() => setShowBulkModal(true)}
@@ -242,9 +259,9 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
             <PlusIcon />
             <span>Add</span>
           </Link>
-        </div>
+        </div> */}
       </div>
-      <div className="min-h-screen bg-gray-900 text-white p-4">
+      <div className="flex  min-h-screen bg-gray-900 text-white p-4">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="bg-gray-800 rounded-lg p-4 mb-6">
@@ -253,6 +270,14 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                 <h1 className="text-xl font-bold">Seeding</h1>
               </div>
               <div className="flex flex-wrap gap-2">
+                <Link
+                  to=""
+                  onClick={() => setShowBulkModal(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors text-sm"
+                >
+                  <PlusIcon />
+                  <span>Add</span>
+                </Link>
                 <button className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors text-sm">
                   <Shuffle size={16} />
                 </button>
@@ -327,7 +352,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
           </div>
 
           {/* Save Button */}
-          <div className="flex items-center justify-center gap-1">
+          <div className="flex items-center justify-center gap-2">
             <div className="mt-6 text-center">
               <button
                 onClick={handleSaveChanges}
@@ -347,7 +372,10 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
             </div>
           </div>
         </div>
-
+        <div
+          id="first"
+          className="brackets-viewer bg-gray-800 rounded-lg text-white"
+        />
         {/* Single Player Add Modal */}
         {showAddModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">

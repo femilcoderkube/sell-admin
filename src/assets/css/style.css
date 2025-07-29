@@ -890,3 +890,14 @@ svg:not(:root).svg-inline--fa {
   font-size: 15px;
   line-height: 24px;
 }
+
+.rounds h3 {
+  background: rgb(17 24 39 / 1) !important;
+  border-radius: 4px !important;
+}
+.opponents,
+.participant {
+  background: rgb(17 24 39 / 1) !important;
+  border: none !important;
+  border-radius: 4px !important;
+}
