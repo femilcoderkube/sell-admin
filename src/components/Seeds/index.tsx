@@ -278,12 +278,12 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                   <PlusIcon />
                   <span>Add</span>
                 </Link>
-                <button className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors text-sm">
+                {/* <button className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors text-sm">
                   <Shuffle size={16} />
                 </button>
                 <button className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors text-sm">
                   <Unlock size={16} />
-                </button>
+                </button> */}
               </div>
             </div>
           </div>
