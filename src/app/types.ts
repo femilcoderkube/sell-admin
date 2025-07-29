@@ -358,6 +358,8 @@ export interface TournamentState {
   eligibleParticipantsPerPage: number;
   eligibleParticipantsTotalCount: number;
   eligibleParticipantsSearchTerm: string;
+  createMatchesLoading: boolean;
+  createMatchesError: string | null;
 }
 
 export interface AssignTournamentPayload {

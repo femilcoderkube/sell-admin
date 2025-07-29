@@ -31,6 +31,7 @@ interface TournamentStageState {
   selectedStage: string | null;
   step: "select" | "form";
   loading: boolean;
+  updateTournamentStageloading: boolean;
   error: string | null;
   currentPage: 1;
   perPage: 10;
@@ -82,6 +83,7 @@ const initialState: TournamentStageState = {
   stagesList: [],
   step: "select",
   loading: false,
+  updateTournamentStageloading: false,
   error: null,
   currentPage: 1,
   perPage: 10,
@@ -270,16 +272,16 @@ const tournamentStageSlice = createSlice({
         toast.error(action.payload as string);
       })
       .addCase(updateTournamentStage.pending, (state) => {
-        state.loading = true;
+        state.updateTournamentStageloading = true;
         state.error = null;
       })
       .addCase(updateTournamentStage.fulfilled, (state, action) => {
-        state.loading = false;
+        state.updateTournamentStageloading = false;
         state.error = null;
         toast.success("Stage has been updated successfully.");
       })
       .addCase(updateTournamentStage.rejected, (state, action) => {
-        state.loading = false;
+        state.updateTournamentStageloading = false;
         state.error = action.payload as string;
         toast.error(action.payload as string);
       })

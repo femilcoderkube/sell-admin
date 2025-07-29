@@ -78,7 +78,7 @@ export const Stages: React.FC = ({ title }: any) => {
         { label: "Players", value: "0", color: "text-green-100" },
         { label: "Teams", value: "0", color: "text-green-100" },
       ],
-      link: `/admin/participants/user/${id}`,
+      link: ``,
     },
     {
       id: 3,
@@ -97,7 +97,7 @@ export const Stages: React.FC = ({ title }: any) => {
         { label: "Number of admins", value: "0", color: "text-orange-100" },
       ],
       description: "You can add admins to manage this tournament.",
-      link: `/admin/championship/admin/list/${id}`,
+      link: ``,
       fullWidth: true,
     },
     {
@@ -106,7 +106,7 @@ export const Stages: React.FC = ({ title }: any) => {
       icon: Calendar,
       bgGradient: "from-indigo-500 to-indigo-600",
       description: "You can show this tournament timeline for all users.",
-      link: `/admin/timelines/${id}`,
+      link: ``,
     },
     {
       id: 6,
@@ -114,7 +114,7 @@ export const Stages: React.FC = ({ title }: any) => {
       icon: FileText,
       bgGradient: "from-red-500 to-red-600",
       description: "You can view all the logs of this tournament.",
-      link: `/admin/championship/logs/${id}`,
+      link: ``,
     },
   ];
 

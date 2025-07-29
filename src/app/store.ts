@@ -9,6 +9,7 @@ import leaguesReducer from "./features/league/leagueSlice";
 import tournamentReducer from "./features/tournament/tournamentSlice";
 import bulkJoinReducer from "./features/tournament/bulkJoinSlice";
 import notInStageReducer from "./features/tournament/notInStageSlice";
+import createMatchesReducer from "./features/tournament/createMatchesSlice";
 import tournamentStageSlice from "./features/tournament/tournamentStageSlice";
 import teamReducer from "./features/team/teamSlice";
 import adminReducer from "./features/admins/adminSlice";
@@ -40,6 +41,7 @@ export const store = configureStore({
     bannedUsers: bannedUsersReducer,
     bulkJoin: bulkJoinReducer,
     notInStage: notInStageReducer,
+    createMatches: createMatchesReducer,
   },
 });
 

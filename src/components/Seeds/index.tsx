@@ -7,20 +7,34 @@ import { fetchNotInStageParticipants } from "../../app/features/tournament/notIn
 import { RootState } from "../../app/store";
 import toast from "react-hot-toast";
 import { updateTournamentStage } from "../../app/features/tournament/tournamentStageSlice";
+import { createMatches } from "../../app/features/tournament/createMatchesSlice";
 
 // Mock function to fetch player details (replace with actual API call)
-const fetchPlayerDetails = async (ids) => {
-  // Simulated API response (replace with actual API call)
-  return ids.map((id) => ({
-    id,
-    name: `Player ${id.slice(-4)}`, // Placeholder name
-    team: `Team ${id.slice(-4)}`, // Placeholder team
-  }));
-};
+// const fetchPlayerDetails = async (ids) => {
+//   console.log("ids", ids);
+//   // Simulated API response (replace with actual API call)
+//   return ids.map((id) => ({
+//     id,
+//     name: `Player ${id.slice(-4)}`, // Placeholder name
+//     team: `Team ${id.slice(-4)}`, // Placeholder team
+//   }));
+// };
 
+async function fetchTeamDetails(ids) {
+  return ids.map((item) => ({
+    id: item._id,
+    name: item.team.teamName,
+    shortName: item.team.teamShortName,
+    region: item.team.region,
+  }));
+}
 export const Seeds: React.FC<{ title: string }> = ({ title }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
+  const seed = location?.state?.seed;
+  console.log("seed", seed);
+  const stage = location?.state?.stage;
 
   const tournamentId = window.location.pathname.split("/")[3];
   const stageId = window.location.pathname.split("/")[7];
@@ -45,6 +59,12 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
   const { loading, error, notInStageParticipants } = useSelector(
     (state: RootState) => state.notInStage
   );
+  const { updateTournamentStageloading } = useSelector(
+    (state: RootState) => state.tournamentStage
+  );
+  const { createMatchesLoading } = useSelector(
+    (state: RootState) => state.createMatches
+  );
 
   // Fetch participant details and initialize seeding list
   useEffect(() => {
@@ -58,9 +78,16 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
 
     // Initialize seeding list (example: 8 seeds, adjust based on your needs)
     setSeedingList(
-      Array.from({ length: 8 }, (_, index) => ({
+      Array.from({ length: stage?.numberOfParticipants }, (_, index) => ({
         seed: index + 1,
-        player: null,
+        player: seed[index]
+          ? {
+              id: seed[index]._id,
+              name: seed[index].team.teamName,
+              shortName: seed[index].team.teamShortName,
+              region: seed[index].team.region,
+            }
+          : null,
       }))
     );
   }, [dispatch, tournamentId, stageId]);
@@ -68,10 +95,10 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
   // Fetch player details when notInStageParticipants changes
   useEffect(() => {
     const loadPlayerDetails = async () => {
-      const details = await fetchPlayerDetails(notInStageParticipants);
+      const details = await fetchTeamDetails(notInStageParticipants);
       setPlayerDetails(details);
     };
-    if (notInStageParticipants.length > 0) {
+    if (notInStageParticipants) {
       loadPlayerDetails();
     }
   }, [notInStageParticipants]);
@@ -147,13 +174,28 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
       .filter((item) => item.player)
       .map((item) => item.player!.id);
 
+    // const seedIds = seedingList.map((item) => (item.player ? item.player.id : null));
+
     try {
       await dispatch(
         updateTournamentStage({ stageId: stageId, seed: seedIds })
       ).unwrap();
+
+      setTimeout(() => {
+        dispatch(
+          fetchNotInStageParticipants({
+            tournamentId,
+            stageId,
+          })
+        );
+      }, 1000);
     } catch (error) {
       console.log("error");
     }
+  };
+
+  const handleCreateMatches = () => {
+    dispatch(createMatches({ stageId }));
   };
 
   // Navigate back
@@ -285,14 +327,24 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
           </div>
 
           {/* Save Button */}
-          <div className="mt-6 text-center">
-            <button
-              onClick={handleSaveChanges}
-              disabled={loading}
-              className="px-8 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg font-medium transition-colors"
-            >
-              {loading ? "Saving..." : "Save Changes"}
-            </button>
+          <div className="flex items-center justify-center gap-1">
+            <div className="mt-6 text-center">
+              <button
+                onClick={handleSaveChanges}
+                disabled={updateTournamentStageloading}
+                className="px-8 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg font-medium transition-colors"
+              >
+                {updateTournamentStageloading ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
+            <div className="mt-6 text-center" onClick={handleCreateMatches}>
+              <button
+                className="px-8 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg font-medium transition-colors"
+                disabled={createMatchesLoading}
+              >
+                {createMatchesLoading ? "Creating..." : "Create Match"}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -409,33 +461,35 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                   </label>
                 </div>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {filteredPlayers.map((player) => (
-                    <div
-                      key={player.id}
-                      className="p-3 bg-gray-700 hover:bg-gray-600 rounded-lg cursor-pointer transition-colors"
-                      onClick={() => handleBulkSelect(player.id)}
-                    >
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="checkbox"
-                          checked={selectedPlayers.includes(player.id)}
-                          onChange={() => handleBulkSelect(player.id)}
-                          className="w-4 h-4 text-blue-600 bg-gray-600 border-gray-500 rounded focus:ring-blue-500"
-                        />
-                        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-sm font-bold">
-                          {player.name.charAt(0)}
-                        </div>
-                        <div>
-                          <div className="font-medium text-sm">
-                            {player.name}
+                  {filteredPlayers.map((player) => {
+                    return (
+                      <div
+                        key={player.id}
+                        className="p-3 bg-gray-700 hover:bg-gray-600 rounded-lg cursor-pointer transition-colors"
+                        onClick={() => handleBulkSelect(player.id)}
+                      >
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="checkbox"
+                            checked={selectedPlayers.includes(player.id)}
+                            onChange={() => handleBulkSelect(player.id)}
+                            className="w-4 h-4 text-blue-600 bg-gray-600 border-gray-500 rounded focus:ring-blue-500"
+                          />
+                          <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-sm font-bold">
+                            {player.name.charAt(0)}
                           </div>
-                          <div className="text-xs text-gray-400">
-                            {player.team}
+                          <div>
+                            <div className="font-medium text-sm">
+                              {player.name}
+                            </div>
+                            <div className="text-xs text-gray-400">
+                              {player.team}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
               <div className="p-4 border-t border-gray-700 flex justify-between items-center">

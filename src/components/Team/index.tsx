@@ -46,7 +46,6 @@ export const Team: React.FC<TeamProps> = ({ title }) => {
 
   useEffect(() => {
     if (selectedTeam) {
-      console.log("hi");
       setIsAddModalOpen(true);
     }
   }, [selectedTeam]);
