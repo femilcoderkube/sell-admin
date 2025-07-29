@@ -14,6 +14,7 @@ import { RootState } from "../../app/store";
 import HandLogoLoader from "../Loader/Loader";
 import { Pagination } from "../ui/Pagination";
 import { fetchTournamentMatches } from "../../app/features/tournament/tournamentMatchesSlice";
+import { baseURL } from "../../axios";
 
 interface Stage {
   _id: string;
@@ -430,10 +431,10 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                               className=""
                               height=""
                               width=""
-                              src="https://staging.saudieleagues.com/storage/teams/qsKhT5GxOb2UxWZILQuOrfZAfAtRficE4qVVMgtI.jpg"
+                              src={`${baseURL}/api/v1/${val?.opponent1?.team?.logoImage}`}
                             />
                           </div>
-                          <h3>SR27 Test</h3>
+                          <h3>{val?.opponent1?.team?.teamShortName}</h3>
                         </div>
                       </div>
                       <div className="flex items-center justify-center">
@@ -442,7 +443,11 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                             <h5 className="">0</h5>
                             <h5 className="">0</h5>
                           </div>
-                          <p>{val?.status}</p>
+                          <p>
+                            {val?.status
+                              ?.replace("_", " ")
+                              .replace(/\b\w/g, (c) => c.toUpperCase())}
+                          </p>
                         </div>
                       </div>
                       <div className="col-4">
@@ -452,15 +457,15 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                               className=""
                               height=""
                               width=""
-                              src="https://staging.saudieleagues.com/storage/teams/"
+                              src={`${baseURL}/api/v1/${val?.opponent2?.team?.logoImage}`}
                             />
                           </div>
-                          <h3>gkdgygygj</h3>
+                          <h3>{val?.opponent2?.team?.teamShortName}</h3>
                         </div>
                       </div>
                     </div>
                     <div className="nf_stage-bottombar flex my-2">
-                      <p>الدور 1</p>
+                      <p>{val?.stageRoundId?.roundName}</p>
                       <p>Jun 16 11:00 PM - Jul 29 12:43 PM</p>
                     </div>
                     <div className="nf_match-list my-3">
