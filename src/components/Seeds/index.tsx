@@ -217,23 +217,24 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
     // const seedIds = seedingList.map((item) => (item.player ? item.player.id : null));
 
     try {
-      await dispatch(
+      const resultAction = await dispatch(
         updateTournamentStage({ stageId: stageId, seed: seedIds })
-      ).unwrap();
+      );
 
-      setTimeout(() => {
+      if (updateTournamentStage.fulfilled.match(resultAction)) {
         dispatch(getTournamentStages({ id: stageId }));
-      }, 1000);
+      }
     } catch (error) {
       console.log("error");
     }
   };
 
-  const handleCreateMatches = () => {
-    dispatch(createMatches({ stageId }));
-    setTimeout(() => {
+  const handleCreateMatches = async () => {
+    const resultAction = await dispatch(createMatches({ stageId }));
+
+    if (createMatches.fulfilled.match(resultAction)) {
       dispatch(getTournamentStages({ id: stageId }));
-    }, 1000);
+    }
   };
 
   // Navigate back
