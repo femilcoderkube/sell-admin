@@ -3,11 +3,7 @@ import { BannedUsersTable } from "./BannedUsersTable";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../app/store";
 import { Pagination } from "../ui/Pagination";
-import {
-  setPage,
-  setPerPage,
-  setSearchTerm,
-} from "../../app/features/users/usersSlice";
+
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import HandLogoLoader from "../Loader/Loader";
 
@@ -16,6 +12,9 @@ import BanModal from "./BanModal";
 import {
   deleteBannedUser,
   fetchBannedUsers,
+  setPage,
+  setPerPage,
+  setSearchTerm,
 } from "../../app/features/bannedusers/bannedUsersSlice";
 
 // Ban Modal
@@ -28,7 +27,7 @@ export const BannedUser: React.FC = ({ title }: any) => {
     error,
     currentPage,
     perPage,
-    totalPages,
+    totalCount,
     searchTerm,
   } = useSelector((state: RootState) => state.bannedUsers);
   const [isBanModalOpen, setIsBanModalOpen] = useState(false);
@@ -55,7 +54,7 @@ export const BannedUser: React.FC = ({ title }: any) => {
     setIsUnderDevModalOpen(true);
     // Add actual ban logic here when developed
   };
-
+  const totalPages = Math.ceil(totalCount / perPage);
   return (
     <>
       <div className="nf_legue_head--con gap-4 flex-col sm:flex-row flex-wrap justify-between items-center pt-3 pb-[2rem] border-b border-light-border px-4 sm:px-6">
@@ -134,6 +133,7 @@ export const BannedUser: React.FC = ({ title }: any) => {
       ) : bannedUsers.length > 0 ? (
         <BannedUsersTable
           users={bannedUsers}
+          currentPage={currentPage}
           loading={loading}
           error={error}
           handleUnbanUser={async (user) => {

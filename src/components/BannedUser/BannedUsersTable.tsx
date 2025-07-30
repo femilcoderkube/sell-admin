@@ -7,6 +7,7 @@ import deleteIcon from "../../assets/images/trash_can.svg";
 
 interface BannedUsersTableProps {
   users: any[];
+  currentPage: any;
   loading: boolean;
   error: string | null;
   handleUnbanUser: (user: User) => void;
@@ -14,6 +15,7 @@ interface BannedUsersTableProps {
 
 export const BannedUsersTable: React.FC<BannedUsersTableProps> = ({
   users,
+  currentPage,
   loading,
   error,
   handleUnbanUser,
@@ -82,7 +84,9 @@ export const BannedUsersTable: React.FC<BannedUsersTableProps> = ({
           {users && users.length > 0 ? (
             users.map((user, idx) => (
               <tr key={user._id} className="border-b border-light-border">
-                <td className="text-[1.0625rem] py-3">{idx + 1}</td>
+                <td className="text-[1.0625rem] py-3">
+                  {(currentPage - 1) * 10 + idx + 1}
+                </td>
                 <td className="text-[1.0625rem] py-3">
                   {user?.user?.username}
                 </td>
