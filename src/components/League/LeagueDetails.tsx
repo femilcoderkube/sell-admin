@@ -781,7 +781,7 @@ const LeagueDetails: React.FC = () => {
                           <thead>
                             <tr className="bg-gradient-to-r from-gray-800/80 to-gray-700/80 text-gray-300">
                               <th className="py-4 px-6 text-left font-semibold">
-                                #
+                                Number
                               </th>
                               <th className="py-4 px-6 text-left font-semibold">
                                 Team 1
@@ -814,9 +814,12 @@ const LeagueDetails: React.FC = () => {
                                 }`}
                               >
                                 <td className="py-4 px-6 font-medium text-blue-300">
-                                  {(matchesCurrentPage - 1) * matchesPerPage +
+                                  {/* {(matchesCurrentPage - 1) * matchesPerPage +
                                     index +
-                                    1}
+                                    1} */}
+                                  {match?.matchTempId
+                                    ? match?.matchTempId
+                                    : "N/A"}
                                 </td>
                                 {/* <td className="py-4 px-6 font-medium text-blue-300">
                                   {match?.team1

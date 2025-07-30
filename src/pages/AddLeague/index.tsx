@@ -289,12 +289,10 @@ const validationSchema = Yup.object().shape({
   headerPhoto: Yup.mixed().required("Header Photo is required"),
   internalPhoto: Yup.mixed().required("Internal Photo is required"),
   // cardPhoto: Yup.mixed().required("Card Photo is required"),
-  startDate: Yup.date()
-    .required("Start date is required")
-    .min(new Date().setTime(0), "Start date cannot be in the past"),
-  endDate: Yup.date()
-    .required("End date is required")
-    .min(Yup.ref("startDate"), "End date must be after start date"),
+  startDate: Yup.date().required("Start date is required"),
+  // .min(new Date().setTime(0), "Start date cannot be in the past"),
+  endDate: Yup.date().required("End date is required"),
+  // .min(Yup.ref("startDate"), "End date must be after start date"),
   // messages: Yup.array()
   //   .of(
   //     Yup.string().test(
@@ -691,7 +689,7 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
             placeholderText="Select start date"
             autoComplete="off"
             timeIntervals={15}
-            minDate={new Date()}
+            // minDate={new Date()}
             popperPlacement="bottom-start"
             wrapperClassName="w-full"
             calendarClassName="custom-datepicker"
@@ -726,7 +724,7 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
             timeIntervals={15}
             placeholderText="Select end date"
             autoComplete="off"
-            minDate={values.startDate ? new Date(values.startDate) : new Date()}
+            // minDate={values.startDate ? new Date(values.startDate) : new Date()}
             popperPlacement="bottom-start"
             wrapperClassName="w-full"
             calendarClassName="custom-datepicker"
