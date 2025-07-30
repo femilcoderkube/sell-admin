@@ -24,3 +24,8 @@ export function toLocaldateTimeFromSaudi(saudiTime: string) {
     .tz(moment.tz.guess())
     .toISOString();
 }
+
+export const formatDate = (date: string | undefined) => {
+  if (!date) return "N/A";
+  return moment(date).format("MMM D h:mm A");
+};

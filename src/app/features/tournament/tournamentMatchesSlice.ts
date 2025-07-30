@@ -31,6 +31,11 @@ interface UpdateStageRoundPayload {
   startTime?: string;
   endTime?: string;
 }
+interface UpdateTournamentMatchPayload {
+  id: string;
+  startTime: string;
+  endTime: string;
+}
 
 export const fetchTournamentMatches = createAsyncThunk(
   "tournaments/fetchTournamentMatches",
@@ -103,6 +108,32 @@ export const updateStageRound = createAsyncThunk(
   }
 );
 
+export const updateTournamentMatch = createAsyncThunk(
+  "tournaments/updateTournamentMatch",
+  async (payload: UpdateTournamentMatchPayload, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.put(
+        `/TournamentMatch?id=${payload.id}`,
+        {
+          startTime: payload.startTime,
+          endTime: payload.endTime,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data.data;
+    } catch (error: any) {
+      console.log("err updating tournament match", error);
+      return rejectWithValue(
+        error.response?.data?.message || "Error updating tournament match"
+      );
+    }
+  }
+);
+
 const tournamentMatchesSlice = createSlice({
   name: "tournamentMatches",
   initialState: {
@@ -155,6 +186,21 @@ const tournamentMatchesSlice = createSlice({
         state.roundsLoading = false;
         state.roundsError = action.payload as string;
         toast.error("Failed to update stage round!");
+      })
+      .addCase(updateTournamentMatch.pending, (state) => {
+        state.matchesLoading = true;
+        state.matchesError = null;
+      })
+      .addCase(updateTournamentMatch.fulfilled, (state, action) => {
+        state.matchesLoading = false;
+        // Update the specific match in the state
+
+        toast.success("Tournament match updated successfully!");
+      })
+      .addCase(updateTournamentMatch.rejected, (state, action) => {
+        state.matchesLoading = false;
+        state.matchesError = action.payload as string;
+        toast.error("Failed to update tournament match!");
       });
   },
 });

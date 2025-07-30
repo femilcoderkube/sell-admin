@@ -17,12 +17,14 @@ import {
   addScore,
   fetchTournamentMatches,
   updateStageRound,
+  updateTournamentMatch,
 } from "../../app/features/tournament/tournamentMatchesSlice";
 import { baseURL } from "../../axios";
 import QuickScoreModal from "./QuickScoreModal";
 import { Match } from "../../app/types";
 import ChangeTimeModal from "./ChangeTimeModal";
 import RoundTimeChangeModal from "./RoundTimeChangeModal";
+import { formatDate } from "../../utils/constant";
 
 interface Stage {
   _id: string;
@@ -103,14 +105,21 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
       })
     );
   };
+
   const handleTimeSubmit = (values: {
     startDate: string;
     endDate: string;
     matchId: string;
   }) => {
     console.log("Submitting times:", values);
-    // Dispatch an action to update the match times
-    // Example: dispatch(updateMatchTimes(values));
+
+    dispatch(
+      updateTournamentMatch({
+        id: values.matchId,
+        startTime: values.startDate,
+        endTime: values.endDate,
+      })
+    );
   };
 
   const handleRoundTimeSubmit = (values: {
@@ -118,7 +127,6 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
     startDate: string;
     endDate: string;
   }) => {
-    console.log("Submitting round times:", values);
     dispatch(
       updateStageRound({
         roundId: values.roundId,
@@ -470,16 +478,16 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                   />
                 </div>
               </div>
-              {selectedRound !== "-1" && (
-                <button
-                  className="btn btn-nf-gray round_timechange_data mt-2"
-                  data-toggle="modal"
-                  data-target="#changetime_round"
-                  onClick={() => setShowRoundTimeChangeModal(true)}
-                >
-                  Round Time Change
-                </button>
-              )}
+
+              <button
+                className="btn btn-nf-gray round_timechange_data mt-2"
+                data-toggle="modal"
+                data-target="#changetime_round"
+                onClick={() => setShowRoundTimeChangeModal(true)}
+              >
+                Round Time Change
+              </button>
+
               <a
                 href="#"
                 className="btn btn-nf-blue nf_btn-ic complete_round"
@@ -548,7 +556,10 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                     </div>
                     <div className="nf_stage-bottombar items-center justify-center flex my-2 gap-1">
                       <p>{val?.stageRoundId?.roundName}</p>
-                      <p>Jun 16 11:00 PM - Jul 29 12:43 PM</p>
+                      <p>
+                        {formatDate(val?.startTime)} -{" "}
+                        {formatDate(val?.endTime)}
+                      </p>
                     </div>
                     <div className="nf_match-list my-3">
                       <div
