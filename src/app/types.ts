@@ -366,3 +366,60 @@ export interface AssignTournamentPayload {
   operatorIds: string[];
   tournamentId: string;
 }
+export interface Match {
+  _id: string;
+  tournament: string;
+  stageRoundId: {
+    _id: string;
+    stageId: string;
+    roundName: string;
+    config: any;
+    createdAt: string;
+    updatedAt: string;
+  };
+  stageId: string;
+  opponent1: {
+    _id: string;
+    tournament: string;
+    team: {
+      _id: string;
+      teamName: string;
+      teamShortName: string;
+      region: string;
+      logoImage: string;
+      backgroundImage: string;
+      createdAt: string;
+      updatedAt: string;
+    };
+    participants: string[];
+    createdAt: string;
+    updatedAt: string;
+  } | null;
+  opponent2: {
+    _id: string;
+    tournament: string;
+    team: {
+      _id: string;
+      teamName: string;
+      teamShortName: string;
+      region: string;
+      logoImage: string;
+      backgroundImage: string;
+      createdAt: string;
+      updatedAt: string;
+    };
+    participants: string[];
+    createdAt: string;
+    updatedAt: string;
+  } | null;
+  winner: string | null;
+  isScoreVerified: boolean;
+  status: string;
+  isDeleted: boolean;
+  startTime: string | null;
+  endTime: string | null;
+  config: any;
+  createdAt: string;
+  updatedAt: string;
+  matchScores: any[];
+}

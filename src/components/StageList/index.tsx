@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import deleteIcon from "../../assets/images/trash_can.svg";
@@ -15,6 +15,10 @@ import HandLogoLoader from "../Loader/Loader";
 import { Pagination } from "../ui/Pagination";
 import { fetchTournamentMatches } from "../../app/features/tournament/tournamentMatchesSlice";
 import { baseURL } from "../../axios";
+import QuickScoreModal from "./QuickScoreModal";
+import { Match } from "../../app/types";
+import ChangeTimeModal from "./ChangeTimeModal";
+import RoundTimeChangeModal from "./RoundTimeChangeModal";
 
 interface Stage {
   _id: string;
@@ -45,8 +49,11 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
   const { matches, matchesLoading, matchesError } = useSelector(
     (state: RootState) => state.tournamentMatches
   );
-
-  console.log("matches", matches);
+  const [showQuickScoreModal, setShowQuickScoreModal] = useState(false);
+  const [showChangeTimeModal, setShowChangeTimeModal] = useState(false);
+  const [showRoundTimeChangeModal, setShowRoundTimeChangeModal] =
+    useState(false);
+  const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
 
   useEffect(() => {
     if (tournamentId) {
@@ -73,6 +80,49 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
     dispatch(setPage(page));
   };
   const totalPages = Math.ceil(totalCount / perPage);
+
+  const handleScoreSubmit = (values: {
+    team1Score: number;
+    team2Score: number;
+    matchId: string;
+  }) => {
+    // Placeholder for score submission logic
+    console.log("Submitting scores:", values);
+    // Dispatch an action to update the match scores in your Redux store
+    // Example: dispatch(updateMatchScores(values));
+  };
+  const handleTimeSubmit = (values: {
+    startDate: string;
+    endDate: string;
+    matchId: string;
+  }) => {
+    console.log("Submitting times:", values);
+    // Dispatch an action to update the match times
+    // Example: dispatch(updateMatchTimes(values));
+  };
+
+  const handleRoundTimeSubmit = (values: {
+    roundId: string;
+    startDate: string;
+    endDate: string;
+  }) => {
+    console.log("Submitting round times:", values);
+    // Dispatch an action to update the round times
+    // Example: dispatch(updateRoundTimes(values));
+  };
+
+  const rounds = Array.from(
+    new Map(
+      matches?.map((match) => [
+        match.stageRoundId._id,
+        {
+          id: match.stageRoundId._id,
+          name: match.stageRoundId.roundName,
+        },
+      ])
+    ).values()
+  );
+
   return (
     <>
       <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-between items-center pt-3 pb-[2rem] border-b border-light-border">
@@ -256,15 +306,13 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                     <select
                       className="form-control color-white cust-arrow"
                       id="round_dropdown"
-                      onchange="match_list()"
                     >
-                      <option value={-1} selected="selected">
-                        All rounds
-                      </option>
-                      <option value={8320}>الدور 1</option>
-                      <option value={8321}>الدور 2</option>
-                      <option value={8322}>الدور 3</option>
-                      <option value={8323}>الدور 4</option>
+                      <option value="-1">All rounds</option>
+                      {rounds.map((round) => (
+                        <option key={round.id} value={round.id}>
+                          {round.name}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>
@@ -407,6 +455,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                 className="btn btn-nf-gray round_timechange_data mt-2"
                 data-toggle="modal"
                 data-target="#changetime_round"
+                onClick={() => setShowRoundTimeChangeModal(true)}
               >
                 Round Time Change
               </button>
@@ -420,7 +469,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 items-center mt-5 gap-3 mb-3">
-              {matches?.result?.map((val) => {
+              {matches?.map((val) => {
                 return (
                   <div className="nf_cs-content">
                     <div className="grid grid-cols-3">
@@ -464,7 +513,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                         </div>
                       </div>
                     </div>
-                    <div className="nf_stage-bottombar flex my-2">
+                    <div className="nf_stage-bottombar flex my-2 gap-1">
                       <p>{val?.stageRoundId?.roundName}</p>
                       <p>Jun 16 11:00 PM - Jul 29 12:43 PM</p>
                     </div>
@@ -477,6 +526,10 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                               data-toggle="modal"
                               data-target="#changetime"
                               data-id={34042}
+                              onClick={() => {
+                                setSelectedMatch(val);
+                                setShowChangeTimeModal(true);
+                              }}
                             >
                               <img
                                 className=""
@@ -491,17 +544,14 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                             </strong>
                           </div>
                           <div className="nf_cs-btn-group">
-                            <a
-                              href="https://staging.saudieleagues.com/admin/championship/team_match/result/34042"
-                              className="btn btn-nf-gray"
-                            >
+                            <button href="" className="btn btn-nf-gray">
                               <img
                                 className=""
                                 width={14}
                                 height={14}
                                 src="https://staging.saudieleagues.com/public/admin/icons/setting.svg"
                               />
-                            </a>
+                            </button>
                             <strong className="text-center">
                               {" "}
                               Manage Match
@@ -514,6 +564,10 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                 data-toggle="modal"
                                 data-target="#quickscore"
                                 data-id={34042}
+                                onClick={() => {
+                                  setSelectedMatch(val);
+                                  setShowQuickScoreModal(true);
+                                }}
                               >
                                 <img
                                   className=""
@@ -546,6 +600,24 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
           onPageNext={() => handlePageChange(currentPage + 1)}
         />
       )}
+      <QuickScoreModal
+        show={showQuickScoreModal}
+        onClose={() => setShowQuickScoreModal(false)}
+        match={selectedMatch}
+        onSubmit={handleScoreSubmit}
+      />
+      <ChangeTimeModal
+        show={showChangeTimeModal}
+        onClose={() => setShowChangeTimeModal(false)}
+        match={selectedMatch}
+        onSubmit={handleTimeSubmit}
+      />
+      <RoundTimeChangeModal
+        show={showRoundTimeChangeModal}
+        onClose={() => setShowRoundTimeChangeModal(false)}
+        matches={matches}
+        onSubmit={handleRoundTimeSubmit}
+      />
     </>
   );
 };

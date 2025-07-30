@@ -54,7 +54,7 @@ const tournamentMatchesSlice = createSlice({
       })
       .addCase(fetchTournamentMatches.fulfilled, (state, action) => {
         state.matchesLoading = false;
-        state.matches = action.payload; // Assuming API returns array of matches
+        state.matches = action.payload.result; // Assuming API returns array of matches
         // toast.success("Tournament matches fetched successfully!");
       })
       .addCase(fetchTournamentMatches.rejected, (state, action) => {
