@@ -231,6 +231,9 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
 
   const handleCreateMatches = () => {
     dispatch(createMatches({ stageId }));
+    setTimeout(() => {
+      dispatch(getTournamentStages({ id: stageId }));
+    }, 1000);
   };
 
   // Navigate back
