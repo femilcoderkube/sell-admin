@@ -90,16 +90,33 @@ const initialState: TournamentStageState = {
   totalCount: 0,
 };
 
-// Async thunk for getting all stages
 export const getTournamentStages = createAsyncThunk(
   "tournamentStage/getTournamentStages",
-  async (tournamentId: string, { rejectWithValue }) => {
+  async (
+    payload: { tournamentId?: string; id?: string },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await axiosInstance.get(
-        `/TournamentStage?tournamentId=${tournamentId}`
-      );
+      // Construct query string dynamically
+      const queryParams = [];
+      if (payload.tournamentId) {
+        queryParams.push(`tournamentId=${payload.tournamentId}`);
+      }
+      if (payload.id) {
+        queryParams.push(`id=${payload.id}`);
+      }
+      const queryString =
+        queryParams.length > 0 ? `?${queryParams.join("&")}` : "";
+      const url = `/TournamentStage${queryString}`;
+
+      const response = await axiosInstance.get(url, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       return response.data;
     } catch (error: any) {
+      console.log("err fetch tournament stages", error);
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch stages"
       );
@@ -234,7 +251,9 @@ const tournamentStageSlice = createSlice({
       })
       .addCase(getTournamentStages.fulfilled, (state, action) => {
         state.loading = false;
-        state.stagesList = action.payload.data.result;
+        state.stagesList = action.payload.data.result
+          ? action.payload.data.result
+          : action.payload.data;
         state.totalCount = action.payload.data.totalItem;
       })
       .addCase(getTournamentStages.rejected, (state, action) => {

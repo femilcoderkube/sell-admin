@@ -360,6 +360,8 @@ export interface TournamentState {
   eligibleParticipantsSearchTerm: string;
   createMatchesLoading: boolean;
   createMatchesError: string | null;
+  roundsLoading: boolean;
+  roundsError: null;
 }
 
 export interface AssignTournamentPayload {

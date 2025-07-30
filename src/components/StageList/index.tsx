@@ -13,7 +13,11 @@ import {
 import { RootState } from "../../app/store";
 import HandLogoLoader from "../Loader/Loader";
 import { Pagination } from "../ui/Pagination";
-import { fetchTournamentMatches } from "../../app/features/tournament/tournamentMatchesSlice";
+import {
+  addScore,
+  fetchTournamentMatches,
+  updateStageRound,
+} from "../../app/features/tournament/tournamentMatchesSlice";
 import { baseURL } from "../../axios";
 import QuickScoreModal from "./QuickScoreModal";
 import { Match } from "../../app/types";
@@ -54,10 +58,11 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
   const [showRoundTimeChangeModal, setShowRoundTimeChangeModal] =
     useState(false);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
+  const [selectedRound, setSelectedRound] = useState<string>("-1");
 
   useEffect(() => {
     if (tournamentId) {
-      dispatch(getTournamentStages(tournamentId));
+      dispatch(getTournamentStages({ tournamentId: tournamentId }));
     }
   }, [dispatch, tournamentId]);
 
@@ -68,7 +73,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
   const handleDelete = async (stageId: string) => {
     const resultAction = await dispatch(deleteTournamentStage(stageId));
     if (deleteTournamentStage.fulfilled.match(resultAction)) {
-      dispatch(getTournamentStages(tournamentId));
+      dispatch(getTournamentStages({ tournamentId: tournamentId }));
     }
   };
 
@@ -87,9 +92,16 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
     matchId: string;
   }) => {
     // Placeholder for score submission logic
-    console.log("Submitting scores:", values);
-    // Dispatch an action to update the match scores in your Redux store
-    // Example: dispatch(updateMatchScores(values));
+    dispatch(
+      addScore({
+        matchId: values.matchId,
+        opponent1Score: values.team1Score,
+        opponent2Score: values.team2Score,
+        description: "",
+        attachment: "",
+        submittedBy: "admin",
+      })
+    );
   };
   const handleTimeSubmit = (values: {
     startDate: string;
@@ -107,8 +119,13 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
     endDate: string;
   }) => {
     console.log("Submitting round times:", values);
-    // Dispatch an action to update the round times
-    // Example: dispatch(updateRoundTimes(values));
+    dispatch(
+      updateStageRound({
+        roundId: values.roundId,
+        startTime: values.startDate,
+        endTime: values.endDate,
+      })
+    );
   };
 
   const rounds = Array.from(
@@ -178,9 +195,9 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
         {!loading && !error && stagesList.length === 0 && (
           <div className="text-white text-center">No stages found.</div>
         )}
-        <div className="flex gap-4 flex-wrap">
+        <div className="block">
           {!loading && stagesList.length > 0 && (
-            <div className="w-full lg:w-[350px]">
+            <div className="grid grid-cols-3 gap-3">
               {stagesList.map((stage: Stage) => (
                 <div
                   key={stage._id}
@@ -306,6 +323,8 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                     <select
                       className="form-control color-white cust-arrow"
                       id="round_dropdown"
+                      value={selectedRound}
+                      onChange={(e) => setSelectedRound(e.target.value)}
                     >
                       <option value="-1">All rounds</option>
                       {rounds.map((round) => (
@@ -451,14 +470,16 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                   />
                 </div>
               </div>
-              <button
-                className="btn btn-nf-gray round_timechange_data mt-2"
-                data-toggle="modal"
-                data-target="#changetime_round"
-                onClick={() => setShowRoundTimeChangeModal(true)}
-              >
-                Round Time Change
-              </button>
+              {selectedRound !== "-1" && (
+                <button
+                  className="btn btn-nf-gray round_timechange_data mt-2"
+                  data-toggle="modal"
+                  data-target="#changetime_round"
+                  onClick={() => setShowRoundTimeChangeModal(true)}
+                >
+                  Round Time Change
+                </button>
+              )}
               <a
                 href="#"
                 className="btn btn-nf-blue nf_btn-ic complete_round"
@@ -468,8 +489,12 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
               </a>
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 items-center mt-5 gap-3 mb-3">
+            <div className="grid grid-cols-1 xl:grid-cols-3 items-center mt-5 gap-3 mb-3">
               {matches?.map((val) => {
+                const activeScores = val?.matchScores?.filter(
+                  (match: any) => match?.isActive
+                );
+
                 return (
                   <div className="nf_cs-content">
                     <div className="grid grid-cols-3">
@@ -489,8 +514,16 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                       <div className="flex items-center justify-center">
                         <div className="nf_stage-content text-center">
                           <div className="flex content-center justify-center">
-                            <h5 className="">0</h5>
-                            <h5 className="">0</h5>
+                            <h5 className="">
+                              {activeScores[0]?.opponent1Score
+                                ? activeScores[0]?.opponent1Score
+                                : 0}
+                            </h5>
+                            <h5 className="">
+                              {activeScores[0]?.opponent2Score
+                                ? activeScores[0]?.opponent2Score
+                                : 0}
+                            </h5>
                           </div>
                           <p>
                             {val?.status
@@ -513,12 +546,15 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                         </div>
                       </div>
                     </div>
-                    <div className="nf_stage-bottombar flex my-2 gap-1">
+                    <div className="nf_stage-bottombar items-center justify-center flex my-2 gap-1">
                       <p>{val?.stageRoundId?.roundName}</p>
                       <p>Jun 16 11:00 PM - Jul 29 12:43 PM</p>
                     </div>
                     <div className="nf_match-list my-3">
-                      <div className="nf-cs-btn flex" style={{}}>
+                      <div
+                        className="nf-cs-btn flex items-center justify-center"
+                        style={{}}
+                      >
                         <div className="nf_cs-buttons flex items-center content-center">
                           <div className="nf_cs-btn-group ">
                             <button
