@@ -316,7 +316,7 @@ const tournamentStageSlice = createSlice({
       .addCase(getSeeds.fulfilled, (state, action) => {
         state.loading = false;
         // Assuming the response contains seeds data, store it in the state
-        state.stagesList = action.payload.data; // Adjust based on your API response structure
+        // state.stagesList = action.payload.data; // Adjust based on your API response structure
       })
       .addCase(getSeeds.rejected, (state, action) => {
         state.loading = false;
