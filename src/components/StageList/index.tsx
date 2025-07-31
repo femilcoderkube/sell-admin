@@ -182,7 +182,13 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
         match.stageRoundId._id,
         {
           id: match.stageRoundId._id,
-          name: match.stageRoundId.roundName,
+          name: `${match.stageRoundId.roundName} (${
+            match?.stageRoundId?.config?.group_id === 0
+              ? "WB"
+              : match?.stageRoundId?.config?.group_id === 1
+              ? "LB"
+              : "FB"
+          })`,
         },
       ])
     ).values()

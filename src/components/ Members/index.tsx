@@ -10,9 +10,13 @@ import * as Yup from "yup";
 import toast from "react-hot-toast";
 import { fetchUsers } from "../../app/features/users/usersSlice";
 import {
-  fetchTeamById,
+  fetchTeamMembers,
   joinTeam,
+  leaveTeam,
   resetJoinTeamSuccess,
+  setPage,
+  setPerPage,
+  setSearchTerm,
 } from "../../app/features/team/teamSlice";
 import { Pagination } from "../ui/Pagination";
 import HandLogoLoader from "../Loader/Loader";
@@ -30,9 +34,15 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
   const { currentPage, perPage, searchTerm } = useSelector(
     (state: RootState) => state.users
   );
-  const { loading, error, joinTeamSuccess, teamDetail } = useSelector(
-    (state: RootState) => state.teams
-  );
+  const {
+    loading,
+    error,
+    joinTeamSuccess,
+    teamMembers,
+    totalItem,
+    searchTerm: teamSearchTerm,
+    currentPage: teamCurrentPage,
+  } = useSelector((state: RootState) => state.teams);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -42,10 +52,15 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
   }, [dispatch, currentPage, perPage, searchTerm]);
 
   useEffect(() => {
-    dispatch(fetchTeamById(id));
-  }, [dispatch, currentPage, perPage, searchTerm]);
-
-  console.log("teamDetail", teamDetail);
+    dispatch(
+      fetchTeamMembers({
+        teamId: id,
+        page: teamCurrentPage,
+        perPage,
+        searchTerm: teamSearchTerm,
+      })
+    );
+  }, [dispatch, teamCurrentPage, perPage, teamSearchTerm]);
 
   useEffect(() => {
     if (joinTeamSuccess) {
@@ -121,12 +136,57 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
           userId: values.member_name?.value,
           role: typeToRoleMap[values.type],
         };
-        await dispatch(joinTeam(payload)).unwrap();
+        const resultAction = await dispatch(joinTeam(payload));
+        if (joinTeam.fulfilled.match(resultAction)) {
+          dispatch(setPage(1));
+          dispatch(
+            fetchTeamMembers({
+              teamId: id,
+              page: 1,
+              perPage,
+              searchTerm: "",
+            })
+          );
+        }
       } catch (error) {
         console.log("error", error);
       }
     },
   });
+
+  const totalPages = Math.ceil(totalItem / perPage);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(setSearchTerm(e.target.value));
+  };
+
+  const handlePageChange = (page: number) => {
+    dispatch(setPage(page));
+  };
+
+  const onleaveTeam = async (value: any) => {
+    try {
+      const payload = {
+        teamId: id,
+        userId: value._id,
+        role: typeToRoleMap[value.type],
+      };
+      const resultAction = await dispatch(leaveTeam(payload));
+      if (leaveTeam.fulfilled.match(resultAction)) {
+        dispatch(setPage(1));
+        dispatch(
+          fetchTeamMembers({
+            teamId: id,
+            page: 1,
+            perPage,
+            searchTerm: "",
+          })
+        );
+      }
+    } catch (error) {
+      console.log("err", error);
+    }
+  };
 
   return (
     <>
@@ -161,7 +221,7 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
           </h3>
         </div>
         <div className="legue__head_right-con flex-wrap flex gap-3 flex-1 justify-end">
-          <div className="nf_max-al bg-input-color gap-2 flex items-center pl-2 pr-1 rounded-[0.625rem]">
+          {/* <div className="nf_max-al bg-input-color gap-2 flex items-center pl-2 pr-1 rounded-[0.625rem]">
             <span className="text-[1.0625rem] text-custom-gray whitespace-nowrap">
               Show max:
             </span>
@@ -173,13 +233,15 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
               <option value={25}>25</option>
               <option value={50}>50</option>
             </select>
-          </div>
+          </div> */}
           <div className="relative w-full sm:w-[20.8rem]">
             <input
               className="text-white font-medium block bg-input-color w-full sm:w-[20.8rem] text-gray-700 border rounded-[0.625rem] py-[0.6rem] pl-[2.5rem] pr-3 text-[1.0625rem] focus:outline-none border-0"
               placeholder="Search Member"
               type="text"
               name="search"
+              value={teamSearchTerm}
+              onChange={handleSearchChange}
             />
             <button
               className="absolute left-[0.52rem] top-[0.6rem]"
@@ -201,31 +263,32 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
           </button>
         </div>
       </div>
-      {/* {loading ? (
+
+      {loading ? (
         <HandLogoLoader />
-      ) : teamDetail?.members?.length > 0 ? (
+      ) : teamMembers.length > 0 ? (
         <MembersTable
-          currentPage={currentPage}
-          members={teamDetail?.members}
-          onEditClick={(team: any) => {
-            setSelectedTeam(team);
+          currentPage={teamCurrentPage}
+          members={teamMembers}
+          onleaveTeam={(member: any) => {
+            onleaveTeam(member);
           }}
-          onDeleteClick={(teamId) => setDeleteId(teamId)}
         />
       ) : (
         <div className="text-custom-gray flex items-center justify-center h-20">
-          No data found.
+          No members found.
         </div>
-      )} */}
-      {/* {!loading && totalPages > 1 && (
+      )}
+
+      {!loading && totalPages > 1 && (
         <Pagination
-          currentPage={currentPage}
+          currentPage={teamCurrentPage}
           totalPages={totalPages}
           onPageChange={(page) => handlePageChange(page)}
-          onPagePrevious={() => handlePageChange(currentPage - 1)}
-          onPageNext={() => handlePageChange(currentPage + 1)}
+          onPagePrevious={() => handlePageChange(teamCurrentPage - 1)}
+          onPageNext={() => handlePageChange(teamCurrentPage + 1)}
         />
-      )} */}
+      )}
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

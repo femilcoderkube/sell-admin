@@ -1,28 +1,22 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { Edit, Trash2 } from "lucide-react";
-import dotIcon from "../../assets/images/dots.svg";
 
 import viewIcon from "../../assets/images/user_icon.svg";
 import deleteIcon from "../../assets/images/trash_can.svg";
 import editIcon from "../../assets/images/Edit.svg";
 
 import { baseURL } from "../../axios";
-import { AppDispatch } from "../../app/store";
 
 interface TeamTableProps {
   currentPage: number;
   members: any[];
-  onEditClick: (team: string) => void;
-  onDeleteClick: (teamId: string) => void;
+  onleaveTeam: () => void;
 }
 
 export const MembersTable: React.FC<TeamTableProps> = ({
   currentPage,
   members,
-  onEditClick,
-  onDeleteClick,
+  onleaveTeam,
 }) => {
   const thead = {
     id: (
@@ -42,10 +36,9 @@ export const MembersTable: React.FC<TeamTableProps> = ({
         />
       </svg>
     ),
-    teamName: "TEAM NAME",
-    shortName: "SHORT NAME",
-    region: "REGION",
-    members: "MEMBERS",
+    username: "USERNAME",
+    role: "ROLE",
+    email: "EMAIL",
     logo: "LOGO",
     actions: "ACTIONS",
   };
@@ -59,17 +52,15 @@ export const MembersTable: React.FC<TeamTableProps> = ({
               {thead.id}
             </th>
             <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
-              {thead.teamName}
+              {thead.username}
             </th>
             <th className="text-center py-3 text-custom-gray uppercase text-[1.0625rem]">
-              {thead.shortName}
+              {thead.email}
             </th>
             <th className="text-center py-3 text-custom-gray uppercase text-[1.0625rem]">
-              {thead.region}
+              {thead.role}
             </th>
-            <th className="text-center py-3 text-custom-gray uppercase text-[1.0625rem]">
-              {thead.members}
-            </th>
+
             <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
               {thead.logo}
             </th>
@@ -79,7 +70,7 @@ export const MembersTable: React.FC<TeamTableProps> = ({
           </tr>
         </thead>
         <tbody>
-          {members.map((team, index) => (
+          {members?.map((team, index) => (
             <tr
               key={team._id || index}
               className="border-b border-light-border"
@@ -87,33 +78,27 @@ export const MembersTable: React.FC<TeamTableProps> = ({
               <td className="text-[1.0625rem] py-3">
                 {(currentPage - 1) * 10 + index + 1}
               </td>
-              <td className="text-[1.0625rem] py-3">{team.teamName}</td>
+              <td className="text-[1.0625rem] py-3">{team?.user?.username}</td>
+
               <td className="text-center text-[1.0625rem] py-3">
-                {team.teamShortName}
+                {team?.user?.email}
               </td>
               <td className="text-center text-[1.0625rem] py-3">
-                {team.region}
-              </td>
-              <td className="text-center text-[1.0625rem] py-3">
-                {team.members.length}
+                {team?.user?.role}
               </td>
               <td className="text-[1.0625rem] py-3">
                 <span className="inline-block bg-input-color p-[0.4rem] rounded-[0.42rem]">
                   <img
-                    src={`${baseURL}/api/v1/${team.logoImage}`}
+                    src={`${baseURL}/api/v1/${team?.user?.profilePicture}`}
                     alt={team.teamName}
                     style={{ width: "2rem", height: "2rem" }}
-                    onError={(e) => {
-                      e.currentTarget.src = "/path/to/fallback-image.png"; // Fallback image
-                    }}
                   />
                 </span>
               </td>
               <td className="text-[1.0625rem] py-3 flex space-x-3 justify-center">
                 <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onEditClick(team);
+                  onClick={() => {
+                    onleaveTeam(team?.user);
                   }}
                   style={{
                     background:
@@ -123,30 +108,6 @@ export const MembersTable: React.FC<TeamTableProps> = ({
                 >
                   <img src={editIcon} alt="View" style={{ width: "1.26rem" }} />
                 </button>
-                <button
-                  onClick={() => onDeleteClick(team?._id)}
-                  style={{
-                    background:
-                      "radial-gradient(circle, #39415C 0%, #555F83 100%)",
-                  }}
-                  className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
-                >
-                  <img
-                    src={deleteIcon}
-                    alt="View"
-                    style={{ width: "1.26rem" }}
-                  />
-                </button>
-                <Link
-                  to={`/user-controll/all-team/${team?._id}`}
-                  style={{
-                    background:
-                      "radial-gradient(circle, #39415C 0%, #555F83 100%)",
-                  }}
-                  className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
-                >
-                  <img src={viewIcon} alt="View" style={{ width: "1.26rem" }} />
-                </Link>
               </td>
             </tr>
           ))}

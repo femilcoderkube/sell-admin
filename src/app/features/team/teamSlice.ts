@@ -27,7 +27,9 @@ interface TeamState {
   perPage: number;
   totalCount: number;
   searchTerm: string;
-  teamDetail: Team | null;
+  teamMembers: Array<{ user: string; role: string }>;
+  totalPages: number; // Added for pagination
+  totalItem: number;
   joinTeamSuccess: boolean;
   leaveTeamSuccess: boolean;
 }
@@ -40,9 +42,11 @@ const initialState: TeamState = {
   perPage: 10,
   totalCount: 0,
   searchTerm: "",
-  teamDetail: null,
   joinTeamSuccess: false,
   leaveTeamSuccess: false,
+  teamMembers: [],
+  totalPages: 0, // Initialize pagination fields
+  totalItem: 0,
 };
 
 interface TeamActionPayload {
@@ -79,16 +83,31 @@ export const fetchTeams = createAsyncThunk(
   }
 );
 
-export const fetchTeamById = createAsyncThunk(
-  "teams/fetchTeamById",
-  async (id: string, { rejectWithValue }) => {
+export const fetchTeamMembers = createAsyncThunk(
+  "teams/fetchTeamMembers",
+  async (
+    {
+      teamId,
+      page,
+      perPage,
+      searchTerm,
+    }: { teamId: string; page: number; perPage: number; searchTerm: string },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await axiosInstance.get(`/Team/members?teamId=${id}`);
+      const response = await axiosInstance.get(`/Team/members`, {
+        params: {
+          teamId,
+          page,
+          // limit: perPage,
+          searchKey: searchTerm,
+        },
+      });
       return response.data;
     } catch (error: any) {
-      console.log("err fetchTeamById", error);
+      console.log("err fetchTeamMembers", error);
       return rejectWithValue(
-        error.response?.data?.message || "Error fetching team"
+        error.response?.data?.message || "Error fetching team members"
       );
     }
   }
@@ -221,14 +240,16 @@ const teamSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-      .addCase(fetchTeamById.pending, (state) => {
+      .addCase(fetchTeamMembers.pending, (state) => {
         state.loading = true;
       })
-      .addCase(fetchTeamById.fulfilled, (state, action) => {
+      .addCase(fetchTeamMembers.fulfilled, (state, action) => {
         state.loading = false;
-        state.teamDetail = action.payload.data;
+        state.teamMembers = action.payload.data?.members; // Assuming members are in data.result
+        state.totalPages = action.payload.data.pagination.totalPages; // Update pagination
+        state.totalItem = action.payload.data.pagination.totalItem; // Update pagination
       })
-      .addCase(fetchTeamById.rejected, (state, action) => {
+      .addCase(fetchTeamMembers.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
