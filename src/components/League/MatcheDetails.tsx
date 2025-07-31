@@ -349,6 +349,8 @@ const MatchDetails = () => {
     error: string | null;
   };
 
+  console.log("matcheDetail", matcheDetail);
+
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Formik setup with Yup validation
@@ -656,10 +658,6 @@ const MatchDetails = () => {
                             ? matcheDetail?.team2
                             : [];
 
-                        const usernames = players
-                          .map((item) => item?.participant?.userId?.username)
-                          .join(", ");
-
                         return (
                           <tr key={score._id} className="bg-gray-700/30">
                             <td className="p-4 border-b border-gray-700/50">
@@ -668,14 +666,38 @@ const MatchDetails = () => {
                                 : score?.submittedBy === "team2"
                                 ? "Team 2"
                                 : "Admin"}
-                              {/* <TeamDropdown
-                                score={score}
-                                index={index}
-                                matchData={matcheDetail}
-                              /> */}
                             </td>
                             <td className="p-4 border-b border-gray-700/50">
-                              {usernames ? usernames : "-"}
+                              <div className="flex flex-wrap gap-1">
+                                {players.length > 0
+                                  ? players.map((item) => (
+                                      <div
+                                        key={item?.participant?._id}
+                                        className="relative group inline-block"
+                                      >
+                                        <span className="text-white cursor-pointer">
+                                          {item?.participant?.userId?.username}
+                                        </span>
+                                        <div className="absolute hidden group-hover:block bg-gray-800 text-white text-sm rounded-lg p-2 shadow-lg z-10 min-w-max">
+                                          <p>
+                                            <strong>Discord ID:</strong>{" "}
+                                            {
+                                              item?.participant?.otherFields?.find(
+                                                (field) =>
+                                                  field.key === "Discord ID"
+                                              )?.value
+                                            }
+                                          </p>
+                                          <p>
+                                            <strong>Game ID:</strong>{" "}
+                                            {item?.participant?.gameId}
+                                          </p>
+                                        </div>
+                                        {players.length > 1 && ","}
+                                      </div>
+                                    ))
+                                  : "-"}
+                              </div>
                             </td>
                             <td className="p-4 border-b border-gray-700/50">
                               <p className="font-semibold text-[#46A2FF] text-lg">
@@ -783,7 +805,6 @@ const MatchDetails = () => {
                           <td className="p-4 border-b border-gray-700/50">-</td>
                           <td className="p-4 border-b border-gray-700/50">-</td>
                           <td className="p-4 border-b border-gray-700/50">-</td>
-
                           <td className="p-4 border-b border-gray-700/50">
                             <div className="flex items-center gap-2">
                               <button
@@ -798,14 +819,10 @@ const MatchDetails = () => {
                               <button
                                 onClick={(e) => {
                                   e.preventDefault();
-
                                   formik.resetForm();
                                   setAddingScore(false);
                                 }}
                                 className="py-2 px-4 bg-gradient-to-r from-red-500 to-red-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
-                                // disabled={
-                                //   !formik.isValid || formik.isSubmitting
-                                // }
                               >
                                 Cancel
                               </button>
