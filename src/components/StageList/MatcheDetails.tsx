@@ -213,15 +213,13 @@ const MatchDetails = () => {
   const [sendMessage, setSendMessage] = useState<undefined>(undefined);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAttachment, setSelectedAttachment] = useState([]);
-  const { singleMatch, loading, error } = useSelector(
+  const { singleMatch, matchesLoading, matchesError } = useSelector(
     (state: RootState) => state.tournamentMatches
   ) as {
     singleMatch: null;
-    loading: boolean;
-    error: string | null;
+    matchesLoading: boolean;
+    matchesError: string | null;
   };
-
-  console.log("singleMatch", singleMatch);
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -241,9 +239,9 @@ const MatchDetails = () => {
         .matches(/^\s*\d*\.?\d+\s*$/, "Must be a valid number")
         .trim(),
     }),
-    onSubmit: (values) => {
+    onSubmit: async (values) => {
       console.log("Saving score:", values?.team1, values?.team2);
-      dispatch(
+      const resultAction = await dispatch(
         addScore({
           matchId: mid,
           opponent1Score: values?.team1,
@@ -253,6 +251,9 @@ const MatchDetails = () => {
           submittedBy: "admin",
         })
       );
+      if (addScore.fulfilled.match(resultAction)) {
+        dispatch(fetchTournamentMatchById({ id: mid }));
+      }
       // Example: send values to backend here
       setAddingScore(false);
       formik.resetForm();
@@ -322,7 +323,7 @@ const MatchDetails = () => {
     setSelectedAttachment(null);
   };
 
-  if (loading) {
+  if (matchesLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-gradient-to-br from-gray-900 to-gray-800">
         <div className="text-white animate-pulse">
@@ -332,13 +333,13 @@ const MatchDetails = () => {
     );
   }
 
-  if (error) {
+  if (matchesError) {
     return (
       <div className="flex items-center justify-center h-screen bg-gradient-to-br from-gray-900 to-gray-800">
         <div className="text-center">
           <div className="text-red-400 text-6xl mb-4">⚠️</div>
           <div className="text-red-400 text-xl font-semibold bg-gray-800/50 p-6 rounded-2xl border border-red-400/20">
-            Error: {error}
+            Error: {matchesError}
           </div>
         </div>
       </div>

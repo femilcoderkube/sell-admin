@@ -415,12 +415,6 @@ const MatchDetails = () => {
     };
   }, []);
 
-  useEffect(() => {
-    if (selectedAttachment) {
-      console.log("selectedAttachment", selectedAttachment);
-    }
-  }, [selectedAttachment]);
-
   const handleBack = () => {
     navigate(-1);
   };
