@@ -10,6 +10,7 @@ import {
   getTournamentStages,
   deleteTournamentStage,
   setPage,
+  resetStages,
 } from "../../app/features/tournament/tournamentStageSlice"; // Adjust path to your slice
 import { RootState } from "../../app/store";
 import HandLogoLoader from "../Loader/Loader";
@@ -17,6 +18,7 @@ import { Pagination } from "../ui/Pagination";
 import {
   addScore,
   fetchTournamentMatches,
+  resetMatches,
   updateStageRound,
   updateTournamentMatch,
 } from "../../app/features/tournament/tournamentMatchesSlice";
@@ -72,6 +74,8 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
 
   useEffect(() => {
     if (tournamentId) {
+      dispatch(resetStages());
+      dispatch(resetMatches());
       dispatch(getTournamentStages({ tournamentId: tournamentId }));
     }
   }, [dispatch, tournamentId]);
@@ -79,8 +83,6 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
   const btnBack = () => {
     navigate(-1);
   };
-
-  console.log("stagesList", stagesList);
 
   const handleDelete = async (stageId: string) => {
     const resultAction = await dispatch(deleteTournamentStage(stageId));
@@ -473,130 +475,131 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                 <HandLogoLoader />
               ) : (
                 <>
-                  {matches?.map((val) => {
-                    const activeScores = val?.matchScores?.filter(
-                      (match: any) => match?.isActive
-                    );
+                  {stagesList?.length &&
+                    matches?.map((val) => {
+                      const activeScores = val?.matchScores?.filter(
+                        (match: any) => match?.isActive
+                      );
 
-                    return (
-                      <div className="nf_cs-content">
-                        <div className="grid grid-cols-3">
-                          <div className="col-4">
-                            <div className="nf_stage-content">
-                              <div className="nf_stage-img">
-                                <img
-                                  className=""
-                                  height=""
-                                  width=""
-                                  src={`${baseURL}/api/v1/${val?.opponent1?.team?.logoImage}`}
-                                />
+                      return (
+                        <div className="nf_cs-content">
+                          <div className="grid grid-cols-3">
+                            <div className="col-4">
+                              <div className="nf_stage-content">
+                                <div className="nf_stage-img">
+                                  <img
+                                    className=""
+                                    height=""
+                                    width=""
+                                    src={`${baseURL}/api/v1/${val?.opponent1?.team?.logoImage}`}
+                                  />
+                                </div>
+                                <h3>{val?.opponent1?.team?.teamShortName}</h3>
                               </div>
-                              <h3>{val?.opponent1?.team?.teamShortName}</h3>
+                            </div>
+                            <div className="flex items-center justify-center">
+                              <div className="nf_stage-content text-center">
+                                <div className="flex content-center justify-center">
+                                  <h5 className="">
+                                    {activeScores[0]?.opponent1Score
+                                      ? activeScores[0]?.opponent1Score
+                                      : 0}
+                                  </h5>
+                                  <h5 className="">
+                                    {activeScores[0]?.opponent2Score
+                                      ? activeScores[0]?.opponent2Score
+                                      : 0}
+                                  </h5>
+                                </div>
+                                <p>
+                                  {val?.status
+                                    ?.replace("_", " ")
+                                    .replace(/\b\w/g, (c) => c.toUpperCase())}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="col-4">
+                              <div className="nf_stage-content">
+                                <div className="nf_stage-img">
+                                  <img
+                                    className=""
+                                    height=""
+                                    width=""
+                                    src={`${baseURL}/api/v1/${val?.opponent2?.team?.logoImage}`}
+                                  />
+                                </div>
+                                <h3>{val?.opponent2?.team?.teamShortName}</h3>
+                              </div>
                             </div>
                           </div>
-                          <div className="flex items-center justify-center">
-                            <div className="nf_stage-content text-center">
-                              <div className="flex content-center justify-center">
-                                <h5 className="">
-                                  {activeScores[0]?.opponent1Score
-                                    ? activeScores[0]?.opponent1Score
-                                    : 0}
-                                </h5>
-                                <h5 className="">
-                                  {activeScores[0]?.opponent2Score
-                                    ? activeScores[0]?.opponent2Score
-                                    : 0}
-                                </h5>
-                              </div>
-                              <p>
-                                {val?.status
-                                  ?.replace("_", " ")
-                                  .replace(/\b\w/g, (c) => c.toUpperCase())}
-                              </p>
-                            </div>
+                          <div className="nf_stage-bottombar items-center justify-center flex my-2 gap-1">
+                            <p>{val?.stageRoundId?.roundName}</p>
+                            <p>
+                              {formatDate(val?.startTime)} -{" "}
+                              {formatDate(val?.endTime)}
+                            </p>
                           </div>
-                          <div className="col-4">
-                            <div className="nf_stage-content">
-                              <div className="nf_stage-img">
-                                <img
-                                  className=""
-                                  height=""
-                                  width=""
-                                  src={`${baseURL}/api/v1/${val?.opponent2?.team?.logoImage}`}
-                                />
-                              </div>
-                              <h3>{val?.opponent2?.team?.teamShortName}</h3>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="nf_stage-bottombar items-center justify-center flex my-2 gap-1">
-                          <p>{val?.stageRoundId?.roundName}</p>
-                          <p>
-                            {formatDate(val?.startTime)} -{" "}
-                            {formatDate(val?.endTime)}
-                          </p>
-                        </div>
-                        <div className="nf_match-list my-3">
-                          <div
-                            className="nf-cs-btn flex items-center justify-center"
-                            style={{}}
-                          >
-                            <div className="nf_cs-buttons flex items-center content-center">
-                              <div className="nf_cs-btn-group ">
-                                <button
-                                  className="btn btn-nf-gray timechange_data"
-                                  data-toggle="modal"
-                                  data-target="#changetime"
-                                  data-id={34042}
-                                  onClick={() => {
-                                    setSelectedMatch(val);
-                                    setShowChangeTimeModal(true);
-                                  }}
-                                >
-                                  <Clock className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
-                                </button>
-                                <strong className="text-center">
-                                  {" "}
-                                  Change Time
-                                </strong>
-                              </div>
-                              <div className="nf_cs-btn-group">
-                                <Link
-                                  to={`/${partnerId}/tournament/${tournamentId}/stage/list/${val?._id}`}
-                                  className="btn btn-nf-gray"
-                                >
-                                  <Settings className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
-                                </Link>
-                                <strong className="text-center">
-                                  {" "}
-                                  Manage Match
-                                </strong>
-                              </div>
-                              <div className="nf_cs-btn-group">
-                                <div className="nf_cs-btn-group">
+                          <div className="nf_match-list my-3">
+                            <div
+                              className="nf-cs-btn flex items-center justify-center"
+                              style={{}}
+                            >
+                              <div className="nf_cs-buttons flex items-center content-center">
+                                <div className="nf_cs-btn-group ">
                                   <button
-                                    className="btn btn-nf-gray quickscore_data"
+                                    className="btn btn-nf-gray timechange_data"
                                     data-toggle="modal"
-                                    data-target="#quickscore"
+                                    data-target="#changetime"
                                     data-id={34042}
                                     onClick={() => {
                                       setSelectedMatch(val);
-                                      setShowQuickScoreModal(true);
+                                      setShowChangeTimeModal(true);
                                     }}
                                   >
-                                    <CirclePlusIcon className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
+                                    <Clock className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
                                   </button>
                                   <strong className="text-center">
-                                    Quick Scoring
+                                    {" "}
+                                    Change Time
                                   </strong>
+                                </div>
+                                <div className="nf_cs-btn-group">
+                                  <Link
+                                    to={`/${partnerId}/tournament/${tournamentId}/stage/list/${val?._id}`}
+                                    className="btn btn-nf-gray"
+                                  >
+                                    <Settings className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
+                                  </Link>
+                                  <strong className="text-center">
+                                    {" "}
+                                    Manage Match
+                                  </strong>
+                                </div>
+                                <div className="nf_cs-btn-group">
+                                  <div className="nf_cs-btn-group">
+                                    <button
+                                      className="btn btn-nf-gray quickscore_data"
+                                      data-toggle="modal"
+                                      data-target="#quickscore"
+                                      data-id={34042}
+                                      onClick={() => {
+                                        setSelectedMatch(val);
+                                        setShowQuickScoreModal(true);
+                                      }}
+                                    >
+                                      <CirclePlusIcon className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
+                                    </button>
+                                    <strong className="text-center">
+                                      Quick Scoring
+                                    </strong>
+                                  </div>
                                 </div>
                               </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
                 </>
               )}
             </div>
