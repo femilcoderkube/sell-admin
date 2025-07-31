@@ -15,6 +15,9 @@ interface TournamentMatch {
 interface FetchTournamentMatchesPayload {
   stageId: string;
 }
+interface FetchTournamentMatchByIdPayload {
+  id: string;
+}
 
 interface AddScorePayload {
   matchId: string;
@@ -54,6 +57,28 @@ export const fetchTournamentMatches = createAsyncThunk(
       console.log("err fetch tournament matches", error);
       return rejectWithValue(
         error.response?.data?.message || "Error fetching tournament matches"
+      );
+    }
+  }
+);
+
+export const fetchTournamentMatchById = createAsyncThunk(
+  "tournaments/fetchTournamentMatchById",
+  async (payload: FetchTournamentMatchByIdPayload, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(
+        `/TournamentMatch?id=${payload.id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data.data;
+    } catch (error: any) {
+      console.log("err fetching tournament match by id", error);
+      return rejectWithValue(
+        error.response?.data?.message || "Error fetching tournament match by ID"
       );
     }
   }
@@ -142,6 +167,7 @@ const tournamentMatchesSlice = createSlice({
     matchesError: null,
     roundsLoading: false,
     roundsError: null,
+    singleMatch: undefined,
   } as TournamentState, // Extend TournamentState if needed
   reducers: {},
   extraReducers: (builder) => {
@@ -201,6 +227,19 @@ const tournamentMatchesSlice = createSlice({
         state.matchesLoading = false;
         state.matchesError = action.payload as string;
         toast.error("Failed to update tournament match!");
+      })
+      .addCase(fetchTournamentMatchById.pending, (state) => {
+        state.matchesLoading = true;
+        state.matchesError = null;
+      })
+      .addCase(fetchTournamentMatchById.fulfilled, (state, action) => {
+        state.matchesLoading = false;
+        state.singleMatch = action.payload; // Store the single match
+      })
+      .addCase(fetchTournamentMatchById.rejected, (state, action) => {
+        state.matchesLoading = false;
+        state.matchesError = action.payload as string;
+        // toast.error("Failed to fetch tournament match!");
       });
   },
 });

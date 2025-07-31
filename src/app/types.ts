@@ -362,6 +362,7 @@ export interface TournamentState {
   createMatchesError: string | null;
   roundsLoading: boolean;
   roundsError: null;
+  singleMatch: undefined;
 }
 
 export interface AssignTournamentPayload {

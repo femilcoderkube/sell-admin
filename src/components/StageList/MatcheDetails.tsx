@@ -17,6 +17,7 @@ import * as Yup from "yup";
 import { socket } from "../../app/socket/socket";
 import { SOCKET } from "../../utils/constant";
 import AttachmentModal from "./AttachmentModal";
+import { fetchTournamentMatchById } from "../../app/features/tournament/tournamentMatchesSlice";
 
 interface MatchScore {
   yourScore: number;
@@ -59,12 +60,8 @@ interface MatchDetails {
   matchScores: MatchScore[];
 }
 
-const MatchStatusSwitch = ({
-  matcheDetail,
-}: {
-  matcheDetail: MatchDetails;
-}) => {
-  const [status, setStatus] = useState(matcheDetail?.status);
+const MatchStatusSwitch = ({ singleMatch }: { singleMatch: MatchDetails }) => {
+  const [status, setStatus] = useState(singleMatch?.status);
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<string | null>(null);
@@ -98,13 +95,13 @@ const MatchStatusSwitch = ({
     try {
       const result = await dispatch(
         updateLeagueMatchesByID({
-          matcheId: matcheDetail?._id,
+          matcheId: singleMatch?._id,
           status: pendingStatus,
         })
       );
       if (updateLeagueMatchesByID.fulfilled.match(result)) {
         setStatus(pendingStatus);
-        dispatch(fetchLeagueMatchesByID({ matcheId: matcheDetail?._id }));
+        dispatch(fetchLeagueMatchesByID({ matcheId: singleMatch?._id }));
       }
     } catch (error) {
       console.log("Error updating status:", error);
@@ -341,13 +338,15 @@ const MatchDetails = () => {
   const [sendMessage, setSendMessage] = useState<undefined>(undefined);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAttachment, setSelectedAttachment] = useState([]);
-  const { matcheDetail, loading, error } = useSelector(
-    (state: RootState) => state.leagues
+  const { singleMatch, loading, error } = useSelector(
+    (state: RootState) => state.tournamentMatches
   ) as {
-    matcheDetail: MatchDetails | null;
+    singleMatch: null;
     loading: boolean;
     error: string | null;
   };
+
+  console.log("singleMatch", singleMatch);
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -399,7 +398,7 @@ const MatchDetails = () => {
 
   useEffect(() => {
     if (mid) {
-      dispatch(fetchLeagueMatchesByID({ matcheId: mid }));
+      dispatch(fetchTournamentMatchById({ id: mid }));
     }
   }, [dispatch, mid]);
 
@@ -474,7 +473,7 @@ const MatchDetails = () => {
     );
   }
 
-  if (!matcheDetail) {
+  if (!singleMatch) {
     return (
       <div className="flex items-center justify-center h-screen bg-gradient-to-br from-gray-900 to-gray-800">
         <div className="text-center">
@@ -494,7 +493,7 @@ const MatchDetails = () => {
   const handleAccept = async (index: any) => {
     try {
       await dispatch(adoptLeagueMatchScore({ matcheId: mid, index })).unwrap();
-      dispatch(fetchLeagueMatchesByID({ matcheId: mid }));
+      dispatch(fetchTournamentMatchById({ matcheId: mid }));
     } catch (err) {
       console.error("Failed to adopt score:", err);
     }
@@ -519,18 +518,18 @@ const MatchDetails = () => {
               <div className="flex items-center gap-4">
                 <div className="relative">
                   <img
-                    src={`${baseURL}/api/v1/${matcheDetail?.league?.logo}`}
-                    alt={matcheDetail?.league?.title}
+                    src={`${baseURL}/api/v1/${singleMatch?.league?.logo}`}
+                    alt={singleMatch?.league?.title}
                     className="w-16 h-16 rounded-xl object-cover border-2 border-gray-600 shadow-lg"
                   />
                   <div className="absolute inset-0 rounded-xl bg-gradient-to-t from-black/20 to-transparent" />
                 </div>
                 <div>
                   <h1 className="font-bold text-2xl lg:text-3xl text-white mb-1">
-                    {matcheDetail?.league?.title}
+                    {singleMatch?.league?.title}
                   </h1>
                   <p className="text-gray-400 text-base font-medium">
-                    {matcheDetail?.league?.format}
+                    {singleMatch?.league?.format}
                   </p>
                 </div>
               </div>
@@ -545,9 +544,9 @@ const MatchDetails = () => {
               <h2 className="text-lg font-semibold text-gray-300 mb-2">
                 Match Status
               </h2>
-              <MatchStatusSwitch matcheDetail={matcheDetail} />
+              <MatchStatusSwitch singleMatch={singleMatch} />
             </div>
-            {matcheDetail?.isScoreVerified && (
+            {singleMatch?.isScoreVerified && (
               <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-xl px-4 py-2">
                 <span className="text-green-400 text-xl">✓</span>
                 <span className="text-green-400 font-semibold">
@@ -624,15 +623,9 @@ const MatchDetails = () => {
                     <thead>
                       <tr className="bg-gray-900/50">
                         <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
-                          {/* {matcheDetail?.team1?.length === 1 &&
-                          matcheDetail?.team2?.length === 1
-                            ? "Player"
-                            : "Team"} */}
                           Team
                         </th>
-                        <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
-                          Player
-                        </th>
+
                         <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
                           Team 1
                         </th>
@@ -654,21 +647,7 @@ const MatchDetails = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {matcheDetail?.matchScores?.map((score, index) => {
-                        const players =
-                          score?.submittedBy === "team1"
-                            ? matcheDetail?.team1
-                            : score?.submittedBy === "team2"
-                            ? matcheDetail?.team2
-                            : [];
-
-                        console.log("players", players);
-                        const usernames = players
-                          .map((item) => item?.participant?.userId?.username)
-                          .join(", ");
-                        // const usernames = players
-                        //   .map((item) => item?.participant?.otherFields)
-                        //   .join(", ");
+                      {singleMatch?.matchScores?.map((score, index) => {
                         return (
                           <tr key={score._id} className="bg-gray-700/30">
                             <td className="p-4 border-b border-gray-700/50">
@@ -677,31 +656,24 @@ const MatchDetails = () => {
                                 : score?.submittedBy === "team2"
                                 ? "Team 2"
                                 : "Admin"}
-                              {/* <TeamDropdown
-                                score={score}
-                                index={index}
-                                matchData={matcheDetail}
-                              /> */}
                             </td>
-                            <td className="p-4 border-b border-gray-700/50">
-                              {usernames ? usernames : "-"}
-                            </td>
+
                             <td className="p-4 border-b border-gray-700/50">
                               <p className="font-semibold text-[#46A2FF] text-lg">
                                 {score?.submittedBy === "team1"
-                                  ? score?.yourScore.toFixed(0)
+                                  ? score?.opponent1Score.toFixed(0)
                                   : score?.submittedBy === "admin"
-                                  ? score?.yourScore.toFixed(0)
-                                  : score?.opponentScore.toFixed(0)}
+                                  ? score?.opponent1Score.toFixed(0)
+                                  : score?.opponent2Score.toFixed(0)}
                               </p>
                             </td>
                             <td className="p-4 border-b border-gray-700/50">
                               <p className="font-semibold text-orange-500 text-lg">
                                 {score?.submittedBy === "team1"
-                                  ? score?.opponentScore.toFixed(0)
+                                  ? score?.opponent2Score.toFixed(0)
                                   : score?.submittedBy === "admin"
-                                  ? score?.opponentScore.toFixed(0)
-                                  : score?.yourScore.toFixed(0)}
+                                  ? score?.opponent2Score.toFixed(0)
+                                  : score?.opponent1Score.toFixed(0)}
                               </p>
                             </td>
                             <td className="p-4 border-b border-gray-700/50">
@@ -1049,18 +1021,18 @@ const MatchDetails = () => {
                 <span className="text-gray-400 font-medium">Start Time</span>
               </div>
               <p className="text-white font-semibold text-lg">
-                {new Date(matcheDetail?.startTime).toLocaleString()}
+                {new Date(singleMatch?.startTime).toLocaleString()}
               </p>
             </div>
 
-            {matcheDetail.winner && (
+            {singleMatch.winner && (
               <div className="bg-gray-900/30 p-4 rounded-xl border border-gray-700/30">
                 <div className="flex items-center gap-3 mb-2">
                   <span className="text-green-400 text-lg">🏆</span>
                   <span className="text-gray-400 font-medium">Winner</span>
                 </div>
                 <p className="text-green-400 font-bold text-lg capitalize">
-                  {matcheDetail?.winner}
+                  {singleMatch?.winner}
                 </p>
               </div>
             )}
@@ -1071,7 +1043,7 @@ const MatchDetails = () => {
                 <span className="text-gray-400 font-medium">Match Status</span>
               </div>
               <p className="text-white font-semibold text-lg capitalize">
-                {matcheDetail?.status?.replace("_", " ")}
+                {singleMatch?.status?.replace("_", " ")}
               </p>
             </div>
           </div>

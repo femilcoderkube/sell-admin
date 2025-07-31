@@ -436,7 +436,6 @@ export const adoptLeagueMatchScore = createAsyncThunk(
     { matcheId, index }: { matcheId: string; index: number },
     { rejectWithValue }
   ) => {
-    console.log("matcheId", matcheId);
     try {
       const response = await axiosInstance.put(
         `/LeagueMatch/adoptscore?id=${matcheId}`,
