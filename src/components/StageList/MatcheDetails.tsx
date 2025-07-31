@@ -349,8 +349,6 @@ const MatchDetails = () => {
     error: string | null;
   };
 
-  console.log("matcheDetail", matcheDetail);
-
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Formik setup with Yup validation
