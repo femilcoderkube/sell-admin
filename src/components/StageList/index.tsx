@@ -9,6 +9,7 @@ import { PlusIcon, SearchIcon } from "../ui"; // Adjust path to your HandLogoLoa
 import {
   getTournamentStages,
   deleteTournamentStage,
+  setPage,
 } from "../../app/features/tournament/tournamentStageSlice"; // Adjust path to your slice
 import { RootState } from "../../app/store";
 import HandLogoLoader from "../Loader/Loader";
@@ -89,10 +90,10 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
   };
 
   useEffect(() => {
-    if (!loading && stagesList?.length > 0 && !selectedStage) {
+    if (!loading && stagesList?.length > 0) {
       setSelectedStage(stagesList[0]._id);
     }
-  }, [stagesList, loading, selectedStage]);
+  }, [stagesList, loading]);
 
   const debouncedDispatch = useCallback(
     debounce((payload) => dispatch(fetchTournamentMatches(payload)), 500),
