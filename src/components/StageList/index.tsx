@@ -494,7 +494,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                     src={`${baseURL}/api/v1/${val?.opponent1?.team?.logoImage}`}
                                   />
                                 </div>
-                                <h3>{val?.opponent1?.team?.teamShortName}</h3>
+                                <h3>{val?.opponent1?.team?.teamName}</h3>
                               </div>
                             </div>
                             <div className="flex items-center justify-center">
@@ -528,7 +528,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                     src={`${baseURL}/api/v1/${val?.opponent2?.team?.logoImage}`}
                                   />
                                 </div>
-                                <h3>{val?.opponent2?.team?.teamShortName}</h3>
+                                <h3>{val?.opponent2?.team?.teamName}</h3>
                               </div>
                             </div>
                           </div>

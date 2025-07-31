@@ -83,7 +83,7 @@ export const fetchTeamById = createAsyncThunk(
   "teams/fetchTeamById",
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`/Team?id=${id}`);
+      const response = await axiosInstance.get(`/Team/members?teamId=${id}`);
       return response.data;
     } catch (error: any) {
       console.log("err fetchTeamById", error);

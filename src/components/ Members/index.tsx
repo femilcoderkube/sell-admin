@@ -10,9 +10,13 @@ import * as Yup from "yup";
 import toast from "react-hot-toast";
 import { fetchUsers } from "../../app/features/users/usersSlice";
 import {
+  fetchTeamById,
   joinTeam,
   resetJoinTeamSuccess,
 } from "../../app/features/team/teamSlice";
+import { Pagination } from "../ui/Pagination";
+import HandLogoLoader from "../Loader/Loader";
+import { MembersTable } from "./MembersTable";
 
 // Define props interface
 interface MembersProps {
@@ -26,7 +30,7 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
   const { currentPage, perPage, searchTerm } = useSelector(
     (state: RootState) => state.users
   );
-  const { loading, error, joinTeamSuccess } = useSelector(
+  const { loading, error, joinTeamSuccess, teamDetail } = useSelector(
     (state: RootState) => state.teams
   );
   const dispatch = useDispatch();
@@ -36,6 +40,12 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
   useEffect(() => {
     dispatch(fetchUsers({ page: currentPage, perPage, searchTerm }));
   }, [dispatch, currentPage, perPage, searchTerm]);
+
+  useEffect(() => {
+    dispatch(fetchTeamById(id));
+  }, [dispatch, currentPage, perPage, searchTerm]);
+
+  console.log("teamDetail", teamDetail);
 
   useEffect(() => {
     if (joinTeamSuccess) {
@@ -191,6 +201,31 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
           </button>
         </div>
       </div>
+      {/* {loading ? (
+        <HandLogoLoader />
+      ) : teamDetail?.members?.length > 0 ? (
+        <MembersTable
+          currentPage={currentPage}
+          members={teamDetail?.members}
+          onEditClick={(team: any) => {
+            setSelectedTeam(team);
+          }}
+          onDeleteClick={(teamId) => setDeleteId(teamId)}
+        />
+      ) : (
+        <div className="text-custom-gray flex items-center justify-center h-20">
+          No data found.
+        </div>
+      )} */}
+      {/* {!loading && totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => handlePageChange(page)}
+          onPagePrevious={() => handlePageChange(currentPage - 1)}
+          onPageNext={() => handlePageChange(currentPage + 1)}
+        />
+      )} */}
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
