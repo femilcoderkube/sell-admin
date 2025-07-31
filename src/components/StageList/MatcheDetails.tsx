@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  addLeagueMatchScore,
   adoptLeagueMatchScore,
   fetchLeagueMatchesByID,
   updateLeagueMatchesByID,
@@ -17,7 +16,10 @@ import * as Yup from "yup";
 import { socket } from "../../app/socket/socket";
 import { SOCKET } from "../../utils/constant";
 import AttachmentModal from "./AttachmentModal";
-import { fetchTournamentMatchById } from "../../app/features/tournament/tournamentMatchesSlice";
+import {
+  addScore,
+  fetchTournamentMatchById,
+} from "../../app/features/tournament/tournamentMatchesSlice";
 
 interface MatchScore {
   yourScore: number;
@@ -67,15 +69,23 @@ const MatchStatusSwitch = ({ singleMatch }: { singleMatch: MatchDetails }) => {
   const [pendingStatus, setPendingStatus] = useState<string | null>(null);
   const dispatch = useDispatch();
 
-  const statusOptions = ["in_progress", "completed", "cancelled", "in_dispute"];
+  const statusOptions = [
+    "in_progress",
+    "pending",
+    "completed",
+    "cancelled",
+    "in_dispute",
+  ];
   const statusColors = {
     in_progress: "bg-gradient-to-r from-yellow-500 to-orange-500",
+    pending: "bg-gradient-to-r from-red-500 to-orange-500",
     completed: "bg-gradient-to-r from-green-500 to-emerald-500",
     cancelled: "bg-gradient-to-r from-red-500 to-rose-500",
     in_dispute: "bg-gradient-to-r from-purple-500 to-violet-500",
   };
   const statusTextColors = {
     in_progress: "text-white",
+    pending: "text-white",
     completed: "text-white",
     cancelled: "text-white",
     in_dispute: "text-white",
@@ -193,141 +203,6 @@ const MatchStatusSwitch = ({ singleMatch }: { singleMatch: MatchDetails }) => {
   );
 };
 
-const TeamDropdown = ({
-  score,
-  index,
-  matchData,
-}: {
-  score: MatchScore;
-  index: any;
-  matchData: MatchDetails;
-}) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  const teamLabel =
-    score?.submittedBy === "team1"
-      ? "Team 1"
-      : score?.submittedBy === "team2"
-      ? "Team 2"
-      : "Admin";
-  const players =
-    score?.submittedBy === "team1"
-      ? matchData.team1
-      : score?.submittedBy === "team2"
-      ? matchData.team2
-      : [];
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  return (
-    <div className="relative inline-block" ref={dropdownRef}>
-      <button
-        disabled={teamLabel === "Admin"}
-        className={`"font-bold text-white ${
-          teamLabel !== "Admin" ? "cursor-pointer" : ""
-        } hover:text-gray-300 transition-colors duration-200`}
-        onClick={() => setIsOpen(!isOpen)}
-        aria-label={`Toggle ${teamLabel} players dropdown`}
-        role="button"
-      >
-        <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-700/30 transition-all duration-200">
-          <span
-            className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-md ${
-              score?.submittedBy === "team1"
-                ? "bg-gradient-to-br from-[#46A2FF] to-[#2563eb]"
-                : score?.submittedBy === "team2"
-                ? "bg-gradient-to-br from-orange-500 to-orange-600"
-                : "bg-gradient-to-br from-green-500 to-green-600"
-            }`}
-          >
-            {index + 1}
-          </span>
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-white text-base">
-              {score?.submittedBy === "team1"
-                ? "Team 1"
-                : score?.submittedBy === "team2"
-                ? "Team 2"
-                : "Admin"}
-            </span>
-            {teamLabel !== "Admin" && (
-              <svg
-                className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
-                  isOpen ? "rotate-180" : ""
-                }`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            )}
-          </div>
-        </div>
-      </button>
-
-      {isOpen && players.length > 0 && (
-        <div className="absolute z-20 mt-2 w-56 bg-gray-800 border border-gray-600 rounded-xl shadow-2xl backdrop-blur-sm animate-in fade-in-0 zoom-in-95 duration-200">
-          <div className="p-2">
-            <div className="text-xs font-semibold text-gray-400 px-3 py-2 uppercase tracking-wider">
-              Players ({players.length})
-            </div>
-            <ul className="space-y-1">
-              {players.map((player, playerIndex) => (
-                <li
-                  key={player.participant._id}
-                  className="px-3 py-2.5 text-sm text-white hover:bg-gray-700 cursor-pointer rounded-lg transition-all duration-150 hover:scale-[1.02] group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-gray-600 to-gray-700 rounded-full flex items-center justify-center text-xs font-bold text-white">
-                      {player.participant.userId.username
-                        ?.charAt(0)
-                        .toUpperCase() || "?"}
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-medium text-white group-hover:text-gray-100">
-                        {player.participant.userId.username}
-                      </div>
-                      <div className="text-xs text-gray-400">
-                        Player #{playerIndex + 1}
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      )}
-
-      {isOpen && players.length === 0 && (
-        <div className="absolute z-20 mt-2 w-56 bg-gray-800 border border-gray-600 rounded-xl shadow-2xl backdrop-blur-sm animate-in fade-in-0 zoom-in-95 duration-200">
-          <div className="p-4 text-center">
-            <div className="text-gray-400 text-sm">No players found</div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
 const MatchDetails = () => {
   const { mid } = useParams<{ mid: string }>();
   const [activeTab, setActiveTab] = useState<"details" | "chat">("details");
@@ -369,10 +244,13 @@ const MatchDetails = () => {
     onSubmit: (values) => {
       console.log("Saving score:", values?.team1, values?.team2);
       dispatch(
-        addLeagueMatchScore({
-          matcheId: mid,
-          yourScore: values?.team1,
-          opponentScore: values?.team2,
+        addScore({
+          matchId: mid,
+          opponent1Score: values?.team1,
+          opponent2Score: values?.team2,
+          description: "",
+          attachment: "",
+          submittedBy: "admin",
         })
       );
       // Example: send values to backend here
@@ -413,12 +291,6 @@ const MatchDetails = () => {
       socket.disconnect();
     };
   }, []);
-
-  useEffect(() => {
-    if (selectedAttachment) {
-      console.log("selectedAttachment", selectedAttachment);
-    }
-  }, [selectedAttachment]);
 
   const handleBack = () => {
     navigate(-1);
@@ -493,7 +365,7 @@ const MatchDetails = () => {
   const handleAccept = async (index: any) => {
     try {
       await dispatch(adoptLeagueMatchScore({ matcheId: mid, index })).unwrap();
-      dispatch(fetchTournamentMatchById({ matcheId: mid }));
+      dispatch(fetchTournamentMatchById({ id: mid }));
     } catch (err) {
       console.error("Failed to adopt score:", err);
     }
@@ -720,9 +592,7 @@ const MatchDetails = () => {
                           <td className="p-4 border-b border-gray-700/50 font-bold text-white">
                             Admin
                           </td>
-                          <td className="p-4 border-b border-gray-700/50 font-bold text-white">
-                            -
-                          </td>
+
                           <td className="p-4 border-b border-gray-700/50">
                             <input
                               type="text"

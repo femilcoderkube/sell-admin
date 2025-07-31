@@ -14,6 +14,9 @@ interface TournamentMatch {
 
 interface FetchTournamentMatchesPayload {
   stageId: string;
+  roundId?: string; // Optional
+  status?: string; // Optional
+  search?: string; // Optional
 }
 interface FetchTournamentMatchByIdPayload {
   id: string;
@@ -44,8 +47,15 @@ export const fetchTournamentMatches = createAsyncThunk(
   "tournaments/fetchTournamentMatches",
   async (payload: FetchTournamentMatchesPayload, { rejectWithValue }) => {
     try {
+      // Build query string dynamically based on provided parameters
+      const queryParams = new URLSearchParams();
+      queryParams.append("stageId", payload.stageId);
+      if (payload.roundId) queryParams.append("roundId", payload.roundId);
+      if (payload.status) queryParams.append("status", payload.status);
+      if (payload.search) queryParams.append("search", payload.search);
+
       const response = await axiosInstance.get(
-        `/TournamentMatch?stageId=${payload.stageId}`,
+        `/TournamentMatch?${queryParams.toString()}`,
         {
           headers: {
             "Content-Type": "application/json",

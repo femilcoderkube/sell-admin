@@ -29,3 +29,30 @@ export const formatDate = (date: string | undefined) => {
   if (!date) return "N/A";
   return moment(date).format("MMM D h:mm A");
 };
+
+export const checkboxOptions = [
+  {
+    id: "in_dispute",
+    name: "in_dispute",
+    label: "In Dispute",
+    defaultValue: 0,
+  },
+  {
+    id: "completed",
+    name: "completed",
+    label: "Completed",
+    defaultValue: 0,
+  },
+  {
+    id: "in_progress",
+    name: "in_progress",
+    label: "In-progress",
+    defaultValue: 1,
+  },
+  {
+    id: "pending",
+    name: "pending",
+    label: "Pending",
+    defaultValue: 1,
+  },
+];

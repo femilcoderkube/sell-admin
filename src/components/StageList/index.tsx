@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import deleteIcon from "../../assets/images/trash_can.svg";
 import editIcon from "../../assets/images/Edit.svg";
-import viewIcon from "../../assets/images/eye_icon.svg";
+import { debounce } from "lodash";
 import rightIcon from "../../assets/images/rightarrow.svg";
 import { PlusIcon, SearchIcon } from "../ui"; // Adjust path to your HandLogoLoader component
 import {
@@ -24,7 +24,7 @@ import QuickScoreModal from "./QuickScoreModal";
 import { Match } from "../../app/types";
 import ChangeTimeModal from "./ChangeTimeModal";
 import RoundTimeChangeModal from "./RoundTimeChangeModal";
-import { formatDate } from "../../utils/constant";
+import { checkboxOptions, formatDate } from "../../utils/constant";
 import { CirclePlus, CirclePlusIcon, Clock, Settings } from "lucide-react";
 
 interface Stage {
@@ -61,8 +61,12 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
   const [showRoundTimeChangeModal, setShowRoundTimeChangeModal] =
     useState(false);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
-  const [selectedRound, setSelectedRound] = useState<string>("-1");
-  const [selectedStage, setSelectedStage] = useState(stagesList[0]?._id);
+  const [selectedRound, setSelectedRound] = useState<string>("");
+
+  const [selectedStage, setSelectedStage] = useState();
+
+  const [selectedStatus, setSelectedStatus] = useState<string>(""); // Default to in_progress
+  const [search, setSearch] = useState<string>(""); // Default to in_progress
 
   useEffect(() => {
     if (tournamentId) {
@@ -80,11 +84,28 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
       dispatch(getTournamentStages({ tournamentId: tournamentId }));
     }
   };
+
+  useEffect(() => {
+    if (!loading && stagesList.length > 0 && !selectedStage) {
+      setSelectedStage(stagesList[0]._id);
+    }
+  }, [stagesList, loading, selectedStage]);
+
+  const debouncedDispatch = useCallback(
+    debounce((payload) => dispatch(fetchTournamentMatches(payload)), 500),
+    [dispatch]
+  );
+
   useEffect(() => {
     if (selectedStage) {
-      dispatch(fetchTournamentMatches({ stageId: selectedStage }));
+      debouncedDispatch({
+        stageId: selectedStage,
+        roundId: selectedRound,
+        status: selectedStatus,
+        search: search,
+      });
     }
-  }, [dispatch, selectedStage]);
+  }, [selectedStage, selectedRound, selectedStatus, search, debouncedDispatch]);
 
   const handlePageChange = (page: number) => {
     dispatch(setPage(page));
@@ -161,6 +182,10 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
     ).values()
   );
 
+  const handleCheckboxChange = (name: string) => {
+    // If the clicked checkbox is already selected, uncheck it
+    setSelectedStatus(selectedStatus === name ? null : name);
+  };
   return (
     <>
       <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-between items-center pt-3 pb-[2rem] border-b border-light-border">
@@ -347,7 +372,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                       value={selectedRound}
                       onChange={(e) => setSelectedRound(e.target.value)}
                     >
-                      <option value="-1">All rounds</option>
+                      <option value="">All rounds</option>
                       {rounds.map((round) => (
                         <option key={round.id} value={round.id}>
                           {round.name}
@@ -356,101 +381,30 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                     </select>
                   </div>
                 </div>
-                <div
-                  className="nf_top-filter nf_bg align-items-center"
-                  style={{ maxWidth: "max-content", display: "none" }}
-                  id="group_filter_option"
-                >
-                  <p className="color_gray">Filter by:</p>
-                  <div className="nf_cust-select nf_simple-select focus-input">
-                    <select
-                      className="form-control color-white cust-arrow"
-                      id="groups_dropdown"
-                      onchange="match_list()"
-                    />
-                  </div>
-                </div>
-                <div id="checkbox_1" style={{}}>
-                  <div className="nf_normal-checkbox">
-                    <div className="checkbox">
-                      <label className="checkbox-wrapper focus-input">
-                        <input
-                          type="checkbox"
-                          name="unsolved_disputed"
-                          defaultValue={0}
-                          id="unsolved_disputed"
-                          className="checkbox-input form-control"
-                        />
-                        <span className="checkbox-tile">
-                          <h4>Unsolved Disputed</h4>
-                        </span>
-                      </label>
+
+                <div id="checkbox_1">
+                  {checkboxOptions.map((option) => (
+                    <div key={option.id} className="nf_normal-checkbox">
+                      <div className="checkbox">
+                        <label className="checkbox-wrapper focus-input">
+                          <input
+                            type="checkbox"
+                            name={option.name}
+                            checked={selectedStatus === option.name}
+                            id={option.id}
+                            className="checkbox-input form-control"
+                            onChange={() => handleCheckboxChange(option.name)}
+                          />
+                          <span className="checkbox-tile">
+                            <h4>{option.label}</h4>
+                          </span>
+                        </label>
+                      </div>
                     </div>
-                  </div>
-                  <div className="nf_normal-checkbox">
-                    <div className="checkbox">
-                      <label className="checkbox-wrapper focus-input">
-                        <input
-                          type="checkbox"
-                          name="disputed"
-                          defaultValue={0}
-                          id="disputed"
-                          className="checkbox-input form-control"
-                        />
-                        <span className="checkbox-tile">
-                          <h4>Disputed</h4>
-                        </span>
-                      </label>
-                    </div>
-                  </div>
-                  <div className="nf_normal-checkbox">
-                    <div className="checkbox">
-                      <label className="checkbox-wrapper focus-input">
-                        <input
-                          type="checkbox"
-                          name="in_progress"
-                          defaultValue={1}
-                          id="in_progress"
-                          className="checkbox-input form-control"
-                        />
-                        <span className="checkbox-tile">
-                          <h4>In-progress</h4>
-                        </span>
-                      </label>
-                    </div>
-                  </div>
+                  ))}
                 </div>
                 <div className="nf_serchbar mt-0">
                   <div className="input-group md-form form-sm form-1 pl-0">
-                    <div className="input-group-prepend">
-                      <span
-                        className="input-group-text purple lighten-3"
-                        id="basic-text1"
-                      >
-                        <i
-                          className="color_gray"
-                          aria-hidden="true"
-                          data-fa-i2svg=""
-                        >
-                          <svg
-                            className="svg-inline--fa fa-magnifying-glass"
-                            aria-hidden="true"
-                            focusable="false"
-                            data-prefix="fas"
-                            data-icon="magnifying-glass"
-                            role="img"
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 512 512"
-                            data-fa-i2svg=""
-                          >
-                            <path
-                              fill="currentColor"
-                              d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"
-                            />
-                          </svg>
-                        </i>
-                      </span>
-                    </div>
                     <input
                       className="form-control my-0 py-1"
                       type="text"
@@ -458,6 +412,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                       placeholder="Search team name"
                       aria-label="Search"
                       aria-controls="user_table"
+                      onChange={(e) => setSearch(e.target.value)}
                     />
                   </div>
                 </div>
