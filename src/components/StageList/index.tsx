@@ -9,8 +9,6 @@ import { PlusIcon, SearchIcon } from "../ui"; // Adjust path to your HandLogoLoa
 import {
   getTournamentStages,
   deleteTournamentStage,
-  resetStages,
-  setPage,
 } from "../../app/features/tournament/tournamentStageSlice"; // Adjust path to your slice
 import { RootState } from "../../app/store";
 import HandLogoLoader from "../Loader/Loader";
@@ -18,7 +16,6 @@ import { Pagination } from "../ui/Pagination";
 import {
   addScore,
   fetchTournamentMatches,
-  resetMatches,
   updateStageRound,
   updateTournamentMatch,
 } from "../../app/features/tournament/tournamentMatchesSlice";
@@ -74,7 +71,6 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
 
   useEffect(() => {
     if (tournamentId) {
-      dispatch(resetStages());
       dispatch(getTournamentStages({ tournamentId: tournamentId }));
     }
   }, [dispatch, tournamentId]);
@@ -82,6 +78,8 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
   const btnBack = () => {
     navigate(-1);
   };
+
+  console.log("stagesList", stagesList);
 
   const handleDelete = async (stageId: string) => {
     const resultAction = await dispatch(deleteTournamentStage(stageId));
@@ -91,10 +89,8 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
   };
 
   useEffect(() => {
-    if (!loading && stagesList?.length > 0 && !selectedStage !== undefined) {
+    if (!loading && stagesList?.length > 0 && !selectedStage) {
       setSelectedStage(stagesList[0]._id);
-    } else {
-      setSelectedStage();
     }
   }, [stagesList, loading, selectedStage]);
 
@@ -104,8 +100,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
   );
 
   useEffect(() => {
-    if (selectedStage !== "undefined") {
-      dispatch(resetMatches());
+    if (selectedStage) {
       debouncedDispatch({
         stageId: selectedStage,
         roundId: selectedRound,
