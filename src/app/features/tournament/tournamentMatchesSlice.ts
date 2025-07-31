@@ -30,6 +30,10 @@ interface AddScorePayload {
   attachment: string;
   submittedBy: string;
 }
+interface AcceptScorePayload {
+  matchId: string;
+  scoreId: string;
+}
 
 interface UpdateStageRoundPayload {
   stageId: string;
@@ -100,6 +104,28 @@ export const addScore = createAsyncThunk(
     try {
       const response = await axiosInstance.post(
         `/TournamentMatch/add-score`,
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data.data;
+    } catch (error: any) {
+      console.log("err adding score", error);
+      return rejectWithValue(
+        error.response?.data?.message || "Error adding score"
+      );
+    }
+  }
+);
+export const acceptScore = createAsyncThunk(
+  "tournaments/acceptScore",
+  async (payload: AcceptScorePayload, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(
+        `/TournamentMatch/accept-score`,
         payload,
         {
           headers: {
@@ -213,6 +239,19 @@ const tournamentMatchesSlice = createSlice({
         state.matchesLoading = false;
         state.matchesError = action.payload as string;
         toast.error("Failed to add score!");
+      })
+      .addCase(acceptScore.pending, (state) => {
+        state.matchesLoading = true;
+        state.matchesError = null;
+      })
+      .addCase(acceptScore.fulfilled, (state, action) => {
+        state.matchesLoading = false;
+        toast.success("Score Accepted successfully!");
+      })
+      .addCase(acceptScore.rejected, (state, action) => {
+        state.matchesLoading = false;
+        state.matchesError = action.payload as string;
+        toast.error("Failed to Accept score!");
       })
       .addCase(updateStageRound.pending, (state) => {
         state.roundsLoading = true;

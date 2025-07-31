@@ -17,6 +17,7 @@ import { socket } from "../../app/socket/socket";
 import { SOCKET } from "../../utils/constant";
 import AttachmentModal from "./AttachmentModal";
 import {
+  acceptScore,
   addScore,
   fetchTournamentMatchById,
 } from "../../app/features/tournament/tournamentMatchesSlice";
@@ -365,8 +366,12 @@ const MatchDetails = () => {
 
   const handleAccept = async (index: any) => {
     try {
-      await dispatch(adoptLeagueMatchScore({ matcheId: mid, index })).unwrap();
-      dispatch(fetchTournamentMatchById({ id: mid }));
+      const resultAction = await dispatch(
+        acceptScore({ matchId: mid, scoreId: index })
+      );
+      if (acceptScore.fulfilled.match(resultAction)) {
+        dispatch(fetchTournamentMatchById({ id: mid }));
+      }
     } catch (err) {
       console.error("Failed to adopt score:", err);
     }
@@ -576,7 +581,7 @@ const MatchDetails = () => {
                                 <button
                                   className="py-2 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
                                   title="Adopt"
-                                  onClick={() => handleAccept(index)}
+                                  onClick={() => handleAccept(score?._id)}
                                 >
                                   Accept
                                 </button>
