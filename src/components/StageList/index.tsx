@@ -29,6 +29,7 @@ import ChangeTimeModal from "./ChangeTimeModal";
 import RoundTimeChangeModal from "./RoundTimeChangeModal";
 import { checkboxOptions, formatDate } from "../../utils/constant";
 import { CirclePlus, CirclePlusIcon, Clock, Settings } from "lucide-react";
+import { fetchStageRound } from "../../app/features/tournament/stageRoundSlice";
 
 interface Stage {
   _id: string;
@@ -59,6 +60,12 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
   const { matches, matchesLoading } = useSelector(
     (state: RootState) => state.tournamentMatches
   );
+
+  const {
+    stageRound,
+    loading: stageRoundloading,
+    error: stageRounderror,
+  } = useSelector((state: RootState) => state.stageRound);
 
   const [showQuickScoreModal, setShowQuickScoreModal] = useState(false);
   const [showChangeTimeModal, setShowChangeTimeModal] = useState(false);
@@ -112,6 +119,12 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
       });
     }
   }, [selectedStage, selectedRound, selectedStatus, search, debouncedDispatch]);
+
+  useEffect(() => {
+    if (selectedStage) {
+      dispatch(fetchStageRound(selectedStage));
+    }
+  }, [dispatch, selectedStage]);
 
   const handlePageChange = (page: number) => {
     dispatch(setPage(page));
@@ -172,27 +185,9 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
     );
 
     if (updateStageRound.fulfilled.match(resultAction)) {
-      dispatch(updateStageRound({ stageId: selectedStage }));
+      dispatch(fetchTournamentMatches({ stageId: selectedStage }));
     }
   };
-
-  const rounds = Array.from(
-    new Map(
-      matches?.map((match) => [
-        match.stageRoundId._id,
-        {
-          id: match.stageRoundId._id,
-          name: `${match.stageRoundId.roundName} (${
-            match?.stageRoundId?.config?.group_id === 0
-              ? "WB"
-              : match?.stageRoundId?.config?.group_id === 1
-              ? "LB"
-              : "FB"
-          })`,
-        },
-      ])
-    ).values()
-  );
 
   const handleCheckboxChange = (name: string) => {
     // If the clicked checkbox is already selected, uncheck it
@@ -384,9 +379,9 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                       onChange={(e) => setSelectedRound(e.target.value)}
                     >
                       <option value="">All rounds</option>
-                      {rounds.map((round) => (
-                        <option key={round.id} value={round.id}>
-                          {round.name}
+                      {stageRound.map((round) => (
+                        <option key={round._id} value={round._id}>
+                          {round.roundName}
                         </option>
                       ))}
                     </select>
@@ -634,6 +629,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
         onSubmit={handleTimeSubmit}
       />
       <RoundTimeChangeModal
+        stageRound={stageRound}
         show={showRoundTimeChangeModal}
         onClose={() => setShowRoundTimeChangeModal(false)}
         matches={matches}

@@ -7,6 +7,7 @@ import { CancelIcon } from "../ui"; // Adjust path to your CancelIcon component
 import { Match } from "./StageLists"; // Adjust path to your types
 
 interface RoundTimeChangeModalProps {
+  stageRound: any;
   show: boolean;
   onClose: () => void;
   matches: Match[];
@@ -18,6 +19,7 @@ interface RoundTimeChangeModalProps {
 }
 
 const RoundTimeChangeModal: React.FC<RoundTimeChangeModalProps> = ({
+  stageRound,
   show,
   onClose,
   matches,
@@ -26,21 +28,10 @@ const RoundTimeChangeModal: React.FC<RoundTimeChangeModalProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   // Extract unique rounds from matches
-  const rounds = Array.from(
-    new Map(
-      matches.map((match) => [
-        match.stageRoundId._id,
-        {
-          id: match.stageRoundId._id,
-          name: match.stageRoundId.roundName,
-        },
-      ])
-    ).values()
-  );
 
   const formik = useFormik({
     initialValues: {
-      roundId: rounds.length > 0 ? rounds[0].id : "-1",
+      roundId: stageRound.length > 0 ? stageRound[0]._id : "",
       startDate: "",
       endDate: "",
     },
@@ -178,9 +169,9 @@ const RoundTimeChangeModal: React.FC<RoundTimeChangeModalProps> = ({
                     onBlur={formik.handleBlur}
                   >
                     <option value="-1">All rounds</option>
-                    {rounds.map((round) => (
-                      <option key={round.id} value={round.id}>
-                        {round.name}
+                    {stageRound.map((round) => (
+                      <option key={round._id} value={round._id}>
+                        {round.roundName}
                       </option>
                     ))}
                   </select>
