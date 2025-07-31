@@ -72,9 +72,6 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
   const [selectedStatus, setSelectedStatus] = useState<string>(""); // Default to in_progress
   const [search, setSearch] = useState<string>(""); // Default to in_progress
 
-  console.log("stagesList", stagesList);
-  console.log("selectedStage", selectedStage);
-
   useEffect(() => {
     if (tournamentId) {
       dispatch(resetStages());
