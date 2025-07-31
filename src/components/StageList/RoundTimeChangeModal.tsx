@@ -31,7 +31,7 @@ const RoundTimeChangeModal: React.FC<RoundTimeChangeModalProps> = ({
 
   const formik = useFormik({
     initialValues: {
-      roundId: stageRound.length > 0 ? stageRound[0]._id : "",
+      roundId: stageRound?.length > 0 ? stageRound[0]?._id : "",
       startDate: "",
       endDate: "",
     },
@@ -169,7 +169,7 @@ const RoundTimeChangeModal: React.FC<RoundTimeChangeModalProps> = ({
                     onBlur={formik.handleBlur}
                   >
                     <option value="-1">All rounds</option>
-                    {stageRound.map((round) => (
+                    {stageRound?.map((round) => (
                       <option key={round._id} value={round._id}>
                         {round.roundName}
                       </option>
