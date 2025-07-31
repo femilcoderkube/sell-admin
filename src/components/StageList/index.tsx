@@ -10,6 +10,7 @@ import {
   getTournamentStages,
   deleteTournamentStage,
   resetStages,
+  setPage,
 } from "../../app/features/tournament/tournamentStageSlice"; // Adjust path to your slice
 import { RootState } from "../../app/store";
 import HandLogoLoader from "../Loader/Loader";
