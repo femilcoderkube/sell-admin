@@ -3,7 +3,7 @@ import { Layout } from "../../components/layout";
 
 import MatcheDetails from "../../components/StageList/MatcheDetails";
 
-export const MatcheDetail: FC = () => {
+export const StageMatcheDetail: FC = () => {
   return (
     <Layout>
       <MatcheDetails />

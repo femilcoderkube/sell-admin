@@ -25,6 +25,7 @@ import { Match } from "../../app/types";
 import ChangeTimeModal from "./ChangeTimeModal";
 import RoundTimeChangeModal from "./RoundTimeChangeModal";
 import { formatDate } from "../../utils/constant";
+import { CirclePlus, CirclePlusIcon, Clock, Settings } from "lucide-react";
 
 interface Stage {
   _id: string;
@@ -594,12 +595,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                     setShowChangeTimeModal(true);
                                   }}
                                 >
-                                  <img
-                                    className=""
-                                    width={14}
-                                    height={14}
-                                    src="https://staging.saudieleagues.com/public/admin/icons/change_time.svg"
-                                  />
+                                  <Clock className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
                                 </button>
                                 <strong className="text-center">
                                   {" "}
@@ -607,14 +603,12 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                 </strong>
                               </div>
                               <div className="nf_cs-btn-group">
-                                <button href="" className="btn btn-nf-gray">
-                                  <img
-                                    className=""
-                                    width={14}
-                                    height={14}
-                                    src="https://staging.saudieleagues.com/public/admin/icons/setting.svg"
-                                  />
-                                </button>
+                                <Link
+                                  to={`/${partnerId}/tournament/${tournamentId}/stage/list/${val?._id}`}
+                                  className="btn btn-nf-gray"
+                                >
+                                  <Settings className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
+                                </Link>
                                 <strong className="text-center">
                                   {" "}
                                   Manage Match
@@ -632,12 +626,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                       setShowQuickScoreModal(true);
                                     }}
                                   >
-                                    <img
-                                      className=""
-                                      width={14}
-                                      height={14}
-                                      src="https://staging.saudieleagues.com/public/admin/icons/plus-black.svg"
-                                    />
+                                    <CirclePlusIcon className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
                                   </button>
                                   <strong className="text-center">
                                     Quick Scoring
