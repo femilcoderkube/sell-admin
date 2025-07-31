@@ -324,6 +324,8 @@ const MatchDetails = () => {
     setSelectedAttachment(null);
   };
 
+  console.log("singleMatch", singleMatch);
+
   if (matchesLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-gradient-to-br from-gray-900 to-gray-800">
@@ -392,23 +394,37 @@ const MatchDetails = () => {
                 <span className="text-lg">←</span>
                 <span>Back</span>
               </button>
-
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <img
-                    src={`${baseURL}/api/v1/${singleMatch?.league?.logo}`}
-                    alt={singleMatch?.league?.title}
-                    className="w-16 h-16 rounded-xl object-cover border-2 border-gray-600 shadow-lg"
-                  />
-                  <div className="absolute inset-0 rounded-xl bg-gradient-to-t from-black/20 to-transparent" />
+              <div className="flex items-center gap-2">
+                <div className="flex flex-col items-center justify-center gap-1">
+                  <div className="relative">
+                    <img
+                      src={`${baseURL}/api/v1/${singleMatch?.opponent1?.team?.logoImage}`}
+                      alt={singleMatch?.opponent1?.team?.teamName}
+                      className="w-16 h-16 rounded-xl object-cover border-2 border-gray-600 shadow-lg"
+                    />
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-t from-black/20 to-transparent" />
+                  </div>
+                  <div>
+                    <h1 className="font-bold text-xl text-white ">
+                      {singleMatch?.opponent1?.team?.teamName}
+                    </h1>
+                  </div>
                 </div>
-                <div>
-                  <h1 className="font-bold text-2xl lg:text-3xl text-white mb-1">
-                    {singleMatch?.league?.title}
-                  </h1>
-                  <p className="text-gray-400 text-base font-medium">
-                    {singleMatch?.league?.format}
-                  </p>
+                <span className="font-bold text-xl text-white">V/s</span>
+                <div className="flex flex-col items-center justify-center gap-1">
+                  <div className="relative">
+                    <img
+                      src={`${baseURL}/api/v1/${singleMatch?.opponent2?.team?.logoImage}`}
+                      alt={singleMatch?.opponent2?.team?.teamName}
+                      className="w-16 h-16 rounded-xl object-cover border-2 border-gray-600 shadow-lg"
+                    />
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-t from-black/20 to-transparent" />
+                  </div>
+                  <div>
+                    <h1 className="font-bold text-xl text-white">
+                      {singleMatch?.opponent2?.team?.teamName}
+                    </h1>
+                  </div>
                 </div>
               </div>
             </div>

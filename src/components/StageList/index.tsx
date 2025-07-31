@@ -90,7 +90,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
   };
 
   useEffect(() => {
-    if (!loading && stagesList?.length > 0) {
+    if (stagesList?.length > 0) {
       setSelectedStage(stagesList[0]._id);
     }
   }, [stagesList, loading]);
