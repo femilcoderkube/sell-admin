@@ -179,7 +179,12 @@ const tournamentMatchesSlice = createSlice({
     roundsError: null,
     singleMatch: undefined,
   } as TournamentState, // Extend TournamentState if needed
-  reducers: {},
+  reducers: {
+    resetMatches: (state) => {
+      state.matches = [];
+      state.matchesError = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchTournamentMatches.pending, (state) => {
@@ -254,4 +259,5 @@ const tournamentMatchesSlice = createSlice({
   },
 });
 
+export const { resetMatches } = tournamentMatchesSlice.actions;
 export default tournamentMatchesSlice.reducer;

@@ -9,6 +9,7 @@ import { PlusIcon, SearchIcon } from "../ui"; // Adjust path to your HandLogoLoa
 import {
   getTournamentStages,
   deleteTournamentStage,
+  resetStages,
 } from "../../app/features/tournament/tournamentStageSlice"; // Adjust path to your slice
 import { RootState } from "../../app/store";
 import HandLogoLoader from "../Loader/Loader";
@@ -56,6 +57,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
   const { matches, matchesLoading } = useSelector(
     (state: RootState) => state.tournamentMatches
   );
+
   const [showQuickScoreModal, setShowQuickScoreModal] = useState(false);
   const [showChangeTimeModal, setShowChangeTimeModal] = useState(false);
   const [showRoundTimeChangeModal, setShowRoundTimeChangeModal] =
@@ -68,8 +70,12 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
   const [selectedStatus, setSelectedStatus] = useState<string>(""); // Default to in_progress
   const [search, setSearch] = useState<string>(""); // Default to in_progress
 
+  console.log("stagesList", stagesList);
+  console.log("selectedStage", selectedStage);
+
   useEffect(() => {
     if (tournamentId) {
+      dispatch(resetStages());
       dispatch(getTournamentStages({ tournamentId: tournamentId }));
     }
   }, [dispatch, tournamentId]);
@@ -77,6 +83,8 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
   const btnBack = () => {
     navigate(-1);
   };
+
+  console.log("stagesList", stagesList);
 
   const handleDelete = async (stageId: string) => {
     const resultAction = await dispatch(deleteTournamentStage(stageId));
@@ -86,7 +94,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
   };
 
   useEffect(() => {
-    if (!loading && stagesList.length > 0 && !selectedStage) {
+    if (!loading && stagesList?.length > 0 && !selectedStage) {
       setSelectedStage(stagesList[0]._id);
     }
   }, [stagesList, loading, selectedStage]);
@@ -250,7 +258,6 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                   className={`nf_tournaments-card  bg-[rgba(0,126,255,0.16)] text-white rounded-md w-full  cursor-pointer ${
                     selectedStage === stage?._id ? "list-focus" : ""
                   }`}
-                  data-stage-id={stage._id}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();

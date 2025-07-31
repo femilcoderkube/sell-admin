@@ -114,6 +114,7 @@ export const getTournamentStages = createAsyncThunk(
           "Content-Type": "application/json",
         },
       });
+
       return response.data;
     } catch (error: any) {
       console.log("err fetch tournament stages", error);
@@ -219,6 +220,10 @@ const tournamentStageSlice = createSlice({
   name: "tournamentStage",
   initialState,
   reducers: {
+    resetStages: (state) => {
+      state.stagesList = [];
+      state.error = null;
+    },
     clearStageData: (state) => {
       state.selectedStage = null;
       state.step = "select";
@@ -322,6 +327,7 @@ const tournamentStageSlice = createSlice({
 });
 
 export const {
+  resetStages,
   clearStageData,
   setSelectedStage,
   setStep,
