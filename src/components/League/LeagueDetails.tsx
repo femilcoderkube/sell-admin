@@ -804,154 +804,165 @@ const LeagueDetails: React.FC = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {matches?.map((match: any, index: number) => (
-                              <tr
-                                key={match?._id}
-                                className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-yellow-500/10 hover:to-orange-500/10 transition-all duration-200 ${
-                                  index % 2 === 0
-                                    ? "bg-gray-800/20"
-                                    : "bg-gray-800/10"
-                                }`}
-                              >
-                                <td className="py-4 px-6 font-medium text-blue-300">
-                                  {/* {(matchesCurrentPage - 1) * matchesPerPage +
-                                    index +
-                                    1} */}
-                                  {match?.matchTempId
-                                    ? match?.matchTempId
-                                    : "N/A"}
-                                </td>
-                                {/* <td className="py-4 px-6 font-medium text-blue-300">
-                                  {match?.team1
-                                    ?.map(
-                                      (p: any) =>
-                                        `${
-                                          p.participant?.userId?.username
-                                            ? p.participant?.userId?.username
-                                            : ""
-                                        } (${p.score})`
-                                    )
-                                    .join(", ")}
-                                </td>
-                                <td className="py-4 px-6 font-medium text-purple-300">
-                                  {match?.team2
-                                    ?.map(
-                                      (p: any) =>
-                                        `${
-                                          p.participant?.userId?.username
-                                            ? p.participant?.userId?.username
-                                            : ""
-                                        } (${p.score})`
-                                    )
-                                    .join(", ")}
-                                </td> */}
-                                <td className="py-4 px-6 font-medium text-blue-300">
-                                  {match?.team1
-                                    ?.map((p: any) => (
-                                      <span key={p._id}>
-                                        {p.participant?.userId?.username}{" "}
+                            {matches?.map((match, index) => {
+                              return (
+                                <tr
+                                  key={match?._id}
+                                  className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-yellow-500/10 hover:to-orange-500/10 transition-all duration-200 ${
+                                    index % 2 === 0
+                                      ? "bg-gray-800/20"
+                                      : "bg-gray-800/10"
+                                  }`}
+                                >
+                                  <td className="py-4 px-6 font-medium text-blue-300">
+                                    {match?.matchTempId
+                                      ? match?.matchTempId
+                                      : "N/A"}
+                                  </td>
+                                  <td className="py-4 px-6 font-medium text-blue-300">
+                                    {match?.team1
+                                      ?.map((p: any) => (
                                         <span
-                                          className={`${
-                                            p?.score < 0
-                                              ? "text-red-500"
-                                              : "text-green-500"
-                                          }`}
+                                          key={p._id}
+                                          className="relative group inline-block"
                                         >
-                                          {p?.score > 0
-                                            ? `(+${p?.score})`
-                                            : `(${p?.score})`}
+                                          <span className="cursor-pointer">
+                                            {p.participant?.userId?.username}{" "}
+                                            <span
+                                              className={`${
+                                                p?.score < 0
+                                                  ? "text-red-500"
+                                                  : "text-green-500"
+                                              }`}
+                                            >
+                                              {p?.score > 0
+                                                ? `(+${p.score})`
+                                                : `(${p.score})`}
+                                            </span>
+                                          </span>
+                                          {/* Tooltip for gameId and otherFields */}
+                                          <span className="absolute hidden group-hover:block bg-gray-900 text-white text-sm rounded-lg p-2 -top-10 left-1/2 transform -translate-x-1/2 min-w-max shadow-lg border border-gray-700 z-10">
+                                            <div>
+                                              <strong>Game ID:</strong>{" "}
+                                              {p.participant?.gameId || "N/A"}
+                                            </div>
+                                            {p.participant?.otherFields?.map(
+                                              (field: any) => (
+                                                <div key={field._id}>
+                                                  <strong>{field.key}:</strong>{" "}
+                                                  {field.value}
+                                                </div>
+                                              )
+                                            )}
+                                          </span>
                                         </span>
-                                      </span>
-                                    ))
-                                    .reduce(
-                                      (
-                                        acc: any,
-                                        curr: any,
-                                        index: number,
-                                        array: any[]
-                                      ) => {
+                                      ))
+                                      .reduce(
+                                        (
+                                          acc: any,
+                                          curr: any,
+                                          index: any,
+                                          array: any
+                                        ) => {
+                                          return acc.length === 0
+                                            ? [curr]
+                                            : [...acc, ", ", curr];
+                                        },
+                                        []
+                                      )}
+                                  </td>
+                                  <td className="py-4 px-6 font-medium text-blue-300">
+                                    {match?.team2
+                                      ?.map((p) => (
+                                        <span
+                                          key={p._id}
+                                          className="relative group inline-block"
+                                        >
+                                          <span className="cursor-pointer">
+                                            {p.participant?.userId?.username}{" "}
+                                            <span
+                                              className={`${
+                                                p?.score < 0
+                                                  ? "text-red-500"
+                                                  : "text-green-500"
+                                              }`}
+                                            >
+                                              {p?.score > 0
+                                                ? `(+${p.score})`
+                                                : `(${p.score})`}
+                                            </span>
+                                          </span>
+                                          {/* Tooltip for gameId and otherFields */}
+                                          <span className="absolute hidden group-hover:block bg-gray-900 text-white text-sm rounded-lg p-2 -top-10 left-1/2 transform -translate-x-1/2 min-w-max shadow-lg border border-gray-700 z-10">
+                                            <div>
+                                              <strong>Game ID:</strong>{" "}
+                                              {p.participant?.gameId || "N/A"}
+                                            </div>
+                                            {p.participant?.otherFields?.map(
+                                              (field) => (
+                                                <div key={field._id}>
+                                                  <strong>{field.key}:</strong>{" "}
+                                                  {field.value}
+                                                </div>
+                                              )
+                                            )}
+                                          </span>
+                                        </span>
+                                      ))
+                                      .reduce((acc, curr, index, array) => {
                                         return acc.length === 0
                                           ? [curr]
                                           : [...acc, ", ", curr];
-                                      },
-                                      []
-                                    )}
-                                </td>
-                                <td className="py-4 px-6 font-medium text-blue-300">
-                                  {match?.team2
-                                    ?.map((p: any) => (
-                                      <span key={p._id}>
-                                        {p.participant?.userId?.username}{" "}
-                                        <span
-                                          className={`${
-                                            p?.score < 0
-                                              ? "text-red-500"
-                                              : "text-green-500"
-                                          }`}
-                                        >
-                                          {p?.score > 0
-                                            ? `(+${p.score})`
-                                            : `(${p.score})`}
-                                        </span>
-                                      </span>
-                                    ))
-                                    .reduce(
-                                      (
-                                        acc: any,
-                                        curr: any,
-                                        index: number,
-                                        array: any[]
-                                      ) => {
-                                        return acc.length === 0
-                                          ? [curr]
-                                          : [...acc, ", ", curr];
-                                      },
-                                      []
-                                    )}
-                                </td>
-                                <td className="py-4 px-6">
-                                  <span
-                                    className={`px-3 py-1 whitespace-nowrap rounded-full text-sm font-medium ${
-                                      match?.status === "completed"
-                                        ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                                        : match?.status === "cancelled"
-                                        ? "bg-red-500/20 text-red-400 border border-red-500/30"
-                                        : match?.status === "in_progress"
-                                        ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
-                                        : "bg-purple-500/20 text-purple-400 border border-purple-500/30"
-                                    }`}
-                                  >
-                                    {match?.status
-                                      ?.replace("_", " ")
-                                      .replace(/\b\w/g, (c) => c.toUpperCase())}
-                                  </span>
-                                </td>
-                                <td className="py-4 px-6 text-gray-300">
-                                  {new Date(match?.startTime).toLocaleString()}
-                                </td>
-                                <td className="py-4 px-6">
-                                  {match?.winner ? (
-                                    <span className="text-yellow-400 font-medium flex items-center gap-2">
-                                      🏆 {match.winner}
+                                      }, [])}
+                                  </td>
+                                  <td className="py-4 px-6">
+                                    <span
+                                      className={`px-3 py-1 whitespace-nowrap rounded-full text-sm font-medium ${
+                                        match?.status === "completed"
+                                          ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                                          : match?.status === "cancelled"
+                                          ? "bg-red-500/20 text-red-400 border border-red-500/30"
+                                          : match?.status === "in_progress"
+                                          ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                                          : "bg-purple-500/20 text-purple-400 border border-purple-500/30"
+                                      }`}
+                                    >
+                                      {match?.status
+                                        ?.replace("_", " ")
+                                        .replace(/\b\w/g, (c) =>
+                                          c.toUpperCase()
+                                        )}
                                     </span>
-                                  ) : (
-                                    <span className="text-gray-500">---</span>
-                                  )}
-                                </td>
-                                <td className="py-4 px-6">
-                                  <Link
-                                    to={`/${partnerId}/leagues/${lid}/${match?._id}`}
-                                    className="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
-                                  >
-                                    <img
-                                      src={viewIcon}
-                                      alt="View"
-                                      className="w-5 h-5"
-                                    />
-                                  </Link>
-                                </td>
-                              </tr>
-                            ))}
+                                  </td>
+                                  <td className="py-4 px-6 text-gray-300">
+                                    {new Date(
+                                      match?.startTime
+                                    ).toLocaleString()}
+                                  </td>
+                                  <td className="py-4 px-6">
+                                    {match?.winner ? (
+                                      <span className="text-yellow-400 font-medium flex items-center gap-2">
+                                        🏆 {match.winner}
+                                      </span>
+                                    ) : (
+                                      <span className="text-gray-500">---</span>
+                                    )}
+                                  </td>
+                                  <td className="py-4 px-6">
+                                    <Link
+                                      to={`/${partnerId}/leagues/${lid}/${match?._id}`}
+                                      className="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
+                                    >
+                                      <img
+                                        src={viewIcon}
+                                        alt="View"
+                                        className="w-5 h-5"
+                                      />
+                                    </Link>
+                                  </td>
+                                </tr>
+                              );
+                            })}
                           </tbody>
                         </table>
                       </div>

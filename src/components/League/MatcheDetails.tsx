@@ -662,13 +662,10 @@ const MatchDetails = () => {
                             ? matcheDetail?.team2
                             : [];
 
-                        console.log("players", players);
                         const usernames = players
                           .map((item) => item?.participant?.userId?.username)
                           .join(", ");
-                        // const usernames = players
-                        //   .map((item) => item?.participant?.otherFields)
-                        //   .join(", ");
+
                         return (
                           <tr key={score._id} className="bg-gray-700/30">
                             <td className="p-4 border-b border-gray-700/50">
