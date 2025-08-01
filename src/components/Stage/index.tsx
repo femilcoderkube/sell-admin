@@ -78,7 +78,7 @@ export const Stages: React.FC = ({ title }: any) => {
         { label: "Players", value: "0", color: "text-green-100" },
         { label: "Teams", value: "0", color: "text-green-100" },
       ],
-      link: ``,
+      link: `/${partnerId}/tournament/${id}/stage/participants`,
     },
     {
       id: 3,

@@ -38,6 +38,7 @@ import { StageList } from "../pages/StageList";
 import { Seed } from "../pages/Seed";
 import { BulkRegistration } from "../pages/BulkRegistration";
 import { StageMatcheDetail } from "../pages/StageList/MatcheDetail";
+import { Participant } from "../pages/Participant";
 
 // Helper function to convert snake_case to Title Case
 const toTitleCase = (str: string) =>
@@ -276,6 +277,17 @@ export const generateRoutes = (adminside: any[]): RoutesProps[] => {
       dark_svg: downarr,
       white_svg: white_arr,
       component: <Stage title={"Stages"} />,
+      auth: true,
+      isShow: false,
+      partnerColor: undefined,
+    },
+    {
+      label: "Participants",
+      icon: <NafesLeagueIcon />,
+      path: "/:id/tournament/:lid/stage/participants",
+      dark_svg: downarr,
+      white_svg: white_arr,
+      component: <Participant title={"Participants"} />,
       auth: true,
       isShow: false,
       partnerColor: undefined,

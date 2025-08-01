@@ -1881,6 +1881,8 @@ export const AddTournament: FC = () => {
       internalPhoto: values.internalPhoto,
       startDate: values.startDate,
       endDate: values.endDate,
+      registrationStartDate: values.registrationStartDate,
+      registrationEndDate: values.registrationEndDate,
       isActive: values.isActive,
       messages: values.messages.filter((msg) => msg.trim().length > 0),
       randomMessages: values.randomMessages.filter(
