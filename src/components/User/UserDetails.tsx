@@ -281,9 +281,9 @@ const UserDetails: React.FC = () => {
                 </svg>
                 Social Media
               </h2>
-              {Object.keys(userDetail.socialMediaHandles).length > 0 ? (
+              {Object.keys(userDetail?.socialMediaHandles ?? {}).length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {Object.entries(userDetail.socialMediaHandles).map(
+                  {Object.entries(userDetail?.socialMediaHandles ?? {}).map(
                     ([platform, handle]) => (
                       <div
                         key={platform}

@@ -138,7 +138,7 @@ export const fetchUserById = createAsyncThunk(
   "users/fetchUserById",
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`/users?id=${id}`);
+      const response = await axiosInstance.get(`/users/admin?id=${id}`);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
