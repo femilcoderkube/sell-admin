@@ -476,7 +476,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                 <HandLogoLoader />
               ) : (
                 <>
-                  {stagesList?.length &&
+                  {stagesList?.length > 0 &&
                     matches?.map((val) => {
                       const activeScores = val?.matchScores?.filter(
                         (match: any) => match?.isActive
@@ -501,12 +501,28 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                             <div className="flex items-center justify-center">
                               <div className="nf_stage-content text-center">
                                 <div className="flex content-center justify-center">
-                                  <h5 className="">
+                                  <h5
+                                    className={
+                                      val?.winner === "opponent1"
+                                        ? "!bg-green-500/20 !text-green-300 border !border-green-500/30"
+                                        : val?.winner === "opponent2"
+                                        ? "!bg-red-500/20 !text-red-300 border !border-red-500/30"
+                                        : "!bg-blue-500/20 !text-blue-300 border !border-blue-500/30"
+                                    }
+                                  >
                                     {activeScores[0]?.opponent1Score
                                       ? activeScores[0]?.opponent1Score
                                       : 0}
                                   </h5>
-                                  <h5 className="">
+                                  <h5
+                                    className={
+                                      val?.winner === "opponent2"
+                                        ? "!bg-green-500/20 !text-green-300 border !border-green-500/30"
+                                        : val?.winner === "opponent1"
+                                        ? "!bg-red-500/20 !text-red-300 border !border-red-500/30"
+                                        : "!bg-blue-500/20 !text-blue-300 border !border-blue-500/30"
+                                    }
+                                  >
                                     {activeScores[0]?.opponent2Score
                                       ? activeScores[0]?.opponent2Score
                                       : 0}
@@ -515,7 +531,9 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                 <p>
                                   {val?.status
                                     ?.replace("_", " ")
-                                    .replace(/\b\w/g, (c) => c.toUpperCase())}
+                                    .replace(/\b\w/g, (c: any) =>
+                                      c.toUpperCase()
+                                    )}
                                 </p>
                               </div>
                             </div>

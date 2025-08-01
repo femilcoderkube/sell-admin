@@ -217,7 +217,7 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
         </Link>
         <div className="legue__head_left-con">
           <h3 className="font-bold text-[1.25rem] text-white">
-            {title} <span className="text-custom-gray">()</span>
+            {title} <span className="text-custom-gray">({totalItem})</span>
           </h3>
         </div>
         <div className="legue__head_right-con flex-wrap flex gap-3 flex-1 justify-end">
