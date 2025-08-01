@@ -64,41 +64,71 @@ export const Device: React.FC = ({ title }: any) => {
   const totalPages = Math.ceil(totalCount / perPage);
   return (
     <>
-      <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-between items-center pt-3 pb-[2rem] border-b border-light-border">
-        <div className="legue__head_left-con">
-          <h3 className="font-bold text-[1.25rem] text-white">
-            {title} <span className="text-custom-gray">({devices.length})</span>
-          </h3>
-        </div>
-        <div className="legue__head_right-con flex-wrap flex gap-3 flex-1 justify-end">
-          <form action="" className=" w-full sm:w-[20.8rem]">
-            <div className="relative">
-              <input
-                className="text-white font-medium block  bg-input-color w-full sm:w-[20.8rem] text-gray-700 border rounded-[0.625rem] py-[0.6rem] pl-[2.5rem] pr-3 text-[1.0625rem] focus:outline-none border-0"
-                placeholder="Search Device"
-                type="text"
-                name="search"
-                value={searchTerm}
-                onChange={handleSearchChange}
-              />
-              <button
-                className="absolute left-[0.52rem] top-[0.6rem]"
-                type="button"
-                name="searchbtn"
-                id="basic-addon2"
-              >
-                <SearchIcon />
-              </button>
+      <div className="nf_legue_head--con bg-gradient-to-r from-slate-900/50 to-slate-800/30 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-2xl p-6 mb-6">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-6">
+          <div className="legue__head_left-con">
+            <div className="flex items-center gap-3">
+              <div className="w-1 h-8 bg-gradient-to-b from-blue-400 to-blue-600 rounded-full"></div>
+              <h3 className="font-bold text-2xl lg:text-3xl text-white tracking-tight">
+                {title}
+                <span className="ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-slate-700/50 text-slate-300 border border-slate-600/50">
+                  ({devices.length})
+                </span>
+              </h3>
             </div>
-          </form>
-          <div
-            className="bg-primary-gradient whitespace-nowrap sm:w-auto w-full font-medium flex hover:opacity-[0.85] duration-300 items-center gap-2 bg-[#46A2FF] hover:bg-blue-700 text-white font-base text-[1.0625rem] py-[0.6rem] px-4 rounded-[0.52rem]"
-            onClick={() => setIsModalOpen(true)}
-          >
-            <span>
-              <PlusIcon />
-            </span>
-            Add Device
+          </div>
+          <div className="lg:hidden">
+            <div
+              className="group relative overflow-hidden bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-3 w-full"
+              onClick={() => setIsModalOpen(true)}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative flex items-center gap-3">
+                <div className="p-1 bg-white/20 rounded-lg">
+                  <PlusIcon />
+                </div>
+                <span>Add Device</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="legue__head_right-con flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
+          <div className="flex flex-col sm:flex-row gap-4 flex-1">
+            <form action="" className="flex-1 max-w-md">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 blur-sm"></div>
+                <input
+                  className="relative w-full bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 text-white placeholder-slate-400 rounded-xl py-3 pl-12 pr-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 shadow-lg hover:bg-slate-700/50"
+                  placeholder="Search Device"
+                  type="text"
+                  name="search"
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                />
+                <button
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-blue-400 transition-colors duration-200"
+                  type="button"
+                  name="searchbtn"
+                  id="basic-addon2"
+                >
+                  <SearchIcon />
+                </button>
+              </div>
+            </form>
+          </div>
+          <div className="hidden lg:block">
+            <div
+              className="group relative overflow-hidden bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center gap-3 whitespace-nowrap"
+              onClick={() => setIsModalOpen(true)}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative flex items-center gap-3">
+                <div className="p-1 bg-white/20 rounded-lg">
+                  <PlusIcon />
+                </div>
+                <span>Add Device</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

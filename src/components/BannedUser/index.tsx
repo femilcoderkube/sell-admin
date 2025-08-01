@@ -73,74 +73,130 @@ export const BannedUser: React.FC = ({ title }: any) => {
   const totalPages = Math.ceil(totalCount / perPage);
   return (
     <>
-      <div className="nf_legue_head--con gap-4 flex-col sm:flex-row flex-wrap justify-between items-center pt-3 pb-[2rem] border-b border-light-border px-4 sm:px-6">
-        <div className="legue__head_left-con">
-          <h3 className="font-bold text-[1.25rem] text-white">
-            {title}{" "}
-            <span className="text-custom-gray">({bannedUsers.length})</span>
-          </h3>
-        </div>
-        <div className="legue__head_right-con flex-wrap flex gap-3 flex-1 justify-end">
-          <div className="nf_max-al bg-[#242B3C] gap-2 flex items-center pl-2 pr-1 rounded-[0.625rem]">
-            <span className="text-[1.0625rem] text-custom-gray whitespace-nowrap">
-              Show max:
-            </span>
-            <select
-              name="selectedFruit"
-              className="font-medium focus:outline-0 bg-[#242B3C] text-white py-[0.4rem] px-2 rounded-[0.52rem] text-[1.0625rem]"
-              value={perPage}
-              onChange={handlePerPageChange}
-            >
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-            </select>
+      <div className="nf_legue_head--con bg-gradient-to-r from-slate-900/50 to-slate-800/30 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-2xl p-6 mb-6">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-6">
+          <div className="legue__head_left-con">
+            <div className="flex items-center gap-3">
+              <div className="w-1 h-8 bg-gradient-to-b from-blue-400 to-blue-600 rounded-full"></div>
+              <h3 className="font-bold text-2xl lg:text-3xl text-white tracking-tight">
+                {title}
+                <span className="ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-slate-700/50 text-slate-300 border border-slate-600/50">
+                  ({totalCount})
+                </span>
+              </h3>
+            </div>
           </div>
-          <form action="" className="w-full sm:w-[20.8rem]">
-            <div className="relative">
-              <input
-                className="text-white font-medium block bg-[#242B3C] w-full sm:w-[20.8rem] text-gray-700 border rounded-[0.625rem] py-[0.6rem] pl-[2.5rem] pr-3 text-[1.0625rem] focus:outline-none border-0"
-                placeholder="Search Users,Email or IP"
-                type="text"
-                name="search"
-                value={searchTerm}
-                onChange={handleSearchChange}
-              />
-              <button
-                className="absolute left-[0.52rem] top-[0.6rem]"
-                type="button"
-                name="searchbtn"
-                id="basic-addon2"
-              >
+          <div className="lg:hidden">
+            <div
+              className="group relative overflow-hidden bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-3 w-full"
+              onClick={() => {
+                setIsBanModalOpen(true);
+              }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative flex items-center gap-3">
+                <div className="p-1 bg-white/20 rounded-lg">
+                  <PlusIcon />
+                </div>
+                <span>Ban User</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="legue__head_right-con flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
+          <div className="flex flex-col sm:flex-row gap-4 flex-1">
+            <div className="flex items-center gap-3 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl px-4 py-3 min-w-fit shadow-lg">
+              <span className="text-slate-300 font-medium text-sm whitespace-nowrap flex items-center gap-2">
                 <svg
-                  width="1.46rem"
-                  height="1.46rem"
-                  viewBox="0 0 28 28"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M11.6667 3.5C7.15634 3.5 3.5 7.15634 3.5 11.6667C3.5 16.177 7.15634 19.8333 11.6667 19.8333C13.5011 19.8333 15.1942 19.2285 16.5575 18.2074L22.5084 24.1583C22.964 24.6139 23.7027 24.6139 24.1583 24.1583C24.6139 23.7027 24.6139 22.964 24.1583 22.5084L18.2074 16.5575C19.2285 15.1942 19.8333 13.5011 19.8333 11.6667C19.8333 7.15634 16.177 3.5 11.6667 3.5ZM5.83333 11.6667C5.83333 8.445 8.445 5.83333 11.6667 5.83333C14.8883 5.83333 17.5 8.445 17.5 11.6667C17.5 14.8883 14.8883 17.5 11.6667 17.5C8.445 17.5 5.83333 14.8883 5.83333 11.6667Z"
-                    fill="white"
-                    fillOpacity="0.3"
+                    d="M3 6H21"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M3 12H21"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M3 18H21"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
                   />
                 </svg>
-              </button>
+                Show max:
+              </span>
+              <select
+                name="selectedFruit"
+                className="bg-slate-700/80 border border-slate-600/50 text-white font-semibold py-2 px-3 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 cursor-pointer hover:bg-slate-600/80"
+                value={perPage}
+                onChange={handlePerPageChange}
+              >
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+              </select>
             </div>
-          </form>
-
-          <div
-            className="bg-primary-gradient whitespace-nowrap sm:w-auto w-full font-medium flex hover:opacity-[0.85] duration-300 items-center gap-2 bg-[#46A2FF] hover:bg-blue-700 text-white font-base text-[1.0625rem] py-[0.6rem] px-4 rounded-[0.52rem]"
-            onClick={() => {
-              setIsBanModalOpen(true);
-            }}
-          >
-            <span>
-              <PlusIcon />
-            </span>
-            Ban User
+            <form action="" className="flex-1 max-w-md">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 blur-sm"></div>
+                <input
+                  className="relative w-full bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 text-white placeholder-slate-400 rounded-xl py-3 pl-12 pr-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 shadow-lg hover:bg-slate-700/50"
+                  placeholder="Search Users,Email or IP"
+                  type="text"
+                  name="search"
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                />
+                <button
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-blue-400 transition-colors duration-200"
+                  type="button"
+                  name="searchbtn"
+                  id="basic-addon2"
+                >
+                  <svg
+                    width="1.46rem"
+                    height="1.46rem"
+                    viewBox="0 0 28 28"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M11.6667 3.5C7.15634 3.5 3.5 7.15634 3.5 11.6667C3.5 16.177 7.15634 19.8333 11.6667 19.8333C13.5011 19.8333 15.1942 19.2285 16.5575 18.2074L22.5084 24.1583C22.964 24.6139 23.7027 24.6139 24.1583 24.1583C24.6139 23.7027 24.6139 22.964 24.1583 22.5084L18.2074 16.5575C19.2285 15.1942 19.8333 13.5011 19.8333 11.6667C19.8333 7.15634 16.177 3.5 11.6667 3.5ZM5.83333 11.6667C5.83333 8.445 8.445 5.83333 11.6667 5.83333C14.8883 5.83333 17.5 8.445 17.5 11.6667C17.5 14.8883 14.8883 17.5 11.6667 17.5C8.445 17.5 5.83333 14.8883 5.83333 11.6667Z"
+                      fill="currentColor"
+                      fillOpacity="1"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </form>
+          </div>
+          <div className="hidden lg:block">
+            <div
+              className="group relative overflow-hidden bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center gap-3 whitespace-nowrap"
+              onClick={() => {
+                setIsBanModalOpen(true);
+              }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative flex items-center gap-3">
+                <div className="p-1 bg-white/20 rounded-lg">
+                  <PlusIcon />
+                </div>
+                <span>Ban User</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
