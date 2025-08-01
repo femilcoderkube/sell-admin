@@ -138,8 +138,8 @@ const LeagueDetails: React.FC = () => {
           participantsPerPage: participantsPerPage,
           ...(participantsSearchKey &&
             participantsSearchKey.trim() !== "" && {
-              searchKey: participantsSearchKey,
-            }),
+            searchKey: participantsSearchKey,
+          }),
         })
       );
     }
@@ -164,8 +164,8 @@ const LeagueDetails: React.FC = () => {
           perPage: operatorsPerPage,
           ...(operatorSearchKey &&
             operatorSearchKey.trim() !== "" && {
-              searchKey: operatorSearchKey,
-            }),
+            searchKey: operatorSearchKey,
+          }),
         })
       );
     }
@@ -272,9 +272,9 @@ const LeagueDetails: React.FC = () => {
     }
   };
 
-  const handleExportParticipants = async () => {
+  const handleExportParticipants = async (tab: string) => {
     if (lid) {
-      await dispatch(generateExcelFile({ lid }));
+      await dispatch(generateExcelFile({ lid, tab }));
     }
   };
 
@@ -335,8 +335,8 @@ const LeagueDetails: React.FC = () => {
   const showDeassignButton =
     operator.length > 0 && operators?.length > 0
       ? operator.every(
-          (opId) => operators.find((op: any) => op._id === opId)?.isAssigned
-        )
+        (opId) => operators.find((op: any) => op._id === opId)?.isAssigned
+      )
       : false;
 
   return (
@@ -483,11 +483,10 @@ const LeagueDetails: React.FC = () => {
             {filteredTabs.map((tab) => (
               <button
                 key={tab}
-                className={`flex-1 py-4 px-6 text-lg font-medium transition-all duration-300 relative ${
-                  activeTab === tab
-                    ? "text-white bg-gradient-to-r from-blue-500/20 to-purple-500/20 border-b-2 border-blue-500"
-                    : "text-gray-400 hover:text-white hover:bg-gray-700/30"
-                }`}
+                className={`flex-1 py-4 px-6 text-lg font-medium transition-all duration-300 relative ${activeTab === tab
+                  ? "text-white bg-gradient-to-r from-blue-500/20 to-purple-500/20 border-b-2 border-blue-500"
+                  : "text-gray-400 hover:text-white hover:bg-gray-700/30"
+                  }`}
                 onClick={() => setActiveTab(tab)}
               >
                 <div className="flex items-center justify-center gap-2">
@@ -526,7 +525,7 @@ const LeagueDetails: React.FC = () => {
                     />
                     <button
                       className="py-2 px-4 bg-gradient-to-r from-blue-500 to-blue-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
-                      onClick={handleExportParticipants}
+                      onClick={() => handleExportParticipants("participant")}
                     >
                       Export
                     </button>
@@ -573,11 +572,10 @@ const LeagueDetails: React.FC = () => {
                               (participant: any, index: number) => (
                                 <tr
                                   key={participant?._id}
-                                  className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-blue-500/10 hover:to-purple-500/10 transition-all duration-200 ${
-                                    index % 2 === 0
-                                      ? "bg-gray-800/20"
-                                      : "bg-gray-800/10"
-                                  }`}
+                                  className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-blue-500/10 hover:to-purple-500/10 transition-all duration-200 ${index % 2 === 0
+                                    ? "bg-gray-800/20"
+                                    : "bg-gray-800/10"
+                                    }`}
                                 >
                                   <td className="py-4 px-6 text-gray-300">
                                     {(participantsCurrentPage - 1) *
@@ -604,11 +602,10 @@ const LeagueDetails: React.FC = () => {
                                   </td>
                                   <td className="py-4 px-6">
                                     <span
-                                      className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                        participant?.isTeamJoin
-                                          ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                                          : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
-                                      }`}
+                                      className={`px-3 py-1 rounded-full text-sm font-medium ${participant?.isTeamJoin
+                                        ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                                        : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
+                                        }`}
                                     >
                                       {participant?.isTeamJoin ? "Yes" : "No"}
                                     </span>
@@ -752,20 +749,20 @@ const LeagueDetails: React.FC = () => {
                       />
                     </svg>
                   </div>
-                  <div className="relative">
+                  <div className="relative flex item-center gap-3">
                     <input
                       type="text"
                       placeholder="Search..."
                       onChange={(e) => debouncedSetSearchKey(e.target.value)}
                       className="w-full py-2 px-4 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     />
-                  </div>
-
-                  {/* <div>
-                    <button className="py-2 px-4 bg-gradient-to-r from-blue-500 to-blue-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm">
+                    <button
+                      className="py-2 px-4 bg-gradient-to-r from-blue-500 to-blue-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
+                      onClick={() => handleExportParticipants("match")}
+                    >
                       Export
                     </button>
-                  </div> */}
+                  </div>
                 </div>
                 {matchesLoading ? (
                   <HandLogoLoader />
@@ -811,11 +808,10 @@ const LeagueDetails: React.FC = () => {
                               return (
                                 <tr
                                   key={match?._id}
-                                  className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-yellow-500/10 hover:to-orange-500/10 transition-all duration-200 ${
-                                    index % 2 === 0
-                                      ? "bg-gray-800/20"
-                                      : "bg-gray-800/10"
-                                  }`}
+                                  className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-yellow-500/10 hover:to-orange-500/10 transition-all duration-200 ${index % 2 === 0
+                                    ? "bg-gray-800/20"
+                                    : "bg-gray-800/10"
+                                    }`}
                                 >
                                   <td className="py-4 px-6 font-medium text-blue-300">
                                     {(matchesCurrentPage - 1) * 10 + index + 1}
@@ -835,11 +831,10 @@ const LeagueDetails: React.FC = () => {
                                           <span className="cursor-pointer">
                                             {p.participant?.userId?.username}{" "}
                                             <span
-                                              className={`${
-                                                p?.score < 0
-                                                  ? "text-red-500"
-                                                  : "text-green-500"
-                                              }`}
+                                              className={`${p?.score < 0
+                                                ? "text-red-500"
+                                                : "text-green-500"
+                                                }`}
                                             >
                                               {p?.score > 0
                                                 ? `(+${p.score})`
@@ -887,11 +882,10 @@ const LeagueDetails: React.FC = () => {
                                           <span className="cursor-pointer">
                                             {p.participant?.userId?.username}{" "}
                                             <span
-                                              className={`${
-                                                p?.score < 0
-                                                  ? "text-red-500"
-                                                  : "text-green-500"
-                                              }`}
+                                              className={`${p?.score < 0
+                                                ? "text-red-500"
+                                                : "text-green-500"
+                                                }`}
                                             >
                                               {p?.score > 0
                                                 ? `(+${p.score})`
@@ -923,15 +917,14 @@ const LeagueDetails: React.FC = () => {
                                   </td>
                                   <td className="py-4 px-6">
                                     <span
-                                      className={`px-3 py-1 whitespace-nowrap rounded-full text-sm font-medium ${
-                                        match?.status === "completed"
-                                          ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                                          : match?.status === "canceled"
+                                      className={`px-3 py-1 whitespace-nowrap rounded-full text-sm font-medium ${match?.status === "completed"
+                                        ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                                        : match?.status === "canceled"
                                           ? "bg-red-500/20 text-red-400 border border-red-500/30"
                                           : match?.status === "in_progress"
-                                          ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
-                                          : "bg-purple-500/20 text-purple-400 border border-purple-500/30"
-                                      }`}
+                                            ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                                            : "bg-purple-500/20 text-purple-400 border border-purple-500/30"
+                                        }`}
                                     >
                                       {match?.status
                                         ?.replace("_", " ")
@@ -1112,11 +1105,10 @@ const LeagueDetails: React.FC = () => {
                               (ticket: any, index: number) => (
                                 <tr
                                   key={ticket?._id}
-                                  className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-yellow-500/10 hover:to-orange-500/10 transition-all duration-200 ${
-                                    index % 2 === 0
-                                      ? "bg-gray-800/20"
-                                      : "bg-gray-800/10"
-                                  }`}
+                                  className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-yellow-500/10 hover:to-orange-500/10 transition-all duration-200 ${index % 2 === 0
+                                    ? "bg-gray-800/20"
+                                    : "bg-gray-800/10"
+                                    }`}
                                 >
                                   <td className="py-4 px-6 font-medium text-blue-300">
                                     {(ticketsCurrentPage - 1) * ticketsPerPage +
@@ -1130,11 +1122,10 @@ const LeagueDetails: React.FC = () => {
 
                                   <td className="py-4 px-6">
                                     <span
-                                      className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                        ticket?.status === "open"
-                                          ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
-                                          : "bg-green-500/20 text-green-400 border border-green-500/30"
-                                      }`}
+                                      className={`px-3 py-1 rounded-full text-sm font-medium ${ticket?.status === "open"
+                                        ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                                        : "bg-green-500/20 text-green-400 border border-green-500/30"
+                                        }`}
                                     >
                                       {ticket?.status}
                                     </span>
@@ -1247,11 +1238,10 @@ const LeagueDetails: React.FC = () => {
                             ? handleDeassignLeague
                             : handleAssignLeague
                         }
-                        className={`py-2 px-4 bg-gradient-to-r ${
-                          showDeassignButton
-                            ? "from-red-500 to-red-500"
-                            : "from-blue-500 to-blue-500"
-                        } text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm`}
+                        className={`py-2 px-4 bg-gradient-to-r ${showDeassignButton
+                          ? "from-red-500 to-red-500"
+                          : "from-blue-500 to-blue-500"
+                          } text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm`}
                       >
                         {showDeassignButton ? "Deassign" : "Assign"}
                       </button>
@@ -1301,11 +1291,10 @@ const LeagueDetails: React.FC = () => {
                               (operatorItem: any, index: number) => (
                                 <tr
                                   key={operatorItem?._id}
-                                  className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-blue-500/10 hover:to-purple-500/10 transition-all duration-200 ${
-                                    index % 2 === 0
-                                      ? "bg-gray-800/20"
-                                      : "bg-gray-800/10"
-                                  }`}
+                                  className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-blue-500/10 hover:to-purple-500/10 transition-all duration-200 ${index % 2 === 0
+                                    ? "bg-gray-800/20"
+                                    : "bg-gray-800/10"
+                                    }`}
                                 >
                                   <td className="py-4 px-6">
                                     <input
@@ -1338,11 +1327,10 @@ const LeagueDetails: React.FC = () => {
                                   </td>
                                   <td className="py-4 px-6">
                                     <span
-                                      className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                        operatorItem?.isAssigned
-                                          ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                                          : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
-                                      }`}
+                                      className={`px-3 py-1 rounded-full text-sm font-medium ${operatorItem?.isAssigned
+                                        ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                                        : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
+                                        }`}
                                     >
                                       {operatorItem?.isAssigned ? "Yes" : "No"}
                                     </span>

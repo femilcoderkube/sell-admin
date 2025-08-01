@@ -458,26 +458,25 @@ export const adoptLeagueMatchScore = createAsyncThunk(
 
 export const generateExcelFile = createAsyncThunk(
   "leagues/generateExcelFile", // Fixed typo and more descriptive name
-  async ({ lid }: { lid: string }, { rejectWithValue }) => {
+  async ({ lid, tab }: { lid: string, tab: string }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(
-        `LeaguesParticipants/export/excel?leagueId=${lid}`,
-        {
-          headers: {
-            Accept:
-              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-          },
-          responseType: "blob", // This is crucial for file downloads
-        }
+      let endpoint = "";
+      if (tab === "participant") {
+        endpoint = `LeaguesParticipants/export/excel?leagueId=${lid}`;
+      } else if (tab === "match") {
+        endpoint = `LeagueMatch/export/match?leagueId=${lid}`;
+      }
+      const response = await axiosInstance.get(endpoint, {
+        headers: {
+          Accept:
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        },
+        responseType: "blob",
+      }
       );
-
-      // Response is already a blob due to responseType: 'blob'
       const blob = response.data;
-
-      // Get filename from response headers or use a default
       const contentDisposition = response.headers["content-disposition"];
-      let filename = "participants_export.xlsx"; // Changed to .xlsx for Excel files
-
+      let filename = tab === "participant" ? "participants export.xlsx" : "matches export.xlsx";
       if (contentDisposition) {
         const match = contentDisposition.match(
           /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
@@ -486,8 +485,6 @@ export const generateExcelFile = createAsyncThunk(
           filename = match[1].replace(/['"]/g, "");
         }
       }
-
-      // Create a link and trigger download
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -496,7 +493,6 @@ export const generateExcelFile = createAsyncThunk(
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
-
       return {
         success: true,
         message: "Excel file downloaded successfully",
@@ -504,19 +500,14 @@ export const generateExcelFile = createAsyncThunk(
       };
     } catch (err: any) {
       console.error("Excel export error:", err);
-
-      // Better error handling
       let errorMessage = "Failed to export participants";
 
       if (err.response) {
-        // Server responded with error status
         errorMessage =
           err.response.data?.message || `Server error: ${err.response.status}`;
       } else if (err.request) {
-        // Request was made but no response received
         errorMessage = "Network error: No response from server";
       } else {
-        // Something else happened
         errorMessage = err.message || "Unknown error occurred";
       }
 
