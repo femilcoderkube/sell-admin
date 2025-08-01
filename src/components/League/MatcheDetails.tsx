@@ -17,6 +17,7 @@ import * as Yup from "yup";
 import { socket } from "../../app/socket/socket";
 import { SOCKET } from "../../utils/constant";
 import AttachmentModal from "./AttachmentModal";
+import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
 
 interface MatchScore {
   yourScore: number;
@@ -340,6 +341,8 @@ const MatchDetails = () => {
   const [messageData, setMessageData] = useState([]);
   const [sendMessage, setSendMessage] = useState<undefined>(undefined);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<number>();
   const [selectedAttachment, setSelectedAttachment] = useState([]);
   const { matcheDetail, loading, error } = useSelector(
     (state: RootState) => state.leagues
@@ -487,10 +490,16 @@ const MatchDetails = () => {
     setAddingScore(true);
   };
 
-  const handleAccept = async (index: any) => {
+  const handleDeleteUser = async () => {
     try {
-      await dispatch(adoptLeagueMatchScore({ matcheId: mid, index })).unwrap();
-      dispatch(fetchLeagueMatchesByID({ matcheId: mid }));
+      const resultAction = await dispatch(
+        adoptLeagueMatchScore({ matcheId: mid, index: deleteId })
+      );
+      if (adoptLeagueMatchScore.fulfilled.match(resultAction)) {
+        dispatch(fetchLeagueMatchesByID({ matcheId: mid }));
+        setDeleteId();
+        setIsDeleteModalOpen(false);
+      }
     } catch (err) {
       console.error("Failed to adopt score:", err);
     }
@@ -744,7 +753,10 @@ const MatchDetails = () => {
                                 <button
                                   className="py-2 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
                                   title="Adopt"
-                                  onClick={() => handleAccept(index)}
+                                  onClick={() => {
+                                    setDeleteId(index);
+                                    setIsDeleteModalOpen(true);
+                                  }}
                                 >
                                   Accept
                                 </button>
@@ -1092,6 +1104,16 @@ const MatchDetails = () => {
           />
         )}
       </div>
+      <DeleteConfirmationModal
+        show={isDeleteModalOpen}
+        title="Are you sure accept score?"
+        buttonTitle="Confirm"
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setDeleteId();
+        }}
+        onDelete={handleDeleteUser}
+      />
     </div>
   );
 };

@@ -3,12 +3,16 @@ import { CircleAlert } from "lucide-react";
 
 interface ModalProps {
   show: boolean;
+  title?: string;
+  buttonTitle?: string;
   onClose: () => void;
   onDelete: () => void;
 }
 
 const DeleteConfirmationModal: React.FC<ModalProps> = ({
   show,
+  title,
+  buttonTitle,
   onClose,
   onDelete,
 }) => {
@@ -26,7 +30,7 @@ const DeleteConfirmationModal: React.FC<ModalProps> = ({
             <div className="p-2">
               <CircleAlert />
             </div>
-            <label className="text-lg">Are you sure?</label>
+            <label className="text-lg">{title ? title : "Are you sure?"}</label>
 
             <div className="flex items-center p-4 md:p-5 border-t border-light-border rounded-b ">
               <button
@@ -42,7 +46,7 @@ const DeleteConfirmationModal: React.FC<ModalProps> = ({
                 onClick={onDelete}
               >
                 {/* Yes, delete it! */}
-                Delete
+                {buttonTitle ? buttonTitle : "Delete"}
               </button>
             </div>
           </div>
