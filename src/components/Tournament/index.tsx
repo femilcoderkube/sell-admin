@@ -106,7 +106,10 @@ export const Tournamentes: React.FC = ({ title }: any) => {
     <>
       <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-between items-center pt-3 pb-[2rem] border-b border-light-border">
         <div className="legue__head_left-con">
-          <h3 className="font-bold text-[1.5rem] text-white">{title}</h3>
+          <h3 className="font-bold text-[1.5rem] text-white">
+            {title}
+            <span className="text-custom-gray">({totalCount})</span>
+          </h3>
         </div>
         <div className="legue__head_right-con flex-wrap flex gap-3 flex-1 justify-end">
           <div className="nf_max-al bg-input-color gap-2 flex items-center pl-2 pr-1 rounded-2xl">
