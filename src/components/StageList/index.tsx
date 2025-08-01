@@ -30,6 +30,7 @@ import RoundTimeChangeModal from "./RoundTimeChangeModal";
 import { checkboxOptions, formatDate } from "../../utils/constant";
 import { CirclePlus, CirclePlusIcon, Clock, Settings } from "lucide-react";
 import { fetchStageRound } from "../../app/features/tournament/stageRoundSlice";
+import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
 
 interface Stage {
   _id: string;
@@ -54,6 +55,9 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
 
   const partnerId = window.location.pathname.split("/")[1];
   const tournamentId = window.location.pathname.split("/")[3];
+
+  const [deleteId, setDeleteId] = useState<string>("");
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
 
   const { stagesList, loading, error, currentPage, perPage, totalCount } =
     useSelector((state: RootState) => state.tournamentStage);
@@ -91,9 +95,11 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
     navigate(-1);
   };
 
-  const handleDelete = async (stageId: string) => {
-    const resultAction = await dispatch(deleteTournamentStage(stageId));
+  const handleDeleteDevice = async () => {
+    const resultAction = await dispatch(deleteTournamentStage(deleteId));
     if (deleteTournamentStage.fulfilled.match(resultAction)) {
+      setDeleteId("");
+      setIsDeleteModalOpen(false);
       dispatch(getTournamentStages({ tournamentId: tournamentId }));
     }
   };
@@ -193,7 +199,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
     // If the clicked checkbox is already selected, uncheck it
     setSelectedStatus(selectedStatus === name ? null : name);
   };
-  console.log({ matches })
+
   return (
     <>
       <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-between items-center pt-3 pb-[2rem] border-b border-light-border">
@@ -256,8 +262,9 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                 {stagesList.map((stage: Stage) => (
                   <div
                     key={stage._id}
-                    className={`nf_tournaments-card  bg-[rgba(0,126,255,0.16)] text-white rounded-md w-full  cursor-pointer ${selectedStage === stage?._id ? "list-focus" : ""
-                      }`}
+                    className={`nf_tournaments-card  bg-[rgba(0,126,255,0.16)] text-white rounded-md w-full  cursor-pointer ${
+                      selectedStage === stage?._id ? "list-focus" : ""
+                    }`}
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
@@ -297,8 +304,9 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                           </Link>
                           <button
                             onClick={(e) => {
-                              handleDelete(stage._id);
-
+                              // handleDelete(stage._id);
+                              setDeleteId(stage._id);
+                              setIsDeleteModalOpen(true);
                               e.stopPropagation();
                             }}
                             style={{
@@ -377,11 +385,18 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                           value={selectedRound}
                           onChange={(e) => setSelectedRound(e.target.value)}
                         >
-                          {console.log({stageRound})}
+                          {console.log({ stageRound })}
                           <option value="">All rounds</option>
                           {stageRound?.map((round) => (
                             <option key={round._id} value={round._id}>
-                              {round.roundName} {round.config ? round.config.group_id == 0 ? '(WB)' : round.config.group_id == 1 ? '(LB)' : '(FB)' : ''}
+                              {round.roundName}{" "}
+                              {round.config
+                                ? round.config.group_id == 0
+                                  ? "(WB)"
+                                  : round.config.group_id == 1
+                                  ? "(LB)"
+                                  : "(FB)"
+                                : ""}
                             </option>
                           ))}
                         </select>
@@ -399,7 +414,9 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                 checked={selectedStatus === option.name}
                                 id={option.id}
                                 className="checkbox-input form-control"
-                                onChange={() => handleCheckboxChange(option.name)}
+                                onChange={() =>
+                                  handleCheckboxChange(option.name)
+                                }
                               />
                               <span className="checkbox-tile">
                                 <h4>{option.label}</h4>
@@ -492,10 +509,19 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                         className=""
                                         height=""
                                         width=""
-                                        src={`${baseURL}/api/v1/${val?.opponent1?.team ? val?.opponent1?.team?.logoImage : val?.opponent1?.user?.profilePicture}`}
+                                        src={`${baseURL}/api/v1/${
+                                          val?.opponent1?.team
+                                            ? val?.opponent1?.team?.logoImage
+                                            : val?.opponent1?.user
+                                                ?.profilePicture
+                                        }`}
                                       />
                                     </div>
-                                    <h3>{val?.opponent1?.team ? val?.opponent1?.team?.teamName : val?.opponent1?.user?.username}</h3>
+                                    <h3>
+                                      {val?.opponent1?.team
+                                        ? val?.opponent1?.team?.teamName
+                                        : val?.opponent1?.user?.username}
+                                    </h3>
                                   </div>
                                 </div>
                                 <div className="flex items-center justify-center">
@@ -506,8 +532,8 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                           val?.winner === "opponent1"
                                             ? "!bg-green-500/20 !text-green-300 border !border-green-500/30"
                                             : val?.winner === "opponent2"
-                                              ? "!bg-red-500/20 !text-red-300 border !border-red-500/30"
-                                              : "!bg-blue-500/20 !text-blue-300 border !border-blue-500/30"
+                                            ? "!bg-red-500/20 !text-red-300 border !border-red-500/30"
+                                            : "!bg-blue-500/20 !text-blue-300 border !border-blue-500/30"
                                         }
                                       >
                                         {activeScores[0]?.opponent1Score
@@ -519,8 +545,8 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                           val?.winner === "opponent2"
                                             ? "!bg-green-500/20 !text-green-300 border !border-green-500/30"
                                             : val?.winner === "opponent1"
-                                              ? "!bg-red-500/20 !text-red-300 border !border-red-500/30"
-                                              : "!bg-blue-500/20 !text-blue-300 border !border-blue-500/30"
+                                            ? "!bg-red-500/20 !text-red-300 border !border-red-500/30"
+                                            : "!bg-blue-500/20 !text-blue-300 border !border-blue-500/30"
                                         }
                                       >
                                         {activeScores[0]?.opponent2Score
@@ -529,16 +555,17 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                       </h5>
                                     </div>
                                     <p
-                                      className={`px-3 py-1 whitespace-nowrap rounded-full text-sm font-medium ${val?.status === "completed"
-                                        ? "bg-green-500/20 !text-green-400 border border-green-500/30"
-                                        : val?.status === "cancelled"
+                                      className={`px-3 py-1 whitespace-nowrap rounded-full text-sm font-medium ${
+                                        val?.status === "completed"
+                                          ? "bg-green-500/20 !text-green-400 border border-green-500/30"
+                                          : val?.status === "cancelled"
                                           ? "bg-red-500/20 !text-red-400 border border-red-500/30"
                                           : val?.status === "in_progress"
-                                            ? "bg-yellow-500/20 !text-yellow-400 border border-yellow-500/30"
-                                            : val?.status === "pending"
-                                              ? "bg-yellow-500/20 !text-yellow-400 border border-yellow-500/30"
-                                              : "bg-purple-500/20 !text-purple-400 border border-purple-500/30"
-                                        }`}
+                                          ? "bg-yellow-500/20 !text-yellow-400 border border-yellow-500/30"
+                                          : val?.status === "pending"
+                                          ? "bg-yellow-500/20 !text-yellow-400 border border-yellow-500/30"
+                                          : "bg-purple-500/20 !text-purple-400 border border-purple-500/30"
+                                      }`}
                                     >
                                       {val?.status
                                         ?.replace("_", " ")
@@ -555,10 +582,19 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                         className=""
                                         height=""
                                         width=""
-                                        src={`${baseURL}/api/v1/${val?.opponent2?.team ? val?.opponent2?.team?.logoImage : val?.opponent2?.user?.profilePicture}`}
+                                        src={`${baseURL}/api/v1/${
+                                          val?.opponent2?.team
+                                            ? val?.opponent2?.team?.logoImage
+                                            : val?.opponent2?.user
+                                                ?.profilePicture
+                                        }`}
                                       />
                                     </div>
-                                    <h3>{val?.opponent2?.team ? val?.opponent2?.team?.teamName : val?.opponent2?.user?.username}</h3>
+                                    <h3>
+                                      {val?.opponent2?.team
+                                        ? val?.opponent2?.team?.teamName
+                                        : val?.opponent2?.user?.username}
+                                    </h3>
                                   </div>
                                 </div>
                               </div>
@@ -666,6 +702,14 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
         onClose={() => setShowRoundTimeChangeModal(false)}
         matches={matches}
         onSubmit={handleRoundTimeSubmit}
+      />
+      <DeleteConfirmationModal
+        show={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setDeleteId("");
+        }}
+        onDelete={handleDeleteDevice}
       />
     </>
   );
