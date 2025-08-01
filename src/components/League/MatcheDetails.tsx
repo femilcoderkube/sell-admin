@@ -352,8 +352,6 @@ const MatchDetails = () => {
     error: string | null;
   };
 
-  console.log("matcheDetail", matcheDetail);
-
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Formik setup with Yup validation
@@ -531,9 +529,14 @@ const MatchDetails = () => {
                   <div className="absolute inset-0 rounded-xl bg-gradient-to-t from-black/20 to-transparent" />
                 </div>
                 <div>
-                  <h1 className="font-bold text-2xl lg:text-3xl text-white mb-1">
-                    {matcheDetail?.league?.title}
-                  </h1>
+                  <div className="flex items-center justify-center gap-3">
+                    <h1 className="font-bold text-2xl lg:text-3xl text-white mb-1">
+                      {matcheDetail?.matchTempId}
+                    </h1>
+                    <h1 className="font-bold text-2xl lg:text-3xl text-white mb-1">
+                      {matcheDetail?.league?.title}
+                    </h1>
+                  </div>
                   <p className="text-gray-400 text-base font-medium">
                     {matcheDetail?.league?.format}
                   </p>
@@ -614,7 +617,7 @@ const MatchDetails = () => {
                     <span className="text-[#46A2FF] text-lg">👥</span>
                     Teams
                   </h3>
-                  {
+                  {matcheDetail?.status !== "canceled" && (
                     <button
                       className="py-2 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
                       title="Add Score"
@@ -622,7 +625,7 @@ const MatchDetails = () => {
                     >
                       Add Score
                     </button>
-                  }
+                  )}
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
