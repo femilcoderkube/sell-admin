@@ -918,3 +918,7 @@ svg:not(:root).svg-inline--fa {
 .nf_list-block h4 {
   word-break: break-word;
 }
+
+.btncheck {
+  background-position: center !important;
+}

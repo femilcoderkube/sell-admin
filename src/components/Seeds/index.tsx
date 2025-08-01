@@ -332,14 +332,14 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                   <h1 className="text-xl font-bold">Seeding</h1>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <Link
-                    to=""
+                  <button
+                    disabled={stagesList?.settings?.isFirstRound}
                     onClick={() => setShowBulkModal(true)}
                     className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors text-sm"
                   >
                     <PlusIcon />
                     <span>Add</span>
-                  </Link>
+                  </button>
                   {/* <button className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors text-sm">
                   <Shuffle size={16} />
                 </button>
@@ -558,7 +558,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                             setSelectedPlayers([]);
                           }
                         }}
-                        className="w-4 h-4 text-blue-600 bg-gray-600 border-gray-500 rounded focus:ring-blue-500"
+                        className="w-4 h-4 text-blue-600 bg-gray-600 border-gray-500 rounded focus:ring-blue-500 btncheck"
                       />
                       <span className="text-sm font-medium">Select All</span>
                     </label>
@@ -576,7 +576,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                               type="checkbox"
                               checked={selectedPlayers.includes(player.id)}
                               onChange={() => handleBulkSelect(player.id)}
-                              className="w-4 h-4 text-blue-600 bg-gray-600 border-gray-500 rounded focus:ring-blue-500"
+                              className="w-4 h-4 text-blue-600 bg-gray-600 border-gray-500 rounded focus:ring-blue-500 btncheck"
                             />
                             <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-sm font-bold">
                               {player.name.charAt(0)}
