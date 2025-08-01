@@ -71,17 +71,17 @@ const MatchStatusSwitch = ({
   const [pendingStatus, setPendingStatus] = useState<string | null>(null);
   const dispatch = useDispatch();
 
-  const statusOptions = ["in_progress", "completed", "cancelled", "in_dispute"];
+  const statusOptions = ["in_progress", "completed", "canceled", "in_dispute"];
   const statusColors = {
     in_progress: "bg-gradient-to-r from-yellow-500 to-orange-500",
     completed: "bg-gradient-to-r from-green-500 to-emerald-500",
-    cancelled: "bg-gradient-to-r from-red-500 to-rose-500",
+    canceled: "bg-gradient-to-r from-red-500 to-rose-500",
     in_dispute: "bg-gradient-to-r from-purple-500 to-violet-500",
   };
   const statusTextColors = {
     in_progress: "text-white",
     completed: "text-white",
-    cancelled: "text-white",
+    canceled: "text-white",
     in_dispute: "text-white",
   };
 

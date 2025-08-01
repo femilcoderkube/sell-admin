@@ -35,7 +35,7 @@ const LeagueDetails: React.FC = () => {
     "all",
     "in_progress",
     "completed",
-    "cancelled",
+    "canceled",
     "in_dispute",
   ];
 
@@ -781,7 +781,10 @@ const LeagueDetails: React.FC = () => {
                           <thead>
                             <tr className="bg-gradient-to-r from-gray-800/80 to-gray-700/80 text-gray-300">
                               <th className="py-4 px-6 text-left font-semibold">
-                                Number
+                                No
+                              </th>
+                              <th className="py-4 px-6 text-left font-semibold">
+                                #ID
                               </th>
                               <th className="py-4 px-6 text-left font-semibold">
                                 Team 1
@@ -814,6 +817,9 @@ const LeagueDetails: React.FC = () => {
                                       : "bg-gray-800/10"
                                   }`}
                                 >
+                                  <td className="py-4 px-6 font-medium text-blue-300">
+                                    {(matchesCurrentPage - 1) * 10 + index + 1}
+                                  </td>
                                   <td className="py-4 px-6 font-medium text-blue-300">
                                     {match?.matchTempId
                                       ? match?.matchTempId
@@ -920,7 +926,7 @@ const LeagueDetails: React.FC = () => {
                                       className={`px-3 py-1 whitespace-nowrap rounded-full text-sm font-medium ${
                                         match?.status === "completed"
                                           ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                                          : match?.status === "cancelled"
+                                          : match?.status === "canceled"
                                           ? "bg-red-500/20 text-red-400 border border-red-500/30"
                                           : match?.status === "in_progress"
                                           ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
