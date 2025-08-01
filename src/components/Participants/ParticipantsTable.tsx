@@ -1,12 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-
-import viewIcon from "../../assets/images/user_icon.svg";
+import React from "react";
 import deleteIcon from "../../assets/images/trash_can.svg";
-import editIcon from "../../assets/images/Edit.svg";
-
 import { baseURL } from "../../axios";
-import { ArrowLeftRight } from "lucide-react";
 
 interface TeamTableProps {
   currentPage: number;
@@ -19,6 +13,7 @@ export const ParticipantsTable: React.FC<TeamTableProps> = ({
   participants,
   onleaveTeam,
 }) => {
+  console.log("participants", participants);
   const thead = {
     id: (
       <svg
@@ -106,7 +101,11 @@ export const ParticipantsTable: React.FC<TeamTableProps> = ({
                       className="bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 p-2 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md"
                       title="Remove from team"
                     >
-                      <ArrowLeftRight />
+                      <img
+                        src={deleteIcon}
+                        alt="Delete"
+                        style={{ width: "1.26rem" }}
+                      />
                     </button>
                   </div>
                 </td>
