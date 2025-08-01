@@ -193,6 +193,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
     // If the clicked checkbox is already selected, uncheck it
     setSelectedStatus(selectedStatus === name ? null : name);
   };
+  console.log({ matches })
   return (
     <>
       <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-between items-center pt-3 pb-[2rem] border-b border-light-border">
@@ -250,391 +251,392 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
         )}
         <div className="block">
           {!loading && stagesList.length > 0 && (
-            <div className="grid grid-cols-3 gap-3">
-              {stagesList.map((stage: Stage) => (
-                <div
-                  key={stage._id}
-                  className={`nf_tournaments-card  bg-[rgba(0,126,255,0.16)] text-white rounded-md w-full  cursor-pointer ${
-                    selectedStage === stage?._id ? "list-focus" : ""
-                  }`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setSelectedStage(stage?._id);
-                  }}
-                >
-                  <div className="nf_ts-topbar cust p-2">
-                    <div className="flex items-center justify-between">
-                      <div className="nf_tournaments-title flex items-center">
-                        <img
-                          className="px-2 py-2 bg-slate-500 rounded-sm p-2 mr-2"
-                          height={32}
-                          width={32}
-                          src="https://staging.saudieleagues.com/public/admin/icons/Standings.svg"
-                          alt="Stage Icon"
-                        />
-                        <h3>Stage: {stage.stageName}</h3>
-                      </div>
-                      <div className="nf_icon-group flex justify-end items-center gap-2">
-                        <Link
-                          to={`/${partnerId}/tournament/${tournamentId}/stage/edit/${stage?._id}`}
-                          state={{ stage }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                          }}
-                          style={{
-                            background:
-                              "radial-gradient(circle, #39415C 0%, #555F83 100%)",
-                          }}
-                          className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
-                        >
+            <>
+              <div className="grid grid-cols-3 gap-3">
+                {stagesList.map((stage: Stage) => (
+                  <div
+                    key={stage._id}
+                    className={`nf_tournaments-card  bg-[rgba(0,126,255,0.16)] text-white rounded-md w-full  cursor-pointer ${selectedStage === stage?._id ? "list-focus" : ""
+                      }`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setSelectedStage(stage?._id);
+                    }}
+                  >
+                    <div className="nf_ts-topbar cust p-2">
+                      <div className="flex items-center justify-between">
+                        <div className="nf_tournaments-title flex items-center">
                           <img
-                            src={editIcon}
-                            alt="Delete"
-                            style={{ width: "1.06rem" }}
+                            className="px-2 py-2 bg-slate-500 rounded-sm p-2 mr-2"
+                            height={32}
+                            width={32}
+                            src="https://staging.saudieleagues.com/public/admin/icons/Standings.svg"
+                            alt="Stage Icon"
                           />
-                        </Link>
-                        <button
-                          onClick={(e) => {
-                            handleDelete(stage._id);
-
-                            e.stopPropagation();
-                          }}
-                          style={{
-                            background:
-                              "radial-gradient(circle, #39415C 0%, #555F83 100%)",
-                          }}
-                          className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
-                        >
-                          <img
-                            src={deleteIcon}
-                            alt="Delete"
-                            style={{ width: "1.06rem" }}
-                          />
-                        </button>
-                        <Link
-                          to={`/${partnerId}/tournament/${tournamentId}/stage/list/seed/${stage._id}`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                          }}
-                          state={{
-                            seed: stage?.seed,
-                            type: location?.state?.type,
-                            stage: stage,
-                          }}
-                          style={{
-                            background:
-                              "radial-gradient(circle, #39415C 0%, #555F83 100%)",
-                          }}
-                          className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
-                        >
-                          <img
-                            src={rightIcon}
-                            alt="View"
-                            style={{ width: "1.06rem" }}
-                          />
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="nf_ts-center p-2">
-                    <div className="nf_tournament-list">
-                      <div className="nf_list-row cust grid grid-cols-1 gap-2 sm:grid-cols-2">
-                        <div className="nf_list-col">
-                          <div className="nf_list-block p-2 bg-[#242B3C] h-full">
-                            <span>Participants:</span>
-                            <h4>{stage.numberOfParticipants}</h4>
-                          </div>
+                          <h3>Stage: {stage.stageName}</h3>
                         </div>
-                        <div className="nf_list-col p-2 bg-[#242B3C] h-full">
-                          <div className="nf_list-block">
-                            <span>Format:</span>
-                            <h4>{stage.stageType}</h4>
-                          </div>
+                        <div className="nf_icon-group flex justify-end items-center gap-2">
+                          <Link
+                            to={`/${partnerId}/tournament/${tournamentId}/stage/edit/${stage?._id}`}
+                            state={{ stage }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                            }}
+                            style={{
+                              background:
+                                "radial-gradient(circle, #39415C 0%, #555F83 100%)",
+                            }}
+                            className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
+                          >
+                            <img
+                              src={editIcon}
+                              alt="Delete"
+                              style={{ width: "1.06rem" }}
+                            />
+                          </Link>
+                          <button
+                            onClick={(e) => {
+                              handleDelete(stage._id);
+
+                              e.stopPropagation();
+                            }}
+                            style={{
+                              background:
+                                "radial-gradient(circle, #39415C 0%, #555F83 100%)",
+                            }}
+                            className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
+                          >
+                            <img
+                              src={deleteIcon}
+                              alt="Delete"
+                              style={{ width: "1.06rem" }}
+                            />
+                          </button>
+                          <Link
+                            to={`/${partnerId}/tournament/${tournamentId}/stage/list/seed/${stage._id}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                            }}
+                            state={{
+                              seed: stage?.seed,
+                              type: location?.state?.type,
+                              stage: stage,
+                            }}
+                            style={{
+                              background:
+                                "radial-gradient(circle, #39415C 0%, #555F83 100%)",
+                            }}
+                            className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
+                          >
+                            <img
+                              src={rightIcon}
+                              alt="View"
+                              style={{ width: "1.06rem" }}
+                            />
+                          </Link>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-          <div className="w-full lg:w-[1px] h-[1px] lg:h-auto bg-slate-600 "></div>
-          <div className="flex-1">
-            <div
-              className="nf_stage-quick_scores nf_back-section nf_topbar nf_tournaments-topbar"
-              style={{}}
-            >
-              <div className="nf_topbar-wrap flex items-center">
-                <div
-                  className="nf_top-filter nf_bg flex items-center"
-                  style={{ maxWidth: "max-content" }}
-                >
-                  <p className="color_gray">Filter by:</p>
-                  <div className="nf_cust-select nf_simple-select focus-input">
-                    <select
-                      className="form-control color-white cust-arrow"
-                      id="round_dropdown"
-                      value={selectedRound}
-                      onChange={(e) => setSelectedRound(e.target.value)}
-                    >
-                      <option value="">All rounds</option>
-                      {stageRound?.map((round) => (
-                        <option key={round._id} value={round._id}>
-                          {round.roundName}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div id="checkbox_1">
-                  {checkboxOptions.map((option) => (
-                    <div key={option.id} className="nf_normal-checkbox">
-                      <div className="checkbox">
-                        <label className="checkbox-wrapper focus-input">
-                          <input
-                            type="checkbox"
-                            name={option.name}
-                            checked={selectedStatus === option.name}
-                            id={option.id}
-                            className="checkbox-input form-control"
-                            onChange={() => handleCheckboxChange(option.name)}
-                          />
-                          <span className="checkbox-tile">
-                            <h4>{option.label}</h4>
-                          </span>
-                        </label>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="nf_serchbar mt-0">
-                  <div className="input-group md-form form-sm form-1 pl-0">
-                    <input
-                      className="form-control my-0 py-1"
-                      type="text"
-                      id="search_user"
-                      placeholder="Search team name"
-                      aria-label="Search"
-                      aria-controls="user_table"
-                      onChange={(e) => setSearch(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div className="nf_topbar-btn mt-0">
-                  <a
-                    href="https://staging.saudieleagues.com/admin/championship/role/8321/active"
-                    className="btn btn-nf-blue nf_btn-ic startNextRole"
-                    style={{ display: "none" }}
-                  >
-                    Start Next Round
-                  </a>
-                  <button
-                    name="submitButton"
-                    id="submitButton"
-                    className="btn btn-nf-blue nf_btn-ic"
-                    style={{ display: "none" }}
-                  >
-                    Update Scores
-                  </button>
-                  <input
-                    type="hidden"
-                    name="stage_id"
-                    id="stage_id"
-                    defaultValue={1583}
-                  />
-                  <input
-                    type="hidden"
-                    name="stage_type"
-                    id="stage_type"
-                    defaultValue={2}
-                  />
-                </div>
-              </div>
-
-              <button
-                className="btn btn-nf-gray round_timechange_data mt-2"
-                data-toggle="modal"
-                data-target="#changetime_round"
-                onClick={() => setShowRoundTimeChangeModal(true)}
-              >
-                Round Time Change
-              </button>
-
-              <a
-                href="#"
-                className="btn btn-nf-blue nf_btn-ic complete_round"
-                style={{ display: "none" }}
-              >
-                Complete Round
-              </a>
-            </div>
-
-            <div className="grid grid-cols-1 xl:grid-cols-3 items-center mt-5 gap-3 mb-3">
-              {matchesLoading ? (
-                <HandLogoLoader />
-              ) : (
-                <>
-                  {stagesList?.length > 0 &&
-                    matches?.map((val) => {
-                      const activeScores = val?.matchScores?.filter(
-                        (match: any) => match?.isActive
-                      );
-
-                      return (
-                        <div className="nf_cs-content">
-                          <div className="grid grid-cols-3">
-                            <div className="col-4">
-                              <div className="nf_stage-content">
-                                <div className="nf_stage-img">
-                                  <img
-                                    className=""
-                                    height=""
-                                    width=""
-                                    src={`${baseURL}/api/v1/${val?.opponent1?.team?.logoImage}`}
-                                  />
-                                </div>
-                                <h3>{val?.opponent1?.team?.teamName}</h3>
-                              </div>
+                    <div className="nf_ts-center p-2">
+                      <div className="nf_tournament-list">
+                        <div className="nf_list-row cust grid grid-cols-1 gap-2 sm:grid-cols-2">
+                          <div className="nf_list-col">
+                            <div className="nf_list-block p-2 bg-[#242B3C] h-full">
+                              <span>Participants:</span>
+                              <h4>{stage.numberOfParticipants}</h4>
                             </div>
-                            <div className="flex items-center justify-center">
-                              <div className="nf_stage-content text-center">
-                                <div className="flex content-center justify-center">
-                                  <h5
-                                    className={
-                                      val?.winner === "opponent1"
-                                        ? "!bg-green-500/20 !text-green-300 border !border-green-500/30"
-                                        : val?.winner === "opponent2"
-                                        ? "!bg-red-500/20 !text-red-300 border !border-red-500/30"
-                                        : "!bg-blue-500/20 !text-blue-300 border !border-blue-500/30"
-                                    }
-                                  >
-                                    {activeScores[0]?.opponent1Score
-                                      ? activeScores[0]?.opponent1Score
-                                      : 0}
-                                  </h5>
-                                  <h5
-                                    className={
-                                      val?.winner === "opponent2"
-                                        ? "!bg-green-500/20 !text-green-300 border !border-green-500/30"
-                                        : val?.winner === "opponent1"
-                                        ? "!bg-red-500/20 !text-red-300 border !border-red-500/30"
-                                        : "!bg-blue-500/20 !text-blue-300 border !border-blue-500/30"
-                                    }
-                                  >
-                                    {activeScores[0]?.opponent2Score
-                                      ? activeScores[0]?.opponent2Score
-                                      : 0}
-                                  </h5>
+                          </div>
+                          <div className="nf_list-col p-2 bg-[#242B3C] h-full">
+                            <div className="nf_list-block">
+                              <span>Format:</span>
+                              <h4>{stage.stageType}</h4>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex-1">
+                <div
+                  className="nf_stage-quick_scores nf_back-section nf_topbar nf_tournaments-topbar"
+                  style={{}}
+                >
+                  <div className="nf_topbar-wrap flex items-center">
+                    <div
+                      className="nf_top-filter nf_bg flex items-center"
+                      style={{ maxWidth: "max-content" }}
+                    >
+                      <p className="color_gray">Filter by:</p>
+                      <div className="nf_cust-select nf_simple-select focus-input">
+                        <select
+                          className="form-control color-white cust-arrow"
+                          id="round_dropdown"
+                          value={selectedRound}
+                          onChange={(e) => setSelectedRound(e.target.value)}
+                        >
+                          {console.log({stageRound})}
+                          <option value="">All rounds</option>
+                          {stageRound?.map((round) => (
+                            <option key={round._id} value={round._id}>
+                              {round.roundName} {round.config ? round.config.group_id == 0 ? '(WB)' : round.config.group_id == 1 ? '(LB)' : '(FB)' : ''}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div id="checkbox_1">
+                      {checkboxOptions.map((option) => (
+                        <div key={option.id} className="nf_normal-checkbox">
+                          <div className="checkbox">
+                            <label className="checkbox-wrapper focus-input">
+                              <input
+                                type="checkbox"
+                                name={option.name}
+                                checked={selectedStatus === option.name}
+                                id={option.id}
+                                className="checkbox-input form-control"
+                                onChange={() => handleCheckboxChange(option.name)}
+                              />
+                              <span className="checkbox-tile">
+                                <h4>{option.label}</h4>
+                              </span>
+                            </label>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="nf_serchbar mt-0">
+                      <div className="input-group md-form form-sm form-1 pl-0">
+                        <input
+                          className="form-control my-0 py-1"
+                          type="text"
+                          id="search_user"
+                          placeholder="Search team name"
+                          aria-label="Search"
+                          aria-controls="user_table"
+                          onChange={(e) => setSearch(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="nf_topbar-btn mt-0">
+                      <a
+                        href="https://staging.saudieleagues.com/admin/championship/role/8321/active"
+                        className="btn btn-nf-blue nf_btn-ic startNextRole"
+                        style={{ display: "none" }}
+                      >
+                        Start Next Round
+                      </a>
+                      <button
+                        name="submitButton"
+                        id="submitButton"
+                        className="btn btn-nf-blue nf_btn-ic"
+                        style={{ display: "none" }}
+                      >
+                        Update Scores
+                      </button>
+                      <input
+                        type="hidden"
+                        name="stage_id"
+                        id="stage_id"
+                        defaultValue={1583}
+                      />
+                      <input
+                        type="hidden"
+                        name="stage_type"
+                        id="stage_type"
+                        defaultValue={2}
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    className="btn btn-nf-gray round_timechange_data mt-2"
+                    data-toggle="modal"
+                    data-target="#changetime_round"
+                    onClick={() => setShowRoundTimeChangeModal(true)}
+                  >
+                    Round Time Change
+                  </button>
+
+                  <a
+                    href="#"
+                    className="btn btn-nf-blue nf_btn-ic complete_round"
+                    style={{ display: "none" }}
+                  >
+                    Complete Round
+                  </a>
+                </div>
+
+                <div className="grid grid-cols-1 xl:grid-cols-3 items-center mt-5 gap-3 mb-3">
+                  {matchesLoading ? (
+                    <HandLogoLoader />
+                  ) : (
+                    <>
+                      {stagesList?.length > 0 &&
+                        matches?.map((val) => {
+                          const activeScores = val?.matchScores?.filter(
+                            (match: any) => match?.isActive
+                          );
+
+                          return (
+                            <div className="nf_cs-content">
+                              <div className="grid grid-cols-3">
+                                <div className="col-4">
+                                  <div className="nf_stage-content">
+                                    <div className="nf_stage-img">
+                                      <img
+                                        className=""
+                                        height=""
+                                        width=""
+                                        src={`${baseURL}/api/v1/${val?.opponent1?.team ? val?.opponent1?.team?.logoImage : val?.opponent1?.user?.profilePicture}`}
+                                      />
+                                    </div>
+                                    <h3>{val?.opponent1?.team ? val?.opponent1?.team?.teamName : val?.opponent1?.user?.username}</h3>
+                                  </div>
                                 </div>
-                                <p
-                                  className={`px-3 py-1 whitespace-nowrap rounded-full text-sm font-medium ${
-                                    val?.status === "completed"
-                                      ? "bg-green-500/20 !text-green-400 border border-green-500/30"
-                                      : val?.status === "cancelled"
-                                      ? "bg-red-500/20 !text-red-400 border border-red-500/30"
-                                      : val?.status === "in_progress"
-                                      ? "bg-yellow-500/20 !text-yellow-400 border border-yellow-500/30"
-                                      : val?.status === "pending"
-                                      ? "bg-yellow-500/20 !text-yellow-400 border border-yellow-500/30"
-                                      : "bg-purple-500/20 !text-purple-400 border border-purple-500/30"
-                                  }`}
-                                >
-                                  {val?.status
-                                    ?.replace("_", " ")
-                                    .replace(/\b\w/g, (c: any) =>
-                                      c.toUpperCase()
-                                    )}
+                                <div className="flex items-center justify-center">
+                                  <div className="nf_stage-content text-center">
+                                    <div className="flex content-center justify-center">
+                                      <h5
+                                        className={
+                                          val?.winner === "opponent1"
+                                            ? "!bg-green-500/20 !text-green-300 border !border-green-500/30"
+                                            : val?.winner === "opponent2"
+                                              ? "!bg-red-500/20 !text-red-300 border !border-red-500/30"
+                                              : "!bg-blue-500/20 !text-blue-300 border !border-blue-500/30"
+                                        }
+                                      >
+                                        {activeScores[0]?.opponent1Score
+                                          ? activeScores[0]?.opponent1Score
+                                          : 0}
+                                      </h5>
+                                      <h5
+                                        className={
+                                          val?.winner === "opponent2"
+                                            ? "!bg-green-500/20 !text-green-300 border !border-green-500/30"
+                                            : val?.winner === "opponent1"
+                                              ? "!bg-red-500/20 !text-red-300 border !border-red-500/30"
+                                              : "!bg-blue-500/20 !text-blue-300 border !border-blue-500/30"
+                                        }
+                                      >
+                                        {activeScores[0]?.opponent2Score
+                                          ? activeScores[0]?.opponent2Score
+                                          : 0}
+                                      </h5>
+                                    </div>
+                                    <p
+                                      className={`px-3 py-1 whitespace-nowrap rounded-full text-sm font-medium ${val?.status === "completed"
+                                        ? "bg-green-500/20 !text-green-400 border border-green-500/30"
+                                        : val?.status === "cancelled"
+                                          ? "bg-red-500/20 !text-red-400 border border-red-500/30"
+                                          : val?.status === "in_progress"
+                                            ? "bg-yellow-500/20 !text-yellow-400 border border-yellow-500/30"
+                                            : val?.status === "pending"
+                                              ? "bg-yellow-500/20 !text-yellow-400 border border-yellow-500/30"
+                                              : "bg-purple-500/20 !text-purple-400 border border-purple-500/30"
+                                        }`}
+                                    >
+                                      {val?.status
+                                        ?.replace("_", " ")
+                                        .replace(/\b\w/g, (c: any) =>
+                                          c.toUpperCase()
+                                        )}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="col-4">
+                                  <div className="nf_stage-content">
+                                    <div className="nf_stage-img">
+                                      <img
+                                        className=""
+                                        height=""
+                                        width=""
+                                        src={`${baseURL}/api/v1/${val?.opponent2?.team ? val?.opponent2?.team?.logoImage : val?.opponent2?.user?.profilePicture}`}
+                                      />
+                                    </div>
+                                    <h3>{val?.opponent2?.team ? val?.opponent2?.team?.teamName : val?.opponent2?.user?.username}</h3>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="nf_stage-bottombar items-center justify-center flex my-2 gap-1">
+                                <p>{val?.stageRoundId?.roundName}</p>
+                                <p>
+                                  {formatDate(val?.startTime)} -{" "}
+                                  {formatDate(val?.endTime)}
                                 </p>
                               </div>
-                            </div>
-                            <div className="col-4">
-                              <div className="nf_stage-content">
-                                <div className="nf_stage-img">
-                                  <img
-                                    className=""
-                                    height=""
-                                    width=""
-                                    src={`${baseURL}/api/v1/${val?.opponent2?.team?.logoImage}`}
-                                  />
-                                </div>
-                                <h3>{val?.opponent2?.team?.teamName}</h3>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="nf_stage-bottombar items-center justify-center flex my-2 gap-1">
-                            <p>{val?.stageRoundId?.roundName}</p>
-                            <p>
-                              {formatDate(val?.startTime)} -{" "}
-                              {formatDate(val?.endTime)}
-                            </p>
-                          </div>
-                          <div className="nf_match-list my-3">
-                            <div
-                              className="nf-cs-btn flex items-center justify-center"
-                              style={{}}
-                            >
-                              <div className="nf_cs-buttons flex items-center content-center">
-                                <div className="nf_cs-btn-group ">
-                                  <button
-                                    className="btn btn-nf-gray timechange_data"
-                                    data-toggle="modal"
-                                    data-target="#changetime"
-                                    data-id={34042}
-                                    onClick={() => {
-                                      setSelectedMatch(val);
-                                      setShowChangeTimeModal(true);
-                                    }}
-                                  >
-                                    <Clock className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
-                                  </button>
-                                  <strong className="text-center">
-                                    {" "}
-                                    Change Time
-                                  </strong>
-                                </div>
-                                <div className="nf_cs-btn-group">
-                                  <Link
-                                    to={`/${partnerId}/tournament/${tournamentId}/stage/list/${val?._id}`}
-                                    className="btn btn-nf-gray"
-                                  >
-                                    <Settings className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
-                                  </Link>
-                                  <strong className="text-center">
-                                    {" "}
-                                    Manage Match
-                                  </strong>
-                                </div>
-                                <div className="nf_cs-btn-group">
-                                  <div className="nf_cs-btn-group">
-                                    <button
-                                      className="btn btn-nf-gray quickscore_data"
-                                      data-toggle="modal"
-                                      data-target="#quickscore"
-                                      data-id={34042}
-                                      onClick={() => {
-                                        setSelectedMatch(val);
-                                        setShowQuickScoreModal(true);
-                                      }}
-                                    >
-                                      <CirclePlusIcon className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
-                                    </button>
-                                    <strong className="text-center">
-                                      Quick Scoring
-                                    </strong>
+                              <div className="nf_match-list my-3">
+                                <div
+                                  className="nf-cs-btn flex items-center justify-center"
+                                  style={{}}
+                                >
+                                  <div className="nf_cs-buttons flex items-center content-center">
+                                    <div className="nf_cs-btn-group ">
+                                      <button
+                                        className="btn btn-nf-gray timechange_data"
+                                        data-toggle="modal"
+                                        data-target="#changetime"
+                                        data-id={34042}
+                                        onClick={() => {
+                                          setSelectedMatch(val);
+                                          setShowChangeTimeModal(true);
+                                        }}
+                                      >
+                                        <Clock className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
+                                      </button>
+                                      <strong className="text-center">
+                                        {" "}
+                                        Change Time
+                                      </strong>
+                                    </div>
+                                    <div className="nf_cs-btn-group">
+                                      <Link
+                                        to={`/${partnerId}/tournament/${tournamentId}/stage/list/${val?._id}`}
+                                        className="btn btn-nf-gray"
+                                      >
+                                        <Settings className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
+                                      </Link>
+                                      <strong className="text-center">
+                                        {" "}
+                                        Manage Match
+                                      </strong>
+                                    </div>
+                                    <div className="nf_cs-btn-group">
+                                      <div className="nf_cs-btn-group">
+                                        <button
+                                          className="btn btn-nf-gray quickscore_data"
+                                          data-toggle="modal"
+                                          data-target="#quickscore"
+                                          data-id={34042}
+                                          onClick={() => {
+                                            setSelectedMatch(val);
+                                            setShowQuickScoreModal(true);
+                                          }}
+                                        >
+                                          <CirclePlusIcon className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
+                                        </button>
+                                        <strong className="text-center">
+                                          Quick Scoring
+                                        </strong>
+                                      </div>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
                             </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                </>
-              )}
-            </div>
-          </div>
+                          );
+                        })}
+                    </>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+          <div className="w-full lg:w-[1px] h-[1px] lg:h-auto bg-slate-600 "></div>
         </div>
       </div>
       {!loading && totalPages > 1 && (

@@ -148,41 +148,41 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({
 
   const initialValues = selectedTeam?._id
     ? {
-        teamName: selectedTeam.teamName || "",
-        teamShortName: selectedTeam.teamShortName || "",
-        region: selectedTeam.region || "",
-        members: selectedTeam.members?.map((member: any) => ({
-          user: {
-            value: member.user._id || "",
-            label: member.user.username || "",
-          },
-          role: member.role || "",
-        })) || [{ user: { value: "", label: "" }, role: "" }],
-        social: {
-          facebookId: selectedTeam.social?.facebookId || "",
-          youtubeChannelId: selectedTeam.social?.youtubeChannelId || "",
-          discordId: selectedTeam.social?.discordId || "",
-          twitchId: selectedTeam.social?.twitchId || "",
-          twitterId: selectedTeam.social?.twitterId || "",
+      teamName: selectedTeam.teamName || "",
+      teamShortName: selectedTeam.teamShortName || "",
+      region: selectedTeam.region || "",
+      members: selectedTeam.members?.map((member: any) => ({
+        user: {
+          value: member.user._id || "",
+          label: member.user.username || "",
         },
-        logoImage: selectedTeam.logoImage || "",
-        backgroundImage: selectedTeam.backgroundImage || "",
-      }
+        role: member.role || "",
+      })) || [{ user: { value: "", label: "" }, role: "" }],
+      social: {
+        facebookId: selectedTeam.social?.facebookId || "",
+        youtubeChannelId: selectedTeam.social?.youtubeChannelId || "",
+        discordId: selectedTeam.social?.discordId || "",
+        twitchId: selectedTeam.social?.twitchId || "",
+        twitterId: selectedTeam.social?.twitterId || "",
+      },
+      logoImage: selectedTeam.logoImage || "",
+      backgroundImage: selectedTeam.backgroundImage || "",
+    }
     : {
-        teamName: "",
-        teamShortName: "",
-        region: "",
-        members: [{ user: { value: "", label: "" }, role: "" }],
-        social: {
-          facebookId: "",
-          youtubeChannelId: "",
-          discordId: "",
-          twitchId: "",
-          twitterId: "",
-        },
-        logoImage: "",
-        backgroundImage: "",
-      };
+      teamName: "",
+      teamShortName: "",
+      region: "",
+      members: [{ user: { value: "", label: "" }, role: "" }],
+      social: {
+        facebookId: "",
+        youtubeChannelId: "",
+        discordId: "",
+        twitchId: "",
+        twitterId: "",
+      },
+      logoImage: "",
+      backgroundImage: "",
+    };
 
   const handleFileUpload =
     (
@@ -190,25 +190,25 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({
       setFile: (url: string | undefined) => void,
       setFieldValue: (field: string, value: any) => void
     ) =>
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
+      (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
 
-      if (file) {
-        const formData = new FormData();
-        formData.append("file", file);
-        dispatch(uploadFile(formData))
-          .then((result: any) => {
-            if (result?.payload?.data) {
-              const fileUrl = `${baseURL}/api/v1/${result?.payload?.data}`;
-              setFile(fileUrl);
-              setFieldValue(field, result.payload.data);
-            }
-          })
-          .catch((err: any) => {
-            console.log("err", err);
-          });
-      }
-    };
+        if (file) {
+          const formData = new FormData();
+          formData.append("file", file);
+          dispatch(uploadFile(formData))
+            .then((result: any) => {
+              if (result?.payload?.data) {
+                const fileUrl = `${baseURL}/api/v1/${result?.payload?.data}`;
+                setFile(fileUrl);
+                setFieldValue(field, result.payload.data);
+              }
+            })
+            .catch((err: any) => {
+              console.log("err", err);
+            });
+        }
+      };
 
   const loadUsersOptions = async (
     search: string,
@@ -428,7 +428,7 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({
                                     backgroundColor: "#212739",
                                     border:
                                       touched.members?.[index]?.user &&
-                                      errors.members?.[index]?.user
+                                        errors.members?.[index]?.user
                                         ? "1px solid #ef4444"
                                         : "none",
                                     borderRadius: "0.52rem",
@@ -466,8 +466,8 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({
                                     backgroundColor: isSelected
                                       ? "#007EFF"
                                       : isFocused
-                                      ? "#2B3245"
-                                      : "#212739",
+                                        ? "#2B3245"
+                                        : "#212739",
                                     color: "#fff",
                                     fontSize: "0.78125rem",
                                     padding: "0.5rem 0.75rem",
@@ -499,11 +499,15 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({
                             </div>
                             <div className="flex-1">
                               <Field
-                                type="text"
+                                as="select"
                                 name={`members[${index}].role`}
                                 className="w-full px-4 py-3 bg-[#242B3C] text-white rounded-xl border border-gray-600/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 placeholder-gray-400"
-                                placeholder="Enter role (e.g., Player)"
-                              />
+                              >
+                                <option value="Player">Player</option>
+                                <option value="Coach">Coach</option>
+                                <option value="Manager">Manager</option>
+                                <option value="President">President</option>
+                              </Field>
                               <ErrorMessage
                                 name={`members[${index}].role`}
                                 component="div"
@@ -669,8 +673,8 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({
                           ? "Updating..."
                           : "Adding..."
                         : selectedTeam
-                        ? "Update Team"
-                        : "Add Team"}
+                          ? "Update Team"
+                          : "Add Team"}
                     </button>
                   </div>
                 </div>
