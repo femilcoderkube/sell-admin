@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import "../../assets/css/style.css";
 import logo from "../../assets/images/nafes-logo.svg";
 // import user from "../../assets/images/user.png";
@@ -6,14 +6,18 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../app/features/auth/authSlice";
 import { Link } from "react-router-dom";
 import { AppDispatch, RootState } from "../../app/store";
+import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
 
 export const Header: FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { admin } = useSelector((state: RootState) => state.auth);
   // const navigate = useNavigate();
   // const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const userData = localStorage.getItem('admin') && JSON.parse(localStorage.getItem('admin') || '') || admin
-
+  const userData =
+    (localStorage.getItem("admin") &&
+      JSON.parse(localStorage.getItem("admin") || "")) ||
+    admin;
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -23,6 +27,10 @@ export const Header: FC = () => {
   // const toggleUserMenu = () => {
   //   setIsUserMenuOpen(!isUserMenuOpen);
   // };
+
+  const handleDeleteUser = () => {
+    handleLogout();
+  };
 
   return (
     <>
@@ -359,7 +367,7 @@ export const Header: FC = () => {
 
             {/* Logout Button */}
             <button
-              onClick={handleLogout}
+              onClick={() => setIsDeleteModalOpen(true)}
               className="logout-button header-button flex items-center gap-2 text-white font-medium lg:text-[0.885rem] py-2.5 px-4 rounded-xl"
             >
               <div className="icon-container">
@@ -385,6 +393,15 @@ export const Header: FC = () => {
           </div>
         </div>
       </header>
+      <DeleteConfirmationModal
+        show={isDeleteModalOpen}
+        title="Are you sure you want to log out?"
+        buttonTitle="Confirm"
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+        }}
+        onDelete={handleDeleteUser}
+      />
     </>
   );
 };
