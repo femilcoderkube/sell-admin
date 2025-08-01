@@ -48,81 +48,117 @@ export const BannedUsersTable: React.FC<BannedUsersTableProps> = ({
   };
 
   return (
-    <div id="league_table" className="pt-3 overflow-y-auto">
-      {loading && <div className="text-white mb-4">Loading users...</div>}
-      {error && <div className="text-red-500 mb-4">{error}</div>}
-      <table className="table-auto text-white w-[1180px] lg:w-full ">
-        <thead>
-          <tr className="border-b border-light-border">
-            <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
+    <div
+      id="league_table"
+      className="pt-3 overflow-x-auto overflow-y-auto rounded-lg shadow-lg"
+    >
+      {loading && (
+        <div className="text-white mb-4 px-4 py-2 bg-blue-900/30 rounded-lg border border-blue-500/30">
+          Loading users...
+        </div>
+      )}
+      {error && (
+        <div className="text-red-400 mb-4 px-4 py-2 bg-red-900/30 rounded-lg border border-red-500/30">
+          {error}
+        </div>
+      )}
+      <table className="min-w-full table-auto text-white bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg overflow-hidden">
+        <thead className="bg-gradient-to-r from-gray-700 to-gray-800">
+          <tr className="border-b border-gray-600">
+            <th className="text-left py-4 px-3 text-gray-300 uppercase text-sm font-semibold tracking-wide">
               {thead.id}
             </th>
-            <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
+            <th className="text-left py-4 px-3 text-gray-300 uppercase text-sm font-semibold tracking-wide min-w-[120px]">
               {thead.username}
             </th>
-            <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
+            <th className="text-left py-4 px-3 text-gray-300 uppercase text-sm font-semibold tracking-wide hidden md:table-cell min-w-[180px]">
               {thead.email}
             </th>
-            <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
+            <th className="text-left py-4 px-3 text-gray-300 uppercase text-sm font-semibold tracking-wide hidden sm:table-cell">
               {thead.role}
             </th>
-            <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
+            <th className="text-left py-4 px-3 text-gray-300 uppercase text-sm font-semibold tracking-wide hidden lg:table-cell">
               {thead.lastLoginDate}
             </th>
             {/* <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
               {thead.mobile}
             </th> */}
-            <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
+            <th className="text-left py-4 px-3 text-gray-300 uppercase text-sm font-semibold tracking-wide hidden xl:table-cell">
               {thead.ip_address}
             </th>
-            <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem] text-center">
+            <th className="text-center py-4 px-3 text-gray-300 uppercase text-sm font-semibold tracking-wide min-w-[100px]">
               {thead.status}
             </th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="divide-y divide-gray-700">
           {users && users.length > 0 ? (
             users.map((user, idx) => (
-              <tr key={user._id} className="border-b border-light-border">
-                <td className="text-[1.0625rem] py-3">
+              <tr
+                key={user._id}
+                className="hover:bg-gray-700/30 transition-colors duration-200 border-b border-gray-700/50"
+              >
+                <td className="text-sm py-4 px-3 font-medium text-gray-100">
                   {(currentPage - 1) * 10 + idx + 1}
                 </td>
-                <td className="text-[1.0625rem] py-3">
+                <td className="text-sm py-4 px-3 font-medium text-white min-w-[120px]">
                   {user?.user?.username}
                 </td>
-                <td className="text-[1.0625rem] py-3">{user?.user?.email}</td>
-                <td className="text-[1.0625rem] py-3">{user?.user?.role}</td>
-                <td className="text-[1.0625rem] py-3">
+                <td className="text-sm py-4 px-3 text-gray-200 hidden md:table-cell min-w-[180px] truncate">
+                  {user?.user?.email}
+                </td>
+                <td className="text-sm py-4 px-3 hidden sm:table-cell">
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${
+                      user?.user?.role === "admin"
+                        ? "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400"
+                        : user?.user?.role === "operator"
+                        ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+                        : "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                    }`}
+                  >
+                    {user?.user?.role}
+                  </span>
+                </td>
+                <td className="text-xs py-4 px-3 text-gray-400 hidden lg:table-cell">
                   {user.updatedAt
                     ? new Date(user.updatedAt).toLocaleString()
                     : "-"}
                 </td>
                 {/* <td className="text-[1.0625rem] py-3">{user.phone || "-"}</td> */}
-                <td className="text-[1.0625rem] py-3">
+                <td className="text-sm py-4 px-3 text-gray-400 font-mono hidden xl:table-cell">
                   {user.ipAddress || "-"}
                 </td>
-                <td className="text-[1.0625rem] py-3 text-center">
-                  <button
-                    onClick={() => handleUnbanUser(user)}
-                    style={{
-                      background:
-                        "radial-gradient(circle, #39415C 0%, #555F83 100%)",
-                    }}
-                    className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
-                  >
-                    <img
-                      src={deleteIcon}
-                      alt="Delete"
-                      style={{ width: "1.26rem" }}
-                    />
-                  </button>
+                <td className="text-sm py-4 px-3 text-center">
+                  <div className="flex justify-center">
+                    <button
+                      onClick={() => handleUnbanUser(user)}
+                      className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 p-2 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md"
+                      title="Unban user"
+                    >
+                      <img
+                        src={deleteIcon}
+                        alt="Delete"
+                        style={{ width: "1.26rem" }}
+                      />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan={8} className="text-center text-white py-4">
-                No users found.
+              <td
+                colSpan={7}
+                className="text-center text-gray-400 py-8 bg-gray-800/50"
+              >
+                <div className="flex flex-col items-center space-y-2">
+                  <div className="text-4xl">🚫</div>
+                  <div className="text-lg font-medium">No users found</div>
+                  <div className="text-sm text-gray-500">
+                    No banned users or try adjusting your search criteria
+                  </div>
+                </div>
               </td>
             </tr>
           )}

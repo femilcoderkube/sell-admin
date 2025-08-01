@@ -6,6 +6,7 @@ import deleteIcon from "../../assets/images/trash_can.svg";
 import editIcon from "../../assets/images/Edit.svg";
 
 import { baseURL } from "../../axios";
+import { ArrowLeftRight } from "lucide-react";
 
 interface TeamTableProps {
   currentPage: number;
@@ -44,70 +45,85 @@ export const MembersTable: React.FC<TeamTableProps> = ({
   };
 
   return (
-    <div id="team_table" className="pt-3 overflow-y-auto">
-      <table className="table-auto text-white w-[1180px] lg:w-full">
-        <thead>
-          <tr className="border-b border-light-border">
-            <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
+    <div
+      id="team_table"
+      className="pt-3 overflow-x-auto overflow-y-auto rounded-lg shadow-lg"
+    >
+      <table className="min-w-full table-auto text-white bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg overflow-hidden">
+        <thead className="bg-gradient-to-r from-gray-700 to-gray-800">
+          <tr className="border-b border-gray-600">
+            <th className="text-left py-4 px-3 text-gray-300 uppercase text-sm font-semibold tracking-wide">
               {thead.id}
             </th>
-            <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
+            <th className="text-left py-4 px-3 text-gray-300 uppercase text-sm font-semibold tracking-wide min-w-[120px]">
               {thead.username}
             </th>
-            <th className="text-center py-3 text-custom-gray uppercase text-[1.0625rem]">
+            <th className="text-center py-4 px-3 text-gray-300 uppercase text-sm font-semibold tracking-wide hidden md:table-cell min-w-[180px]">
               {thead.email}
             </th>
-            <th className="text-center py-3 text-custom-gray uppercase text-[1.0625rem]">
+            <th className="text-center py-4 px-3 text-gray-300 uppercase text-sm font-semibold tracking-wide hidden sm:table-cell">
               {thead.role}
             </th>
 
-            <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
+            <th className="text-left py-4 px-3 text-gray-300 uppercase text-sm font-semibold tracking-wide hidden sm:table-cell">
               {thead.logo}
             </th>
-            <th className="py-3 text-custom-gray uppercase text-[1.0625rem] text-center">
+            <th className="py-4 px-3 text-gray-300 uppercase text-sm font-semibold tracking-wide text-center min-w-[100px]">
               {thead.actions}
             </th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="divide-y divide-gray-700">
           {members?.map((team, index) => (
             <tr
               key={team._id || index}
-              className="border-b border-light-border"
+              className="hover:bg-gray-700/30 transition-colors duration-200 border-b border-gray-700/50"
             >
-              <td className="text-[1.0625rem] py-3">
+              <td className="text-sm py-4 px-3 font-medium text-gray-100">
                 {(currentPage - 1) * 10 + index + 1}
               </td>
-              <td className="text-[1.0625rem] py-3">{team?.user?.username}</td>
+              <td className="text-sm py-4 px-3 font-medium text-white min-w-[120px]">
+                {team?.user?.username}
+              </td>
 
-              <td className="text-center text-[1.0625rem] py-3">
+              <td className="text-center text-sm py-4 px-3 text-gray-200 hidden md:table-cell min-w-[180px] truncate">
                 {team?.user?.email}
               </td>
-              <td className="text-center text-[1.0625rem] py-3">
-                {team?.user?.role}
+              <td className="text-center text-sm py-4 px-3 hidden sm:table-cell">
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${
+                    team?.user?.role === "admin"
+                      ? "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400"
+                      : team?.user?.role === "operator"
+                      ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+                      : "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                  }`}
+                >
+                  {team?.user?.role}
+                </span>
               </td>
-              <td className="text-[1.0625rem] py-3">
-                <span className="inline-block bg-input-color p-[0.4rem] rounded-[0.42rem]">
+              <td className="text-sm py-4 px-3 hidden sm:table-cell">
+                <span className="inline-block bg-gray-600/50 p-2 rounded-lg shadow-sm ring-2 ring-gray-500/20">
                   <img
                     src={`${baseURL}/api/v1/${team?.user?.profilePicture}`}
                     alt={team.teamName}
                     style={{ width: "2rem", height: "2rem" }}
+                    className="rounded-full object-cover"
                   />
                 </span>
               </td>
-              <td className="text-[1.0625rem] py-3 flex space-x-3 justify-center">
-                <button
-                  onClick={() => {
-                    onleaveTeam(team?.user);
-                  }}
-                  style={{
-                    background:
-                      "radial-gradient(circle, #39415C 0%, #555F83 100%)",
-                  }}
-                  className="hover:opacity-80 p-[0.4rem] rounded-[0.42rem] duration-300"
-                >
-                  <img src={editIcon} alt="View" style={{ width: "1.26rem" }} />
-                </button>
+              <td className="text-sm py-4 px-3">
+                <div className="flex justify-center items-center">
+                  <button
+                    onClick={() => {
+                      onleaveTeam(team?.user);
+                    }}
+                    className="bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 p-2 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md"
+                    title="Remove from team"
+                  >
+                    <ArrowLeftRight />
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
