@@ -528,7 +528,19 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                       : 0}
                                   </h5>
                                 </div>
-                                <p>
+                                <p
+                                  className={`px-3 py-1 whitespace-nowrap rounded-full text-sm font-medium ${
+                                    val?.status === "completed"
+                                      ? "bg-green-500/20 !text-green-400 border border-green-500/30"
+                                      : val?.status === "cancelled"
+                                      ? "bg-red-500/20 !text-red-400 border border-red-500/30"
+                                      : val?.status === "in_progress"
+                                      ? "bg-yellow-500/20 !text-yellow-400 border border-yellow-500/30"
+                                      : val?.status === "pending"
+                                      ? "bg-yellow-500/20 !text-yellow-400 border border-yellow-500/30"
+                                      : "bg-purple-500/20 !text-purple-400 border border-purple-500/30"
+                                  }`}
+                                >
                                   {val?.status
                                     ?.replace("_", " ")
                                     .replace(/\b\w/g, (c: any) =>
