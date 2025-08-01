@@ -11,6 +11,7 @@ import bulkJoinReducer from "./features/tournament/bulkJoinSlice";
 import notInStageReducer from "./features/tournament/notInStageSlice";
 import createMatchesReducer from "./features/tournament/createMatchesSlice";
 import tournamentStageSlice from "./features/tournament/tournamentStageSlice";
+import participantsReducer from "./features/tournament/participantsSlice";
 import tournamentMatchesReducer from "./features/tournament/tournamentMatchesSlice";
 import stageRoundReducer from "./features/tournament/stageRoundSlice";
 import teamReducer from "./features/team/teamSlice";
@@ -46,6 +47,7 @@ export const store = configureStore({
     createMatches: createMatchesReducer,
     tournamentMatches: tournamentMatchesReducer,
     stageRound: stageRoundReducer,
+    participants: participantsReducer,
   },
 });
 
