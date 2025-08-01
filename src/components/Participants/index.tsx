@@ -1,5 +1,5 @@
 import { SearchIcon } from "lucide-react";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { ParticipantsTable } from "./ParticipantsTable";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,6 +13,7 @@ import { RootState } from "../../app/store";
 import { leaveTeam } from "../../app/features/team/teamSlice";
 import HandLogoLoader from "../Loader/Loader";
 import { Pagination } from "../ui/Pagination";
+import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
 
 export const Participants: React.FC<any> = ({ title }) => {
   const navigate = useNavigate();
@@ -21,6 +22,9 @@ export const Participants: React.FC<any> = ({ title }) => {
     useSelector((state: RootState) => state.participants);
 
   const tournamentId = window.location.pathname.split("/")[3];
+
+  const [deleteId, setDeleteId] = useState<string>("");
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   useEffect(() => {
     dispatch(
       fetchParticipants({
@@ -31,11 +35,13 @@ export const Participants: React.FC<any> = ({ title }) => {
     );
   }, [dispatch, currentPage, searchTerm]);
 
-  const onleaveTeam = async (value: any) => {
+  const handleDeleteDevice = async () => {
     try {
-      const resultAction = await dispatch(deleteParticipant(value));
+      const resultAction = await dispatch(deleteParticipant(deleteId));
       if (deleteParticipant.fulfilled.match(resultAction)) {
         dispatch(setPage(1));
+        setIsDeleteModalOpen(false);
+        setDeleteId("");
         dispatch(
           fetchParticipants({
             tournamentId: tournamentId,
@@ -137,7 +143,8 @@ export const Participants: React.FC<any> = ({ title }) => {
           participants={participants}
           currentPage={currentPage}
           onleaveTeam={(participant) => {
-            onleaveTeam(participant);
+            setDeleteId(participant);
+            setIsDeleteModalOpen(true);
           }}
         />
       ) : (
@@ -154,6 +161,14 @@ export const Participants: React.FC<any> = ({ title }) => {
           onPageNext={() => handlePageChange(teamCurrentPage + 1)}
         />
       )}
+      <DeleteConfirmationModal
+        show={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setDeleteId("");
+        }}
+        onDelete={handleDeleteDevice}
+      />
     </>
   );
 };
