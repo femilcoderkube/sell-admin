@@ -13,9 +13,6 @@ export const App = () => {
   // Set default timezone to Asia/Riyadh (Saudi Arabia)
   // moment.tz.setDefault("Asia/Riyadh");
 
-  const booleanValue = useSelector((state) => state.boolean.value);
-  console.log("booleanValue", booleanValue);
-
   // Use state to store admin data from localStorage
   const [adminData, setAdminData] = useState(() => {
     const adminSidebar = localStorage.getItem("admin");

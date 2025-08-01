@@ -44,32 +44,32 @@ interface UsersModelProps {
   onSave: (form: any) => void;
 }
 
-// const Switch = ({
-//   checked,
-//   onChange,
-//   id,
-// }: {
-//   checked: boolean;
-//   onChange: (v: boolean) => void;
-//   id: string;
-// }) => (
-//   <button
-//     type="button"
-//     id={id}
-//     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none ${
-//       checked ? "bg-blue-600" : "bg-gray-400"
-//     }`}
-//     onClick={() => onChange(!checked)}
-//     aria-pressed={checked}
-//   >
-//     <span className="sr-only">Toggle</span>
-//     <span
-//       className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
-//         checked ? "translate-x-6" : "translate-x-1"
-//       }`}
-//     />
-//   </button>
-// );
+const Switch = ({
+  checked,
+  onChange,
+  id,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  id: string;
+}) => (
+  <button
+    type="button"
+    id={id}
+    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none ${
+      checked ? "bg-blue-600" : "bg-gray-400"
+    }`}
+    onClick={() => onChange(!checked)}
+    aria-pressed={checked}
+  >
+    <span className="sr-only">Toggle</span>
+    <span
+      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
+        checked ? "translate-x-6" : "translate-x-1"
+      }`}
+    />
+  </button>
+);
 
 // Validation schema for firstName, lastName, role, gender, and conditionally email, username, and password
 const getValidationSchema = (isAddUser: boolean) =>
@@ -123,8 +123,6 @@ const UsersModel: React.FC<UsersModelProps> = ({
     (option) => option.value === "Saudi Arabia"
   );
 
-  console.log("selectedUser", selectedUser);
-
   const formik = useFormik({
     initialValues: {
       firstName: selectedUser?.firstName || "",
@@ -147,6 +145,7 @@ const UsersModel: React.FC<UsersModelProps> = ({
         )?.label || defaultNationality?.label,
       role: selectedUser?.role || ROLES[0],
       profilePicture: null as File | null,
+      isVerified: selectedUser?.isVerified || false,
       socialMediaHandles: selectedUser?.socialMediaHandles || {},
       // isBanned: selectedUser?.isBanned || false,
       profilePictureUrl: selectedUser?.profilePicture || "",
@@ -555,6 +554,16 @@ const UsersModel: React.FC<UsersModelProps> = ({
                   Is Banned
                 </label>
               </div> */}
+              <div className="flex items-center gap-2 mb-4">
+                <Switch
+                  checked={formik.values.isVerified}
+                  onChange={(v) => formik.setFieldValue("isVerified", v)}
+                  id="isVerified"
+                />
+                <label htmlFor="isVerified" className="text-white">
+                  Is Verified
+                </label>
+              </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
               {SOCIAL_FIELDS.map(({ key, label }) => (

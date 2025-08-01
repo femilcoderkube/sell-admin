@@ -86,7 +86,8 @@ const MatchStatusSwitch = ({
   };
 
   const handleStatusChange = (newStatus: string) => {
-    if (newStatus === status) return;
+    // Only allow status change to "canceled"
+    if (newStatus !== "canceled" || newStatus === status) return;
     setPendingStatus(newStatus);
     setShowModal(true);
   };
@@ -134,8 +135,8 @@ const MatchStatusSwitch = ({
         {statusOptions.map((option) => (
           <button
             key={option}
-            // onClick={() => handleStatusChange(option)}
-            disabled={true}
+            onClick={() => handleStatusChange(option)}
+            disabled={option !== "canceled" || isLoading} // Disable all buttons except "canceled"
             className={`px-4 py-3 font-medium capitalize transition-all duration-200 ${
               status === option
                 ? `${statusColors[option]} ${statusTextColors[option]}`
@@ -147,7 +148,9 @@ const MatchStatusSwitch = ({
                 ? "rounded-r-full"
                 : ""
             } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-[#46A2FF] ${
-              isLoading ? "opacity-50 cursor-not-allowed" : ""
+              option !== "canceled" || isLoading
+                ? "opacity-50 cursor-not-allowed"
+                : ""
             }`}
           >
             {option.replace("_", " ")}
@@ -753,16 +756,20 @@ const MatchDetails = () => {
                             </td>
                             <td className="p-4 border-b border-gray-700/50">
                               {score?.isActive === false ? (
-                                <button
-                                  className="py-2 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
-                                  title="Adopt"
-                                  onClick={() => {
-                                    setDeleteId(index);
-                                    setIsDeleteModalOpen(true);
-                                  }}
-                                >
-                                  Accept
-                                </button>
+                                <>
+                                  {matcheDetail?.status !== "canceled" && (
+                                    <button
+                                      className="py-2 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
+                                      title="Adopt"
+                                      onClick={() => {
+                                        setDeleteId(index);
+                                        setIsDeleteModalOpen(true);
+                                      }}
+                                    >
+                                      Accept
+                                    </button>
+                                  )}
+                                </>
                               ) : (
                                 <span className="text-gray-400">Accepted</span>
                               )}
