@@ -16,6 +16,7 @@ import {
   setPerPage,
   setSearchTerm,
 } from "../../app/features/bannedusers/bannedUsersSlice";
+import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
 
 // Ban Modal
 
@@ -31,7 +32,8 @@ export const BannedUser: React.FC = ({ title }: any) => {
     searchTerm,
   } = useSelector((state: RootState) => state.bannedUsers);
   const [isBanModalOpen, setIsBanModalOpen] = useState(false);
-
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<string>("");
   useEffect(() => {
     dispatch(fetchBannedUsers({ page: currentPage, perPage, searchTerm }));
   }, [dispatch, currentPage, perPage, searchTerm]);
@@ -54,6 +56,20 @@ export const BannedUser: React.FC = ({ title }: any) => {
     setIsUnderDevModalOpen(true);
     // Add actual ban logic here when developed
   };
+
+  const handleDeleteUser = async () => {
+    try {
+      const resultAction = await dispatch(deleteBannedUser(deleteId));
+      if (deleteBannedUser.fulfilled.match(resultAction)) {
+        setDeleteId("");
+        setIsDeleteModalOpen(false);
+        dispatch(fetchBannedUsers({ page: currentPage, perPage, searchTerm }));
+      }
+    } catch (error) {
+      console.error("Failed to unban user:", error);
+    }
+  };
+
   const totalPages = Math.ceil(totalCount / perPage);
   return (
     <>
@@ -137,16 +153,8 @@ export const BannedUser: React.FC = ({ title }: any) => {
           loading={loading}
           error={error}
           handleUnbanUser={async (user) => {
-            try {
-              const resultAction = await dispatch(deleteBannedUser(user._id));
-              if (deleteBannedUser.fulfilled.match(resultAction)) {
-                dispatch(
-                  fetchBannedUsers({ page: currentPage, perPage, searchTerm })
-                );
-              }
-            } catch (error) {
-              console.error("Failed to unban user:", error);
-            }
+            setDeleteId(user?._id);
+            setIsDeleteModalOpen(true);
           }}
         />
       ) : (
@@ -159,7 +167,14 @@ export const BannedUser: React.FC = ({ title }: any) => {
         onClose={() => setIsBanModalOpen(false)}
         onSubmit={handleBanSubmit}
       />
-
+      <DeleteConfirmationModal
+        show={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setDeleteId("");
+        }}
+        onDelete={handleDeleteUser}
+      />
       {!loading && totalPages > 1 && (
         <Pagination
           currentPage={currentPage}
