@@ -403,15 +403,15 @@ const MatchDetails = () => {
                 <div className="flex flex-col items-center justify-center gap-1">
                   <div className="relative">
                     <img
-                      src={`${baseURL}/api/v1/${singleMatch?.opponent1?.team?.logoImage}`}
-                      alt={singleMatch?.opponent1?.team?.teamName}
+                      src={`${baseURL}/api/v1/${singleMatch?.opponent1?.team ? singleMatch?.opponent1?.team?.logoImage : singleMatch?.opponent1?.user?.profilePicture}`}
+                      alt={singleMatch?.opponent1?.team ? singleMatch?.opponent1?.team?.teamName : singleMatch?.opponent1?.user?.username}
                       className="w-16 h-16 rounded-xl object-cover border-2 border-gray-600 shadow-lg"
                     />
                     <div className="absolute inset-0 rounded-xl bg-gradient-to-t from-black/20 to-transparent" />
                   </div>
                   <div>
                     <h1 className="font-bold text-xl text-white ">
-                      {singleMatch?.opponent1?.team?.teamName}
+                      {singleMatch?.opponent1?.team ? singleMatch?.opponent1?.team?.teamName : singleMatch?.opponent1?.user?.username}
                     </h1>
                   </div>
                 </div>
@@ -419,15 +419,15 @@ const MatchDetails = () => {
                 <div className="flex flex-col items-center justify-center gap-1">
                   <div className="relative">
                     <img
-                      src={`${baseURL}/api/v1/${singleMatch?.opponent2?.team?.logoImage}`}
-                      alt={singleMatch?.opponent2?.team?.teamName}
+                      src={`${baseURL}/api/v1/${singleMatch?.opponent2?.team ? singleMatch?.opponent2?.team?.logoImage : singleMatch?.opponent2?.user?.profilePicture}`}
+                      alt={singleMatch?.opponent2?.team ? singleMatch?.opponent2?.team?.teamName : singleMatch?.opponent2?.user?.username}
                       className="w-16 h-16 rounded-xl object-cover border-2 border-gray-600 shadow-lg"
                     />
                     <div className="absolute inset-0 rounded-xl bg-gradient-to-t from-black/20 to-transparent" />
                   </div>
                   <div>
                     <h1 className="font-bold text-xl text-white">
-                      {singleMatch?.opponent2?.team?.teamName}
+                      {singleMatch?.opponent2?.team ? singleMatch?.opponent2?.team?.teamName : singleMatch?.opponent2?.user?.username}
                     </h1>
                   </div>
                 </div>

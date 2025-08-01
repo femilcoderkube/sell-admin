@@ -754,7 +754,7 @@ const TournamentStep1: FC<{ step: number }> = ({ step }) => {
       </div>
 
       <div className="check_setting flex items-center justify-between w-full text-[0.78125rem] text-custom-gray mb-4 focus:outline-0 focus:!border focus:!border-[#2792FF] py-[0.92rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal">
-        <span className="text-white font-medium">Is Active?</span>
+        <span className="text-white font-medium">Publish</span>
         <label className="inline-flex items-center cursor-pointer">
           <Field
             type="checkbox"

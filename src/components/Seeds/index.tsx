@@ -27,9 +27,9 @@ import HandLogoLoader from "../Loader/Loader";
 async function fetchTeamDetails(ids) {
   return ids.map((item) => ({
     id: item._id,
-    name: item.team.teamName,
-    shortName: item.team.teamShortName,
-    region: item.team.region,
+    name: item.team ? item.team.teamShortName : item.user.username,
+    shortName: item.team ? item.team.teamName : item.user.firstName + " " + item.user.lastName,
+    region: item.team ? item.team.region : item.user.nationality,
   }));
 }
 export const Seeds: React.FC<{ title: string }> = ({ title }) => {
@@ -52,11 +52,11 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
   const [seedingList, setSeedingList] = useState<
     {
       seed: number;
-      player: { id: string; name: string; team: string } | null;
+      player: { id: string; name: string; shortName: string; region: string } | null;
     }[]
   >([]);
   const [playerDetails, setPlayerDetails] = useState<
-    { id: string; name: string; team: string }[]
+    { id: string; name: string; shortName: string; region: string }[]
   >([]);
 
   // Redux state
@@ -86,11 +86,17 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
         seed: index + 1,
         player: stagesList?.seed[index]
           ? {
-              id: stagesList?.seed[index]._id,
-              name: stagesList?.seed[index].team.teamName,
-              shortName: stagesList?.seed[index].team.teamShortName,
-              region: stagesList?.seed[index].team.region,
-            }
+            id: stagesList?.seed[index]._id,
+            name: stagesList?.seed[index].team
+              ? stagesList?.seed[index].team.teamName
+              : stagesList?.seed[index].user.username,
+            shortName: stagesList?.seed[index].team
+              ? stagesList?.seed[index].team.teamShortName
+              : stagesList?.seed[index].user.firstName + " " + stagesList?.seed[index].user.lastName,
+            region: stagesList?.seed[index].team
+              ? stagesList?.seed[index].team.region
+              : stagesList?.seed[index].user.nationality,
+          }
           : null,
       }))
     );
@@ -349,7 +355,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                 </div>
               </div>
             </div>
-
+            {console.log({seedingList})}
             {/* Seeding Table */}
             <div className="bg-gray-800 rounded-lg overflow-hidden">
               <div className="p-4 border-b border-gray-700">

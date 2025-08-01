@@ -127,9 +127,9 @@ export const TeamTable: React.FC<TeamTableProps> = ({
                     src={`${baseURL}/api/v1/${team.logoImage}`}
                     alt={team.teamName}
                     style={{ width: "2rem", height: "2rem" }}
-                    onError={(e) => {
-                      e.currentTarget.src = "/path/to/fallback-image.png"; // Fallback image
-                    }}
+                    // onError={(e) => {
+                    //   e.currentTarget.src = "/path/to/fallback-image.png"; // Fallback image
+                    // }}
                   />
                 </span>
               </td>
