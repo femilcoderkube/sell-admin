@@ -13,7 +13,6 @@ export const ParticipantsTable: React.FC<TeamTableProps> = ({
   participants,
   onleaveTeam,
 }) => {
-  console.log("participants", participants);
   const thead = {
     id: (
       <svg
