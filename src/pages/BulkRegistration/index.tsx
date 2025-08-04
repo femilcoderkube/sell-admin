@@ -113,33 +113,35 @@ export const BulkRegistration: FC<BulkRegistrationProps> = ({ title }) => {
 
   return (
     <Layout>
-      <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex items-center pt-3 pb-[2rem] border-b border-light-border">
-        <Link
-          to={""}
-          className="flex items-center gap-2 hover:opacity-[0.75] duration-300 text-white font-base lg:text-[1.26rem] py-2"
-          onClick={btnBack}
-        >
-          <span>
-            <svg
-              width="1.26rem"
-              height="1.26rem"
-              viewBox="0 0 20 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M13.125 3.75L6.875 10L13.125 16.25"
-                stroke="white"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </span>
-          Back
-        </Link>
-        <div className="legue__head_left-con">
-          <h3 className="font-bold text-[1.25rem] text-white">{title}</h3>
+      <div className="nf_legue_head--con bg-gradient-to-r from-slate-900/50 to-slate-800/30 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-2xl p-6 mb-6">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <Link
+            to={""}
+            className="flex items-center gap-2 hover:opacity-[0.75] duration-300 text-white font-base lg:text-[1.26rem] py-2"
+            onClick={btnBack}
+          >
+            <span>
+              <svg
+                width="1.26rem"
+                height="1.26rem"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M13.125 3.75L6.875 10L13.125 16.25"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </span>
+            Back
+          </Link>
+          <div className="legue__head_left-con">
+            <h3 className="font-bold text-[1.25rem] text-white">{title}</h3>
+          </div>
         </div>
       </div>
       <div className="py-4">
