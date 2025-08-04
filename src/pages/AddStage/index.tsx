@@ -229,8 +229,8 @@ export const AddStage: FC = () => {
 
   return (
     <Layout>
-      <div className="nf_leg_steps-block">
-        <div className="nf_step_head-con flex items-center pb-4 border-b border-light-border">
+      <div className="nf_legue_head--con bg-gradient-to-r from-slate-900/50 to-slate-800/30 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-2xl p-6 mb-6">
+        <div className="flex items-center pb-4">
           <Link
             to={""}
             className="flex items-center gap-2 hover:opacity-[0.75] duration-300 text-white font-base lg:text-[1.26rem] py-2"

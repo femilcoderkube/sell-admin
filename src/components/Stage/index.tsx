@@ -192,8 +192,12 @@ export const Stages: React.FC = ({ title }: any) => {
             const isFullWidth = card.fullWidth;
 
             return (
-              <div
+              <Link
                 key={card.id}
+                to={card.link}
+                state={{
+                  type: location?.state?.tournament?.tournamentType,
+                }}
                 className={`group relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 ${
                   isFullWidth ? "md:col-span-2 xl:col-span-1" : ""
                 }`}
@@ -255,7 +259,7 @@ export const Stages: React.FC = ({ title }: any) => {
 
                 {/* Hover Effect Overlay */}
                 <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-              </div>
+              </Link>
             );
           })}
         </div>

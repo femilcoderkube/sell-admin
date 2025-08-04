@@ -28,7 +28,9 @@ async function fetchTeamDetails(ids) {
   return ids.map((item) => ({
     id: item._id,
     name: item.team ? item.team.teamShortName : item.user.username,
-    shortName: item.team ? item.team.teamName : item.user.firstName + " " + item.user.lastName,
+    shortName: item.team
+      ? item.team.teamName
+      : item.user.firstName + " " + item.user.lastName,
     region: item.team ? item.team.region : item.user.nationality,
   }));
 }
@@ -52,7 +54,12 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
   const [seedingList, setSeedingList] = useState<
     {
       seed: number;
-      player: { id: string; name: string; shortName: string; region: string } | null;
+      player: {
+        id: string;
+        name: string;
+        shortName: string;
+        region: string;
+      } | null;
     }[]
   >([]);
   const [playerDetails, setPlayerDetails] = useState<
@@ -86,17 +93,19 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
         seed: index + 1,
         player: stagesList?.seed[index]
           ? {
-            id: stagesList?.seed[index]._id,
-            name: stagesList?.seed[index].team
-              ? stagesList?.seed[index].team.teamName
-              : stagesList?.seed[index].user.username,
-            shortName: stagesList?.seed[index].team
-              ? stagesList?.seed[index].team.teamShortName
-              : stagesList?.seed[index].user.firstName + " " + stagesList?.seed[index].user.lastName,
-            region: stagesList?.seed[index].team
-              ? stagesList?.seed[index].team.region
-              : stagesList?.seed[index].user.nationality,
-          }
+              id: stagesList?.seed[index]._id,
+              name: stagesList?.seed[index].team
+                ? stagesList?.seed[index].team.teamName
+                : stagesList?.seed[index].user.username,
+              shortName: stagesList?.seed[index].team
+                ? stagesList?.seed[index].team.teamShortName
+                : stagesList?.seed[index].user.firstName +
+                  " " +
+                  stagesList?.seed[index].user.lastName,
+              region: stagesList?.seed[index].team
+                ? stagesList?.seed[index].team.region
+                : stagesList?.seed[index].user.nationality,
+            }
           : null,
       }))
     );
@@ -355,7 +364,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                 </div>
               </div>
             </div>
-            {console.log({seedingList})}
+            {console.log({ seedingList })}
             {/* Seeding Table */}
             <div className="bg-gray-800 rounded-lg overflow-hidden">
               <div className="p-4 border-b border-gray-700">
@@ -525,32 +534,37 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
 
           {/* Bulk Add Modal */}
           {showBulkModal && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-              <div className="bg-gray-800 rounded-lg w-full max-w-md max-h-[80vh] overflow-hidden">
-                <div className="p-4 border-b border-gray-700 flex items-center justify-between">
-                  <h2 className="text-lg font-bold">Add Players</h2>
+            <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+              <div className="bg-gray-900 rounded-xl w-full max-w-lg max-h-[85vh] overflow-hidden shadow-2xl">
+                {/* Header */}
+                <div className="p-5 border-b border-gray-700 flex items-center justify-between">
+                  <h2 className="text-xl font-semibold text-white">
+                    Add Players
+                  </h2>
                   <button
                     onClick={() => setShowBulkModal(false)}
-                    className="text-gray-400 hover:text-white"
+                    className="text-gray-300 hover:text-white transition-colors"
                   >
-                    <X size={20} />
+                    <X size={24} />
                   </button>
                 </div>
-                <div className="p-4">
-                  <div className="relative mb-4">
+
+                {/* Scrollable Content */}
+                <div className="p-5 max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+                  <div className="relative mb-5">
                     <Search
                       className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                      size={16}
+                      size={18}
                     />
                     <input
                       type="text"
                       placeholder="Search Player Name"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+                      className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-white placeholder-gray-400 transition-colors"
                     />
                   </div>
-                  <div className="mb-4 p-3 bg-gray-700 rounded-lg">
+                  <div className="mb-5 p-4 bg-gray-800 rounded-lg">
                     <label className="flex items-center gap-3 cursor-pointer">
                       <input
                         type="checkbox"
@@ -564,59 +578,61 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                             setSelectedPlayers([]);
                           }
                         }}
-                        className="w-4 h-4 text-blue-600 bg-gray-600 border-gray-500 rounded focus:ring-blue-500 btncheck"
+                        className="w-5 h-5 text-blue-500 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2 transition-colors"
                       />
-                      <span className="text-sm font-medium">Select All</span>
+                      <span className="text-sm font-medium text-white">
+                        Select All
+                      </span>
                     </label>
                   </div>
-                  <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {filteredPlayers.map((player) => {
-                      return (
-                        <div
-                          key={player.id}
-                          className="p-3 bg-gray-700 hover:bg-gray-600 rounded-lg cursor-pointer transition-colors"
-                          onClick={() => handleBulkSelect(player.id)}
-                        >
-                          <div className="flex items-center gap-3">
-                            <input
-                              type="checkbox"
-                              checked={selectedPlayers.includes(player.id)}
-                              onChange={() => handleBulkSelect(player.id)}
-                              className="w-4 h-4 text-blue-600 bg-gray-600 border-gray-500 rounded focus:ring-blue-500 btncheck"
-                            />
-                            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-sm font-bold">
-                              {player.name.charAt(0)}
+                  <div className="space-y-3">
+                    {filteredPlayers.map((player) => (
+                      <div
+                        key={player.id}
+                        className="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg cursor-pointer transition-all duration-200"
+                        onClick={() => handleBulkSelect(player.id)}
+                      >
+                        <div className="flex items-center gap-4">
+                          <input
+                            type="checkbox"
+                            checked={selectedPlayers.includes(player.id)}
+                            onChange={() => handleBulkSelect(player.id)}
+                            className="w-5 h-5 text-blue-500 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2 transition-colors"
+                          />
+                          <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                            {player.name.charAt(0)}
+                          </div>
+                          <div>
+                            <div className="font-medium text-white">
+                              {player.name}
                             </div>
-                            <div>
-                              <div className="font-medium text-sm">
-                                {player.name}
-                              </div>
-                              <div className="text-xs text-gray-400">
-                                {player.team}
-                              </div>
+                            <div className="text-xs text-gray-400">
+                              {player.team}
                             </div>
                           </div>
                         </div>
-                      );
-                    })}
+                      </div>
+                    ))}
                   </div>
                 </div>
-                <div className="p-4 border-t border-gray-700 flex justify-between items-center">
+
+                {/* Footer */}
+                <div className="p-5 border-t border-gray-700 flex justify-between items-center">
                   <span className="text-sm text-gray-400">
-                    ({selectedPlayers.length}) selected / {playerDetails.length}{" "}
+                    {selectedPlayers.length} selected / {playerDetails.length}{" "}
                     available
                   </span>
-                  <div className="flex gap-2">
+                  <div className="flex gap-3">
                     <button
                       onClick={() => setShowBulkModal(false)}
-                      className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors"
+                      className="px-5 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={handleBulkAdd}
                       disabled={selectedPlayers.length === 0}
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg transition-colors"
+                      className="px-5 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
                     >
                       Add
                     </button>
