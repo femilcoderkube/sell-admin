@@ -2,8 +2,9 @@ import React, { FC, useEffect } from "react";
 import { Layout } from "../../components/layout";
 import { Link, useLocation, useNavigate } from "react-router";
 import { Check } from "lucide-react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import * as Yup from "yup";
+import deleteIcon from "../../assets/images/trash_can.svg";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import {
@@ -23,7 +24,7 @@ interface StageSettings {
   isThirdPlaceMatch?: boolean;
   lossesToBeEliminated?: number;
   killPoints?: number;
-  placePoints?: number;
+  placePoints?: Array<{ place: number; points: number }>; // Updated to array
   tieBreaker?: string;
   htmlFile?: string;
   cssFile?: string;
@@ -48,7 +49,7 @@ interface FormValues {
   isThirdPlaceMatch?: boolean;
   lossesToBeEliminated?: string;
   killPoints?: string;
-  placePoints?: string;
+  placePoints?: Array<{ place: number; points: number }>; // Updated to array
   tieBreaker?: string;
   htmlFile?: string;
   cssFile?: string;
@@ -97,7 +98,19 @@ export const AddStage: FC = () => {
       ),
       numberOfRounds: Yup.string().required("Please enter number of rounds."),
       killPoints: Yup.string().required("Please enter kill points."),
-      placePoints: Yup.string().required("Please enter place points."),
+      placePoints: Yup.array()
+        .of(
+          Yup.object().shape({
+            place: Yup.number()
+              .required("Place is required")
+              .min(1, "Place must be at least 1"),
+            points: Yup.number()
+              .required("Points are required")
+              .min(0, "Points must be non-negative"),
+          })
+        )
+        .min(1, "At least one place point entry is required")
+        .required("Place points are required"),
       tieBreaker: Yup.string().required("Please select a tie breaker."),
     }),
     ...(selectedStage === "Custom" && {
@@ -126,7 +139,13 @@ export const AddStage: FC = () => {
         lossesToBeEliminated:
           stage.settings?.lossesToBeEliminated?.toString() || "",
         killPoints: stage.settings?.killPoints?.toString() || "",
-        placePoints: stage.settings?.placePoints?.toString() || "",
+        placePoints:
+          stage.settings?.placePoints?.length > 0
+            ? stage.settings.placePoints.map((item: any) => ({
+                place: item.place.toString(),
+                points: item.points.toString(),
+              }))
+            : [{ place: "", points: "" }],
         tieBreaker: stage.settings?.tieBreaker || "",
         htmlFile: stage.settings?.htmlFile || "",
         cssFile: stage.settings?.cssFile || "",
@@ -142,10 +161,11 @@ export const AddStage: FC = () => {
         isThirdPlaceMatch: false,
         lossesToBeEliminated: "",
         killPoints: "",
-        placePoints: "",
+        placePoints: [{ place: "", points: "" }], // Default empty entry
         tieBreaker: "",
         htmlFile: "",
         cssFile: "",
+        numberOfRounds: "",
       };
 
   // Set selected stage for editing
@@ -186,7 +206,12 @@ export const AddStage: FC = () => {
       settings.numberOfQualifiers = parseInt(values.numberOfQualifiers || "0");
       settings.numberOfRounds = parseInt(values.numberOfRounds || "0");
       settings.killPoints = parseInt(values.killPoints || "0");
-      settings.placePoints = parseInt(values.placePoints || "0");
+      settings.placePoints = values.placePoints
+        .filter((item) => item.place && item.points) // Filter out empty entries
+        .map((item) => ({
+          place: parseInt(item.place),
+          points: parseInt(item.points),
+        }));
       settings.tieBreaker = values.tieBreaker;
     } else if (selectedStage === "Custom") {
       settings.htmlFile = values.htmlFile;
@@ -542,6 +567,7 @@ export const AddStage: FC = () => {
                   {/* Battle Royal Specific Fields */}
                   {selectedStage === "BattleRoyal" && (
                     <>
+                      {/* Other BattleRoyal fields */}
                       <div className="form-group">
                         <Field
                           type="number"
@@ -615,28 +641,114 @@ export const AddStage: FC = () => {
                         />
                       </div>
 
+                      {/* Place Points as Array */}
                       <div className="form-group">
-                        <Field
-                          type="number"
-                          name="placePoints"
-                          id="placePoints"
-                          className={`form-control w-full p-3 rounded-lg bg-slate-800 text-white border ${
-                            errors.placePoints && touched.placePoints
-                              ? "border-red-500"
-                              : "border-slate-600"
-                          } focus:border-blue-500 focus:outline-none`}
-                        />
-                        <label
-                          htmlFor="placePoints"
-                          className="text-sm text-slate-400 mt-1"
-                        >
+                        <label className="text-sm text-slate-400 mb-2">
                           Place Points
                         </label>
-                        <ErrorMessage
-                          name="placePoints"
-                          component="div"
-                          className="text-red-500 text-xs mt-1"
-                        />
+                        <FieldArray name="placePoints">
+                          {({ push, remove, form }) => {
+                            const { values, errors, touched } = form;
+
+                            return (
+                              <>
+                                {values.placePoints.map((placePoint, index) => (
+                                  <div
+                                    key={index}
+                                    className="mb-4 bg-slate-800 p-4 rounded-lg border border-slate-600"
+                                  >
+                                    <div className="flex justify-between items-center mb-2">
+                                      <h6 className="text-white text-sm font-medium">
+                                        Place Point #{index + 1}
+                                      </h6>
+                                      {index !== 0 && (
+                                        <button
+                                          type="button"
+                                          onClick={() => remove(index)}
+                                          className="bg-gray-600 hover:bg-gray-700 p-2 rounded-lg duration-300"
+                                        >
+                                          <img
+                                            src={deleteIcon}
+                                            alt="Delete"
+                                            style={{ width: "1.25rem" }}
+                                          />
+                                        </button>
+                                      )}
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                      <div className="form-group">
+                                        <Field
+                                          type="number"
+                                          name={`placePoints[${index}].place`}
+                                          id={`placePoints[${index}].place`}
+                                          className={`form-control w-full p-3 rounded-lg bg-slate-900 text-white border ${
+                                            errors.placePoints?.[index]
+                                              ?.place &&
+                                            touched.placePoints?.[index]?.place
+                                              ? "border-red-500"
+                                              : "border-slate-600"
+                                          } focus:border-blue-500 focus:outline-none`}
+                                        />
+                                        <label
+                                          htmlFor={`placePoints[${index}].place`}
+                                          className="text-sm text-slate-400 mt-1"
+                                        >
+                                          Place
+                                        </label>
+                                        <ErrorMessage
+                                          name={`placePoints[${index}].place`}
+                                          component="div"
+                                          className="text-red-500 text-xs mt-1"
+                                        />
+                                      </div>
+                                      <div className="form-group">
+                                        <Field
+                                          type="number"
+                                          name={`placePoints[${index}].points`}
+                                          id={`placePoints[${index}].points`}
+                                          className={`form-control w-full p-3 rounded-lg bg-slate-900 text-white border ${
+                                            errors.placePoints?.[index]
+                                              ?.points &&
+                                            touched.placePoints?.[index]?.points
+                                              ? "border-red-500"
+                                              : "border-slate-600"
+                                          } focus:border-blue-500 focus:outline-none`}
+                                        />
+                                        <label
+                                          htmlFor={`placePoints[${index}].points`}
+                                          className="text-sm text-slate-400 mt-1"
+                                        >
+                                          Points
+                                        </label>
+                                        <ErrorMessage
+                                          name={`placePoints[${index}].points`}
+                                          component="div"
+                                          className="text-red-500 text-xs mt-1"
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    push({ place: "", points: "" })
+                                  }
+                                  className="w-full py-2 border bg-slate-800 bg-opacity-40 rounded-lg border-dashed border-slate-400 text-slate-400 text-sm font-medium"
+                                >
+                                  + Add Place Point
+                                </button>
+                                {touched.placePoints &&
+                                  errors.placePoints &&
+                                  typeof errors.placePoints === "string" && (
+                                    <div className="text-red-500 text-xs mt-1">
+                                      {errors.placePoints}
+                                    </div>
+                                  )}
+                              </>
+                            );
+                          }}
+                        </FieldArray>
                       </div>
 
                       <div className="form-group">
