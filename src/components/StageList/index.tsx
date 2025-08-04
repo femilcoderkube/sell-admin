@@ -404,7 +404,6 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                           value={selectedRound}
                           onChange={(e) => setSelectedRound(e.target.value)}
                         >
-                          {console.log({ stageRound })}
                           <option value="">All rounds</option>
                           {stageRound?.map((round) => (
                             <option key={round._id} value={round._id}>
