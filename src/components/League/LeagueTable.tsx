@@ -97,6 +97,10 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({
     <div
       id="league_table"
       className="pt-3 overflow-x-auto overflow-y-auto rounded-lg shadow-lg"
+      onClick={(e) => {
+        e.stopPropagation();
+        setOpen(null);
+      }}
     >
       <table className="min-w-full table-auto text-white bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg overflow-hidden">
         <thead className="bg-gradient-to-r from-gray-700 to-gray-800">
@@ -197,9 +201,10 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({
                 <div className="flex space-x-2 justify-center items-center">
                   {jsonValue?.role !== "Operator" && (
                     <button
-                      onClick={() =>
-                        setOpen(open === league._id ? null : league._id)
-                      }
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpen(open === league._id ? null : league._id);
+                      }}
                       className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 p-2 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md"
                     >
                       <img

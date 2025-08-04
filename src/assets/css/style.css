@@ -922,3 +922,155 @@ svg:not(:root).svg-inline--fa {
 .btncheck {
   background-position: center !important;
 }
+.nf_manage-wrap {
+  background: #181d29;
+  border-radius: 12px;
+  padding: 12px;
+  align-items: center;
+}
+.nf_manage-content {
+  max-width: 40%;
+  flex: 0 0 40%;
+}
+.nf_manage-num h4 {
+  width: 56px;
+  height: 56px;
+  background: #242b3c;
+  border-radius: 10px;
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  line-height: 56px;
+  margin: 0;
+}
+
+.nf_manage-num h5 {
+  margin-left: 8px;
+  font-size: 20px;
+  line-height: 24px;
+  color: #fff;
+  text-transform: capitalize;
+}
+
+.nf_manage-num {
+  display: flex;
+  align-items: center;
+}
+.nf_manage-cont {
+  max-width: 60%;
+  flex: 0 0 60%;
+  justify-content: end;
+}
+.nf-cont-title {
+  border-radius: 8px;
+  background: #242b3c;
+  margin: 0 4px;
+  padding: 5px 8px;
+  max-width: 20%;
+  flex: 0 0 20%;
+}
+
+.nf-cont-title:not(:last-child) {
+  max-width: 30%;
+  flex: 0 0 30%;
+}
+
+.nf-cont-wrap {
+  background: #242b3c;
+  justify-content: space-between;
+}
+
+.nf-cont-wrap:not(:last-child) {
+  margin-bottom: 6px;
+}
+.nf_battel-score .nf-cont-wrap {
+  align-items: center;
+}
+.nf-cont-wrap h6 {
+  font-size: 15px;
+  line-height: 20px;
+  color: #6b7897;
+  font-weight: 400;
+  margin: 0;
+}
+.btn-nf-gray.btn {
+  background: linear-gradient(270deg, #39415c 0%, #555f83 100%);
+  border-radius: 10px;
+  color: #ffffff;
+  transition: all 0.5s;
+  padding: 12px 30.5px;
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  font-size: 15px;
+  line-height: 24px;
+}
+.nf-cont-wrap .btn {
+  padding: 0;
+  width: 32px;
+  height: 22px;
+  background: #37425b;
+  border-radius: 8px;
+  transition: all 0.5s;
+}
+.btn:not(:disabled):not(.disabled) {
+  cursor: pointer;
+}
+.placement input {
+  border: 0;
+}
+.ibox-content .form-control {
+  background-color: #181d29;
+  border-radius: 6px;
+  border: none;
+}
+
+.nf_battel.nf_battel-score .nf-cont-wrap h6 input[type="number"] {
+  color: #fff;
+  border: none;
+}
+
+.nf_battel.nf_battel-score .nf-cont-wrap h6 input[type="number"]:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+@media screen and (max-width: 1500px) {
+  .nf_manage-num h5 {
+    font-size: 18px;
+  }
+  .nf-cont-title:not(:last-child) {
+    max-width: 38%;
+    flex: 0 0 38%;
+  }
+  .nf-cont-wrap h6 {
+    margin-right: 8px;
+    font-size: 14px;
+  }
+}
+
+@media screen and (max-width: 1366px) {
+  .nf_manage-wrap {
+    display: block !important;
+  }
+  .nf_manage-content {
+    max-width: 100%;
+    flex: 0 0 100%;
+  }
+  .nf_manage-num h4 {
+    width: 46px;
+    height: 46px;
+    font-size: 20px;
+    line-height: 46px;
+  }
+  .nf_manage-cont {
+    max-width: 100%;
+    flex: 0 0 100%;
+    max-width: 98%;
+    justify-content: center;
+    margin: 0 auto;
+    padding-top: 10px;
+  }
+}

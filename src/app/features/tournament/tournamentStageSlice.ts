@@ -28,6 +28,7 @@ interface Stage {
 interface TournamentStageState {
   stages: Stage[];
   stagesList: any;
+  stagesDetails: any;
   selectedStage: string | null;
   step: "select" | "form";
   loading: boolean;
@@ -81,6 +82,7 @@ const initialState: TournamentStageState = {
   ],
   selectedStage: null,
   stagesList: [],
+  stagesDetails: null,
   step: "select",
   loading: false,
   updateTournamentStageloading: false,
@@ -92,6 +94,40 @@ const initialState: TournamentStageState = {
 
 export const getTournamentStages = createAsyncThunk(
   "tournamentStage/getTournamentStages",
+  async (
+    payload: { tournamentId?: string; id?: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      // Construct query string dynamically
+      const queryParams = [];
+      if (payload.tournamentId) {
+        queryParams.push(`tournamentId=${payload.tournamentId}`);
+      }
+      if (payload.id) {
+        queryParams.push(`id=${payload.id}`);
+      }
+      const queryString =
+        queryParams.length > 0 ? `?${queryParams.join("&")}` : "";
+      const url = `/TournamentStage${queryString}`;
+
+      const response = await axiosInstance.get(url, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      return response.data;
+    } catch (error: any) {
+      console.log("err fetch tournament stages", error);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch stages"
+      );
+    }
+  }
+);
+export const getTournamentStagesById = createAsyncThunk(
+  "tournamentStage/getTournamentStagesById",
   async (
     payload: { tournamentId?: string; id?: string },
     { rejectWithValue }
@@ -262,6 +298,22 @@ const tournamentStageSlice = createSlice({
         state.totalCount = action.payload.data.totalItem;
       })
       .addCase(getTournamentStages.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        toast.error(action.payload as string);
+      })
+      .addCase(getTournamentStagesById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getTournamentStagesById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.stagesDetails = action.payload.data.result
+          ? action.payload.data.result
+          : action.payload.data;
+        state.totalCount = action.payload.data.totalItem;
+      })
+      .addCase(getTournamentStagesById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
         toast.error(action.payload as string);
