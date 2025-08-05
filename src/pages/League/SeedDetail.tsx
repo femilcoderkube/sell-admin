@@ -54,8 +54,6 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
   );
   const { data } = useSelector((state: RootState) => state.draftingPhase);
 
-  console.log("data", data?.eligiblePlayers);
-
   const { state } = useLocation();
 
   const did = window.location.pathname.split("/")[5];
