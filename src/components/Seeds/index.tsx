@@ -339,7 +339,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
         <HandLogoLoader />
       ) : (
         <div className="flex gap-3 min-h-screen bg-gray-900 text-white p-4">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl">
             {/* Header */}
             <div className="bg-gray-800 rounded-lg p-4 mb-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
