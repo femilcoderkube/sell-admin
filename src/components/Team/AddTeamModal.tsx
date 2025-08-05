@@ -7,6 +7,7 @@ import { AppDispatch } from "../../app/store";
 import {
   addTeam,
   fetchTeams,
+  setPerPage,
   updateTeam,
 } from "../../app/features/team/teamSlice";
 import downarr from "../../assets/images/down_arr.svg";
@@ -166,7 +167,7 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({
         teamName: "",
         teamShortName: "",
         region: "Saudi Arabia",
-        members: [{ user: { value: "", label: "" }, role: "" }],
+        members: [{ user: { value: "", label: "" }, role: "Player" }],
         social: {
           facebookId: "",
           youtubeChannelId: "",
@@ -277,6 +278,7 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({
           setLogoImageUrl(undefined);
           setBackgroundImageUrl(undefined);
           onClose();
+          dispatch(setPerPage(10));
           dispatch(fetchTeams({ page: 1, perPage: 10, searchTerm: "" }));
         }
       } else {
@@ -287,6 +289,7 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({
           setLogoImageUrl(undefined);
           setBackgroundImageUrl(undefined);
           onClose();
+          dispatch(setPerPage(10));
           dispatch(fetchTeams({ page: 1, perPage: 10, searchTerm: "" }));
         }
       }
@@ -701,6 +704,7 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({
 
                 <div className="space-y-2 mt-4">
                   <FileUpload
+                    ismandatory={false}
                     previewUrl={logoImageUrl || ""}
                     label="Logo Image (Suggested: 200*200px)"
                     id="logoImage"
@@ -720,6 +724,7 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({
 
                 <div className="space-y-2 mt-4">
                   <FileUpload
+                    ismandatory={false}
                     previewUrl={backgroundImageUrl || ""}
                     label="Background Image (Suggested: 600*400px)"
                     id="backgroundImage"

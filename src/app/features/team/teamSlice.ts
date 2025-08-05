@@ -246,7 +246,7 @@ const teamSlice = createSlice({
       .addCase(fetchTeamMembers.fulfilled, (state, action) => {
         state.loading = false;
         state.teamMembers = action.payload.data?.members; // Assuming members are in data.result
-        state.totalPages = action.payload.data.pagination.totalPages; // Update pagination
+        // state.totalPages = action.payload.data.pagination.totalPages; // Update pagination
         state.totalItem = action.payload.data.pagination.totalItem; // Update pagination
       })
       .addCase(fetchTeamMembers.rejected, (state, action) => {
