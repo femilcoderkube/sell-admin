@@ -576,7 +576,7 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({
                                 }}
                               />
                               <ErrorMessage
-                                name={`members[${index}].user`}
+                                name={`members[${index}]?.user`}
                                 component="div"
                                 className="text-red-500 text-[0.7rem] mt-1"
                               />
