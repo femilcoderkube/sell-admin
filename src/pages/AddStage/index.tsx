@@ -73,7 +73,13 @@ export const AddStage: FC = () => {
 
   // Validation schema
   const validationSchema = Yup.object().shape({
-    stageName: Yup.string().required("Please enter stage name."),
+    stageName: Yup.string()
+      .required("Please enter stage name.")
+      .matches(/^\S.*\S$/, "Stage name cannot start or end with spaces"),
+    stageNameAr: Yup.string().matches(
+      /^\S.*\S$/,
+      "Stage name(AR) cannot start or end with spaces"
+    ),
     numberOfParticipants: Yup.string().required(
       "Please enter number of participants."
     ),
@@ -409,6 +415,11 @@ export const AddStage: FC = () => {
                     >
                       Stage Name (Arabic)
                     </label>
+                    <ErrorMessage
+                      name="stageNameAr"
+                      component="div"
+                      className="text-red-500 text-xs mt-1"
+                    />
                   </div>
 
                   <div className="form-group">
