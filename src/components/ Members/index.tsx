@@ -14,9 +14,8 @@ import {
   joinTeam,
   leaveTeam,
   resetJoinTeamSuccess,
-  setPage,
-  setPerPage,
-  setSearchTerm,
+  setMembersPage,
+  setMembersSearchTerm,
 } from "../../app/features/team/teamSlice";
 import { Pagination } from "../ui/Pagination";
 import HandLogoLoader from "../Loader/Loader";
@@ -40,12 +39,15 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
     joinTeamSuccess,
     teamMembers,
     totalItem,
-    searchTerm: teamSearchTerm,
-    currentPage: teamCurrentPage,
+    membersSearchTerm,
+    membersCurrentPage,
+    membersPerPage,
   } = useSelector((state: RootState) => state.teams);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  console.log("membersCurrentPage", membersCurrentPage);
 
   useEffect(() => {
     dispatch(fetchUsers({ page: currentPage, perPage, searchTerm }));
@@ -55,12 +57,12 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
     dispatch(
       fetchTeamMembers({
         teamId: id,
-        page: teamCurrentPage,
-        perPage,
-        searchTerm: teamSearchTerm,
+        page: membersCurrentPage,
+        perPage: membersPerPage,
+        searchTerm: membersSearchTerm,
       })
     );
-  }, [dispatch, teamCurrentPage, perPage, teamSearchTerm]);
+  }, [dispatch, membersCurrentPage, membersPerPage, membersSearchTerm, id]);
 
   useEffect(() => {
     if (joinTeamSuccess) {
@@ -138,7 +140,7 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
         };
         const resultAction = await dispatch(joinTeam(payload));
         if (joinTeam.fulfilled.match(resultAction)) {
-          dispatch(setPage(1));
+          dispatch(setMembersPage(1));
           dispatch(
             fetchTeamMembers({
               teamId: id,
@@ -154,14 +156,14 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
     },
   });
 
-  const totalPages = Math.ceil(totalItem / perPage);
+  const totalPages = Math.ceil(totalItem / membersPerPage);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(setSearchTerm(e.target.value));
+    dispatch(setMembersSearchTerm(e.target.value));
   };
 
   const handlePageChange = (page: number) => {
-    dispatch(setPage(page));
+    dispatch(setMembersPage(page));
   };
 
   const onleaveTeam = async (value: any) => {
@@ -173,7 +175,7 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
       };
       const resultAction = await dispatch(leaveTeam(payload));
       if (leaveTeam.fulfilled.match(resultAction)) {
-        dispatch(setPage(1));
+        dispatch(setMembersPage(1));
         dispatch(
           fetchTeamMembers({
             teamId: id,
@@ -266,7 +268,7 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
                 placeholder="Search Member"
                 type="text"
                 name="search"
-                value={teamSearchTerm}
+                value={membersSearchTerm}
                 onChange={handleSearchChange}
               />
               <button
@@ -300,7 +302,7 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
         <HandLogoLoader />
       ) : teamMembers.length > 0 ? (
         <MembersTable
-          currentPage={teamCurrentPage}
+          currentPage={membersCurrentPage}
           members={teamMembers}
           onleaveTeam={(member: any) => {
             onleaveTeam(member);
@@ -314,11 +316,11 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
 
       {!loading && totalPages > 1 && (
         <Pagination
-          currentPage={teamCurrentPage}
+          currentPage={membersCurrentPage}
           totalPages={totalPages}
           onPageChange={(page) => handlePageChange(page)}
-          onPagePrevious={() => handlePageChange(teamCurrentPage - 1)}
-          onPageNext={() => handlePageChange(teamCurrentPage + 1)}
+          onPagePrevious={() => handlePageChange(membersCurrentPage - 1)}
+          onPageNext={() => handlePageChange(membersCurrentPage + 1)}
         />
       )}
 

@@ -23,13 +23,16 @@ interface TeamState {
   teams: Team[];
   loading: boolean;
   error: string | null;
-  currentPage: number;
-  perPage: number;
-  totalCount: number;
-  searchTerm: string;
+  currentPage: number; // For teams list
+  perPage: number; // For teams list
+  totalCount: number; // For teams list
+  searchTerm: string; // For teams list
   teamMembers: Array<{ user: string; role: string }>;
-  totalPages: number; // Added for pagination
-  totalItem: number;
+  membersCurrentPage: number; // For team members
+  membersPerPage: number; // For team members
+  membersSearchTerm: string; // For team members
+  totalItem: number; // For team members
+  totalPages: number; // For team members
   joinTeamSuccess: boolean;
   leaveTeamSuccess: boolean;
 }
@@ -42,11 +45,14 @@ const initialState: TeamState = {
   perPage: 10,
   totalCount: 0,
   searchTerm: "",
+  teamMembers: [],
+  membersCurrentPage: 1,
+  membersPerPage: 10,
+  membersSearchTerm: "",
+  totalPages: 0,
+  totalItem: 0,
   joinTeamSuccess: false,
   leaveTeamSuccess: false,
-  teamMembers: [],
-  totalPages: 0, // Initialize pagination fields
-  totalItem: 0,
 };
 
 interface TeamActionPayload {
@@ -219,6 +225,17 @@ const teamSlice = createSlice({
     setPage: (state, action: PayloadAction<number>) => {
       state.currentPage = action.payload;
     },
+    setMembersSearchTerm: (state, action: PayloadAction<string>) => {
+      state.membersSearchTerm = action.payload;
+      state.membersCurrentPage = 1;
+    },
+    setMembersPerPage: (state, action: PayloadAction<number>) => {
+      state.membersPerPage = action.payload;
+      state.membersCurrentPage = 1;
+    },
+    setMembersPage: (state, action: PayloadAction<number>) => {
+      state.membersCurrentPage = action.payload;
+    },
     resetJoinTeamSuccess: (state) => {
       state.joinTeamSuccess = false;
     },
@@ -245,9 +262,8 @@ const teamSlice = createSlice({
       })
       .addCase(fetchTeamMembers.fulfilled, (state, action) => {
         state.loading = false;
-        state.teamMembers = action.payload.data?.members; // Assuming members are in data.result
-        // state.totalPages = action.payload.data.pagination.totalPages; // Update pagination
-        state.totalItem = action.payload.data.pagination.totalItem; // Update pagination
+        state.teamMembers = action.payload.data?.members;
+        state.totalItem = action.payload.data.pagination.totalItem;
       })
       .addCase(fetchTeamMembers.rejected, (state, action) => {
         state.loading = false;
@@ -328,6 +344,9 @@ export const {
   setSearchTerm,
   setPerPage,
   setPage,
+  setMembersSearchTerm,
+  setMembersPerPage,
+  setMembersPage,
   resetJoinTeamSuccess,
   resetLeaveTeamSuccess,
 } = teamSlice.actions;
