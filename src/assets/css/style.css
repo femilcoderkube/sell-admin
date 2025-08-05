@@ -717,6 +717,14 @@ textarea:focus {
   width: 27.5vw;
 }
 
+.nf_stage-quick_scores .nf_serchbar .input-group.search-name{
+  width: 12rem;
+}
+
+.nf_topbar-wrap .btn-nf-gray.btn {
+    padding: 12px 19px;
+}
+
 .input-group {
   position: relative;
   display: -ms-flexbox;

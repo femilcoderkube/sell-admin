@@ -42,12 +42,12 @@ interface TournamentStageState {
 // Initial state
 const initialState: TournamentStageState = {
   stages: [
-    {
-      id: "SingleElimination",
-      nameEn: "Single Elimination",
-      nameAr: "إقصاء واحد",
-      description: "Single-elimination bracket with optional third-place match",
-    },
+    // {
+    //   id: "SingleElimination",
+    //   nameEn: "Single Elimination",
+    //   nameAr: "إقصاء واحد",
+    //   description: "Single-elimination bracket with optional third-place match",
+    // },
     {
       id: "DoubleElimination",
       nameEn: "Double Elimination",

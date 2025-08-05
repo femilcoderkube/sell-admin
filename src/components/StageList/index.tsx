@@ -464,7 +464,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                       ))}
                     </div>
                     <div className="nf_serchbar mt-0">
-                      <div className="input-group md-form form-sm form-1 pl-0">
+                      <div className="search-name input-group md-form form-sm form-1 pl-0">
                         <input
                           className="form-control my-0 py-1"
                           type="text"
@@ -505,16 +505,15 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                         defaultValue={2}
                       />
                     </div>
+                    <button
+                      className="btn btn-nf-gray round_timechange_data mt-2"
+                      data-toggle="modal"
+                      data-target="#changetime_round"
+                      onClick={() => setShowRoundTimeChangeModal(true)}
+                    >
+                      Round Time Change
+                    </button>
                   </div>
-
-                  <button
-                    className="btn btn-nf-gray round_timechange_data mt-2"
-                    data-toggle="modal"
-                    data-target="#changetime_round"
-                    onClick={() => setShowRoundTimeChangeModal(true)}
-                  >
-                    Round Time Change
-                  </button>
 
                   <a
                     href="#"
