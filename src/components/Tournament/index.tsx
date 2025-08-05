@@ -89,10 +89,12 @@ export const Tournamentes: React.FC = ({ title }: any) => {
   const totalPages = Math.ceil(totalCount / perPage);
 
   const handleDeleteLeague = async () => {
-    dispatch(deleteTournament(deleteId));
-    dispatch(fetchTournaments({ partnerId: partnerId, page: 1 }));
-    dispatch(setPage(1));
-    setIsDeleteModalOpen(false);
+    const resultAction = await dispatch(deleteTournament(deleteId));
+    if (deleteTournament.fulfilled.match(resultAction)) {
+      dispatch(fetchTournaments({ partnerId: partnerId, page: 1 }));
+      dispatch(setPage(1));
+      setIsDeleteModalOpen(false);
+    }
   };
 
   const handleSearchChange = useCallback(

@@ -3,7 +3,6 @@ import { useDispatch } from "react-redux";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import * as Yup from "yup";
 import { AsyncPaginate } from "react-select-async-paginate";
-
 import { AppDispatch } from "../../app/store";
 import {
   addTeam,
@@ -15,6 +14,7 @@ import { uploadFile } from "../../app/features/fileupload/fileUploadSlice";
 import { baseURL } from "../../axios";
 import { fetchUsers } from "../../app/features/users/usersSlice";
 import FileUpload from "../ui/UploadFile";
+import { countryData } from "../../utils/CountryCodes";
 
 interface AddTeamModalProps {
   isOpen: boolean;
@@ -37,9 +37,6 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({
 
   useEffect(() => {
     if (selectedTeam) {
-      // Set Formik values
-
-      // Set preview for existing logo image
       if (selectedTeam.logoImage) {
         const fullUrl = `${baseURL}/api/v1/${selectedTeam.logoImage}`;
         setLogoImageUrl(fullUrl);
@@ -47,7 +44,6 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({
         setLogoImageUrl(undefined);
       }
 
-      // Set preview for existing background image
       if (selectedTeam.backgroundImage) {
         const fullUrl = `${baseURL}/api/v1/${selectedTeam.backgroundImage}`;
         setBackgroundImageUrl(fullUrl);
@@ -59,7 +55,6 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({
       setBackgroundImageUrl(undefined);
     }
 
-    // Cleanup object URLs
     return () => {
       if (logoImageUrl && logoImageUrl.startsWith("blob:")) {
         URL.revokeObjectURL(logoImageUrl);
@@ -93,7 +88,6 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({
               label: Yup.string().required("User Name is required"),
             })
             .required("User Name is required"),
-
           role: Yup.string()
             .required("Role is required")
             .matches(/^\S.*\S$/, "Role cannot start or end with spaces"),
@@ -148,41 +142,41 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({
 
   const initialValues = selectedTeam?._id
     ? {
-      teamName: selectedTeam.teamName || "",
-      teamShortName: selectedTeam.teamShortName || "",
-      region: selectedTeam.region || "",
-      members: selectedTeam.members?.map((member: any) => ({
-        user: {
-          value: member.user._id || "",
-          label: member.user.username || "",
+        teamName: selectedTeam.teamName || "",
+        teamShortName: selectedTeam.teamShortName || "",
+        region: selectedTeam.region || "Saudi Arabia",
+        members: selectedTeam.members?.map((member: any) => ({
+          user: {
+            value: member.user._id || "",
+            label: member.user.username || "",
+          },
+          role: member.role || "",
+        })) || [{ user: { value: "", label: "" }, role: "" }],
+        social: {
+          facebookId: selectedTeam.social?.facebookId || "",
+          youtubeChannelId: selectedTeam.social?.youtubeChannelId || "",
+          discordId: selectedTeam.social?.discordId || "",
+          twitchId: selectedTeam.social?.twitchId || "",
+          twitterId: selectedTeam.social?.twitterId || "",
         },
-        role: member.role || "",
-      })) || [{ user: { value: "", label: "" }, role: "" }],
-      social: {
-        facebookId: selectedTeam.social?.facebookId || "",
-        youtubeChannelId: selectedTeam.social?.youtubeChannelId || "",
-        discordId: selectedTeam.social?.discordId || "",
-        twitchId: selectedTeam.social?.twitchId || "",
-        twitterId: selectedTeam.social?.twitterId || "",
-      },
-      logoImage: selectedTeam.logoImage || "",
-      backgroundImage: selectedTeam.backgroundImage || "",
-    }
+        logoImage: selectedTeam.logoImage || "",
+        backgroundImage: selectedTeam.backgroundImage || "",
+      }
     : {
-      teamName: "",
-      teamShortName: "",
-      region: "",
-      members: [{ user: { value: "", label: "" }, role: "" }],
-      social: {
-        facebookId: "",
-        youtubeChannelId: "",
-        discordId: "",
-        twitchId: "",
-        twitterId: "",
-      },
-      logoImage: "",
-      backgroundImage: "",
-    };
+        teamName: "",
+        teamShortName: "",
+        region: "Saudi Arabia",
+        members: [{ user: { value: "", label: "" }, role: "" }],
+        social: {
+          facebookId: "",
+          youtubeChannelId: "",
+          discordId: "",
+          twitchId: "",
+          twitterId: "",
+        },
+        logoImage: "",
+        backgroundImage: "",
+      };
 
   const handleFileUpload =
     (
@@ -190,25 +184,24 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({
       setFile: (url: string | undefined) => void,
       setFieldValue: (field: string, value: any) => void
     ) =>
-      (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-
-        if (file) {
-          const formData = new FormData();
-          formData.append("file", file);
-          dispatch(uploadFile(formData))
-            .then((result: any) => {
-              if (result?.payload?.data) {
-                const fileUrl = `${baseURL}/api/v1/${result?.payload?.data}`;
-                setFile(fileUrl);
-                setFieldValue(field, result.payload.data);
-              }
-            })
-            .catch((err: any) => {
-              console.log("err", err);
-            });
-        }
-      };
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        dispatch(uploadFile(formData))
+          .then((result: any) => {
+            if (result?.payload?.data) {
+              const fileUrl = `${baseURL}/api/v1/${result?.payload?.data}`;
+              setFile(fileUrl);
+              setFieldValue(field, result.payload.data);
+            }
+          })
+          .catch((err: any) => {
+            console.log("err", err);
+          });
+      }
+    };
 
   const loadUsersOptions = async (
     search: string,
@@ -228,6 +221,30 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({
     return {
       options,
       hasMore: page * perPage < data.data.totalItem,
+      additional: { page: page + 1 },
+    };
+  };
+
+  const loadCountryOptions = async (
+    search: string,
+    loadedOptions: any,
+    { page }: any
+  ) => {
+    const perPage = 20;
+    const filteredCountries = countryData
+      .filter((country) =>
+        country.name.toLowerCase().includes(search.toLowerCase())
+      )
+      .slice((page - 1) * perPage, page * perPage);
+
+    const options = filteredCountries.map((country) => ({
+      value: country.name,
+      label: country.name,
+    }));
+
+    return {
+      options,
+      hasMore: page * perPage < countryData.length,
       additional: { page: page + 1 },
     };
   };
@@ -377,11 +394,78 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({
                   >
                     Region
                   </label>
-                  <Field
-                    type="text"
+                  <AsyncPaginate
+                    id="region"
                     name="region"
-                    className="w-full px-4 py-3 bg-[#242B3C] text-white rounded-xl border border-gray-600/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 placeholder-gray-400"
-                    placeholder="Enter region (e.g., Europe)"
+                    value={{ value: values.region, label: values.region }}
+                    loadOptions={loadCountryOptions}
+                    onChange={(selected: any) =>
+                      setFieldValue("region", selected ? selected.value : "")
+                    }
+                    onBlur={() => setFieldTouched("region", true)}
+                    additional={{ page: 1 }}
+                    placeholder="Select a region"
+                    styles={{
+                      control: (base) => ({
+                        ...base,
+                        backgroundColor: "#212739",
+                        border:
+                          touched.region && errors.region
+                            ? "1px solid #ef4444"
+                            : "none",
+                        borderRadius: "0.52rem",
+                        paddingLeft: "0.75rem",
+                        color: "#fff",
+                        boxShadow: "none",
+                        "&:hover": { borderColor: "#2792FF" },
+                        "&:focus": { borderColor: "#2792FF" },
+                      }),
+                      input: (base) => ({
+                        ...base,
+                        color: "#fff",
+                        fontSize: "0.78125rem",
+                      }),
+                      singleValue: (base) => ({
+                        ...base,
+                        color: "#fff",
+                        fontSize: "0.78125rem",
+                      }),
+                      placeholder: (base) => ({
+                        ...base,
+                        color: "#6B7280",
+                        fontSize: "0.78125rem",
+                      }),
+                      menu: (base) => ({
+                        ...base,
+                        backgroundColor: "#212739",
+                        borderRadius: "0.52rem",
+                      }),
+                      option: (base, { isFocused, isSelected }) => ({
+                        ...base,
+                        backgroundColor: isSelected
+                          ? "#007EFF"
+                          : isFocused
+                          ? "#2B3245"
+                          : "#212739",
+                        color: "#fff",
+                        fontSize: "0.78125rem",
+                        padding: "0.5rem 0.75rem",
+                      }),
+                      dropdownIndicator: (base) => ({
+                        ...base,
+                        color: "#6B7280",
+                        "&:hover": { color: "#fff" },
+                      }),
+                    }}
+                    components={{
+                      DropdownIndicator: () => (
+                        <img
+                          src={downarr}
+                          alt="dropdown"
+                          style={{ width: "16px", marginRight: "10px" }}
+                        />
+                      ),
+                    }}
                   />
                   <ErrorMessage
                     name="region"
@@ -428,7 +512,7 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({
                                     backgroundColor: "#212739",
                                     border:
                                       touched.members?.[index]?.user &&
-                                        errors.members?.[index]?.user
+                                      errors.members?.[index]?.user
                                         ? "1px solid #ef4444"
                                         : "none",
                                     borderRadius: "0.52rem",
@@ -466,8 +550,8 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({
                                     backgroundColor: isSelected
                                       ? "#007EFF"
                                       : isFocused
-                                        ? "#2B3245"
-                                        : "#212739",
+                                      ? "#2B3245"
+                                      : "#212739",
                                     color: "#fff",
                                     fontSize: "0.78125rem",
                                     padding: "0.5rem 0.75rem",
@@ -673,8 +757,8 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({
                           ? "Updating..."
                           : "Adding..."
                         : selectedTeam
-                          ? "Update Team"
-                          : "Add Team"}
+                        ? "Update Team"
+                        : "Add Team"}
                     </button>
                   </div>
                 </div>

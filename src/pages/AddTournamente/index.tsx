@@ -1840,7 +1840,7 @@ export const AddTournament: FC = () => {
     customRegistrationFields:
       tournamentData?.customRegistrationFields?.length > 0
         ? tournamentData.customRegistrationFields
-        : [{ fieldName: "", fieldType: "text", required: false }],
+        : [{ fieldName: "Game ID", fieldType: "text", required: false }],
     logo: tournamentData?.logo || null,
     headerPhoto: tournamentData?.headerPhoto || null,
     internalPhoto: tournamentData?.internalPhoto || null,
@@ -2109,6 +2109,7 @@ export const AddTournament: FC = () => {
               <ModalPopUp
                 onCancel={() => setShowModal(false)}
                 isUpdate={location.state ? true : false}
+                isTrunament={true}
               />
             )}
           </Form>

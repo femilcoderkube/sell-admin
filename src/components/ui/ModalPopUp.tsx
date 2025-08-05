@@ -126,20 +126,41 @@ interface ModalPopUpProps {
   onConfirm: () => void;
   onCancel: () => void;
   isUpdate: any;
+  isTrunament: any;
 }
 
-const ModalPopUp: React.FC<ModalPopUpProps> = ({ onCancel, isUpdate }) => {
+const ModalPopUp: React.FC<ModalPopUpProps> = ({
+  onCancel,
+  isUpdate,
+  isTrunament = false,
+}) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       <div className="bg-primary-color p-6 rounded-[0.52rem] text-white">
-        <h3 className="text-lg font-medium mb-4">
-          {isUpdate ? "Confirm League Updation" : "Confirm League Creation"}
-        </h3>
-        <p className="mb-4">
-          {isUpdate
-            ? "Are you sure you want to update this league?"
-            : "Are you sure you want to create this league?"}
-        </p>
+        {isTrunament ? (
+          <h3 className="text-lg font-medium mb-4">
+            {isUpdate
+              ? "Confirm Tournament Updation"
+              : "Confirm Tournament Creation"}
+          </h3>
+        ) : (
+          <h3 className="text-lg font-medium mb-4">
+            {isUpdate ? "Confirm League Updation" : "Confirm League Creation"}
+          </h3>
+        )}
+        {isTrunament ? (
+          <p className="mb-4">
+            {isUpdate
+              ? "Are you sure you want to update this tournament?"
+              : "Are you sure you want to create this tournament?"}
+          </p>
+        ) : (
+          <p className="mb-4">
+            {isUpdate
+              ? "Are you sure you want to update this league?"
+              : "Are you sure you want to create this league?"}
+          </p>
+        )}
         <div className="flex justify-end gap-2">
           <button
             onClick={onCancel}
