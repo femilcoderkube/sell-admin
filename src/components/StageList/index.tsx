@@ -117,7 +117,8 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
 
   useEffect(() => {
     if (stagesList?.length > 0) {
-      setSelectedStage(stagesList[0]._id);
+      setSelectedStage(stagesList[0]?._id);
+      setStageType(stagesList[0]?.stageType);
     }
   }, [stagesList, loading]);
 

@@ -317,6 +317,7 @@ export interface Tournament {
 export interface TournamentState {
   tournaments: Tournament[];
   loading: boolean;
+  totalCounts: any;
   error: string | null;
   currentPage: number;
   perPage: number;
@@ -425,4 +426,27 @@ export interface Match {
   createdAt: string;
   updatedAt: string;
   matchScores: any[];
+}
+export interface DraftingPhaseState {
+  data: any; // Replace with specific type based on API response
+  loading: boolean;
+  error: string | null;
+}
+
+export interface EligiblePlayer {
+  id: string;
+  // Add other player properties based on API response
+  name?: string;
+  status?: string;
+}
+
+export interface EligiblePlayersState {
+  eligiblePlayers: EligiblePlayer[];
+  loading: boolean;
+  error: string | null;
+  currentPage: number;
+  perPage: number;
+  totalPages: number;
+  totalItem: number;
+  searchTerm: string;
 }

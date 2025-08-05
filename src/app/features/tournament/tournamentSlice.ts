@@ -14,6 +14,7 @@ const initialState: TournamentState = {
   error: null,
   currentPage: 1,
   perPage: 10,
+  totalCounts: null,
   totalCount: 0,
   searchTerm: "",
   tournamentDetail: null,
@@ -73,6 +74,25 @@ export const fetchTournaments = createAsyncThunk(
         },
       });
       return response.data;
+    } catch (error: any) {
+      console.log("err 3", error);
+      return rejectWithValue(
+        error.response?.data?.message || "Error fetching tournaments"
+      );
+    }
+  }
+);
+export const fetchTournamentsCounts = createAsyncThunk(
+  "tournaments/fetchTournamentsCounts",
+  async ({ id }: { id: string }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get("/Tournament/counts", {
+        params: {
+          id: id,
+        },
+      });
+
+      return response.data.data;
     } catch (error: any) {
       console.log("err 3", error);
       return rejectWithValue(
@@ -254,7 +274,7 @@ export const fetchEligibleParticipants = createAsyncThunk(
           },
         }
       );
-  
+
       return response.data.data;
     } catch (error: any) {
       console.log("err fetch eligible participants", error);
@@ -335,6 +355,17 @@ const tournamentSlice = createSlice({
         state.totalCount = action.payload.data.totalItem;
       })
       .addCase(fetchTournaments.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchTournamentsCounts.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchTournamentsCounts.fulfilled, (state, action) => {
+        state.loading = false;
+        state.totalCounts = action.payload;
+      })
+      .addCase(fetchTournamentsCounts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })

@@ -22,6 +22,8 @@ import booleanReducer from "./features/sidebar/booleanSlice";
 import usersReducer from "./features/users/usersSlice";
 import fileUploadReducer from "./features/fileupload/fileUploadSlice";
 import bannedUsersReducer from "./features/bannedusers/bannedUsersSlice";
+import draftingPhaseReducer from "./features/draftingPhase/draftingPhaseSlice";
+import eligiblePlayersReducer from "./features/eligiblePlayers/eligiblePlayersSlice";
 
 export const store = configureStore({
   reducer: {
@@ -48,6 +50,8 @@ export const store = configureStore({
     tournamentMatches: tournamentMatchesReducer,
     stageRound: stageRoundReducer,
     participants: participantsReducer,
+    eligiblePlayers: eligiblePlayersReducer,
+    draftingPhase: draftingPhaseReducer,
   },
 });
 

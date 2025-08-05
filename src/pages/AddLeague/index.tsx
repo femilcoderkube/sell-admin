@@ -941,8 +941,6 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
     };
   }, [values.customRegistrationFields]);
 
-  console.log("previews", previews);
-
   return (
     <div className="max-w-[42.5rem] mx-auto genral_form-info mb-4">
       <h4 className="text-white mb-5 text-base font-medium text-center">

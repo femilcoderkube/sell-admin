@@ -39,6 +39,7 @@ import { Seed } from "../pages/Seed";
 import { BulkRegistration } from "../pages/BulkRegistration";
 import { StageMatcheDetail } from "../pages/StageList/MatcheDetail";
 import { Participant } from "../pages/Participant";
+import { SeedDetail } from "../pages/League/SeedDetail";
 
 // Helper function to convert snake_case to Title Case
 const toTitleCase = (str: string) =>
@@ -266,6 +267,17 @@ export const generateRoutes = (adminside: any[]): RoutesProps[] => {
       dark_svg: downarr,
       white_svg: white_arr,
       component: <LeagueDetail />,
+      auth: true,
+      isShow: false,
+      partnerColor: undefined,
+    },
+    {
+      label: "Seed League Details",
+      icon: <NafesLeagueIcon />,
+      path: "/:id/leagues/:lid/seed/:did",
+      dark_svg: downarr,
+      white_svg: white_arr,
+      component: <SeedDetail title={"Seeding"} />,
       auth: true,
       isShow: false,
       partnerColor: undefined,

@@ -7,6 +7,7 @@ import { logout } from "../../app/features/auth/authSlice";
 import {
   deleteTournament,
   fetchTournaments,
+  fetchTournamentsCounts,
   setPage,
   setPerPage,
 } from "../../app/features/tournament/tournamentSlice";
@@ -34,8 +35,11 @@ export const Stages: React.FC = ({ title }: any) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const tournamentId = window.location.pathname.split("/")[3];
 
   const { role } = useSelector((state: RootState) => state.admins);
+  const { totalCounts } = useSelector((state: RootState) => state.tournaments);
+
   const roles = localStorage.getItem("admin");
   const jsonValue = JSON.parse(roles as any);
 
@@ -46,13 +50,14 @@ export const Stages: React.FC = ({ title }: any) => {
   const [maxItems, setMaxItems] = useState(10);
   const [theme, setTheme] = useState("dark");
 
+  useEffect(() => {
+    if (tournamentId) {
+      dispatch(fetchTournamentsCounts({ id: tournamentId }));
+    }
+  }, [dispatch]);
+
   const btnBack = () => {
     navigate(-1);
-  };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Searching for:", searchTerm);
   };
 
   const statsCards = [
@@ -62,9 +67,17 @@ export const Stages: React.FC = ({ title }: any) => {
       icon: Trophy,
       bgGradient: "from-blue-500 to-blue-600",
       stats: [
-        { label: "Total matches", value: "0", color: "text-blue-100" },
-        { label: "Ongoing Matches", value: "0", color: "text-blue-100" },
-        { label: "Total Stages", value: "1", color: "text-blue-100" },
+        {
+          label: "Total matches",
+          value: totalCounts?.totalMatches,
+          color: "text-blue-100",
+        },
+        // { label: "Ongoing Matches", value: "0", color: "text-blue-100" },
+        {
+          label: "Total Stages",
+          value: totalCounts?.totalStages,
+          color: "text-blue-100",
+        },
       ],
       link: `/${partnerId}/tournament/${id}/stage/list`,
       fullWidth: true,
@@ -76,7 +89,11 @@ export const Stages: React.FC = ({ title }: any) => {
       bgGradient: "from-green-500 to-green-600",
       stats: [
         // { label: "Players", value: "0", color: "text-green-100" },
-        { label: "Teams", value: "0", color: "text-green-100" },
+        {
+          label: "Teams",
+          value: totalCounts?.totalParticipants,
+          color: "text-green-100",
+        },
       ],
       link: `/${partnerId}/tournament/${id}/stage/participants`,
     },

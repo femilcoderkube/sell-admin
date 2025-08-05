@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { debounce } from "lodash";
 import {
   fetchLeagueById,
@@ -29,6 +29,8 @@ import edit from "../../assets/images/Edit.svg";
 // import CommonModal from "./CommonModal";
 import ParticipantsEditModel from "./ParticipantsEditModel";
 import toast from "react-hot-toast";
+import DraftingModal from "./DraftingModal";
+import { CircleChevronRight } from "lucide-react";
 
 const LeagueDetails: React.FC = () => {
   const statusOptions = [
@@ -43,6 +45,9 @@ const LeagueDetails: React.FC = () => {
   const { lid } = useParams<{ lid: string }>();
   const partnerId = window.location.pathname.split("/")[1];
   const dispatch = useDispatch<AppDispatch>();
+
+  const navigate = useNavigate();
+
   const {
     leagueDetail,
     loading,
@@ -78,6 +83,7 @@ const LeagueDetails: React.FC = () => {
     null
   );
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [draftingModal, setDraftingModal] = useState(false);
   const [searchKey, setSearchKey] = useState("");
   const [participantsSearchKey, setParticipantsSearchKey] = useState("");
   const [status, setStatus] = useState("all");
@@ -138,8 +144,8 @@ const LeagueDetails: React.FC = () => {
           participantsPerPage: participantsPerPage,
           ...(participantsSearchKey &&
             participantsSearchKey.trim() !== "" && {
-            searchKey: participantsSearchKey,
-          }),
+              searchKey: participantsSearchKey,
+            }),
         })
       );
     }
@@ -164,8 +170,8 @@ const LeagueDetails: React.FC = () => {
           perPage: operatorsPerPage,
           ...(operatorSearchKey &&
             operatorSearchKey.trim() !== "" && {
-            searchKey: operatorSearchKey,
-          }),
+              searchKey: operatorSearchKey,
+            }),
         })
       );
     }
@@ -335,8 +341,8 @@ const LeagueDetails: React.FC = () => {
   const showDeassignButton =
     operator.length > 0 && operators?.length > 0
       ? operator.every(
-        (opId) => operators.find((op: any) => op._id === opId)?.isAssigned
-      )
+          (opId) => operators.find((op: any) => op._id === opId)?.isAssigned
+        )
       : false;
 
   return (
@@ -398,25 +404,7 @@ const LeagueDetails: React.FC = () => {
                 </div>
               </div>
             </div>
-            {/* <div className="bg-gray-800/40 border border-gray-700/50 rounded-xl p-4 hover:border-blue-500/30 transition-all duration-200">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white text-sm">⚡</span>
-                </div>
-                <div>
-                  <span className="text-gray-400 block text-sm">Active</span>
-                  <span
-                    className={`py-1 px-3 rounded-lg text-sm font-medium ${
-                      leagueDetail?.isActive
-                        ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                        : "bg-red-500/20 text-red-400 border border-red-500/30"
-                    }`}
-                  >
-                    {leagueDetail?.isActive ? "Yes" : "No"}
-                  </span>
-                </div>
-              </div>
-            </div> */}
+
             <div className="bg-gray-800/40 border border-gray-700/50 rounded-xl p-4 hover:border-blue-500/30 transition-all duration-200">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
@@ -475,6 +463,49 @@ const LeagueDetails: React.FC = () => {
                 </div>
               </div>
             </div>
+            <button
+              className="group relative flex items-center justify-between bg-gray-900/50 border border-gray-700/60 rounded-xl px-4 py-3 hover:border-blue-500/50 hover:bg-gray-800/60 transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={new Date(leagueDetail?.endDate) > new Date()}
+              onClick={() => {
+                if (leagueDetail?.draft?.status === "active") {
+                  navigate(
+                    `/${partnerId}/leagues/${lid}/seed/${leagueDetail?.draft?._id}`,
+                    {
+                      state: { draftPlayer: leagueDetail?.draft?.totalPlayers },
+                    }
+                  );
+                } else {
+                  setDraftingModal(true);
+                }
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-400 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
+                  <span className="text-white text-base font-medium">⚡</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-gray-300 text-sm font-medium tracking-tight">
+                    Drafting Phase
+                  </span>
+                  <span
+                    className={`inline-flex items-center mt-1 px-3 py-1 rounded-full text-xs font-semibold tracking-tight ${
+                      leagueDetail?.draft?.status !== "not_active"
+                        ? "bg-green-500/20 text-green-300 border border-green-500/40"
+                        : "bg-red-500/20 text-red-300 border border-red-500/40"
+                    } transition-colors duration-200`}
+                  >
+                    {leagueDetail?.draft?.status !== "not_active"
+                      ? "Active"
+                      : "Inactive"}
+                  </span>
+                </div>
+              </div>
+              {leagueDetail?.draft?.status === "active" && (
+                <div className="flex items-center justify-center p-1.5 bg-gray-700/30 rounded-lg transition-transform duration-300 group-hover:translate-x-1">
+                  <CircleChevronRight color="#FFFFFF" />
+                </div>
+              )}
+            </button>
           </div>
         </div>
         {/* Tabs Navigation */}
@@ -483,10 +514,11 @@ const LeagueDetails: React.FC = () => {
             {filteredTabs.map((tab) => (
               <button
                 key={tab}
-                className={`flex-1 py-4 px-6 text-lg font-medium transition-all duration-300 relative ${activeTab === tab
-                  ? "text-white bg-gradient-to-r from-blue-500/20 to-purple-500/20 border-b-2 border-blue-500"
-                  : "text-gray-400 hover:text-white hover:bg-gray-700/30"
-                  }`}
+                className={`flex-1 py-4 px-6 text-lg font-medium transition-all duration-300 relative ${
+                  activeTab === tab
+                    ? "text-white bg-gradient-to-r from-blue-500/20 to-purple-500/20 border-b-2 border-blue-500"
+                    : "text-gray-400 hover:text-white hover:bg-gray-700/30"
+                }`}
                 onClick={() => setActiveTab(tab)}
               >
                 <div className="flex items-center justify-center gap-2">
@@ -572,10 +604,11 @@ const LeagueDetails: React.FC = () => {
                               (participant: any, index: number) => (
                                 <tr
                                   key={participant?._id}
-                                  className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-blue-500/10 hover:to-purple-500/10 transition-all duration-200 ${index % 2 === 0
-                                    ? "bg-gray-800/20"
-                                    : "bg-gray-800/10"
-                                    }`}
+                                  className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-blue-500/10 hover:to-purple-500/10 transition-all duration-200 ${
+                                    index % 2 === 0
+                                      ? "bg-gray-800/20"
+                                      : "bg-gray-800/10"
+                                  }`}
                                 >
                                   <td className="py-4 px-6 text-gray-300">
                                     {(participantsCurrentPage - 1) *
@@ -602,10 +635,11 @@ const LeagueDetails: React.FC = () => {
                                   </td>
                                   <td className="py-4 px-6">
                                     <span
-                                      className={`px-3 py-1 rounded-full text-sm font-medium ${participant?.isTeamJoin
-                                        ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                                        : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
-                                        }`}
+                                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                        participant?.isTeamJoin
+                                          ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                                          : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
+                                      }`}
                                     >
                                       {participant?.isTeamJoin ? "Yes" : "No"}
                                     </span>
@@ -808,10 +842,11 @@ const LeagueDetails: React.FC = () => {
                               return (
                                 <tr
                                   key={match?._id}
-                                  className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-yellow-500/10 hover:to-orange-500/10 transition-all duration-200 ${index % 2 === 0
-                                    ? "bg-gray-800/20"
-                                    : "bg-gray-800/10"
-                                    }`}
+                                  className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-yellow-500/10 hover:to-orange-500/10 transition-all duration-200 ${
+                                    index % 2 === 0
+                                      ? "bg-gray-800/20"
+                                      : "bg-gray-800/10"
+                                  }`}
                                 >
                                   <td className="py-4 px-6 font-medium text-blue-300">
                                     {(matchesCurrentPage - 1) * 10 + index + 1}
@@ -831,10 +866,11 @@ const LeagueDetails: React.FC = () => {
                                           <span className="cursor-pointer">
                                             {p.participant?.userId?.username}{" "}
                                             <span
-                                              className={`${p?.score < 0
-                                                ? "text-red-500"
-                                                : "text-green-500"
-                                                }`}
+                                              className={`${
+                                                p?.score < 0
+                                                  ? "text-red-500"
+                                                  : "text-green-500"
+                                              }`}
                                             >
                                               {p?.score > 0
                                                 ? `(+${p.score})`
@@ -882,10 +918,11 @@ const LeagueDetails: React.FC = () => {
                                           <span className="cursor-pointer">
                                             {p.participant?.userId?.username}{" "}
                                             <span
-                                              className={`${p?.score < 0
-                                                ? "text-red-500"
-                                                : "text-green-500"
-                                                }`}
+                                              className={`${
+                                                p?.score < 0
+                                                  ? "text-red-500"
+                                                  : "text-green-500"
+                                              }`}
                                             >
                                               {p?.score > 0
                                                 ? `(+${p.score})`
@@ -917,14 +954,15 @@ const LeagueDetails: React.FC = () => {
                                   </td>
                                   <td className="py-4 px-6">
                                     <span
-                                      className={`px-3 py-1 whitespace-nowrap rounded-full text-sm font-medium ${match?.status === "completed"
-                                        ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                                        : match?.status === "canceled"
+                                      className={`px-3 py-1 whitespace-nowrap rounded-full text-sm font-medium ${
+                                        match?.status === "completed"
+                                          ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                                          : match?.status === "canceled"
                                           ? "bg-red-500/20 text-red-400 border border-red-500/30"
                                           : match?.status === "in_progress"
-                                            ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
-                                            : "bg-purple-500/20 text-purple-400 border border-purple-500/30"
-                                        }`}
+                                          ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                                          : "bg-purple-500/20 text-purple-400 border border-purple-500/30"
+                                      }`}
                                     >
                                       {match?.status
                                         ?.replace("_", " ")
@@ -1105,10 +1143,11 @@ const LeagueDetails: React.FC = () => {
                               (ticket: any, index: number) => (
                                 <tr
                                   key={ticket?._id}
-                                  className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-yellow-500/10 hover:to-orange-500/10 transition-all duration-200 ${index % 2 === 0
-                                    ? "bg-gray-800/20"
-                                    : "bg-gray-800/10"
-                                    }`}
+                                  className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-yellow-500/10 hover:to-orange-500/10 transition-all duration-200 ${
+                                    index % 2 === 0
+                                      ? "bg-gray-800/20"
+                                      : "bg-gray-800/10"
+                                  }`}
                                 >
                                   <td className="py-4 px-6 font-medium text-blue-300">
                                     {(ticketsCurrentPage - 1) * ticketsPerPage +
@@ -1122,10 +1161,11 @@ const LeagueDetails: React.FC = () => {
 
                                   <td className="py-4 px-6">
                                     <span
-                                      className={`px-3 py-1 rounded-full text-sm font-medium ${ticket?.status === "open"
-                                        ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
-                                        : "bg-green-500/20 text-green-400 border border-green-500/30"
-                                        }`}
+                                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                        ticket?.status === "open"
+                                          ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                                          : "bg-green-500/20 text-green-400 border border-green-500/30"
+                                      }`}
                                     >
                                       {ticket?.status}
                                     </span>
@@ -1238,10 +1278,11 @@ const LeagueDetails: React.FC = () => {
                             ? handleDeassignLeague
                             : handleAssignLeague
                         }
-                        className={`py-2 px-4 bg-gradient-to-r ${showDeassignButton
-                          ? "from-red-500 to-red-500"
-                          : "from-blue-500 to-blue-500"
-                          } text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm`}
+                        className={`py-2 px-4 bg-gradient-to-r ${
+                          showDeassignButton
+                            ? "from-red-500 to-red-500"
+                            : "from-blue-500 to-blue-500"
+                        } text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm`}
                       >
                         {showDeassignButton ? "Deassign" : "Assign"}
                       </button>
@@ -1291,10 +1332,11 @@ const LeagueDetails: React.FC = () => {
                               (operatorItem: any, index: number) => (
                                 <tr
                                   key={operatorItem?._id}
-                                  className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-blue-500/10 hover:to-purple-500/10 transition-all duration-200 ${index % 2 === 0
-                                    ? "bg-gray-800/20"
-                                    : "bg-gray-800/10"
-                                    }`}
+                                  className={`border-b border-gray-700/30 hover:bg-gradient-to-r hover:from-blue-500/10 hover:to-purple-500/10 transition-all duration-200 ${
+                                    index % 2 === 0
+                                      ? "bg-gray-800/20"
+                                      : "bg-gray-800/10"
+                                  }`}
                                 >
                                   <td className="py-4 px-6">
                                     <input
@@ -1327,10 +1369,11 @@ const LeagueDetails: React.FC = () => {
                                   </td>
                                   <td className="py-4 px-6">
                                     <span
-                                      className={`px-3 py-1 rounded-full text-sm font-medium ${operatorItem?.isAssigned
-                                        ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                                        : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
-                                        }`}
+                                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                        operatorItem?.isAssigned
+                                          ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                                          : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
+                                      }`}
                                     >
                                       {operatorItem?.isAssigned ? "Yes" : "No"}
                                     </span>
@@ -1411,6 +1454,13 @@ const LeagueDetails: React.FC = () => {
         onClose={() => setIsEditModalOpen(false)}
         selectedParticipants={selectedParticipants}
         fetchParticipants={fetchParticipants}
+      />
+
+      <DraftingModal
+        show={draftingModal}
+        onClose={() => setDraftingModal(false)}
+        leagueId={lid}
+        draft={leagueDetail?.draft}
       />
     </div>
   );

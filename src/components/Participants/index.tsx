@@ -111,7 +111,7 @@ export const Participants: React.FC<any> = ({ title }) => {
             </div>
           </div>
         </div>
-        <div className="legue__head_right-con flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
+        {/* <div className="legue__head_right-con flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
           <div className="flex flex-col sm:flex-row gap-4 flex-1">
             <div className="relative group w-full max-w-md">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 blur-sm"></div>
@@ -133,7 +133,7 @@ export const Participants: React.FC<any> = ({ title }) => {
               </button>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {loading ? (

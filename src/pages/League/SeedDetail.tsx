@@ -1,49 +1,64 @@
+import { FC, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { PlusIcon } from "../ui";
-import { useEffect, useState } from "react";
-import { Plus, Search, Shuffle, Unlock, X } from "lucide-react";
+import { Plus, Search, X } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchNotInStageParticipants } from "../../app/features/tournament/notInStageSlice";
-import { RootState } from "../../app/store";
-import toast from "react-hot-toast";
 import {
-  getTournamentStages,
-  updateTournamentStage,
-} from "../../app/features/tournament/tournamentStageSlice";
-import { createMatches } from "../../app/features/tournament/createMatchesSlice";
-import HandLogoLoader from "../Loader/Loader";
+  fetchEligiblePlayers,
+  updateEligiblePlayers,
+} from "../../app/features/eligiblePlayers/eligiblePlayersSlice";
+import { RootState } from "../../app/store";
+import { Layout } from "../../components/layout";
+import toast from "react-hot-toast";
+import HandLogoLoader from "../../components/Loader/Loader";
+import { baseURL } from "../../axios";
+import { fetchDraftingPhase } from "../../app/features/draftingPhase/draftingPhaseSlice";
 
-// Mock function to fetch player details (replace with actual API call)
-// const fetchPlayerDetails = async (ids) => {
-//   console.log("ids", ids);
-//   // Simulated API response (replace with actual API call)
-//   return ids.map((id) => ({
-//     id,
-//     name: `Player ${id.slice(-4)}`, // Placeholder name
-//     team: `Team ${id.slice(-4)}`, // Placeholder team
-//   }));
-// };
-
-async function fetchTeamDetails(ids) {
-  return ids.map((item) => ({
-    id: item._id,
-    name: item.team ? item.team.teamShortName : item.user.username,
-    shortName: item.team
-      ? item.team.teamName
-      : item.user.firstName + " " + item.user.lastName,
-    region: item.team ? item.team.region : item.user.nationality,
-  }));
+interface EligiblePlayer {
+  totalWins: number;
+  totalLosses: number;
+  totalMatches: number;
+  totalScore: number;
+  totalLeaguesScore: number;
+  winPercentage: number;
+  wilsonScore: number;
+  userId: {
+    _id: string;
+    username: string;
+    profilePicture: string;
+    fullName: string;
+  };
+  rank: number;
 }
-export const Seeds: React.FC<{ title: string }> = ({ title }) => {
+
+interface PlayerDetails {
+  id: string;
+  name: string;
+  shortName: string;
+  profilePicture: string;
+}
+
+const fetchPlayerDetails = (players: EligiblePlayer[]): PlayerDetails[] => {
+  return players.map((player) => ({
+    id: player.userId._id,
+    name: player.userId.username,
+    shortName: player.userId.fullName,
+    profilePicture: player.userId.profilePicture,
+  }));
+};
+
+export const SeedDetail: FC<{ title: string }> = ({ title }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  const { stagesList, loading } = useSelector(
-    (state: RootState) => state.tournamentStage
+  const { eligiblePlayers, loading, error } = useSelector(
+    (state: RootState) => state.eligiblePlayers
   );
+  const { data } = useSelector((state: RootState) => state.draftingPhase);
 
-  const tournamentId = window.location.pathname.split("/")[3];
-  const stageId = window.location.pathname.split("/")[7];
+  console.log("data", data?.eligiblePlayers);
+
+  const { state } = useLocation();
+
+  const did = window.location.pathname.split("/")[5];
 
   // State for UI and data
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
@@ -52,111 +67,52 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentSeed, setCurrentSeed] = useState<number | null>(null);
   const [seedingList, setSeedingList] = useState<
-    {
-      seed: number;
-      player: {
-        id: string;
-        name: string;
-        shortName: string;
-        region: string;
-      } | null;
-    }[]
+    { seed: number; player: PlayerDetails | null }[]
   >([]);
-  const [playerDetails, setPlayerDetails] = useState<
-    { id: string; name: string; shortName: string; region: string }[]
-  >([]);
+  const [playerDetails, setPlayerDetails] = useState<PlayerDetails[]>([]);
 
-  // Redux state
-  const { error, notInStageParticipants } = useSelector(
-    (state: RootState) => state.notInStage
-  );
-  const { updateTournamentStageloading } = useSelector(
-    (state: RootState) => state.tournamentStage
-  );
-  const { createMatchesLoading } = useSelector(
-    (state: RootState) => state.createMatches
-  );
-
-  // Fetch participant details and initialize seeding list
+  // Fetch eligible players
   useEffect(() => {
-    // Fetch not-in-stage participants
     dispatch(
-      fetchNotInStageParticipants({
-        tournamentId,
-        stageId,
+      fetchDraftingPhase({
+        id: did,
       })
     );
+  }, [dispatch, did]);
 
-    // Initialize seeding list (example: 8 seeds, adjust based on your needs)
-    setSeedingList(
-      Array.from({ length: stagesList?.numberOfParticipants }, (_, index) => ({
-        seed: index + 1,
-        player: stagesList?.seed[index]
-          ? {
-              id: stagesList?.seed[index]._id,
-              name: stagesList?.seed[index].team
-                ? stagesList?.seed[index].team.teamName
-                : stagesList?.seed[index].user.username,
-              shortName: stagesList?.seed[index].team
-                ? stagesList?.seed[index].team.teamShortName
-                : stagesList?.seed[index].user.firstName +
-                  " " +
-                  stagesList?.seed[index].user.lastName,
-              region: stagesList?.seed[index].team
-                ? stagesList?.seed[index].team.region
-                : stagesList?.seed[index].user.nationality,
-            }
-          : null,
-      }))
+  useEffect(() => {
+    dispatch(
+      fetchEligiblePlayers({
+        id: did,
+        page: 1,
+        perPage: 10,
+        searchTerm: "",
+      })
     );
-  }, [dispatch, tournamentId, stageId, stagesList]);
+  }, [dispatch, did]);
 
+  // Initialize seeding list and player details
   useEffect(() => {
-    if (stageId) {
-      dispatch(getTournamentStages({ id: stageId }));
-    }
-  }, [dispatch, stageId]);
+    if (eligiblePlayers.length > 0) {
+      const details = fetchPlayerDetails(eligiblePlayers);
+      setPlayerDetails(details);
 
-  useEffect(() => {
-    if (window.bracketsViewer && stagesList?.config) {
-      // Clear the container to avoid stale content
-      const container = document.querySelector("#first");
-      if (container) {
-        container.innerHTML = "";
-      }
-
-      window.bracketsViewer.render(
-        {
-          stages: stagesList.config.stage,
-          matches: stagesList.config.match,
-          matchGames: stagesList.config.match_game ?? [],
-          participants: stagesList.config.participant,
-        },
-        {
-          selector: "#first",
-        }
+      // Initialize seeding list based on the number of eligible players
+      setSeedingList(
+        Array.from({ length: state?.draftPlayer }, (_, index) => ({
+          seed: index + 1,
+          player: data?.eligiblePlayers[index]
+            ? {
+                id: data?.eligiblePlayers[index]._id,
+                name: data?.eligiblePlayers[index].username,
+                shortName: data?.eligiblePlayers[index].fullName,
+                profilePicture: data?.eligiblePlayers[index].profilePicture,
+              }
+            : null,
+        }))
       );
     }
-
-    // Cleanup on unmount
-    return () => {
-      const container = document.querySelector("#first");
-      if (container) {
-        container.innerHTML = "";
-      }
-    };
-  }, [stagesList?.config]);
-
-  // Fetch player details when notInStageParticipants changes
-  useEffect(() => {
-    const loadPlayerDetails = async () => {
-      const details = await fetchTeamDetails(notInStageParticipants);
-      setPlayerDetails(details);
-    };
-    if (notInStageParticipants) {
-      loadPlayerDetails();
-    }
-  }, [notInStageParticipants]);
+  }, [eligiblePlayers, data?.eligiblePlayers]);
 
   // Filter players based on search term
   const filteredPlayers = playerDetails.filter((player) =>
@@ -170,11 +126,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
   };
 
   // Handle selecting a player for a seed
-  const handleSelectPlayer = (player: {
-    id: string;
-    name: string;
-    team: string;
-  }) => {
+  const handleSelectPlayer = (player: PlayerDetails) => {
     setSeedingList((prev) =>
       prev.map((item) =>
         item.seed === currentSeed ? { ...item, player } : item
@@ -223,32 +175,27 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
     );
   };
 
-  // Handle saving changes to the server
+  // Handle saving changes
   const handleSaveChanges = async () => {
     const seedIds = seedingList
       .filter((item) => item.player)
       .map((item) => item.player!.id);
 
-    // const seedIds = seedingList.map((item) => (item.player ? item.player.id : null));
-
     try {
       const resultAction = await dispatch(
-        updateTournamentStage({ stageId: stageId, seed: seedIds })
+        updateEligiblePlayers({ id: did, playerIds: seedIds })
       );
-
-      if (updateTournamentStage.fulfilled.match(resultAction)) {
-        dispatch(getTournamentStages({ id: stageId }));
+      if (updateEligiblePlayers.fulfilled.match(resultAction)) {
+        // Refetch eligible players to update the list
+        // dispatch(fetchEligiblePlayers({ id: did }));
+        dispatch(
+          fetchDraftingPhase({
+            id: did,
+          })
+        );
       }
     } catch (error) {
-      console.log("error");
-    }
-  };
-
-  const handleCreateMatches = async () => {
-    const resultAction = await dispatch(createMatches({ stageId }));
-
-    if (createMatches.fulfilled.match(resultAction)) {
-      dispatch(getTournamentStages({ id: stageId }));
+      toast.error("Failed to save seeding!");
     }
   };
 
@@ -267,7 +214,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
 
   // Handle drag over
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault(); // Allow dropping
+    e.preventDefault();
   };
 
   // Handle drop
@@ -278,14 +225,13 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
     e.preventDefault();
     const sourceSeed = parseInt(e.dataTransfer.getData("text/plain"), 10);
 
-    if (sourceSeed === targetSeed) return; // No change if dropped on itself
+    if (sourceSeed === targetSeed) return;
 
     setSeedingList((prev) => {
       const newList = [...prev];
       const sourceIndex = newList.findIndex((item) => item.seed === sourceSeed);
       const targetIndex = newList.findIndex((item) => item.seed === targetSeed);
 
-      // Swap players between the source and target seeds
       const temp = newList[sourceIndex].player;
       newList[sourceIndex].player = newList[targetIndex].player;
       newList[targetIndex].player = temp;
@@ -295,7 +241,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
   };
 
   return (
-    <>
+    <Layout>
       <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-start items-center pt-3 pb-[2rem] border-b border-light-border">
         <Link
           to=""
@@ -324,22 +270,12 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
         <div className="legue__head_left-con">
           <h3 className="font-bold text-[1.25rem] text-white">{title}</h3>
         </div>
-        {/* <div className="legue__head_right-con flex-wrap flex gap-3 flex-1 justify-end">
-          <Link
-            to=""
-            onClick={() => setShowBulkModal(true)}
-            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium px-4 py-2.5 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 whitespace-nowrap"
-          >
-            <PlusIcon />
-            <span>Add</span>
-          </Link>
-        </div> */}
       </div>
       {loading ? (
         <HandLogoLoader />
       ) : (
         <div className="flex gap-3 min-h-screen bg-gray-900 text-white p-4">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl">
             {/* Header */}
             <div className="bg-gray-800 rounded-lg p-4 mb-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -348,19 +284,12 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <button
-                    disabled={stagesList?.settings?.isFirstRound}
                     onClick={() => setShowBulkModal(true)}
                     className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors text-sm"
                   >
-                    <PlusIcon />
+                    <Plus size={16} />
                     <span>Add</span>
                   </button>
-                  {/* <button className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors text-sm">
-                  <Shuffle size={16} />
-                </button>
-                <button className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors text-sm">
-                  <Unlock size={16} />
-                </button> */}
                 </div>
               </div>
             </div>
@@ -370,7 +299,8 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
               <div className="p-4 border-b border-gray-700">
                 <div className="grid grid-cols-12 gap-4 text-sm font-medium text-gray-400">
                   <div className="col-span-1">#</div>
-                  <div className="col-span-8">NAME</div>
+                  <div className="col-span-5">NAME</div>
+                  <div className="col-span-3">STATS</div>
                   <div className="col-span-3 text-right">ACTION</div>
                 </div>
               </div>
@@ -379,7 +309,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                   <div
                     key={item.seed}
                     className="border-b border-gray-700 last:border-b-0"
-                    draggable={!!item.player} // Only draggable if a player is assigned
+                    draggable={!!item.player}
                     onDragStart={(e) => handleDragStart(e, item.seed)}
                     onDragOver={handleDragOver}
                     onDrop={(e) => handleDrop(e, item.seed)}
@@ -391,23 +321,62 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                             {item.seed}
                           </span>
                         </div>
-                        <div className="col-span-8">
+                        <div className="col-span-5">
                           {item.player ? (
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-sm font-bold">
-                                {item.player.name.charAt(0)}
-                              </div>
+                              <img
+                                src={`${baseURL}/api/v1/${item.player.profilePicture}`}
+                                alt={item.player.name}
+                                className="w-8 h-8 rounded-full"
+                              />
                               <div>
                                 <div className="font-medium text-sm">
                                   {item.player.name}
                                 </div>
                                 <div className="text-xs text-gray-400">
-                                  {item.player.team}
+                                  {item.player.shortName}
                                 </div>
                               </div>
                             </div>
                           ) : (
                             <span className="text-gray-500 text-sm">- - -</span>
+                          )}
+                        </div>
+                        <div className="col-span-3">
+                          {item.player ? (
+                            <div className="text-xs">
+                              {eligiblePlayers.find(
+                                (p) => p.userId._id === item.player!.id
+                              ) && (
+                                <>
+                                  <div>
+                                    W/L:{" "}
+                                    {
+                                      eligiblePlayers.find(
+                                        (p) => p.userId._id === item.player!.id
+                                      )!.totalWins
+                                    }
+                                    /
+                                    {
+                                      eligiblePlayers.find(
+                                        (p) => p.userId._id === item.player!.id
+                                      )!.totalLosses
+                                    }
+                                  </div>
+                                  <div>
+                                    Win%:{" "}
+                                    {eligiblePlayers
+                                      .find(
+                                        (p) => p.userId._id === item.player!.id
+                                      )!
+                                      .winPercentage.toFixed(2)}
+                                    %
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-gray-500 text-sm">-</span>
                           )}
                         </div>
                         <div className="col-span-3 flex justify-end">
@@ -435,35 +404,16 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
             </div>
 
             {/* Save Button */}
-            <div className="flex items-center justify-center gap-2">
-              <div className="mt-6 text-center">
-                <button
-                  onClick={handleSaveChanges}
-                  disabled={
-                    stagesList?.settings?.isFirstRound ||
-                    updateTournamentStageloading
-                  }
-                  className="px-8 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg font-medium transition-colors"
-                >
-                  {updateTournamentStageloading ? "Saving..." : "Save Changes"}
-                </button>
-              </div>
-              <div className="mt-6 text-center" onClick={handleCreateMatches}>
-                <button
-                  className="px-8 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg font-medium transition-colors"
-                  disabled={
-                    stagesList?.settings?.isFirstRound || createMatchesLoading
-                  }
-                >
-                  {createMatchesLoading ? "Creating..." : "Create Match"}
-                </button>
-              </div>
+            <div className="mt-6 text-center">
+              <button
+                onClick={handleSaveChanges}
+                className="px-8 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-medium transition-colors"
+              >
+                Save Changes
+              </button>
             </div>
           </div>
-          <div
-            id="first"
-            className="brackets-viewer bg-gray-800 rounded-lg text-white"
-          />
+
           {/* Single Player Add Modal */}
           {showAddModal && (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
@@ -501,15 +451,17 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                         className="p-3 bg-gray-700 hover:bg-gray-600 rounded-lg cursor-pointer transition-colors"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-sm font-bold">
-                            {player.name.charAt(0)}
-                          </div>
+                          <img
+                            src={`${baseURL}/api/v1/${player.profilePicture}`}
+                            alt={player.name}
+                            className="w-8 h-8 rounded-full"
+                          />
                           <div>
                             <div className="font-medium text-sm">
                               {player.name}
                             </div>
                             <div className="text-xs text-gray-400">
-                              {player.team}
+                              {player.shortName}
                             </div>
                           </div>
                         </div>
@@ -536,7 +488,6 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
           {showBulkModal && (
             <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
               <div className="bg-gray-900 rounded-xl w-full max-w-lg max-h-[85vh] overflow-hidden shadow-2xl">
-                {/* Header */}
                 <div className="p-5 border-b border-gray-700 flex items-center justify-between">
                   <h2 className="text-xl font-semibold text-white">
                     Add Players
@@ -548,8 +499,6 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                     <X size={24} />
                   </button>
                 </div>
-
-                {/* Scrollable Content */}
                 <div className="p-5 max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
                   <div className="relative mb-5">
                     <Search
@@ -599,15 +548,17 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                             onChange={() => handleBulkSelect(player.id)}
                             className="w-5 h-5 text-blue-500 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2 transition-colors"
                           />
-                          <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                            {player.name.charAt(0)}
-                          </div>
+                          <img
+                            src={`${baseURL}/api/v1/${player.profilePicture}`}
+                            alt={player.name}
+                            className="w-10 h-10 rounded-full"
+                          />
                           <div>
                             <div className="font-medium text-white">
                               {player.name}
                             </div>
                             <div className="text-xs text-gray-400">
-                              {player.team}
+                              {player.shortName}
                             </div>
                           </div>
                         </div>
@@ -615,8 +566,6 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                     ))}
                   </div>
                 </div>
-
-                {/* Footer */}
                 <div className="p-5 border-t border-gray-700 flex justify-between items-center">
                   <span className="text-sm text-gray-400">
                     {selectedPlayers.length} selected / {playerDetails.length}{" "}
@@ -643,6 +592,6 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
           )}
         </div>
       )}
-    </>
+    </Layout>
   );
 };
