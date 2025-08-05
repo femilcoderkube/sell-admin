@@ -20,6 +20,7 @@ import {
 import { Pagination } from "../ui/Pagination";
 import HandLogoLoader from "../Loader/Loader";
 import { MembersTable } from "./MembersTable";
+import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
 
 // Define props interface
 interface MembersProps {
@@ -44,6 +45,8 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
     membersPerPage,
   } = useSelector((state: RootState) => state.teams);
   const dispatch = useDispatch();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const [deleteId, setDeleteId] = useState();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -174,6 +177,8 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
       const resultAction = await dispatch(leaveTeam(payload));
       if (leaveTeam.fulfilled.match(resultAction)) {
         dispatch(setMembersPage(1));
+        setIsDeleteModalOpen(false);
+        setDeleteId();
         dispatch(
           fetchTeamMembers({
             teamId: id,
@@ -303,7 +308,8 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
           currentPage={membersCurrentPage}
           members={teamMembers}
           onleaveTeam={(member: any) => {
-            onleaveTeam(member);
+            setDeleteId(member);
+            setIsDeleteModalOpen(true);
           }}
         />
       ) : (
@@ -457,6 +463,17 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
           </div>
         </div>
       )}
+
+      <DeleteConfirmationModal
+        show={isDeleteModalOpen}
+        title="Are you sure you want to left the team?"
+        buttonTitle="Left"
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setDeleteId("");
+        }}
+        onDelete={() => onleaveTeam(deleteId)}
+      />
     </>
   );
 };
