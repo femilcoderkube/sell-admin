@@ -38,7 +38,7 @@ export const MembersTable: React.FC<TeamTableProps> = ({
       </svg>
     ),
     username: "USERNAME",
-    role: "ROLE",
+    role: "TEAM ROLE",
     email: "EMAIL",
     logo: "LOGO",
     actions: "ACTIONS",
@@ -99,7 +99,7 @@ export const MembersTable: React.FC<TeamTableProps> = ({
                       : "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
                   }`}
                 >
-                  {team?.user?.role}
+                  {team?.role}
                 </span>
               </td>
               <td className="text-sm py-4 px-3 hidden sm:table-cell">
