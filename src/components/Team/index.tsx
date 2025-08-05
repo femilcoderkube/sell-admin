@@ -85,8 +85,6 @@ export const Team: React.FC<TeamProps> = ({ title }) => {
 
   const totalPages = Math.ceil(totalCount / perPage);
 
-  console.log("totalPages", totalPages);
-
   const handleDeleteTeam = async () => {
     await dispatch(deleteTeam(deleteId));
     dispatch(fetchTeams({ page: 1, perPage, searchTerm }));

@@ -47,8 +47,6 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  console.log("membersCurrentPage", membersCurrentPage);
-
   useEffect(() => {
     dispatch(fetchUsers({ page: currentPage, perPage, searchTerm }));
   }, [dispatch, currentPage, perPage, searchTerm]);
