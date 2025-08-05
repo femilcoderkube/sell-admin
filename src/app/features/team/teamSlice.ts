@@ -119,6 +119,26 @@ export const fetchTeamMembers = createAsyncThunk(
   }
 );
 
+export const updateTeamMemberRole = createAsyncThunk(
+  "teams/updateTeamMemberRole",
+  async (
+    { teamId, userId, role }: { teamId: string; userId: string; role: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axiosInstance.put(
+        `/Team/members`,
+        { role, teamId, userId } // Pass role in the body
+      );
+      return response.data;
+    } catch (error: any) {
+      console.log("err updateTeamMemberRole", error);
+      return rejectWithValue(
+        error.response?.data?.message || "Error updating team member role"
+      );
+    }
+  }
+);
 export const addTeam = createAsyncThunk(
   "teams/addTeam",
   async (team: Team, { rejectWithValue }) => {
@@ -292,6 +312,18 @@ const teamSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
         toast.error("Failed to update team!");
+      })
+      .addCase(updateTeamMemberRole.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateTeamMemberRole.fulfilled, (state) => {
+        state.loading = false;
+        toast.success("Team member updated successfully!");
+      })
+      .addCase(updateTeamMemberRole.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        toast.error("Failed to update team member!");
       })
       .addCase(deleteTeam.pending, (state) => {
         state.loading = true;

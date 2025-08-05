@@ -2,7 +2,6 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { PlusIcon, SearchIcon } from "../ui";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
 import { RootState } from "../../app/store";
 import { AsyncPaginate } from "react-select-async-paginate";
 import { useFormik } from "formik";
@@ -16,6 +15,7 @@ import {
   resetJoinTeamSuccess,
   setMembersPage,
   setMembersSearchTerm,
+  updateTeamMemberRole, // New action for updating role
 } from "../../app/features/team/teamSlice";
 import { Pagination } from "../ui/Pagination";
 import HandLogoLoader from "../Loader/Loader";
@@ -25,12 +25,11 @@ import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
 // Define props interface
 interface MembersProps {
   title: string;
-  teamId: string; // Added teamId prop
+  teamId: string;
 }
 
 export const Members: React.FC<MembersProps> = ({ title }) => {
   const { id } = useParams();
-
   const { currentPage, perPage, searchTerm } = useSelector(
     (state: RootState) => state.users
   );
@@ -46,7 +45,9 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
   } = useSelector((state: RootState) => state.teams);
   const dispatch = useDispatch();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
-  const [deleteId, setDeleteId] = useState();
+  const [deleteId, setDeleteId] = useState<any>();
+  const [selectedItem, setSelectedItem] = useState<any>();
+  const [editMode, setEditMode] = useState<boolean>(false); // New state for edit mode
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -67,23 +68,48 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
 
   useEffect(() => {
     if (joinTeamSuccess) {
-      setIsModalOpen(false); // Close modal on success
-      formik.resetForm(); // Reset form
-      dispatch(resetJoinTeamSuccess()); // Reset success state
+      setIsModalOpen(false);
+      formik.resetForm();
+      dispatch(resetJoinTeamSuccess());
     }
   }, [joinTeamSuccess]);
+
+  useEffect(() => {
+    if (selectedItem) {
+      setEditMode(true);
+      setIsModalOpen(true);
+      // Pre-fill form with selected member data
+      formik.setValues({
+        member_name: {
+          value: selectedItem._id,
+          label: selectedItem.user.username,
+        },
+        type:
+          Object.keys(typeToRoleMap).find(
+            (key) => typeToRoleMap[key] === selectedItem.role
+          ) || "",
+        game_id: "",
+      });
+    } else {
+      setEditMode(false);
+    }
+  }, [selectedItem]);
 
   const btnBack = () => {
     navigate(-1);
   };
 
   const openModal = () => {
+    setEditMode(false);
+    setSelectedItem(null);
     setIsModalOpen(true);
+    formik.resetForm();
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
-    formik.resetForm(); // Reset form on close
+    setSelectedItem(null);
+    formik.resetForm();
   };
 
   const loadedOptions = async (
@@ -134,22 +160,48 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
     }),
     onSubmit: async (values) => {
       try {
-        const payload = {
-          teamId: id,
-          userId: values.member_name?.value,
-          role: typeToRoleMap[values.type],
-        };
-        const resultAction = await dispatch(joinTeam(payload));
-        if (joinTeam.fulfilled.match(resultAction)) {
-          dispatch(setMembersPage(1));
-          dispatch(
-            fetchTeamMembers({
-              teamId: id,
-              page: 1,
-              perPage,
-              searchTerm: "",
-            })
-          );
+        if (editMode) {
+          // Update role
+
+          const payload = {
+            teamId: id,
+            userId: values.member_name?.value,
+            role: typeToRoleMap[values.type],
+          };
+          const resultAction = await dispatch(updateTeamMemberRole(payload));
+          if (updateTeamMemberRole.fulfilled.match(resultAction)) {
+            dispatch(setMembersPage(1));
+            dispatch(
+              fetchTeamMembers({
+                teamId: id,
+                page: 1,
+                perPage,
+                searchTerm: "",
+              })
+            );
+            setIsModalOpen(false);
+            setSelectedItem(null);
+            formik.resetForm();
+          }
+        } else {
+          // Add new member
+          const payload = {
+            teamId: id,
+            userId: values.member_name?.value,
+            role: typeToRoleMap[values.type],
+          };
+          const resultAction = await dispatch(joinTeam(payload));
+          if (joinTeam.fulfilled.match(resultAction)) {
+            dispatch(setMembersPage(1));
+            dispatch(
+              fetchTeamMembers({
+                teamId: id,
+                page: 1,
+                perPage,
+                searchTerm: "",
+              })
+            );
+          }
         }
       } catch (error) {
         console.log("error", error);
@@ -178,7 +230,7 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
       if (leaveTeam.fulfilled.match(resultAction)) {
         dispatch(setMembersPage(1));
         setIsDeleteModalOpen(false);
-        setDeleteId();
+        setDeleteId(null);
         dispatch(
           fetchTeamMembers({
             teamId: id,
@@ -251,19 +303,6 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
         </div>
         <div className="legue__head_right-con flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
           <div className="flex flex-col sm:flex-row gap-4 flex-1">
-            {/* <div className="nf_max-al bg-input-color gap-2 flex items-center pl-2 pr-1 rounded-[0.625rem]">
-        <span className="text-[1.0625rem] text-custom-gray whitespace-nowrap">
-          Show max:
-        </span>
-        <select
-          name="selectedFruit"
-          className="font-medium focus:outline-0 bg-[#242B3C] text-white py-[0.4rem] px-2 rounded-[0.52rem] text-[1.0625rem]"
-        >
-          <option value={10}>10</option>
-          <option value={25}>25</option>
-          <option value={50}>50</option>
-        </select>
-      </div> */}
             <div className="relative group w-full max-w-md">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 blur-sm"></div>
               <input
@@ -307,6 +346,7 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
         <MembersTable
           currentPage={membersCurrentPage}
           members={teamMembers}
+          onEditClick={(item) => setSelectedItem(item)}
           onleaveTeam={(member: any) => {
             setDeleteId(member);
             setIsDeleteModalOpen(true);
@@ -333,7 +373,7 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
           <div className="bg-[#242B3C] rounded-lg shadow-lg w-full max-w-md">
             <div className="flex justify-between items-center p-4 border-b border-gray-600">
               <h3 className="text-xl font-semibold text-white">
-                Add team member
+                {editMode ? "Edit team member" : "Add team member"}
               </h3>
               <button
                 className="text-white hover:opacity-75"
@@ -363,6 +403,7 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
                       formik.setFieldValue("member_name", option)
                     }
                     onBlur={() => formik.setFieldTouched("member_name", true)}
+                    isDisabled={editMode} // Disable member selection in edit mode
                     styles={{
                       control: (base) => ({
                         ...base,
@@ -455,7 +496,13 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
                     className="bg-[#46A2FF] text-white py-2 px-4 rounded-md hover:bg-blue-700"
                     disabled={loading}
                   >
-                    {loading ? "Adding..." : "Add member"}
+                    {loading
+                      ? editMode
+                        ? "Updating..."
+                        : "Adding..."
+                      : editMode
+                      ? "Update member"
+                      : "Add member"}
                   </button>
                 </div>
               </form>
@@ -466,11 +513,11 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
 
       <DeleteConfirmationModal
         show={isDeleteModalOpen}
-        title="Are you sure you want to left the team?"
-        buttonTitle="Left"
+        title="Are you sure you want to remove the team member?"
+        buttonTitle="Remove"
         onClose={() => {
           setIsDeleteModalOpen(false);
-          setDeleteId("");
+          setDeleteId(null);
         }}
         onDelete={() => onleaveTeam(deleteId)}
       />

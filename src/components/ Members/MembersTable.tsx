@@ -6,17 +6,19 @@ import deleteIcon from "../../assets/images/trash_can.svg";
 import editIcon from "../../assets/images/Edit.svg";
 
 import { baseURL } from "../../axios";
-import { ArrowLeftRight } from "lucide-react";
+import { ArrowLeftRight, PencilLine } from "lucide-react";
 
 interface TeamTableProps {
   currentPage: number;
   members: any[];
+  onEditClick: () => void;
   onleaveTeam: () => void;
 }
 
 export const MembersTable: React.FC<TeamTableProps> = ({
   currentPage,
   members,
+  onEditClick,
   onleaveTeam,
 }) => {
   const thead = {
@@ -112,8 +114,18 @@ export const MembersTable: React.FC<TeamTableProps> = ({
                   />
                 </span>
               </td>
+
               <td className="text-sm py-4 px-3">
-                <div className="flex justify-center items-center">
+                <div className="flex justify-center items-center gap-2">
+                  <button
+                    onClick={(e) => {
+                      onEditClick(team);
+                    }}
+                    className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 p-2 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md"
+                  >
+                    <PencilLine size={20} />
+                  </button>
+
                   <button
                     onClick={() => {
                       onleaveTeam(team?.user);
@@ -121,7 +133,7 @@ export const MembersTable: React.FC<TeamTableProps> = ({
                     className="bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 p-2 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md"
                     title="Remove from team"
                   >
-                    <ArrowLeftRight />
+                    <ArrowLeftRight size={20} />
                   </button>
                 </div>
               </td>
