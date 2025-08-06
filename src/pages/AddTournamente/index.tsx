@@ -609,7 +609,7 @@ const TournamentStep1: FC<{ step: number }> = ({ step }) => {
             placeholderText="Select start date"
             autoComplete="off"
             timeIntervals={15}
-            minDate={new Date()}
+            // minDate={new Date()}
             popperPlacement="bottom-start"
             wrapperClassName="w-full"
             calendarClassName="custom-datepicker"
@@ -644,7 +644,7 @@ const TournamentStep1: FC<{ step: number }> = ({ step }) => {
             timeIntervals={15}
             placeholderText="Select end date"
             autoComplete="off"
-            minDate={values.startDate ? new Date(values.startDate) : new Date()}
+            // minDate={values.startDate ? new Date(values.startDate) : new Date()}
             popperPlacement="bottom-start"
             wrapperClassName="w-full"
             calendarClassName="custom-datepicker"
@@ -689,7 +689,7 @@ const TournamentStep1: FC<{ step: number }> = ({ step }) => {
             placeholderText="Select registration start date"
             autoComplete="off"
             timeIntervals={15}
-            minDate={new Date()}
+            // minDate={new Date()}
             popperPlacement="bottom-start"
             wrapperClassName="w-full"
             calendarClassName="custom-datepicker"
@@ -730,11 +730,11 @@ const TournamentStep1: FC<{ step: number }> = ({ step }) => {
             timeIntervals={15}
             placeholderText="Select registration end date"
             autoComplete="off"
-            minDate={
-              values.registrationStartDate
-                ? new Date(values.registrationStartDate)
-                : new Date()
-            }
+            // minDate={
+            //   values.registrationStartDate
+            //     ? new Date(values.registrationStartDate)
+            //     : new Date()
+            // }
             popperPlacement="bottom-start"
             wrapperClassName="w-full"
             calendarClassName="custom-datepicker"
@@ -1097,7 +1097,7 @@ const TournamentStep2: FC<{ step: number }> = ({ step }) => {
                         name={`timeLine[${index}].startDate`}
                         placeholderText="Select start date"
                         autoComplete="off"
-                        minDate={new Date()}
+                        // minDate={new Date()}
                         popperPlacement="bottom-start"
                         wrapperClassName="w-full"
                         calendarClassName="custom-datepicker"
@@ -1144,11 +1144,11 @@ const TournamentStep2: FC<{ step: number }> = ({ step }) => {
                         name={`timeLine[${index}].endDate`}
                         placeholderText="Select end date"
                         autoComplete="off"
-                        minDate={
-                          values.timeLine[index]?.startDate
-                            ? new Date(values.timeLine[index].startDate)
-                            : new Date()
-                        }
+                        // minDate={
+                        //   values.timeLine[index]?.startDate
+                        //     ? new Date(values.timeLine[index].startDate)
+                        //     : new Date()
+                        // }
                         popperPlacement="bottom-start"
                         wrapperClassName="w-full"
                         calendarClassName="custom-datepicker"

@@ -6,7 +6,7 @@ import deleteIcon from "../../assets/images/trash_can.svg";
 import editIcon from "../../assets/images/Edit.svg";
 
 import { baseURL } from "../../axios";
-import { ArrowLeftRight, PencilLine } from "lucide-react";
+import { ArrowLeftRight, PencilLine, Trash2 } from "lucide-react";
 
 interface TeamTableProps {
   currentPage: number;
@@ -133,7 +133,7 @@ export const MembersTable: React.FC<TeamTableProps> = ({
                     className="bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 p-2 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md"
                     title="Remove from team"
                   >
-                    <ArrowLeftRight size={20} />
+                    <Trash2 size={20} />
                   </button>
                 </div>
               </td>
