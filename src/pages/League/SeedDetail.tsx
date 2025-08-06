@@ -162,9 +162,10 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
     const emptySeeds = seedingList
       .filter((item) => !item.player)
       .map((item) => item.seed);
-    const playersToAdd = shuffleArray(
-      playerDetails.filter((p) => selectedPlayers.includes(p.id))
-    );
+
+    const playersToAdd = selectedPlayers
+      .map((id) => playerDetails.find((p) => p.id === id))
+      .filter((player) => player !== undefined); // Filter out any undefined players
 
     if (playersToAdd.length > emptySeeds.length) {
       toast.error(
