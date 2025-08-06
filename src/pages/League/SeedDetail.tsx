@@ -127,7 +127,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
   // Filter players, excluding those already in the seeding list
   const filteredPlayers = playerDetails.filter(
     (player) =>
-      player.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      player.name?.toLowerCase()?.includes(searchTerm?.toLowerCase()) &&
       !seedingList.some((item) => item.player?.id === player.id)
   );
 

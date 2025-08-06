@@ -170,7 +170,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
 
   // Filter players based on search term
   const filteredPlayers = playerDetails.filter((player) =>
-    player.name.toLowerCase().includes(searchTerm.toLowerCase())
+    player.name?.toLowerCase().includes(searchTerm?.toLowerCase())
   );
 
   // Handle adding a single player to a seed
