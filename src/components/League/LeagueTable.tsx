@@ -98,8 +98,8 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({
       id="league_table"
       className="pt-3 overflow-x-auto overflow-y-auto rounded-lg shadow-lg"
       onClick={(e) => {
-        e.stopPropagation();
-        setOpen(null);
+        // e.stopPropagation();
+        // setOpen(null);
       }}
     >
       <table className="min-w-full table-auto text-white bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg overflow-hidden">
@@ -202,7 +202,7 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({
                   {jsonValue?.role !== "Operator" && (
                     <button
                       onClick={(e) => {
-                        e.stopPropagation();
+                        // e.stopPropagation();
                         setOpen(open === league._id ? null : league._id);
                       }}
                       className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 p-2 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md"
@@ -216,6 +216,7 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({
                   )}
                   {open === league?._id && (
                     <div
+                      ref={menuRef}
                       className="absolute right-0 z-50 mt-10 w-52 origin-top-right rounded-xl shadow-2xl ring-1 ring-gray-600 transform transition-all duration-300 ease-out backdrop-blur-sm"
                       style={{
                         background:
@@ -270,7 +271,10 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({
                               type="checkbox"
                               className="sr-only peer"
                               checked={league?.isHidden}
-                              onChange={async () => {
+                              onChange={async (e) => {
+                                // e.preventDefault();
+                                // e.stopPropagation();
+
                                 await dispatch(
                                   toogleleague({
                                     id: league._id,
