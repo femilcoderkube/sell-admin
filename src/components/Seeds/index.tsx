@@ -180,11 +180,19 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
   };
 
   // Handle selecting a player for a seed
+
   const handleSelectPlayer = (player: {
     id: string;
     name: string;
-    team: string;
+    shortName: string;
+    region: string;
   }) => {
+    // Double-check if player is already in seedingList (for safety)
+    if (seedingList.some((item) => item.player?.id === player.id)) {
+      toast.error(`${player.name} is already assigned to a seed.`);
+      return;
+    }
+
     setSeedingList((prev) =>
       prev.map((item) =>
         item.seed === currentSeed ? { ...item, player } : item
@@ -217,13 +225,10 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
   const handleBulkAdd = () => {
     const emptySeeds = seedingList.filter((item) => !item.player);
 
-    const playersToAdd = shuffleArray(
-      playerDetails.filter((p) => selectedPlayers.includes(p.id))
-    );
-
-    // const playersToAdd = playerDetails.filter((p) =>
-    //   selectedPlayers.includes(p.id)
-    // );
+    // Create playersToAdd in the order of selectedPlayers
+    const playersToAdd = selectedPlayers
+      .map((id) => playerDetails.find((p) => p.id === id))
+      .filter((player) => player !== undefined); // Filter out any undefined players
 
     setSeedingList((prev) =>
       prev.map((item) => {
@@ -237,6 +242,41 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
 
     setSelectedPlayers([]);
     setShowBulkModal(false);
+  };
+
+  const handleShuffle = () => {
+    // Check if shuffling is allowed (e.g., not in the first round)
+    if (stagesList?.settings?.isFirstRound) {
+      toast.error("Cannot shuffle seeds after the first round has started.");
+      return;
+    }
+
+    // Get the list of assigned players from seedingList
+    const assignedPlayers = seedingList
+      .filter((item) => item.player)
+      .map((item) => item.player);
+
+    // Check if there are enough players to shuffle
+    if (assignedPlayers.length < 2) {
+      toast.error("At least two players are required to shuffle seeds.");
+      return;
+    }
+
+    // Shuffle the assigned players
+    const shuffledPlayers = shuffleArray(assignedPlayers);
+
+    // Update seedingList with shuffled players
+    setSeedingList((prev) => {
+      let playerIndex = 0;
+      return prev.map((item) => {
+        if (item.player && playerIndex < shuffledPlayers.length) {
+          return { ...item, player: shuffledPlayers[playerIndex++] };
+        }
+        return item;
+      });
+    });
+
+    toast.success("Seeds have been shuffled successfully.");
   };
 
   // Handle removing a player from a seed
@@ -387,10 +427,13 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                     <PlusIcon />
                     <span>Add</span>
                   </button>
-                  {/* <button className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors text-sm">
-                  <Shuffle size={16} />
-                </button>
-                <button className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors text-sm">
+                  <button
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors text-sm"
+                    onClick={() => handleShuffle()}
+                  >
+                    <Shuffle size={16} />
+                  </button>
+                  {/*<button className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors text-sm">
                   <Unlock size={16} />
                 </button> */}
                 </div>
