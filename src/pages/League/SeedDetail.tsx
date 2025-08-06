@@ -66,6 +66,8 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
     useState(false);
   const { data } = useSelector((state: RootState) => state.draftingPhase);
 
+  console.log("data", data);
+
   const { state } = useLocation();
   const did = window.location.pathname.split("/")[5];
 
@@ -208,6 +210,11 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
     const seedIds = seedingList
       .filter((item) => item.player)
       .map((item) => item.player!.id);
+
+    if (seedIds?.length !== state?.draftPlayer) {
+      toast.error(`You must select at least ${state?.draftPlayer} players.`);
+      return;
+    }
 
     try {
       const resultAction = await dispatch(
@@ -437,8 +444,10 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
             <div className="mt-6 text-center">
               <button
                 onClick={handleSaveChanges}
-                className="px-8 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-medium transition-colors"
-                disabled={seedingList.every((item) => !item.player)}
+                className="px-8 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 rounded-lg font-medium transition-colors"
+                disabled={
+                  !(data?.captain?.length > 0 && data?.otherPlayers?.length > 0)
+                }
               >
                 Save Changes
               </button>

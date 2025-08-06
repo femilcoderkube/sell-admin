@@ -246,6 +246,13 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
 
     // const seedIds = seedingList.map((item) => (item.player ? item.player.id : null));
 
+    if (seedIds?.length !== stagesList?.numberOfParticipants) {
+      toast.error(
+        `You must select at least ${stagesList?.numberOfParticipants} players.`
+      );
+      return;
+    }
+
     try {
       const resultAction = await dispatch(
         updateTournamentStage({ stageId: stageId, seed: seedIds })
