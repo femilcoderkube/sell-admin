@@ -336,7 +336,8 @@ const teamSlice = createSlice({
       .addCase(deleteTeam.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-        toast.error("Failed to delete team!");
+        toast.error((action.payload as string) || "Failed to delete team!");
+        // toast.error("Failed to delete team!");
       })
       .addCase(joinTeam.pending, (state) => {
         state.loading = true;

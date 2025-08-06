@@ -105,16 +105,16 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
           ? {
               id: stagesList?.seed[index]._id,
               name: stagesList?.seed[index].team
-                ? stagesList?.seed[index].team.teamName
-                : stagesList?.seed[index].user.username,
+                ? stagesList?.seed[index].team?.teamName
+                : stagesList?.seed[index].user?.username,
               shortName: stagesList?.seed[index].team
-                ? stagesList?.seed[index].team.teamShortName
-                : stagesList?.seed[index].user.firstName +
+                ? stagesList?.seed[index].team?.teamShortName
+                : stagesList?.seed[index].user?.firstName +
                   " " +
-                  stagesList?.seed[index].user.lastName,
-              region: stagesList?.seed[index].team
-                ? stagesList?.seed[index].team.region
-                : stagesList?.seed[index].user.nationality,
+                  stagesList?.seed[index].user?.lastName,
+              region: stagesList?.seed[index]?.team
+                ? stagesList?.seed[index].team?.region
+                : stagesList?.seed[index].user?.nationality,
             }
           : null,
       }))
@@ -417,7 +417,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                           {item.player ? (
                             <div className="flex items-center gap-3">
                               <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-sm font-bold">
-                                {item.player.name.charAt(0)}
+                                {item.player?.name?.charAt(0)}
                               </div>
                               <div>
                                 <div className="font-medium text-sm">
