@@ -52,6 +52,8 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
   const { eligiblePlayers, loading, error } = useSelector(
     (state: RootState) => state.eligiblePlayers
   );
+  const [isSeedingListInitialized, setIsSeedingListInitialized] =
+    useState(false);
   const { data } = useSelector((state: RootState) => state.draftingPhase);
 
   const { state } = useLocation();
@@ -91,13 +93,12 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
 
   // Initialize seeding list and player details
   useEffect(() => {
-    if (eligiblePlayers.length > 0) {
+    if (eligiblePlayers.length > 0 && !isSeedingListInitialized) {
       const details = fetchPlayerDetails(eligiblePlayers);
       setPlayerDetails(details);
 
-      // Initialize seeding list based on the number of eligible players
       setSeedingList(
-        Array.from({ length: state?.draftPlayer }, (_, index) => ({
+        Array.from({ length: state?.draftPlayer || 0 }, (_, index) => ({
           seed: index + 1,
           player: data?.eligiblePlayers[index]
             ? {
@@ -109,8 +110,14 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
             : null,
         }))
       );
+      setIsSeedingListInitialized(true);
     }
-  }, [eligiblePlayers, data?.eligiblePlayers]);
+  }, [
+    eligiblePlayers,
+    data?.eligiblePlayers,
+    state?.draftPlayer,
+    isSeedingListInitialized,
+  ]);
 
   // Filter players based on search term
   const filteredPlayers = playerDetails.filter((player) =>
@@ -230,10 +237,16 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
       const sourceIndex = newList.findIndex((item) => item.seed === sourceSeed);
       const targetIndex = newList.findIndex((item) => item.seed === targetSeed);
 
+      if (sourceIndex === -1 || targetIndex === -1) {
+        console.error("Invalid source or target seed:", sourceSeed, targetSeed);
+        return prev;
+      }
+
       const temp = newList[sourceIndex].player;
       newList[sourceIndex].player = newList[targetIndex].player;
       newList[targetIndex].player = temp;
 
+      console.log("Updated seedingList:", newList);
       return newList;
     });
   };
