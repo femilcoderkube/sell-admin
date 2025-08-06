@@ -617,27 +617,34 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                     />
                   </div>
                   <div className="space-y-2 max-h-60 overflow-y-auto">
-                    {filteredPlayers.map((player) => (
-                      <div
-                        key={player.id}
-                        onClick={() => handleSelectPlayer(player)}
-                        className="p-3 bg-gray-700 hover:bg-gray-600 rounded-lg cursor-pointer transition-colors"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-sm font-bold">
-                            {player.name.charAt(0)}
-                          </div>
-                          <div>
-                            <div className="font-medium text-sm">
-                              {player.name}
+                    {filteredPlayers
+                      .filter(
+                        (player) =>
+                          !seedingList.some(
+                            (item) => item.player?.id === player?.id
+                          )
+                      )
+                      .map((player) => (
+                        <div
+                          key={player.id}
+                          onClick={() => handleSelectPlayer(player)}
+                          className="p-3 bg-gray-700 hover:bg-gray-600 rounded-lg cursor-pointer transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-sm font-bold">
+                              {player.name.charAt(0)}
                             </div>
-                            <div className="text-xs text-gray-400">
-                              {player.team}
+                            <div>
+                              <div className="font-medium text-sm">
+                                {player.name}
+                              </div>
+                              <div className="text-xs text-gray-400">
+                                {player.team}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
                 </div>
                 <div className="p-4 border-t border-gray-700 flex justify-between items-center">
