@@ -694,33 +694,40 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                     </label>
                   </div>
                   <div className="space-y-3">
-                    {filteredPlayers.map((player) => (
-                      <div
-                        key={player.id}
-                        className="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg cursor-pointer transition-all duration-200"
-                        onClick={() => handleBulkSelect(player.id)}
-                      >
-                        <div className="flex items-center gap-4">
-                          <input
-                            type="checkbox"
-                            checked={selectedPlayers.includes(player.id)}
-                            onChange={() => handleBulkSelect(player.id)}
-                            className="w-5 h-5 text-blue-500 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2 transition-colors"
-                          />
-                          <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                            {player.name.charAt(0)}
-                          </div>
-                          <div>
-                            <div className="font-medium text-white">
-                              {player.name}
+                    {filteredPlayers
+                      .filter(
+                        (player) =>
+                          !seedingList.some(
+                            (item) => item.player?.id === player?.id
+                          )
+                      )
+                      .map((player) => (
+                        <div
+                          key={player.id}
+                          className="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg cursor-pointer transition-all duration-200"
+                          onClick={() => handleBulkSelect(player.id)}
+                        >
+                          <div className="flex items-center gap-4">
+                            <input
+                              type="checkbox"
+                              checked={selectedPlayers.includes(player.id)}
+                              onChange={() => handleBulkSelect(player.id)}
+                              className="w-5 h-5 text-blue-500 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2 transition-colors"
+                            />
+                            <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                              {player.name.charAt(0)}
                             </div>
-                            <div className="text-xs text-gray-400">
-                              {player.team}
+                            <div>
+                              <div className="font-medium text-white">
+                                {player.name}
+                              </div>
+                              <div className="text-xs text-gray-400">
+                                {player.team}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
                 </div>
 
