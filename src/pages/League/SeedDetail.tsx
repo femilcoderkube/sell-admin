@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Plus, Search, X } from "lucide-react";
+import { Edit2, Plus, Search, X } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchEligiblePlayers,
@@ -415,12 +415,21 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                         </div>
                         <div className="col-span-3 flex justify-end">
                           {item.player ? (
-                            <button
-                              onClick={() => handleRemovePlayer(item.seed)}
-                              className="p-2 text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
-                            >
-                              <X size={16} />
-                            </button>
+                            <>
+                              <button
+                                onClick={() => handleAddPlayer(item.seed)}
+                                className="p-2 text-blue-400 hover:bg-blue-700 rounded-lg transition-colors"
+                                disabled={filteredPlayers.length === 0}
+                              >
+                                <Edit2 size={16} />
+                              </button>
+                              <button
+                                onClick={() => handleRemovePlayer(item.seed)}
+                                className="p-2 text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
+                              >
+                                <X size={16} />
+                              </button>
+                            </>
                           ) : (
                             <button
                               onClick={() => handleAddPlayer(item.seed)}
