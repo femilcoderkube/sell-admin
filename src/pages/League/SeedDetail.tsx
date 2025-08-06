@@ -215,12 +215,10 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
       );
       if (updateEligiblePlayers.fulfilled.match(resultAction)) {
         dispatch(fetchDraftingPhase({ id: did }));
-        toast.success("Seeding saved successfully!");
-      } else {
-        toast.error("Failed to save seeding!");
+        // toast.success("Seeding saved successfully!");
       }
     } catch (error) {
-      toast.error("An error occurred while saving!");
+      console.log("error", error);
     }
   };
 
@@ -556,14 +554,34 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                     <label className="flex items-center gap-3 cursor-pointer">
                       <input
                         type="checkbox"
+                        // checked={
+                        //   selectedPlayers.length === filteredPlayers.length &&
+                        //   filteredPlayers.length > 0
+                        // }
                         checked={
-                          selectedPlayers.length === filteredPlayers.length &&
-                          filteredPlayers.length > 0
+                          selectedPlayers.length ===
+                            Math.min(
+                              filteredPlayers.length,
+                              state?.draftPlayer
+                            ) && filteredPlayers.length > 0
                         }
+                        // onChange={(e) => {
+                        //   if (e.target.checked) {
+                        //     setSelectedPlayers(
+                        //       filteredPlayers.map((p) => p.id)
+                        //     );
+                        //   } else {
+                        //     setSelectedPlayers([]);
+                        //   }
+                        // }}
+
                         onChange={(e) => {
                           if (e.target.checked) {
+                            const draftLimit = state?.draftPlayer; // Default to 25 if undefined
                             setSelectedPlayers(
-                              filteredPlayers.map((p) => p.id)
+                              filteredPlayers
+                                .slice(0, draftLimit)
+                                .map((p) => p.id)
                             );
                           } else {
                             setSelectedPlayers([]);
@@ -572,7 +590,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                         className="w-5 h-5 text-blue-500 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2 transition-colors"
                       />
                       <span className="text-sm font-medium text-white">
-                        Select All
+                        {`Select Top ${state?.draftPlayer} Players`}
                       </span>
                     </label>
                   </div>
