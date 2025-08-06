@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { PlusIcon } from "../ui";
 import { useEffect, useState } from "react";
-import { Edit2, Plus, Search, Shuffle, Unlock, X } from "lucide-react";
+import { Edit2, Lock, Plus, Search, Shuffle, Unlock, X } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchNotInStageParticipants } from "../../app/features/tournament/notInStageSlice";
 import { RootState } from "../../app/store";
@@ -70,6 +70,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
         shortName: string;
         region: string;
       } | null;
+      locked: boolean;
     }[]
   >([]);
   const [playerDetails, setPlayerDetails] = useState<
@@ -117,6 +118,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                 : stagesList?.seed[index].user?.nationality,
             }
           : null,
+        locked: false,
       }))
     );
   }, [dispatch, tournamentId, stageId, stagesList]);
@@ -372,6 +374,21 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
     });
   };
 
+  const handleToggleLock = (seed: number) => {
+    setSeedingList((prev) =>
+      prev.map((item) =>
+        item.seed === seed ? { ...item, locked: !item.locked } : item
+      )
+    );
+    toast.success(
+      `Seed ${seed} ${
+        seedingList.find((item) => item.seed === seed)?.locked
+          ? "unlocked"
+          : "locked"
+      }.`
+    );
+  };
+
   return (
     <>
       <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-start items-center pt-3 pb-[2rem] border-b border-light-border">
@@ -497,16 +514,30 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                               <button
                                 onClick={() => handleAddPlayer(item.seed)}
                                 className="p-2 text-blue-400 hover:bg-blue-700 disabled:text-gray-600 rounded-lg transition-colors"
-                                disabled={filteredPlayers.length === 0}
+                                disabled={
+                                  filteredPlayers.length === 0 || item.locked
+                                }
                               >
                                 <Edit2 size={16} />
                               </button>
                               <button
                                 onClick={() => handleRemovePlayer(item.seed)}
                                 className="p-2 text-red-400 hover:bg-red-900/20 disabled:text-gray-600 rounded-lg transition-colors"
-                                disabled={filteredPlayers.length === 0}
+                                disabled={
+                                  filteredPlayers.length === 0 || item.locked
+                                }
                               >
                                 <X size={16} />
+                              </button>
+                              <button
+                                className="p-2 text-yellow-400 hover:bg-yellow-900/20 disabled:text-gray-600 rounded-lg transition-colors"
+                                onClick={() => handleToggleLock(item.seed)}
+                              >
+                                {item.locked ? (
+                                  <Lock size={16} />
+                                ) : (
+                                  <Unlock size={16} />
+                                )}
                               </button>
                             </>
                           ) : (
