@@ -444,7 +444,9 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                 onClick={handleSaveChanges}
                 className="px-8 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 rounded-lg font-medium transition-colors"
                 disabled={
-                  !(data?.captain?.length > 0 && data?.otherPlayers?.length > 0)
+                  data?.captain?.length > 0 || data?.otherPlayers?.length > 0
+                    ? true
+                    : false
                 }
               >
                 Save Changes
