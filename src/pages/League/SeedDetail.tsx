@@ -46,6 +46,16 @@ const fetchPlayerDetails = (players: EligiblePlayer[]): PlayerDetails[] => {
   }));
 };
 
+// Utility function to shuffle an array (Fisher-Yates shuffle)
+const shuffleArray = (array: any) => {
+  const newArray = [...array];
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+  }
+  return newArray;
+};
+
 export const SeedDetail: FC<{ title: string }> = ({ title }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -57,7 +67,6 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
   const { data } = useSelector((state: RootState) => state.draftingPhase);
 
   const { state } = useLocation();
-
   const did = window.location.pathname.split("/")[5];
 
   // State for UI and data
@@ -73,11 +82,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
 
   // Fetch eligible players
   useEffect(() => {
-    dispatch(
-      fetchDraftingPhase({
-        id: did,
-      })
-    );
+    dispatch(fetchDraftingPhase({ id: did }));
   }, [dispatch, did]);
 
   useEffect(() => {
@@ -119,9 +124,11 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
     isSeedingListInitialized,
   ]);
 
-  // Filter players based on search term
-  const filteredPlayers = playerDetails.filter((player) =>
-    player.name.toLowerCase().includes(searchTerm.toLowerCase())
+  // Filter players, excluding those already in the seeding list
+  const filteredPlayers = playerDetails.filter(
+    (player) =>
+      player.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      !seedingList.some((item) => item.player?.id === player.id)
   );
 
   // Handle adding a single player to a seed
@@ -150,25 +157,41 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
     );
   };
 
-  // Handle bulk addition of players to empty seeds
+  // Handle bulk addition of players to empty seeds with randomization
   const handleBulkAdd = () => {
-    const emptySeeds = seedingList.filter((item) => !item.player);
-    const playersToAdd = playerDetails.filter((p) =>
-      selectedPlayers.includes(p.id)
+    const emptySeeds = seedingList
+      .filter((item) => !item.player)
+      .map((item) => item.seed);
+    const playersToAdd = shuffleArray(
+      playerDetails.filter((p) => selectedPlayers.includes(p.id))
     );
 
-    setSeedingList((prev) =>
-      prev.map((item) => {
-        if (!item.player && playersToAdd.length > 0) {
-          const player = playersToAdd.shift();
-          return { ...item, player };
+    if (playersToAdd.length > emptySeeds.length) {
+      toast.error(
+        `Cannot add ${playersToAdd.length} players. Only ${emptySeeds.length} empty seeds available.`
+      );
+      return;
+    }
+
+    setSeedingList((prev) => {
+      const newList = [...prev];
+      let playerIndex = 0;
+
+      for (const seed of emptySeeds) {
+        if (playerIndex < playersToAdd.length) {
+          const player = playersToAdd[playerIndex];
+          const index = newList.findIndex((item) => item.seed === seed);
+          newList[index].player = player;
+          playerIndex++;
         }
-        return item;
-      })
-    );
+      }
+
+      return newList;
+    });
 
     setSelectedPlayers([]);
     setShowBulkModal(false);
+    // toast.success(`${playersToAdd.length} players added to seeds randomly.`);
   };
 
   // Handle removing a player from a seed
@@ -191,16 +214,13 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
         updateEligiblePlayers({ id: did, playerIds: seedIds })
       );
       if (updateEligiblePlayers.fulfilled.match(resultAction)) {
-        // Refetch eligible players to update the list
-        // dispatch(fetchEligiblePlayers({ id: did }));
-        dispatch(
-          fetchDraftingPhase({
-            id: did,
-          })
-        );
+        dispatch(fetchDraftingPhase({ id: did }));
+        toast.success("Seeding saved successfully!");
+      } else {
+        toast.error("Failed to save seeding!");
       }
     } catch (error) {
-      toast.error("Failed to save seeding!");
+      toast.error("An error occurred while saving!");
     }
   };
 
@@ -246,7 +266,6 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
       newList[sourceIndex].player = newList[targetIndex].player;
       newList[targetIndex].player = temp;
 
-      console.log("Updated seedingList:", newList);
       return newList;
     });
   };
@@ -286,7 +305,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
         <HandLogoLoader />
       ) : (
         <div className="flex gap-3 min-h-screen bg-gray-900 text-white p-4">
-          <div className="max-w-4xl">
+          <div className="max-w-4xl w-full">
             {/* Header */}
             <div className="bg-gray-800 rounded-lg p-4 mb-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -297,6 +316,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                   <button
                     onClick={() => setShowBulkModal(true)}
                     className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors text-sm"
+                    disabled={filteredPlayers.length === 0}
                   >
                     <Plus size={16} />
                     <span>Add</span>
@@ -402,6 +422,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                             <button
                               onClick={() => handleAddPlayer(item.seed)}
                               className="p-2 text-gray-400 hover:bg-gray-700 rounded-lg transition-colors"
+                              disabled={filteredPlayers.length === 0}
                             >
                               <Plus size={16} />
                             </button>
@@ -419,6 +440,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
               <button
                 onClick={handleSaveChanges}
                 className="px-8 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-medium transition-colors"
+                disabled={seedingList.every((item) => !item.player)}
               >
                 Save Changes
               </button>
@@ -455,29 +477,35 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                     />
                   </div>
                   <div className="space-y-2 max-h-60 overflow-y-auto">
-                    {filteredPlayers.map((player) => (
-                      <div
-                        key={player.id}
-                        onClick={() => handleSelectPlayer(player)}
-                        className="p-3 bg-gray-700 hover:bg-gray-600 rounded-lg cursor-pointer transition-colors"
-                      >
-                        <div className="flex items-center gap-3">
-                          <img
-                            src={`${baseURL}/api/v1/${player.profilePicture}`}
-                            alt={player.name}
-                            className="w-8 h-8 rounded-full"
-                          />
-                          <div>
-                            <div className="font-medium text-sm">
-                              {player.name}
-                            </div>
-                            <div className="text-xs text-gray-400">
-                              {player.shortName}
+                    {filteredPlayers.length === 0 ? (
+                      <div className="text-center text-gray-400">
+                        No available players
+                      </div>
+                    ) : (
+                      filteredPlayers.map((player) => (
+                        <div
+                          key={player.id}
+                          onClick={() => handleSelectPlayer(player)}
+                          className="p-3 bg-gray-700 hover:bg-gray-600 rounded-lg cursor-pointer transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={`${baseURL}/api/v1/${player.profilePicture}`}
+                              alt={player.name}
+                              className="w-8 h-8 rounded-full"
+                            />
+                            <div>
+                              <div className="font-medium text-sm">
+                                {player.name}
+                              </div>
+                              <div className="text-xs text-gray-400">
+                                {player.shortName}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </div>
                 <div className="p-4 border-t border-gray-700 flex justify-between items-center">
@@ -529,11 +557,14 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                       <input
                         type="checkbox"
                         checked={
-                          selectedPlayers.length === playerDetails.length
+                          selectedPlayers.length === filteredPlayers.length &&
+                          filteredPlayers.length > 0
                         }
                         onChange={(e) => {
                           if (e.target.checked) {
-                            setSelectedPlayers(playerDetails.map((p) => p.id));
+                            setSelectedPlayers(
+                              filteredPlayers.map((p) => p.id)
+                            );
                           } else {
                             setSelectedPlayers([]);
                           }
@@ -546,40 +577,46 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                     </label>
                   </div>
                   <div className="space-y-3">
-                    {filteredPlayers.map((player) => (
-                      <div
-                        key={player.id}
-                        className="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg cursor-pointer transition-all duration-200"
-                        onClick={() => handleBulkSelect(player.id)}
-                      >
-                        <div className="flex items-center gap-4">
-                          <input
-                            type="checkbox"
-                            checked={selectedPlayers.includes(player.id)}
-                            onChange={() => handleBulkSelect(player.id)}
-                            className="w-5 h-5 text-blue-500 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2 transition-colors"
-                          />
-                          <img
-                            src={`${baseURL}/api/v1/${player.profilePicture}`}
-                            alt={player.name}
-                            className="w-10 h-10 rounded-full"
-                          />
-                          <div>
-                            <div className="font-medium text-white">
-                              {player.name}
-                            </div>
-                            <div className="text-xs text-gray-400">
-                              {player.shortName}
+                    {filteredPlayers.length === 0 ? (
+                      <div className="text-center text-gray-400">
+                        No available players
+                      </div>
+                    ) : (
+                      filteredPlayers.map((player) => (
+                        <div
+                          key={player.id}
+                          className="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg cursor-pointer transition-all duration-200"
+                          onClick={() => handleBulkSelect(player.id)}
+                        >
+                          <div className="flex items-center gap-4">
+                            <input
+                              type="checkbox"
+                              checked={selectedPlayers.includes(player.id)}
+                              onChange={() => handleBulkSelect(player.id)}
+                              className="w-5 h-5 text-blue-500 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2 transition-colors"
+                            />
+                            <img
+                              src={`${baseURL}/api/v1/${player.profilePicture}`}
+                              alt={player.name}
+                              className="w-10 h-10 rounded-full"
+                            />
+                            <div>
+                              <div className="font-medium text-white">
+                                {player.name}
+                              </div>
+                              <div className="text-xs text-gray-400">
+                                {player.shortName}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </div>
                 <div className="p-5 border-t border-gray-700 flex justify-between items-center">
                   <span className="text-sm text-gray-400">
-                    {selectedPlayers.length} selected / {playerDetails.length}{" "}
+                    {selectedPlayers.length} selected / {filteredPlayers.length}{" "}
                     available
                   </span>
                   <div className="flex gap-3">
