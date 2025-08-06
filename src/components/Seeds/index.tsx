@@ -196,11 +196,21 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
 
   // Handle bulk selection of players
   const handleBulkSelect = (playerId: string) => {
-    setSelectedPlayers((prev) =>
-      prev.includes(playerId)
-        ? prev.filter((id) => id !== playerId)
-        : [...prev, playerId]
-    );
+    const maxParticipants = stagesList?.numberOfParticipants || 0;
+
+    setSelectedPlayers((prev) => {
+      if (prev.includes(playerId)) {
+        // If player is already selected, remove them
+        return prev.filter((id) => id !== playerId);
+      } else {
+        // If adding a new player, check if it exceeds the limit
+        if (prev.length >= maxParticipants) {
+          toast.error(`You can only select up to ${maxParticipants} players.`);
+          return prev; // Do not add the new player
+        }
+        return [...prev, playerId]; // Add the new player
+      }
+    });
   };
 
   // Handle bulk addition of players to empty seeds
