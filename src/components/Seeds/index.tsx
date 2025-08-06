@@ -253,38 +253,39 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
   };
 
   const handleShuffle = () => {
-    // Check if shuffling is allowed (e.g., not in the first round)
     if (stagesList?.settings?.isFirstRound) {
       toast.error("Cannot shuffle seeds after the first round has started.");
       return;
     }
 
-    // Get the list of assigned players from seedingList
     const assignedPlayers = seedingList
-      .filter((item) => item.player)
+      .filter((item) => item.player && !item.locked)
       .map((item) => item.player);
 
-    // Check if there are enough players to shuffle
     if (assignedPlayers.length < 2) {
-      toast.error("At least two players are required to shuffle seeds.");
+      toast.error(
+        "At least two unlocked players are required to shuffle seeds."
+      );
       return;
     }
 
-    // Shuffle the assigned players
     const shuffledPlayers = shuffleArray(assignedPlayers);
 
-    // Update seedingList with shuffled players
     setSeedingList((prev) => {
       let playerIndex = 0;
       return prev.map((item) => {
-        if (item.player && playerIndex < shuffledPlayers.length) {
+        if (
+          item.player &&
+          !item.locked &&
+          playerIndex < shuffledPlayers.length
+        ) {
           return { ...item, player: shuffledPlayers[playerIndex++] };
         }
         return item;
       });
     });
 
-    toast.success("Seeds have been shuffled successfully.");
+    toast.success("Unlocked seeds have been shuffled successfully.");
   };
 
   // Handle removing a player from a seed
