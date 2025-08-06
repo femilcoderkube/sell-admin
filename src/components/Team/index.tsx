@@ -74,14 +74,11 @@ export const Team: React.FC<TeamProps> = ({ title }) => {
     [dispatch]
   );
 
-  const handlePageChange = useCallback(
-    (page: number) => {
-      if (page >= 1 && page <= Math.ceil(totalCount / perPage)) {
-        dispatch(setPage(page));
-      }
-    },
-    [dispatch, totalCount, perPage]
-  );
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= Math.ceil(totalCount / perPage)) {
+      dispatch(setPage(page));
+    }
+  };
 
   const totalPages = Math.ceil(totalCount / perPage);
 
