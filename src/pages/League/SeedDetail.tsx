@@ -418,14 +418,15 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                             <>
                               <button
                                 onClick={() => handleAddPlayer(item.seed)}
-                                className="p-2 text-blue-400 hover:bg-blue-700 rounded-lg transition-colors"
+                                className="p-2 text-blue-400 hover:bg-blue-700 disabled:text-gray-600 rounded-lg transition-colors"
                                 disabled={filteredPlayers.length === 0}
                               >
                                 <Edit2 size={16} />
                               </button>
                               <button
                                 onClick={() => handleRemovePlayer(item.seed)}
-                                className="p-2 text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
+                                className="p-2 text-red-400 hover:bg-red-900/20 disabled:text-gray-600 rounded-lg transition-colors"
+                                disabled={filteredPlayers.length === 0}
                               >
                                 <X size={16} />
                               </button>
@@ -433,7 +434,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                           ) : (
                             <button
                               onClick={() => handleAddPlayer(item.seed)}
-                              className="p-2 text-gray-400 hover:bg-gray-700 rounded-lg transition-colors"
+                              className="p-2 text-gray-400 hover:bg-gray-700  disabled:text-gray-600 rounded-lg transition-colors"
                               disabled={filteredPlayers.length === 0}
                             >
                               <Plus size={16} />

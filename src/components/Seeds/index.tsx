@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { PlusIcon } from "../ui";
 import { useEffect, useState } from "react";
-import { Plus, Search, Shuffle, Unlock, X } from "lucide-react";
+import { Edit2, Plus, Search, Shuffle, Unlock, X } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchNotInStageParticipants } from "../../app/features/tournament/notInStageSlice";
 import { RootState } from "../../app/store";
@@ -434,16 +434,26 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                         </div>
                         <div className="col-span-3 flex justify-end">
                           {item.player ? (
-                            <button
-                              onClick={() => handleRemovePlayer(item.seed)}
-                              className="p-2 text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
-                            >
-                              <X size={16} />
-                            </button>
+                            <>
+                              <button
+                                onClick={() => handleAddPlayer(item.seed)}
+                                className="p-2 text-blue-400 hover:bg-blue-700 disabled:text-gray-600 rounded-lg transition-colors"
+                                disabled={filteredPlayers.length === 0}
+                              >
+                                <Edit2 size={16} />
+                              </button>
+                              <button
+                                onClick={() => handleRemovePlayer(item.seed)}
+                                className="p-2 text-red-400 hover:bg-red-900/20 disabled:text-gray-600 rounded-lg transition-colors"
+                                disabled={filteredPlayers.length === 0}
+                              >
+                                <X size={16} />
+                              </button>
+                            </>
                           ) : (
                             <button
                               onClick={() => handleAddPlayer(item.seed)}
-                              className="p-2 text-gray-400 hover:bg-gray-700 rounded-lg transition-colors"
+                              className="p-2 text-gray-400 hover:bg-gray-700 disabled:text-gray-600 rounded-lg transition-colors"
                             >
                               <Plus size={16} />
                             </button>
