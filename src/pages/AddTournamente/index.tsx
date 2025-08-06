@@ -1840,7 +1840,7 @@ export const AddTournament: FC = () => {
     customRegistrationFields:
       tournamentData?.customRegistrationFields?.length > 0
         ? tournamentData.customRegistrationFields
-        : [{ fieldName: "Game ID", fieldType: "text", required: false }],
+        : [{ fieldName: "Game ID", fieldType: "text", required: true }],
     logo: tournamentData?.logo || null,
     headerPhoto: tournamentData?.headerPhoto || null,
     internalPhoto: tournamentData?.internalPhoto || null,
