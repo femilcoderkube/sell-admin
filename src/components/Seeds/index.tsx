@@ -34,6 +34,16 @@ async function fetchTeamDetails(ids) {
     region: item.team ? item.team.region : item.user.nationality,
   }));
 }
+
+const shuffleArray = (array: any) => {
+  const newArray = [...array];
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+  }
+  return newArray;
+};
+
 export const Seeds: React.FC<{ title: string }> = ({ title }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -196,9 +206,14 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
   // Handle bulk addition of players to empty seeds
   const handleBulkAdd = () => {
     const emptySeeds = seedingList.filter((item) => !item.player);
-    const playersToAdd = playerDetails.filter((p) =>
-      selectedPlayers.includes(p.id)
+
+    const playersToAdd = shuffleArray(
+      playerDetails.filter((p) => selectedPlayers.includes(p.id))
     );
+
+    // const playersToAdd = playerDetails.filter((p) =>
+    //   selectedPlayers.includes(p.id)
+    // );
 
     setSeedingList((prev) =>
       prev.map((item) => {
@@ -568,12 +583,29 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                     <label className="flex items-center gap-3 cursor-pointer">
                       <input
                         type="checkbox"
+                        // checked={
+                        //   selectedPlayers.length === playerDetails.length
+                        // }
                         checked={
-                          selectedPlayers.length === playerDetails.length
+                          selectedPlayers?.length ===
+                          Math.min(
+                            playerDetails?.length,
+                            stagesList?.numberOfParticipants
+                          )
                         }
+                        // onChange={(e) => {
+                        //   if (e.target.checked) {
+                        //     setSelectedPlayers(playerDetails.map((p) => p.id));
+                        //   } else {
+                        //     setSelectedPlayers([]);
+                        //   }
+                        // }}
                         onChange={(e) => {
+                          const limit = stagesList?.numberOfParticipants;
                           if (e.target.checked) {
-                            setSelectedPlayers(playerDetails.map((p) => p.id));
+                            setSelectedPlayers(
+                              playerDetails.slice(0, limit).map((p) => p.id)
+                            );
                           } else {
                             setSelectedPlayers([]);
                           }
@@ -581,7 +613,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                         className="w-5 h-5 text-blue-500 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2 transition-colors"
                       />
                       <span className="text-sm font-medium text-white">
-                        Select All
+                        {`Select Top ${stagesList?.numberOfParticipants} Players`}
                       </span>
                     </label>
                   </div>
