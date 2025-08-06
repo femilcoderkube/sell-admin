@@ -708,13 +708,6 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                             stagesList?.numberOfParticipants
                           )
                         }
-                        // onChange={(e) => {
-                        //   if (e.target.checked) {
-                        //     setSelectedPlayers(playerDetails.map((p) => p.id));
-                        //   } else {
-                        //     setSelectedPlayers([]);
-                        //   }
-                        // }}
                         onChange={(e) => {
                           const limit = stagesList?.numberOfParticipants;
                           if (e.target.checked) {
