@@ -311,7 +311,8 @@ const teamSlice = createSlice({
       .addCase(updateTeam.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-        toast.error("Failed to update team!");
+        // toast.error("Failed to update team!");
+        toast.error((action.payload as string) || "Failed to update team!");
       })
       .addCase(updateTeamMemberRole.pending, (state) => {
         state.loading = true;
