@@ -204,6 +204,12 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
 
   // Handle bulk selection of players
   const handleBulkSelect = (playerId: string) => {
+    // Double-check if player is already in seedingList (for safety)
+    if (seedingList.some((item) => item.player?.id === playerId)) {
+      toast.error(`Already assigned to a seed.`);
+      return;
+    }
+
     const maxParticipants = stagesList?.numberOfParticipants || 0;
 
     setSelectedPlayers((prev) => {
