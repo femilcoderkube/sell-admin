@@ -66,8 +66,6 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
     useState(false);
   const { data } = useSelector((state: RootState) => state.draftingPhase);
 
-  console.log("data", data);
-
   const { state } = useLocation();
   const did = window.location.pathname.split("/")[5];
 
