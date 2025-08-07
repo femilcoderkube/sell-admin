@@ -285,6 +285,21 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
   };
 
   const handleOpenAddModal = (seed: number) => {
+    if (!seed) return;
+
+    const currentPlayer = seedingList.find(
+      (item) => item.seed === seed
+    )?.player;
+    if (currentPlayer) {
+      setPlayerDetails((prev) => {
+        const alreadyExists = prev.some((p) => p.id === currentPlayer.id);
+        if (!alreadyExists) {
+          return [...prev, currentPlayer];
+        }
+        return prev;
+      });
+    }
+
     setCurrentSeed(seed);
     setShowAddModal(true);
   };
