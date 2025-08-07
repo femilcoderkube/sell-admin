@@ -4,16 +4,23 @@ import toast from "react-hot-toast";
 
 // Async thunk to fetch battle royal scores
 export const fetchBattleRoyalScores = createAsyncThunk(
-  "battleRoyalScores/fetchBattleRoyalScores",
-  async (stageId: string, { rejectWithValue }) => {
+  "battleRoyalScores/fetch",
+  async (
+    {
+      stageId,
+      roundId,
+      groupId,
+    }: { stageId: string; roundId: string; groupId: string },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await axiosInstance.get(
-        `/BattleRoyalScores?stageId=${stageId}&roundId=${roundId}`
-      );
-      return response.data.data;
-    } catch (error) {
+      const { data } = await axiosInstance.get(`/BattleRoyalScores`, {
+        params: { stageId, roundId, groupId },
+      });
+      return data.data;
+    } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch battle royal scores"
+        error.response?.data?.message || "Failed to fetch Battle Royale scores"
       );
     }
   }

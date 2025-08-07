@@ -137,7 +137,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
 
   useEffect(() => {
     if (stageType === "BattleRoyal") {
-      dispatch(fetchBattleRoyalScores(selectedStage));
+      dispatch(fetchBattleRoyalScores({ stageId: selectedStage }));
     }
   }, [selectedStage]);
 
