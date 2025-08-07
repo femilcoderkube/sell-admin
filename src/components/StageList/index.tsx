@@ -60,7 +60,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
 
   const partnerId = window.location.pathname.split("/")[1];
   const tournamentId = window.location.pathname.split("/")[3];
-
+  const [localScores, setLocalScores] = useState([]);
   const [deleteId, setDeleteId] = useState<string>("");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
 
@@ -181,8 +181,6 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
     }
   }, [selectedStage, selectedGroup, selectedRound]);
 
-  console.log("stagesDetails", stagesDetails?.settings);
-
   // useEffect(() => {
   //   if (selectedStage) {
   //     dispatch(getTournamentStagesById({ id: selectedStage }));
@@ -255,6 +253,103 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
   const handleCheckboxChange = (name: string) => {
     // If the clicked checkbox is already selected, uncheck it
     setSelectedStatus(selectedStatus === name ? null : name);
+  };
+
+  // State to manage scores locally for real-time updates
+
+  useEffect(() => {
+    setLocalScores(scores);
+  }, [scores]);
+  // Recalculate totalPoints when stagesDetails?.settings changes
+
+  // Function to calculate total points
+  const calculateTotalPoints = (placement: number, kills: number) => {
+    const settings = stagesDetails?.settings;
+    if (!settings) return 0;
+
+    // Calculate Kill Score
+    const killScore = kills * (settings.killPoints || 0);
+
+    // Calculate Placement Score
+    let placementScore = 0;
+    if (settings.placePoints && Array.isArray(settings.placePoints)) {
+      const matchedPlacement = settings.placePoints.find(
+        (point: any) => point.position === placement
+      );
+      placementScore = matchedPlacement ? matchedPlacement.point : 0;
+    }
+
+    return placementScore + killScore;
+  };
+
+  // Handle input change for placement or kills
+  const handleInputChange = (
+    index: number,
+    field: "placement" | "kills",
+    value: number
+  ) => {
+    setLocalScores((prevScores: any) =>
+      prevScores.map((score: any, i: number) =>
+        i === index
+          ? {
+              ...score,
+              placePoints: field === "placement" ? value : score.placePoints,
+              killPoints: field === "kills" ? value : score.killPoints,
+              totalPoints: calculateTotalPoints(
+                field === "placement" ? value : score.placePoints,
+                field === "kills" ? value : score.killPoints
+              ),
+            }
+          : score
+      )
+    );
+  };
+
+  // Handle increment/decrement buttons
+  const handleIncrement = (index: number, field: "placement" | "kills") => {
+    setLocalScores((prevScores: any) =>
+      prevScores.map((score: any, i: number) =>
+        i === index
+          ? {
+              ...score,
+              [field === "placement" ? "placePoints" : "killPoints"]:
+                (field === "placement" ? score.placePoints : score.killPoints) +
+                1,
+              totalPoints: calculateTotalPoints(
+                field === "placement"
+                  ? score.placePoints + 1
+                  : score.placePoints,
+                field === "kills" ? score.killPoints + 1 : score.killPoints
+              ),
+            }
+          : score
+      )
+    );
+  };
+
+  const handleDecrement = (index: number, field: "placement" | "kills") => {
+    setLocalScores((prevScores: any) =>
+      prevScores.map((score: any, i: number) =>
+        i === index
+          ? {
+              ...score,
+              [field === "placement" ? "placePoints" : "killPoints"]: Math.max(
+                0,
+                (field === "placement" ? score.placePoints : score.killPoints) -
+                  1
+              ),
+              totalPoints: calculateTotalPoints(
+                field === "placement"
+                  ? Math.max(0, score.placePoints - 1)
+                  : score.placePoints,
+                field === "kills"
+                  ? Math.max(0, score.killPoints - 1)
+                  : score.killPoints
+              ),
+            }
+          : score
+      )
+    );
   };
 
   return (
@@ -771,20 +866,24 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                   </div>
                 )}
                 {stageType === "BattleRoyal" && (
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 grid-cols-1  items-center mt-5 gap-3 mb-3">
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-2 grid-cols-1 items-center mt-5 gap-3 mb-3">
                     {matchesLoading ? (
                       <HandLogoLoader />
                     ) : (
                       <>
-                        {scores?.map((val: any, index: any) => {
+                        {localScores?.map((val: any, index: any) => {
                           return (
-                            <div className="nf_manage-wrap flex justify-between nf_battel-score nf_battel">
+                            <div
+                              key={index}
+                              className="nf_manage-wrap flex justify-between nf_battel-score nf_battel"
+                            >
                               <div className="nf_manage-content">
                                 <div className="nf_manage-num flex items-center">
-                                  <h4 className="player-number">
-                                    {index + 1}{" "}
-                                  </h4>
-                                  <h5 className="player-name"></h5>
+                                  <h4 className="player-number">{index + 1}</h4>
+                                  <h5 className="player-name">
+                                    {val?.participant?.team?.teamName}
+                                  </h5>
+
                                   <input
                                     type="hidden"
                                     className="player-sortname"
@@ -793,17 +892,20 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                   <input
                                     type="hidden"
                                     className="user-id"
-                                    defaultValue={1219}
+                                    defaultValue={val?.userId || 1219}
                                   />
                                 </div>
                               </div>
                               <div className="nf_manage-cont flex">
                                 <div className="nf-cont-title">
-                                  <div className="nf-cont-wrap flex tems-center">
+                                  <div className="nf-cont-wrap flex items-center">
                                     <h6>Placement</h6>
                                     <button
                                       type="button"
                                       className="btn btn-nf-gray tr_up_placement"
+                                      onClick={() =>
+                                        handleIncrement(index, "placement")
+                                      }
                                     >
                                       <img
                                         className=""
@@ -818,12 +920,22 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                       <input
                                         type="number"
                                         className="form-control placement_point"
-                                        defaultValue={val?.placePoints}
+                                        value={val?.placePoints || 0}
+                                        onChange={(e) =>
+                                          handleInputChange(
+                                            index,
+                                            "placement",
+                                            parseInt(e.target.value) || 0
+                                          )
+                                        }
                                       />
                                     </h6>
                                     <button
                                       type="button"
                                       className="btn btn-nf-gray tr_down_placement"
+                                      onClick={() =>
+                                        handleDecrement(index, "placement")
+                                      }
                                     >
                                       <img
                                         className=""
@@ -840,6 +952,9 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                     <button
                                       type="button"
                                       className="btn btn-nf-gray tr_up_kills"
+                                      onClick={() =>
+                                        handleIncrement(index, "kills")
+                                      }
                                     >
                                       <img
                                         className=""
@@ -854,12 +969,22 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                       <input
                                         className="form-control kill_point"
                                         type="number"
-                                        defaultValue={val?.killPoints}
+                                        value={val?.killPoints || 0}
+                                        onChange={(e) =>
+                                          handleInputChange(
+                                            index,
+                                            "kills",
+                                            parseInt(e.target.value) || 0
+                                          )
+                                        }
                                       />
                                     </h6>
                                     <button
                                       type="button"
-                                      className="btn btn-nf-gray tr_down_kills"
+                                      className="btn btn-nf-gray tr_down_kills w-4"
+                                      onClick={() =>
+                                        handleDecrement(index, "kills")
+                                      }
                                     >
                                       <img
                                         className=""
@@ -880,7 +1005,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                         type="number"
                                         className="form-control total_points"
                                         readOnly={true}
-                                        defaultValue={val?.totalPoints}
+                                        value={val?.totalPoints || 0}
                                       />
                                     </h6>
                                   </div>
