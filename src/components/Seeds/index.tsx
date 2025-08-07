@@ -60,6 +60,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+
   const [currentSeed, setCurrentSeed] = useState<number | null>(null);
   const [seedingList, setSeedingList] = useState<
     {
@@ -170,15 +171,117 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
     }
   }, [notInStageParticipants]);
 
-  // Filter players based on search term
-  const filteredPlayers = playerDetails.filter((player) =>
-    player.name?.toLowerCase().includes(searchTerm?.toLowerCase())
+  const limit = stagesList?.numberOfParticipants ?? Infinity;
+  const assignedCount = seedingList.filter((s) => !!s.player).length;
+  const remainingSlots = limit - assignedCount;
+
+  // Filter out players already added to seeds
+  const filteredPlayers = playerDetails.filter(
+    (player) =>
+      player.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      !seedingList.some((item) => item.player?.id === player.id)
   );
 
-  // Handle adding a single player to a seed
-  const handleAddPlayer = (seed: number) => {
-    setCurrentSeed(seed);
-    setShowAddModal(true);
+  // IDs of filtered & selectable players
+  const selectablePlayerIds = filteredPlayers
+    .filter(
+      (player) => !seedingList.some((item) => item.player?.id === player.id)
+    )
+    .map((player) => player.id);
+
+  const limitedSelectableIds = selectablePlayerIds.slice(0, remainingSlots);
+
+  // Check if all limited IDs are selected
+  const isAllSelected =
+    limitedSelectableIds.length > 0 &&
+    limitedSelectableIds.every((id) => selectedPlayers.includes(id));
+
+  // Toggle Select All
+  const handleSelectAll = () => {
+    if (isAllSelected) {
+      // Deselect all
+      setSelectedPlayers((prev) =>
+        prev.filter((id) => !limitedSelectableIds.includes(id))
+      );
+    } else {
+      // Select up to limit
+      setSelectedPlayers((prev) => [
+        ...prev.filter((id) => !limitedSelectableIds.includes(id)),
+        ...limitedSelectableIds,
+      ]);
+    }
+  };
+
+  // Manual single select with limit check
+  const handleBulkSelect = (playerId: string) => {
+    if (selectedPlayers.includes(playerId)) {
+      setSelectedPlayers((prev) => prev.filter((id) => id !== playerId));
+    } else {
+      const alreadyAdded = seedingList.some(
+        (item) => item.player?.id === playerId
+      );
+      if (alreadyAdded) {
+        toast.error("Player already added.");
+        return;
+      }
+      if (selectedPlayers.length >= remainingSlots) {
+        toast.error("No remaining slots available.");
+        return;
+      }
+      setSelectedPlayers((prev) => [...prev, playerId]);
+    }
+  };
+
+  // Add selected players to seedingList
+  const handleBulkAdd = () => {
+    if (selectedPlayers.length === 0) return;
+
+    const playersToAdd = selectedPlayers
+      .map((id) => playerDetails.find((p) => p.id === id))
+      .filter(
+        (player): player is any =>
+          !!player && !seedingList.some((item) => item.player?.id === player.id)
+      );
+
+    const emptySeeds = seedingList.filter((s) => !s.player);
+    const limit = stagesList?.numberOfParticipants ?? emptySeeds.length;
+
+    if (playersToAdd.length > limit) {
+      toast.error("Not enough empty seeds for selected players.");
+      return;
+    }
+
+    const updatedSeeds = [...seedingList];
+    let seedIndex = 0;
+
+    for (
+      let i = 0;
+      i < updatedSeeds.length && seedIndex < playersToAdd.length;
+      i++
+    ) {
+      if (!updatedSeeds[i].player) {
+        updatedSeeds[i].player = playersToAdd[seedIndex++];
+      }
+    }
+
+    setSeedingList(updatedSeeds);
+    setSelectedPlayers([]);
+    setShowBulkModal(false);
+  };
+
+  // Add single player to a specific seed
+  const handleAddPlayer = (player: any) => {
+    if (!currentSeed) return;
+    if (seedingList.some((item) => item.player?.id === player.id)) {
+      toast.error("Player already assigned to a seed.");
+      return;
+    }
+    setSeedingList((prev) =>
+      prev.map((item) =>
+        item.seed === currentSeed ? { ...item, player } : item
+      )
+    );
+    setCurrentSeed(null);
   };
 
   // Handle selecting a player for a seed
@@ -202,54 +305,6 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
     );
     setShowAddModal(false);
     setCurrentSeed(null);
-  };
-
-  // Handle bulk selection of players
-  const handleBulkSelect = (playerId: string) => {
-    // Double-check if player is already in seedingList (for safety)
-    if (seedingList.some((item) => item.player?.id === playerId)) {
-      toast.error(`Already assigned to a seed.`);
-      return;
-    }
-
-    const maxParticipants = stagesList?.numberOfParticipants || 0;
-
-    setSelectedPlayers((prev) => {
-      if (prev.includes(playerId)) {
-        // If player is already selected, remove them
-        return prev.filter((id) => id !== playerId);
-      } else {
-        // If adding a new player, check if it exceeds the limit
-        if (prev.length >= maxParticipants) {
-          toast.error(`You can only select up to ${maxParticipants} players.`);
-          return prev; // Do not add the new player
-        }
-        return [...prev, playerId]; // Add the new player
-      }
-    });
-  };
-
-  // Handle bulk addition of players to empty seeds
-  const handleBulkAdd = () => {
-    const emptySeeds = seedingList.filter((item) => !item.player);
-
-    // Create playersToAdd in the order of selectedPlayers
-    const playersToAdd = selectedPlayers
-      .map((id) => playerDetails.find((p) => p.id === id))
-      .filter((player) => player !== undefined); // Filter out any undefined players
-
-    setSeedingList((prev) =>
-      prev.map((item) => {
-        if (!item.player && playersToAdd.length > 0) {
-          const player = playersToAdd.shift();
-          return { ...item, player };
-        }
-        return item;
-      })
-    );
-
-    setSelectedPlayers([]);
-    setShowBulkModal(false);
   };
 
   const handleShuffle = () => {
@@ -445,7 +500,9 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                 <div className="flex flex-wrap gap-2">
                   <button
                     disabled={stagesList?.settings?.isFirstRound}
-                    onClick={() => setShowBulkModal(true)}
+                    onClick={() => {
+                      setShowBulkModal(true);
+                    }}
                     className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors text-sm"
                   >
                     <PlusIcon />
@@ -698,30 +755,22 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                     <label className="flex items-center gap-3 cursor-pointer">
                       <input
                         type="checkbox"
-                        // checked={
-                        //   selectedPlayers.length === playerDetails.length
-                        // }
                         checked={
-                          selectedPlayers?.length ===
-                          Math.min(
-                            playerDetails?.length,
-                            stagesList?.numberOfParticipants
-                          )
+                          selectedPlayers.length ===
+                          filteredPlayers
+                            .filter(
+                              (player) =>
+                                !seedingList.some(
+                                  (s) => s.player?.id === player.id
+                                )
+                            )
+                            .slice(0, remainingSlots).length
                         }
-                        onChange={(e) => {
-                          const limit = stagesList?.numberOfParticipants;
-                          if (e.target.checked) {
-                            setSelectedPlayers(
-                              playerDetails.slice(0, limit).map((p) => p.id)
-                            );
-                          } else {
-                            setSelectedPlayers([]);
-                          }
-                        }}
+                        onChange={handleSelectAll}
                         className="w-5 h-5 text-blue-500 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2 transition-colors"
                       />
                       <span className="text-sm font-medium text-white">
-                        {`Select Top ${stagesList?.numberOfParticipants} Players`}
+                        {`Select Top Players`}
                       </span>
                     </label>
                   </div>
