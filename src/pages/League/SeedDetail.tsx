@@ -111,6 +111,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                 name: data?.eligiblePlayers[index].username,
                 shortName: data?.eligiblePlayers[index].fullName,
                 profilePicture: data?.eligiblePlayers[index].profilePicture,
+                ...data?.eligiblePlayers[index],
               }
             : null,
         }))
