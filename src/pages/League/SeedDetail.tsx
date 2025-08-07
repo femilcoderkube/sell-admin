@@ -111,7 +111,6 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                 name: data?.eligiblePlayers[index].username,
                 shortName: data?.eligiblePlayers[index].fullName,
                 profilePicture: data?.eligiblePlayers[index].profilePicture,
-                ...data?.eligiblePlayers[index],
               }
             : null,
         }))
@@ -207,7 +206,9 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
 
   // Handle saving changes
   const handleSaveChanges = async () => {
-    const seedIds = seedingList.filter((item) => item.player);
+    const seedIds = seedingList
+      .filter((item) => item.player)
+      .map((item) => item.player!.id);
 
     if (seedIds?.length !== state?.draftPlayer) {
       toast.error(`You must select at least ${state?.draftPlayer} players.`);
