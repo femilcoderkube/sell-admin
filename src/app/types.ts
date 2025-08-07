@@ -450,3 +450,38 @@ export interface EligiblePlayersState {
   totalItem: number;
   searchTerm: string;
 }
+
+export interface Participant {
+  id: string;
+  name: string;
+  shortName: string;
+  region: string;
+  logoImage: string;
+  backgroundImage: string;
+}
+
+export interface Group {
+  _id: string;
+  tournament: string;
+  stage: string;
+  seed: {
+    _id: string;
+    tournament: string;
+    team: {
+      _id: string;
+      teamName: string;
+      teamShortName: string;
+      region: string;
+      members: { user: string; role: string; _id: string; joinedAt: string }[];
+      createdAt: string;
+      updatedAt: string;
+      backgroundImage: string;
+      logoImage: string;
+    };
+    participants: string[];
+    createdAt: string;
+    updatedAt: string;
+  }[];
+  createdAt: string;
+  updatedAt: string;
+}

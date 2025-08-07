@@ -57,7 +57,7 @@ export const checkboxOptions = [
   },
 ];
 
-const allParticipants: any[] = [
+export const allParticipants: any[] = [
   { id: "1", name: "John Doe", shortName: "JD" },
   { id: "2", name: "Jane Smith", shortName: "JS" },
   { id: "3", name: "Alice Johnson", shortName: "AJ" },
@@ -66,6 +66,10 @@ const allParticipants: any[] = [
   { id: "6", name: "Emma Davis", shortName: "ED" },
   { id: "7", name: "Michael Lee", shortName: "ML" },
   { id: "8", name: "Sarah Wilson", shortName: "SW" },
+  { id: "9", name: "David Miller", shortName: "DM", region: "Unknown" },
+  { id: "10", name: "Laura Taylor", shortName: "LT", region: "Unknown" },
+  { id: "11", name: "James Brown", shortName: "JB", region: "Unknown" },
+  { id: "12", name: "Emily White", shortName: "EW", region: "Unknown" },
 ];
 
 // Dummy data for groups

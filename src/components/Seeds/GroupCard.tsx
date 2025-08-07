@@ -1,137 +1,191 @@
-import React, { useState } from "react";
+import React from "react";
 import { X } from "lucide-react";
+import { baseURL } from "../../axios";
 
 interface Participant {
   id: string;
   name: string;
   shortName: string;
-  region: string;
+  region?: string;
+  logoImage: string;
+  backgroundImage: string;
 }
 
 interface GroupCardProps {
   groupNumber: number;
   participants: (Participant | null)[];
-  allParticipants: Participant[];
+  availableParticipants: Participant[];
   onReplaceParticipant: (
     groupNumber: number,
-    oldParticipantId: string,
-    newParticipant: Participant
+    slotIndex: number,
+    newParticipant: Participant | null,
+    sourceGroupNumber?: number,
+    sourceSlotIndex?: number
   ) => void;
-  onRemoveParticipant: (groupNumber: number, participantId: string) => void;
 }
 
 const GroupCard: React.FC<GroupCardProps> = ({
   groupNumber,
   participants,
-  allParticipants,
+  availableParticipants,
   onReplaceParticipant,
-  onRemoveParticipant,
 }) => {
-  const [selectedParticipantId, setSelectedParticipantId] = useState<
-    string | null
-  >(null);
-  const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
-
-  // Filter available participants (those not already in the current group)
-  const availableParticipants = allParticipants.filter(
-    (p) => !participants.some((participant) => participant?.id === p.id)
-  );
-
-  const handleReplace = (
-    oldParticipantId: string,
-    newParticipant: Participant
+  const handleDragStart = (
+    e: React.DragEvent<HTMLDivElement>,
+    participant: Participant,
+    sourceGroupNumber?: number,
+    sourceSlotIndex?: number
   ) => {
-    onReplaceParticipant(groupNumber, oldParticipantId, newParticipant);
-    setDropdownOpen(null);
-    setSelectedParticipantId(null);
+    const dragData = {
+      participant,
+      sourceGroupNumber,
+      sourceSlotIndex,
+    };
+    e.dataTransfer.setData("application/json", JSON.stringify(dragData));
+    console.log("Drag started:", dragData);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    e.currentTarget.classList.add("border-blue-500");
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.currentTarget.classList.remove("border-blue-500");
+  };
+
+  const handleDrop = (
+    e: React.DragEvent<HTMLDivElement>,
+    targetSlotIndex: number
+  ) => {
+    e.preventDefault();
+    e.currentTarget.classList.remove("border-blue-500");
+    try {
+      const dragData = JSON.parse(
+        e.dataTransfer.getData("application/json")
+      ) as {
+        participant: Participant;
+        sourceGroupNumber?: number;
+        sourceSlotIndex?: number;
+      };
+      const { participant, sourceGroupNumber, sourceSlotIndex } = dragData;
+      console.log("Dropped:", {
+        participant,
+        sourceGroupNumber,
+        sourceSlotIndex,
+      });
+
+      if (
+        sourceGroupNumber === groupNumber &&
+        sourceSlotIndex === targetSlotIndex
+      ) {
+        return;
+      }
+
+      onReplaceParticipant(
+        groupNumber,
+        targetSlotIndex,
+        participant,
+        sourceGroupNumber,
+        sourceSlotIndex
+      );
+    } catch (error) {
+      console.error("Error parsing dropped data:", error);
+    }
   };
 
   return (
-    <div className="bg-gray-800 rounded-lg p-4 mb-4 shadow-lg">
-      <h2 className="text-lg font-bold text-white mb-3">Group {groupNumber}</h2>
+    <div
+      className="min-w-[250px] p-4 rounded-lg bg-cover bg-center"
+      // style={{
+      //   backgroundImage: participants[0]?.backgroundImage
+      //     ? `url(${baseURL}/api/v1/${participants[0].backgroundImage})`
+      //     : "none",
+      // }}
+    >
+      <h2 className="text-lg font-bold text-white mb-3 bg-gray-900 bg-opacity-75 p-2 rounded">
+        Group {groupNumber}
+      </h2>
       <div className="space-y-3">
         {participants.map((participant, index) => (
           <div
             key={participant?.id || `empty-${index}`}
-            className="flex items-center justify-between p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors"
+            className={`flex items-center justify-between p-3 rounded-lg transition-colors ${
+              participant
+                ? "bg-gray-700 bg-opacity-75 hover:bg-gray-600 cursor-grab"
+                : "bg-gray-800 border-2 border-dashed border-gray-600"
+            }`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(e, index)}
+            draggable={!!participant}
+            onDragStart={
+              participant
+                ? (e) => handleDragStart(e, participant, groupNumber, index)
+                : undefined
+            }
+            role="region"
+            aria-label={`Team slot ${index + 1} in Group ${groupNumber}`}
           >
             {participant ? (
-              <>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-sm font-bold text-white">
-                    {participant.name.charAt(0)}
+              <div className="flex items-center gap-3">
+                <img
+                  src={`${baseURL}/api/v1/${participant?.logoImage}`}
+                  alt={`${participant?.name} logo`}
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+                <div className="group relative">
+                  <div className="font-medium text-white text-sm">
+                    {participant?.shortName}
                   </div>
-                  <div>
-                    <div className="font-medium text-white text-sm">
-                      {participant.name}
-                    </div>
-                    <div className="text-xs text-gray-400">
-                      {participant.shortName}
-                    </div>
+                  <div className="absolute hidden group-hover:block bg-gray-900 text-white text-xs rounded p-2 mt-1 z-10">
+                    {participant?.name}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="relative">
-                    <button
-                      onClick={() =>
-                        setDropdownOpen(
-                          dropdownOpen === participant.id
-                            ? null
-                            : participant.id
-                        )
-                      }
-                      className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors"
-                    >
-                      Replace
-                    </button>
-                    {dropdownOpen === participant.id && (
-                      <div className="absolute right-0 mt-2 w-64 bg-gray-900 rounded-lg shadow-xl z-10 max-h-60 overflow-y-auto">
-                        {availableParticipants.length > 0 ? (
-                          availableParticipants.map((p) => (
-                            <div
-                              key={p.id}
-                              onClick={() => handleReplace(participant.id, p)}
-                              className="p-3 hover:bg-gray-700 cursor-pointer transition-colors"
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
-                                  {p.name.charAt(0)}
-                                </div>
-                                <div>
-                                  <div className="text-sm text-white">
-                                    {p.name}
-                                  </div>
-                                  <div className="text-xs text-gray-400">
-                                    {p.shortName}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="p-3 text-gray-400 text-sm">
-                            No available participants
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  <button
-                    onClick={() =>
-                      onRemoveParticipant(groupNumber, participant.id)
-                    }
-                    className="p-2 text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-              </>
+              </div>
             ) : (
-              <span className="text-gray-500 text-sm">- - -</span>
+              <span className="text-gray-500 text-sm">Drop team here</span>
             )}
           </div>
         ))}
       </div>
+      {availableParticipants?.length > 0 && (
+        <div className="mt-4">
+          <h3 className="text-md font-semibold text-white mb-2 bg-gray-900 bg-opacity-75 p-2 rounded">
+            Available Teams
+          </h3>
+          <div
+            className="max-h-40 overflow-y-auto space-y-2 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"
+            style={{ scrollbarWidth: "thin" }}
+          >
+            {availableParticipants?.map((p) => (
+              <div
+                key={p.id}
+                draggable
+                onDragStart={(e) => handleDragStart(e, p)}
+                className="p-3 bg-gray-900 bg-opacity-75 rounded-lg cursor-grab hover:bg-gray-700 transition-colors"
+                role="button"
+                aria-label={`Drag ${p.name} to a group`}
+              >
+                <div className="flex items-center gap-3">
+                  <img
+                    src={p?.logoImage}
+                    alt={`${p?.name} logo`}
+                    className="w-6 h-6 rounded-full object-cover"
+                  />
+                  <div className="group relative">
+                    <div className="text-sm text-white">{p?.shortName}</div>
+                    <div className="absolute hidden group-hover:block bg-gray-900 text-white text-xs rounded p-2 mt-1 z-10">
+                      {p?.name}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -8,6 +8,7 @@ import gameReducer from "./features/games/gameSlice";
 import leaguesReducer from "./features/league/leagueSlice";
 import tournamentReducer from "./features/tournament/tournamentSlice";
 import bulkJoinReducer from "./features/tournament/bulkJoinSlice";
+import stageGroupReducer from "./features/tournament/stageGroupSlice";
 import notInStageReducer from "./features/tournament/notInStageSlice";
 import createMatchesReducer from "./features/tournament/createMatchesSlice";
 import tournamentStageSlice from "./features/tournament/tournamentStageSlice";
@@ -52,6 +53,7 @@ export const store = configureStore({
     participants: participantsReducer,
     eligiblePlayers: eligiblePlayersReducer,
     draftingPhase: draftingPhaseReducer,
+    stageGroup: stageGroupReducer,
   },
 });
 

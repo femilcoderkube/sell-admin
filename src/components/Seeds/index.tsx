@@ -13,7 +13,9 @@ import {
 import { createMatches } from "../../app/features/tournament/createMatchesSlice";
 import HandLogoLoader from "../Loader/Loader";
 import GroupCard from "./GroupCard";
-import { groups } from "../../utils/constant";
+import { allParticipants } from "../../utils/constant";
+import { Group, Participant } from "../../app/types";
+import { updateStageGroup } from "../../app/features/tournament/stageGroupSlice";
 
 // Mock function to fetch player details (replace with actual API call)
 // const fetchPlayerDetails = async (ids) => {
@@ -54,7 +56,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
     (state: RootState) => state.tournamentStage
   );
 
-  console.log("stagesList", stagesList);
+  console.log("stagesList", stagesList?.groups);
 
   const tournamentId = window.location.pathname.split("/")[3];
   const stageId = window.location.pathname.split("/")[7];
@@ -81,6 +83,8 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
   const [playerDetails, setPlayerDetails] = useState<
     { id: string; name: string; shortName: string; region: string }[]
   >([]);
+
+  const [groups, setGroups] = useState<Group[]>();
 
   // Redux state
   const { error, notInStageParticipants } = useSelector(
@@ -163,6 +167,12 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
       }
     };
   }, [stagesList?.config]);
+
+  useEffect(() => {
+    if (stagesList?.groups?.length > 0) {
+      setGroups(stagesList?.groups);
+    }
+  }, [stagesList?.groups]);
 
   // Fetch player details when notInStageParticipants changes
   useEffect(() => {
@@ -472,6 +482,125 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
     );
   };
 
+  // Transform groups for GroupCard props
+  const transformedGroups = groups?.map((group, index) => ({
+    groupNumber: index + 1,
+    _id: group._id,
+    participants: group.seed.map((seed) => ({
+      id: seed.team._id,
+      name: seed.team.teamName,
+      shortName: seed.team.teamShortName,
+      region: seed.team.region,
+      logoImage: seed.team.logoImage,
+      backgroundImage: seed.team.backgroundImage,
+    })),
+  }));
+
+  const allParticipants: Participant[] = groups
+    ?.flatMap((group) => group.seed)
+    ?.map((seed) => ({
+      id: seed.team._id,
+      name: seed.team.teamName,
+      shortName: seed.team.teamShortName,
+      region: seed.team.region,
+      logoImage: seed.team.logoImage,
+      backgroundImage: seed.team.backgroundImage,
+    }));
+
+  const handleReplaceParticipant = (
+    groupNumber: number,
+    slotIndex: number,
+    newParticipant: Participant | null,
+    sourceGroupNumber?: number,
+    sourceSlotIndex?: number
+  ) => {
+    setGroups((prevGroups) => {
+      const newGroups = JSON.parse(JSON.stringify(prevGroups)); // Deep copy
+      const targetGroupIndex = groupNumber - 1;
+
+      if (newParticipant === null) {
+        // Handle removal (not used in current UI, but included for completeness)
+        newGroups[targetGroupIndex].seed.splice(slotIndex, 1);
+        newGroups[targetGroupIndex].updatedAt = new Date().toISOString();
+        return newGroups;
+      }
+
+      if (sourceGroupNumber === undefined || sourceSlotIndex === undefined) {
+        // Dropped from available participants (not implemented in UI)
+        newGroups[targetGroupIndex].seed[slotIndex] = {
+          ...newGroups[targetGroupIndex].seed[slotIndex],
+          team: {
+            ...newGroups[targetGroupIndex].seed[slotIndex].team,
+            _id: newParticipant.id,
+            teamName: newParticipant.name,
+            teamShortName: newParticipant.shortName,
+            region: newParticipant.region || "",
+            backgroundImage: newParticipant.backgroundImage,
+            logoImage: newParticipant.logoImage,
+          },
+        };
+        newGroups[targetGroupIndex].updatedAt = new Date().toISOString();
+        return newGroups;
+      }
+
+      const sourceGroupIndex = sourceGroupNumber - 1;
+
+      if (sourceGroupIndex === targetGroupIndex) {
+        // In-group swap
+        const temp = newGroups[targetGroupIndex].seed[slotIndex];
+        newGroups[targetGroupIndex].seed[slotIndex] =
+          newGroups[targetGroupIndex].seed[sourceSlotIndex];
+        newGroups[targetGroupIndex].seed[sourceSlotIndex] = temp;
+      } else {
+        // Cross-group swap
+        const targetSeed = newGroups[targetGroupIndex].seed[slotIndex];
+        const sourceSeed = newGroups[sourceGroupIndex].seed[sourceSlotIndex];
+
+        newGroups[targetGroupIndex].seed[slotIndex] = {
+          ...targetSeed,
+          team: {
+            ...targetSeed.team,
+            _id: newParticipant.id,
+            teamName: newParticipant.name,
+            teamShortName: newParticipant.shortName,
+            region: newParticipant.region || "",
+            backgroundImage: newParticipant.backgroundImage,
+            logoImage: newParticipant.logoImage,
+          },
+        };
+
+        newGroups[sourceGroupIndex].seed[sourceSlotIndex] = {
+          ...sourceSeed,
+          team: {
+            ...sourceSeed.team,
+            _id: targetSeed.team._id,
+            teamName: targetSeed.team.teamName,
+            teamShortName: targetSeed.team.teamShortName,
+            region: targetSeed.team.region,
+            backgroundImage: targetSeed.team.backgroundImage,
+            logoImage: targetSeed.team.logoImage,
+          },
+        };
+      }
+
+      newGroups[targetGroupIndex].updatedAt = new Date().toISOString();
+      if (sourceGroupIndex !== targetGroupIndex) {
+        newGroups[sourceGroupIndex].updatedAt = new Date().toISOString();
+      }
+
+      dispatch(updateStageGroup({ stageGroupId: stageId, groups: newGroups }))
+        .unwrap()
+        .then(() => {
+          dispatch(getTournamentStages({ id: stageId }));
+        })
+        .catch(() => {
+          setGroups(prevGroups); // Revert state on error
+        });
+
+      return newGroups;
+    });
+  };
+
   return (
     <>
       <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-start items-center pt-3 pb-[2rem] border-b border-light-border">
@@ -664,15 +793,14 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
             </div>
           </div>
           {stagesList?.stageType === "BattleRoyal" ? (
-            <div className="space-y-4">
-              {groups.map((group) => (
+            <div className="flex gap-2 bg-gray-800 rounded-lg p-4 mb-4 shadow-lg overflow-x-auto">
+              {transformedGroups?.map((group) => (
                 <GroupCard
-                  key={group.groupNumber}
+                  key={group._id}
                   groupNumber={group.groupNumber}
                   participants={group.participants}
-                  allParticipants={playerDetails}
-                  // onReplaceParticipant={handleReplaceParticipant}
-                  // onRemoveParticipant={handleRemoveGroupParticipant}
+                  allParticipants={allParticipants}
+                  onReplaceParticipant={handleReplaceParticipant}
                 />
               ))}
             </div>
