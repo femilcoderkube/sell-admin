@@ -339,6 +339,20 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
 
   // Handle removing a player from a seed
   const handleRemovePlayer = (seed: number) => {
+    const removedPlayer = seedingList.find(
+      (item) => item.seed === seed
+    )?.player;
+
+    if (removedPlayer) {
+      setPlayerDetails((prev) => {
+        const alreadyExists = prev.some((p) => p.id === removedPlayer.id);
+        if (!alreadyExists) {
+          return [...prev, removedPlayer];
+        }
+        return prev;
+      });
+    }
+
     setSeedingList((prev) =>
       prev.map((item) =>
         item.seed === seed ? { ...item, player: null } : item
