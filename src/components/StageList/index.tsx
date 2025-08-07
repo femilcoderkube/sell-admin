@@ -71,7 +71,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
     currentPage,
     perPage,
     totalCount,
-    // stagesDetails,
+    stagesDetails,
   } = useSelector((state: RootState) => state.tournamentStage);
   const { matches, matchesLoading } = useSelector(
     (state: RootState) => state.tournamentMatches
@@ -88,6 +88,11 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
     loading: stageGrouploading,
     error: stageGrouperror,
   } = useSelector((state: RootState) => state.stageGroup);
+  const {
+    scores,
+    loading: scoresloading,
+    error: scoreserror,
+  } = useSelector((state: RootState) => state.battleRoyalScore);
 
   const [showQuickScoreModal, setShowQuickScoreModal] = useState(false);
   const [showChangeTimeModal, setShowChangeTimeModal] = useState(false);
@@ -95,6 +100,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
     useState(false);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [selectedRound, setSelectedRound] = useState<string>("");
+  const [selectedGroup, setSelectedGroup] = useState<string>("");
 
   const [selectedStage, setSelectedStage] = useState();
   const [stageType, setStageType] = useState();
@@ -130,25 +136,27 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
     }
   }, [stagesList, loading]);
 
+  useEffect(() => {
+    if (stageType == "BattleRoyal") {
+      dispatch(getTournamentStagesById({ id: selectedStage }));
+    }
+  }, [stageType]);
+
   const debouncedDispatch = useCallback(
     debounce((payload) => dispatch(fetchTournamentMatches(payload)), 500),
     [dispatch]
   );
 
   useEffect(() => {
-    if (stageType === "BattleRoyal") {
-      dispatch(fetchBattleRoyalScores({ stageId: selectedStage }));
-    }
-  }, [selectedStage]);
-
-  useEffect(() => {
-    if (selectedStage) {
-      debouncedDispatch({
-        stageId: selectedStage,
-        roundId: selectedRound,
-        status: selectedStatus,
-        search: search,
-      });
+    if (stageType !== "BattleRoyal") {
+      if (selectedStage) {
+        debouncedDispatch({
+          stageId: selectedStage,
+          roundId: selectedRound,
+          status: selectedStatus,
+          search: search,
+        });
+      }
     }
   }, [selectedStage, selectedRound, selectedStatus, search, debouncedDispatch]);
 
@@ -160,6 +168,20 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
       }
     }
   }, [dispatch, selectedStage]);
+
+  useEffect(() => {
+    if (stageType === "BattleRoyal") {
+      dispatch(
+        fetchBattleRoyalScores({
+          stageId: selectedStage,
+          roundId: selectedRound,
+          groupId: selectedGroup,
+        })
+      );
+    }
+  }, [selectedStage, selectedGroup, selectedRound]);
+
+  console.log("stagesDetails", stagesDetails?.settings);
 
   // useEffect(() => {
   //   if (selectedStage) {
@@ -467,8 +489,8 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                           <select
                             className="form-control color-white cust-arrow"
                             id="round_dropdown"
-                            value={selectedRound}
-                            onChange={(e) => setSelectedRound(e.target.value)}
+                            value={selectedGroup}
+                            onChange={(e) => setSelectedGroup(e.target.value)}
                           >
                             <option value="">All groups</option>
                             {stageGroups?.map((round: any) => (
@@ -753,113 +775,121 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                     {matchesLoading ? (
                       <HandLogoLoader />
                     ) : (
-                      <div className="nf_manage-wrap flex justify-between nf_battel-score nf_battel">
-                        <div className="nf_manage-content">
-                          <div className="nf_manage-num flex items-center">
-                            <h4 className="player-number">1 </h4>
-                            <h5 className="player-name">sr01</h5>
-                            <input
-                              type="hidden"
-                              className="player-sortname"
-                              defaultValue="sr01"
-                            />
-                            <input
-                              type="hidden"
-                              className="user-id"
-                              defaultValue={1219}
-                            />
-                          </div>
-                        </div>
-                        <div className="nf_manage-cont flex">
-                          <div className="nf-cont-title">
-                            <div className="nf-cont-wrap flex tems-center">
-                              <h6>Placement</h6>
-                              <button
-                                type="button"
-                                className="btn btn-nf-gray tr_up_placement"
-                              >
-                                <img
-                                  className=""
-                                  height={10}
-                                  width={10}
-                                  src={topArrow}
-                                />
-                              </button>
+                      <>
+                        {scores?.map((val: any, index: any) => {
+                          return (
+                            <div className="nf_manage-wrap flex justify-between nf_battel-score nf_battel">
+                              <div className="nf_manage-content">
+                                <div className="nf_manage-num flex items-center">
+                                  <h4 className="player-number">
+                                    {index + 1}{" "}
+                                  </h4>
+                                  <h5 className="player-name"></h5>
+                                  <input
+                                    type="hidden"
+                                    className="player-sortname"
+                                    defaultValue="sr01"
+                                  />
+                                  <input
+                                    type="hidden"
+                                    className="user-id"
+                                    defaultValue={1219}
+                                  />
+                                </div>
+                              </div>
+                              <div className="nf_manage-cont flex">
+                                <div className="nf-cont-title">
+                                  <div className="nf-cont-wrap flex tems-center">
+                                    <h6>Placement</h6>
+                                    <button
+                                      type="button"
+                                      className="btn btn-nf-gray tr_up_placement"
+                                    >
+                                      <img
+                                        className=""
+                                        height={10}
+                                        width={10}
+                                        src={topArrow}
+                                      />
+                                    </button>
+                                  </div>
+                                  <div className="nf-cont-wrap flex align-items-center">
+                                    <h6 className="placement">
+                                      <input
+                                        type="number"
+                                        className="form-control placement_point"
+                                        defaultValue={val?.placePoints}
+                                      />
+                                    </h6>
+                                    <button
+                                      type="button"
+                                      className="btn btn-nf-gray tr_down_placement"
+                                    >
+                                      <img
+                                        className=""
+                                        height={10}
+                                        width={10}
+                                        src={downArrow}
+                                      />
+                                    </button>
+                                  </div>
+                                </div>
+                                <div className="nf-cont-title">
+                                  <div className="nf-cont-wrap flex items-center">
+                                    <h6>Kills</h6>
+                                    <button
+                                      type="button"
+                                      className="btn btn-nf-gray tr_up_kills"
+                                    >
+                                      <img
+                                        className=""
+                                        height={10}
+                                        width={10}
+                                        src={topArrow}
+                                      />
+                                    </button>
+                                  </div>
+                                  <div className="nf-cont-wrap flex items-center">
+                                    <h6 className="kills">
+                                      <input
+                                        className="form-control kill_point"
+                                        type="number"
+                                        defaultValue={val?.killPoints}
+                                      />
+                                    </h6>
+                                    <button
+                                      type="button"
+                                      className="btn btn-nf-gray tr_down_kills"
+                                    >
+                                      <img
+                                        className=""
+                                        height={10}
+                                        width={10}
+                                        src={downArrow}
+                                      />
+                                    </button>
+                                  </div>
+                                </div>
+                                <div className="nf-cont-title">
+                                  <div className="nf-cont-wrap flex items-center">
+                                    <h6>Points</h6>
+                                  </div>
+                                  <div className="nf-cont-wrap flex items-center">
+                                    <h6 className="points">
+                                      <input
+                                        type="number"
+                                        className="form-control total_points"
+                                        readOnly={true}
+                                        defaultValue={val?.totalPoints}
+                                      />
+                                    </h6>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
-                            <div className="nf-cont-wrap flex align-items-center">
-                              <h6 className="placement">
-                                <input
-                                  type="number"
-                                  className="form-control placement_point"
-                                  defaultValue={1}
-                                />
-                              </h6>
-                              <button
-                                type="button"
-                                className="btn btn-nf-gray tr_down_placement"
-                              >
-                                <img
-                                  className=""
-                                  height={10}
-                                  width={10}
-                                  src={downArrow}
-                                />
-                              </button>
-                            </div>
-                          </div>
-                          <div className="nf-cont-title">
-                            <div className="nf-cont-wrap flex items-center">
-                              <h6>Kills</h6>
-                              <button
-                                type="button"
-                                className="btn btn-nf-gray tr_up_kills"
-                              >
-                                <img
-                                  className=""
-                                  height={10}
-                                  width={10}
-                                  src={topArrow}
-                                />
-                              </button>
-                            </div>
-                            <div className="nf-cont-wrap flex items-center">
-                              <h6 className="kills">
-                                <input
-                                  className="form-control kill_point"
-                                  type="number"
-                                  defaultValue={10}
-                                />
-                              </h6>
-                              <button
-                                type="button"
-                                className="btn btn-nf-gray tr_down_kills"
-                              >
-                                <img
-                                  className=""
-                                  height={10}
-                                  width={10}
-                                  src={downArrow}
-                                />
-                              </button>
-                            </div>
-                          </div>
-                          <div className="nf-cont-title">
-                            <div className="nf-cont-wrap flex items-center">
-                              <h6>Points</h6>
-                            </div>
-                            <div className="nf-cont-wrap flex items-center">
-                              <h6 className="points">
-                                <input
-                                  type="number"
-                                  className="form-control total_points"
-                                  readOnly={true}
-                                  defaultValue={115}
-                                />
-                              </h6>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                          );
+                        })}
+                      </>
                     )}
                   </div>
                 )}
