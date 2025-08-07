@@ -284,6 +284,11 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
     setCurrentSeed(null);
   };
 
+  const handleOpenAddModal = (seed: number) => {
+    setCurrentSeed(seed);
+    setShowAddModal(true);
+  };
+
   // Handle selecting a player for a seed
 
   const handleSelectPlayer = (player: {
@@ -292,19 +297,8 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
     shortName: string;
     region: string;
   }) => {
-    // Double-check if player is already in seedingList (for safety)
-    if (seedingList.some((item) => item.player?.id === player.id)) {
-      toast.error(`${player.name} is already assigned to a seed.`);
-      return;
-    }
-
-    setSeedingList((prev) =>
-      prev.map((item) =>
-        item.seed === currentSeed ? { ...item, player } : item
-      )
-    );
+    handleAddPlayer(player);
     setShowAddModal(false);
-    setCurrentSeed(null);
   };
 
   const handleShuffle = () => {
@@ -570,20 +564,16 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                           {item.player ? (
                             <>
                               <button
-                                onClick={() => handleAddPlayer(item.seed)}
+                                onClick={() => handleOpenAddModal(item.seed)}
                                 className="p-2 text-blue-400 hover:bg-blue-700 disabled:text-gray-600 rounded-lg transition-colors"
-                                disabled={
-                                  filteredPlayers.length === 0 || item.locked
-                                }
+                                disabled={item.locked}
                               >
                                 <Edit2 size={16} />
                               </button>
                               <button
                                 onClick={() => handleRemovePlayer(item.seed)}
                                 className="p-2 text-red-400 hover:bg-red-900/20 disabled:text-gray-600 rounded-lg transition-colors"
-                                disabled={
-                                  filteredPlayers.length === 0 || item.locked
-                                }
+                                disabled={item.locked}
                               >
                                 <X size={16} />
                               </button>
@@ -600,7 +590,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                             </>
                           ) : (
                             <button
-                              onClick={() => handleAddPlayer(item.seed)}
+                              onClick={() => handleOpenAddModal(item.seed)}
                               className="p-2 text-gray-400 hover:bg-gray-700 disabled:text-gray-600 rounded-lg transition-colors"
                             >
                               <Plus size={16} />
