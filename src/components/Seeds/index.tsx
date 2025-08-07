@@ -12,6 +12,8 @@ import {
 } from "../../app/features/tournament/tournamentStageSlice";
 import { createMatches } from "../../app/features/tournament/createMatchesSlice";
 import HandLogoLoader from "../Loader/Loader";
+import GroupCard from "./GroupCard";
+import { groups } from "../../utils/constant";
 
 // Mock function to fetch player details (replace with actual API call)
 // const fetchPlayerDetails = async (ids) => {
@@ -51,6 +53,8 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
   const { stagesList, loading } = useSelector(
     (state: RootState) => state.tournamentStage
   );
+
+  console.log("stagesList", stagesList);
 
   const tournamentId = window.location.pathname.split("/")[3];
   const stageId = window.location.pathname.split("/")[7];
@@ -659,10 +663,25 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
               </div>
             </div>
           </div>
-          <div
-            id="first"
-            className="brackets-viewer bg-gray-800 rounded-lg text-white"
-          />
+          {stagesList?.stageType === "BattleRoyal" ? (
+            <div className="space-y-4">
+              {groups.map((group) => (
+                <GroupCard
+                  key={group.groupNumber}
+                  groupNumber={group.groupNumber}
+                  participants={group.participants}
+                  allParticipants={playerDetails}
+                  // onReplaceParticipant={handleReplaceParticipant}
+                  // onRemoveParticipant={handleRemoveGroupParticipant}
+                />
+              ))}
+            </div>
+          ) : (
+            <div
+              id="first"
+              className="brackets-viewer bg-gray-800 rounded-lg text-white"
+            />
+          )}
           {/* Single Player Add Modal */}
           {showAddModal && (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">

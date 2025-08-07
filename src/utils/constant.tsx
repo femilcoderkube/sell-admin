@@ -56,3 +56,42 @@ export const checkboxOptions = [
     defaultValue: 1,
   },
 ];
+
+const allParticipants: any[] = [
+  { id: "1", name: "John Doe", shortName: "JD" },
+  { id: "2", name: "Jane Smith", shortName: "JS" },
+  { id: "3", name: "Alice Johnson", shortName: "AJ" },
+  { id: "4", name: "Bob Williams", shortName: "BW" },
+  { id: "5", name: "Charlie Brown", shortName: "CB" },
+  { id: "6", name: "Emma Davis", shortName: "ED" },
+  { id: "7", name: "Michael Lee", shortName: "ML" },
+  { id: "8", name: "Sarah Wilson", shortName: "SW" },
+];
+
+// Dummy data for groups
+export const groups = [
+  {
+    groupNumber: 1,
+    participants: [
+      allParticipants[0], // John Doe
+      allParticipants[1], // Jane Smith
+      null, // Empty slot
+    ],
+  },
+  {
+    groupNumber: 2,
+    participants: [
+      allParticipants[2], // Alice Johnson
+      allParticipants[3], // Bob Williams
+      allParticipants[4], // Charlie Brown
+    ],
+  },
+  {
+    groupNumber: 3,
+    participants: [
+      null, // Empty slot
+      allParticipants[5], // Emma Davis
+      null, // Empty slot
+    ],
+  },
+];
