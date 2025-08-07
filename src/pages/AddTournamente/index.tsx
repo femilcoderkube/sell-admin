@@ -578,7 +578,7 @@ const TournamentStep1: FC<{ step: number }> = ({ step }) => {
           <option value="" disabled>
             Select tournament type
           </option>
-          <option value="Solo">Solo</option>
+          {/* <option value="Solo">Solo</option> */}
           <option value="Team">Team</option>
         </Field>
         {touched.tournamentType && errors.tournamentType && (

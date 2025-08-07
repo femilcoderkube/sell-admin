@@ -248,7 +248,7 @@ export const Stages: React.FC = ({ title }: any) => {
                   </div>
 
                   {/* Stats */}
-                  {card.stats && (
+                  {/* {card.stats && (
                     <div className="space-y-3 mb-4">
                       {card.stats.map((stat, index) => (
                         <div
@@ -264,7 +264,7 @@ export const Stages: React.FC = ({ title }: any) => {
                         </div>
                       ))}
                     </div>
-                  )}
+                  )} */}
 
                   {/* Description */}
                   {card.description && (

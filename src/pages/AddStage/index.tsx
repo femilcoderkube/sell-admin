@@ -102,21 +102,22 @@ export const AddStage: FC = () => {
       numberOfQualifiers: Yup.string().required(
         "Please enter number of qualifiers."
       ),
+      numberOfGroups: Yup.string().required("Please enter number of groups."),
       numberOfRounds: Yup.string().required("Please enter number of rounds."),
       killPoints: Yup.string().required("Please enter kill points."),
       placePoints: Yup.array()
         .of(
           Yup.object().shape({
-            place: Yup.number()
-              .required("Place is required")
-              .min(1, "Place must be at least 1"),
-            points: Yup.number()
-              .required("Points are required")
-              .min(0, "Points must be non-negative"),
+            position: Yup.number()
+              .required("Position is required")
+              .min(1, "position must be at least 1"),
+            point: Yup.number()
+              .required("Point are required")
+              .min(0, "Point must be non-negative"),
           })
         )
-        .min(1, "At least one place point entry is required")
-        .required("Place points are required"),
+        .min(1, "At least one Position point entry is required")
+        .required("Position points are required"),
       tieBreaker: Yup.string().required("Please select a tie breaker."),
     }),
     ...(selectedStage === "Custom" && {
@@ -148,10 +149,10 @@ export const AddStage: FC = () => {
         placePoints:
           stage.settings?.placePoints?.length > 0
             ? stage.settings.placePoints.map((item: any) => ({
-                place: item.place.toString(),
-                points: item.points.toString(),
+                position: item.position.toString(),
+                point: item.point.toString(),
               }))
-            : [{ place: "", points: "" }],
+            : [{ position: "", point: "" }],
         tieBreaker: stage.settings?.tieBreaker || "",
         htmlFile: stage.settings?.htmlFile || "",
         cssFile: stage.settings?.cssFile || "",
@@ -167,7 +168,7 @@ export const AddStage: FC = () => {
         isThirdPlaceMatch: false,
         lossesToBeEliminated: "",
         killPoints: "",
-        placePoints: [{ place: "", points: "" }], // Default empty entry
+        placePoints: [{ position: "", point: "" }], // Default empty entry
         tieBreaker: "",
         htmlFile: "",
         cssFile: "",
@@ -209,14 +210,15 @@ export const AddStage: FC = () => {
         values.lossesToBeEliminated || "0"
       );
     } else if (selectedStage === "BattleRoyal") {
+      settings.numberOfGroups = parseInt(values.numberOfGroups || "0");
       settings.numberOfQualifiers = parseInt(values.numberOfQualifiers || "0");
       settings.numberOfRounds = parseInt(values.numberOfRounds || "0");
       settings.killPoints = parseInt(values.killPoints || "0");
       settings.placePoints = values.placePoints
-        .filter((item) => item.place && item.points) // Filter out empty entries
+        .filter((item) => item.position && item.point) // Filter out empty entries
         .map((item) => ({
-          place: parseInt(item.place),
-          points: parseInt(item.points),
+          position: parseInt(item.position),
+          point: parseInt(item.point),
         }));
       settings.tieBreaker = values.tieBreaker;
     } else if (selectedStage === "Custom") {
@@ -582,6 +584,29 @@ export const AddStage: FC = () => {
                       <div className="form-group">
                         <Field
                           type="number"
+                          name="numberOfGroups"
+                          id="numberOfGroups"
+                          className={`form-control w-full p-3 rounded-lg bg-slate-800 text-white border ${
+                            errors.numberOfGroups && touched.numberOfGroups
+                              ? "border-red-500"
+                              : "border-slate-600"
+                          } focus:border-blue-500 focus:outline-none`}
+                        />
+                        <label
+                          htmlFor="numberOfGroups"
+                          className="text-sm text-slate-400 mt-1"
+                        >
+                          Number of Groups
+                        </label>
+                        <ErrorMessage
+                          name="numberOfGroups"
+                          component="div"
+                          className="text-red-500 text-xs mt-1"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <Field
+                          type="number"
                           name="numberOfQualifiers"
                           id="numberOfQualifiers"
                           className={`form-control w-full p-3 rounded-lg bg-slate-800 text-white border ${
@@ -670,7 +695,7 @@ export const AddStage: FC = () => {
                                   >
                                     <div className="flex justify-between items-center mb-2">
                                       <h6 className="text-white text-sm font-medium">
-                                        Place Point #{index + 1}
+                                        Position Point #{index + 1}
                                       </h6>
                                       {index !== 0 && (
                                         <button
@@ -690,24 +715,25 @@ export const AddStage: FC = () => {
                                       <div className="form-group">
                                         <Field
                                           type="number"
-                                          name={`placePoints[${index}].place`}
-                                          id={`placePoints[${index}].place`}
+                                          name={`placePoints[${index}].position`}
+                                          id={`placePoints[${index}].position`}
                                           className={`form-control w-full p-3 rounded-lg bg-slate-900 text-white border ${
                                             errors.placePoints?.[index]
-                                              ?.place &&
-                                            touched.placePoints?.[index]?.place
+                                              ?.position &&
+                                            touched.placePoints?.[index]
+                                              ?.position
                                               ? "border-red-500"
                                               : "border-slate-600"
                                           } focus:border-blue-500 focus:outline-none`}
                                         />
                                         <label
-                                          htmlFor={`placePoints[${index}].place`}
+                                          htmlFor={`placePoints[${index}].position`}
                                           className="text-sm text-slate-400 mt-1"
                                         >
-                                          Place
+                                          Position
                                         </label>
                                         <ErrorMessage
-                                          name={`placePoints[${index}].place`}
+                                          name={`placePoints[${index}].position`}
                                           component="div"
                                           className="text-red-500 text-xs mt-1"
                                         />
@@ -715,24 +741,24 @@ export const AddStage: FC = () => {
                                       <div className="form-group">
                                         <Field
                                           type="number"
-                                          name={`placePoints[${index}].points`}
-                                          id={`placePoints[${index}].points`}
+                                          name={`placePoints[${index}].point`}
+                                          id={`placePoints[${index}].point`}
                                           className={`form-control w-full p-3 rounded-lg bg-slate-900 text-white border ${
                                             errors.placePoints?.[index]
-                                              ?.points &&
-                                            touched.placePoints?.[index]?.points
+                                              ?.point &&
+                                            touched.placePoints?.[index]?.point
                                               ? "border-red-500"
                                               : "border-slate-600"
                                           } focus:border-blue-500 focus:outline-none`}
                                         />
                                         <label
-                                          htmlFor={`placePoints[${index}].points`}
+                                          htmlFor={`placePoints[${index}].point`}
                                           className="text-sm text-slate-400 mt-1"
                                         >
-                                          Points
+                                          Point
                                         </label>
                                         <ErrorMessage
-                                          name={`placePoints[${index}].points`}
+                                          name={`placePoints[${index}].point`}
                                           component="div"
                                           className="text-red-500 text-xs mt-1"
                                         />
@@ -743,7 +769,7 @@ export const AddStage: FC = () => {
                                 <button
                                   type="button"
                                   onClick={() =>
-                                    push({ place: "", points: "" })
+                                    push({ position: "", point: "" })
                                   }
                                   className="w-full py-2 border bg-slate-800 bg-opacity-40 rounded-lg border-dashed border-slate-400 text-slate-400 text-sm font-medium"
                                 >
@@ -777,7 +803,7 @@ export const AddStage: FC = () => {
                             Select Tie Breaker
                           </option>
                           <option value="KillPoint">Kill Point</option>
-                          <option value="PlacePoint">Place Point</option>
+                          <option value="PlacePoint">Position Point</option>
                         </Field>
                         <label
                           htmlFor="tieBreaker"

@@ -32,9 +32,9 @@ export const formatDate = (date: string | undefined) => {
 
 export const checkboxOptions = [
   {
-    id: "in_dispute",
-    name: "in_dispute",
-    label: "In Dispute",
+    id: "scheduled",
+    name: "scheduled",
+    label: "Scheduled",
     defaultValue: 0,
   },
   {
