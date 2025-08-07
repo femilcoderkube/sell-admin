@@ -695,7 +695,7 @@ export const AddStage: FC = () => {
                                   >
                                     <div className="flex justify-between items-center mb-2">
                                       <h6 className="text-white text-sm font-medium">
-                                        Position Point #{index + 1}
+                                        Place Point #{index + 1}
                                       </h6>
                                       {index !== 0 && (
                                         <button
@@ -803,7 +803,7 @@ export const AddStage: FC = () => {
                             Select Tie Breaker
                           </option>
                           <option value="KillPoint">Kill Point</option>
-                          <option value="PlacePoint">Position Point</option>
+                          <option value="PlacePoint">Place Point</option>
                         </Field>
                         <label
                           htmlFor="tieBreaker"
