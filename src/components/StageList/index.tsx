@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import deleteIcon from "../../assets/images/trash_can.svg";
@@ -35,7 +35,11 @@ import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
 import topArrow from "../../assets/images/nf_top-arrow.svg";
 import downArrow from "../../assets/images/nf_bottom-arrow.svg";
 import { fetchStageGroup } from "../../app/features/tournament/stageGroupSlice";
-import { fetchBattleRoyalScores } from "../../app/features/tournament/battleRoyalScoresSlice";
+import {
+  fetchBattleRoyalScores,
+  putBattleRoyalScores,
+} from "../../app/features/tournament/battleRoyalScoresSlice";
+import toast from "react-hot-toast";
 
 interface Stage {
   _id: string;
@@ -104,6 +108,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
 
   const [selectedStage, setSelectedStage] = useState();
   const [stageType, setStageType] = useState();
+  const [scoreSettings, setscoreSettings] = useState();
 
   const [selectedStatus, setSelectedStatus] = useState<string>(""); // Default to in_progress
   const [search, setSearch] = useState<string>(""); // Default to in_progress
@@ -140,7 +145,18 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
     if (stageType == "BattleRoyal") {
       dispatch(getTournamentStagesById({ id: selectedStage }));
     }
-  }, [stageType]);
+  }, [stageType, selectedStage]);
+
+  const memoizedSettings = useMemo(
+    () => stagesDetails?.settings,
+    [stagesDetails?.settings]
+  );
+
+  useEffect(() => {
+    if (memoizedSettings) {
+      setscoreSettings(memoizedSettings);
+    }
+  }, [memoizedSettings]);
 
   const debouncedDispatch = useCallback(
     debounce((payload) => dispatch(fetchTournamentMatches(payload)), 500),
@@ -180,12 +196,6 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
       );
     }
   }, [selectedStage, selectedGroup, selectedRound]);
-
-  // useEffect(() => {
-  //   if (selectedStage) {
-  //     dispatch(getTournamentStagesById({ id: selectedStage }));
-  //   }
-  // }, [dispatch, selectedStage]);
 
   const handlePageChange = (page: number) => {
     dispatch(setPage(page));
@@ -258,13 +268,15 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
   // State to manage scores locally for real-time updates
 
   useEffect(() => {
-    setLocalScores(scores);
+    if (scores?.length > 0) {
+      setLocalScores(scores);
+    }
   }, [scores]);
   // Recalculate totalPoints when stagesDetails?.settings changes
 
   // Function to calculate total points
   const calculateTotalPoints = (placement: number, kills: number) => {
-    const settings = stagesDetails?.settings;
+    const settings = scoreSettings;
     if (!settings) return 0;
 
     // Calculate Kill Score
@@ -350,6 +362,18 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
           : score
       )
     );
+  };
+
+  const updatescore = async () => {
+    const payload = {
+      stageId: selectedStage,
+      battleRoyalScores: localScores, // Example scores data
+    };
+    const resultAction = await dispatch(putBattleRoyalScores(payload));
+
+    if (putBattleRoyalScores.fulfilled.match(resultAction)) {
+      toast.success("Upadte Score");
+    }
   };
 
   return (
@@ -635,42 +659,26 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                       </div>
                     </div>
                     <div className="nf_topbar-btn mt-0">
-                      <a
-                        href="https://staging.saudieleagues.com/admin/championship/role/8321/active"
-                        className="btn btn-nf-blue nf_btn-ic startNextRole"
-                        style={{ display: "none" }}
-                      >
-                        Start Next Round
-                      </a>
+                      {stageType === "BattleRoyal" && (
+                        <button
+                          name="submitButton"
+                          id="submitButton"
+                          className="btn btn-nf-gray round_timechange_data mt-2"
+                          // style={{ display: "none" }}
+                          onClick={updatescore}
+                        >
+                          Update Scores
+                        </button>
+                      )}
                       <button
-                        name="submitButton"
-                        id="submitButton"
-                        className="btn btn-nf-blue nf_btn-ic"
-                        style={{ display: "none" }}
+                        className="btn btn-nf-gray round_timechange_data mt-2"
+                        data-toggle="modal"
+                        data-target="#changetime_round"
+                        onClick={() => setShowRoundTimeChangeModal(true)}
                       >
-                        Update Scores
+                        Round Time Change
                       </button>
-                      <input
-                        type="hidden"
-                        name="stage_id"
-                        id="stage_id"
-                        defaultValue={1583}
-                      />
-                      <input
-                        type="hidden"
-                        name="stage_type"
-                        id="stage_type"
-                        defaultValue={2}
-                      />
                     </div>
-                    <button
-                      className="btn btn-nf-gray round_timechange_data mt-2"
-                      data-toggle="modal"
-                      data-target="#changetime_round"
-                      onClick={() => setShowRoundTimeChangeModal(true)}
-                    >
-                      Round Time Change
-                    </button>
                   </div>
 
                   <a

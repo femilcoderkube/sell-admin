@@ -26,6 +26,31 @@ export const fetchBattleRoyalScores = createAsyncThunk(
   }
 );
 
+export const putBattleRoyalScores = createAsyncThunk(
+  "battleRoyalScores/put",
+  async (
+    {
+      stageId,
+
+      battleRoyalScores,
+    }: { stageId: string; battleRoyalScores: any },
+    { rejectWithValue }
+  ) => {
+    try {
+      const { data } = await axiosInstance.put(
+        `/BattleRoyalScores`,
+        { stageId, battleRoyalScores }
+        // { params: { stageId } }
+      );
+      return data.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to update Battle Royale scores"
+      );
+    }
+  }
+);
+
 // Initial state
 const initialState = {
   scores: null,
@@ -47,21 +72,32 @@ const battleRoyalScoresSlice = createSlice({
   },
   extraReducers: (builder) => {
     // Handle fetchBattleRoyalScores pending state
-    builder.addCase(fetchBattleRoyalScores.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-    });
-    // Handle fetchBattleRoyalScores fulfilled state
-    builder.addCase(fetchBattleRoyalScores.fulfilled, (state, action) => {
-      state.loading = false;
-      state.scores = action.payload;
-      state.error = null;
-    });
-    // Handle fetchBattleRoyalScores rejected state
-    builder.addCase(fetchBattleRoyalScores.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    });
+    builder
+      .addCase(fetchBattleRoyalScores.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchBattleRoyalScores.fulfilled, (state, action) => {
+        state.loading = false;
+        state.scores = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchBattleRoyalScores.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(putBattleRoyalScores.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(putBattleRoyalScores.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(putBattleRoyalScores.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
   },
 });
 
