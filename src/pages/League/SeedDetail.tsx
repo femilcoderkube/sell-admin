@@ -206,9 +206,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
 
   // Handle saving changes
   const handleSaveChanges = async () => {
-    const seedIds = seedingList
-      .filter((item) => item.player)
-      .map((item) => item.player!.id);
+    const seedIds = seedingList.filter((item) => item.player);
 
     if (seedIds?.length !== state?.draftPlayer) {
       toast.error(`You must select at least ${state?.draftPlayer} players.`);

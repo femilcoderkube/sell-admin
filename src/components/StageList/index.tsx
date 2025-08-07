@@ -34,6 +34,8 @@ import { fetchStageRound } from "../../app/features/tournament/stageRoundSlice";
 import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
 import topArrow from "../../assets/images/nf_top-arrow.svg";
 import downArrow from "../../assets/images/nf_bottom-arrow.svg";
+import { fetchStageGroup } from "../../app/features/tournament/stageGroupSlice";
+import { fetchBattleRoyalScores } from "../../app/features/tournament/battleRoyalScoresSlice";
 
 interface Stage {
   _id: string;
@@ -80,6 +82,12 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
     loading: stageRoundloading,
     error: stageRounderror,
   } = useSelector((state: RootState) => state.stageRound);
+
+  const {
+    stageGroups,
+    loading: stageGrouploading,
+    error: stageGrouperror,
+  } = useSelector((state: RootState) => state.stageGroup);
 
   const [showQuickScoreModal, setShowQuickScoreModal] = useState(false);
   const [showChangeTimeModal, setShowChangeTimeModal] = useState(false);
@@ -128,6 +136,12 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
   );
 
   useEffect(() => {
+    if (stageType === "BattleRoyal") {
+      dispatch(fetchBattleRoyalScores(selectedStage));
+    }
+  }, [selectedStage]);
+
+  useEffect(() => {
     if (selectedStage) {
       debouncedDispatch({
         stageId: selectedStage,
@@ -141,6 +155,9 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
   useEffect(() => {
     if (selectedStage) {
       dispatch(fetchStageRound(selectedStage));
+      if (stageType === "BattleRoyal") {
+        dispatch(fetchStageGroup(selectedStage));
+      }
     }
   }, [dispatch, selectedStage]);
 
@@ -424,14 +441,14 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                           value={selectedRound}
                           onChange={(e) => setSelectedRound(e.target.value)}
                         >
-                          <option value="">All rounds</option>
-                          {stageRound?.map((round) => (
-                            <option key={round._id} value={round._id}>
-                              {round.roundName}{" "}
-                              {round.config
-                                ? round.config.group_id == 0
+                          {/* <option value="">All rounds</option> */}
+                          {stageRound?.map((round: any) => (
+                            <option key={round?._id} value={round?._id}>
+                              {round?.roundName}{" "}
+                              {round?.config
+                                ? round?.config.group_id == 0
                                   ? "(WB)"
-                                  : round.config.group_id == 1
+                                  : round?.config.group_id == 1
                                   ? "(LB)"
                                   : "(FB)"
                                 : ""}
@@ -440,6 +457,29 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                         </select>
                       </div>
                     </div>
+                    {stageType === "BattleRoyal" && (
+                      <div
+                        className="nf_top-filter nf_bg flex items-center ml-2"
+                        style={{ maxWidth: "max-content" }}
+                      >
+                        <p className="color_gray">Filter by:</p>
+                        <div className="nf_cust-select nf_simple-select focus-input">
+                          <select
+                            className="form-control color-white cust-arrow"
+                            id="round_dropdown"
+                            value={selectedRound}
+                            onChange={(e) => setSelectedRound(e.target.value)}
+                          >
+                            <option value="">All groups</option>
+                            {stageGroups?.map((round: any) => (
+                              <option key={round._id} value={round?._id}>
+                                {round?.name}{" "}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    )}
 
                     <div id="checkbox_1">
                       {checkboxOptions.map((option) => (
