@@ -9,6 +9,7 @@ interface Participant {
   region?: string;
   logoImage: string;
   backgroundImage: string;
+  participantId: string
 }
 
 interface GroupCardProps {
@@ -137,7 +138,7 @@ const GroupCard: React.FC<GroupCardProps> = ({
                 />
                 <div className="group relative">
                   <div className="font-medium text-white text-sm">
-                    {participant?.shortName}
+                    {participant?.name}
                   </div>
                   <div className="absolute hidden group-hover:block bg-gray-900 text-white text-xs rounded p-2 mt-1 z-10">
                     {participant?.name}

@@ -113,19 +113,19 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
         seed: index + 1,
         player: stagesList?.seed[index]
           ? {
-              id: stagesList?.seed[index]._id,
-              name: stagesList?.seed[index].team
-                ? stagesList?.seed[index].team?.teamName
-                : stagesList?.seed[index].user?.username,
-              shortName: stagesList?.seed[index].team
-                ? stagesList?.seed[index].team?.teamShortName
-                : stagesList?.seed[index].user?.firstName +
-                  " " +
-                  stagesList?.seed[index].user?.lastName,
-              region: stagesList?.seed[index]?.team
-                ? stagesList?.seed[index].team?.region
-                : stagesList?.seed[index].user?.nationality,
-            }
+            id: stagesList?.seed[index]._id,
+            name: stagesList?.seed[index].team
+              ? stagesList?.seed[index].team?.teamName
+              : stagesList?.seed[index].user?.username,
+            shortName: stagesList?.seed[index].team
+              ? stagesList?.seed[index].team?.teamShortName
+              : stagesList?.seed[index].user?.firstName +
+              " " +
+              stagesList?.seed[index].user?.lastName,
+            region: stagesList?.seed[index]?.team
+              ? stagesList?.seed[index].team?.region
+              : stagesList?.seed[index].user?.nationality,
+          }
           : null,
         locked: false,
       }))
@@ -474,10 +474,9 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
       )
     );
     toast.success(
-      `Seed ${seed} ${
-        seedingList.find((item) => item.seed === seed)?.locked
-          ? "unlocked"
-          : "locked"
+      `Seed ${seed} ${seedingList.find((item) => item.seed === seed)?.locked
+        ? "unlocked"
+        : "locked"
       }.`
     );
   };
@@ -493,6 +492,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
       region: seed.team.region,
       logoImage: seed.team.logoImage,
       backgroundImage: seed.team.backgroundImage,
+      participantId: seed._id
     })),
   }));
 
@@ -505,6 +505,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
       region: seed.team.region,
       logoImage: seed.team.logoImage,
       backgroundImage: seed.team.backgroundImage,
+      participantId: seed._id
     }));
 
   const handleReplaceParticipant = (
@@ -538,6 +539,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
             backgroundImage: newParticipant.backgroundImage,
             logoImage: newParticipant.logoImage,
           },
+          _id: newParticipant.participantId
         };
         newGroups[targetGroupIndex].updatedAt = new Date().toISOString();
         return newGroups;
@@ -567,6 +569,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
             backgroundImage: newParticipant.backgroundImage,
             logoImage: newParticipant.logoImage,
           },
+          _id: newParticipant.participantId,
         };
 
         newGroups[sourceGroupIndex].seed[sourceSlotIndex] = {
@@ -580,6 +583,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
             backgroundImage: targetSeed.team.backgroundImage,
             logoImage: targetSeed.team.logoImage,
           },
+          _id: targetSeed._id,
         };
       }
 
@@ -587,7 +591,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
       if (sourceGroupIndex !== targetGroupIndex) {
         newGroups[sourceGroupIndex].updatedAt = new Date().toISOString();
       }
-
+      
       dispatch(updateStageGroup({ stageGroupId: stageId, groups: newGroups }))
         .unwrap()
         .then(() => {

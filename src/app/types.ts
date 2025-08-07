@@ -458,6 +458,7 @@ export interface Participant {
   region: string;
   logoImage: string;
   backgroundImage: string;
+  participantId: string
 }
 
 export interface Group {
