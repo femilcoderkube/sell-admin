@@ -107,7 +107,6 @@ export const User: React.FC = ({ title }: any) => {
         dispatch(fetchUsers({ page: 1, perPage, searchTerm }));
       }
     } else {
-      console.log("form", form);
       const resultAction = await dispatch(addUser(form));
       if (addUser.fulfilled.match(resultAction)) {
         setIsEditModalOpen(false);

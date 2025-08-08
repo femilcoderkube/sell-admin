@@ -2,7 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../app/store";
-import { addPartner, updatePartner, fetchPartners } from "../../app/features/partners/partnerSlice";
+import {
+  addPartner,
+  updatePartner,
+  fetchPartners,
+} from "../../app/features/partners/partnerSlice";
 import { addPartnerSchema } from "../../validation";
 import { PartnerType } from "../../app/types";
 import { CancelIcon } from "../ui";
@@ -14,7 +18,11 @@ interface PartnerModalProps {
   selectedPartner: PartnerType | null;
 }
 
-const PartnerModal: React.FC<PartnerModalProps> = ({ show, onClose, selectedPartner }) => {
+const PartnerModal: React.FC<PartnerModalProps> = ({
+  show,
+  onClose,
+  selectedPartner,
+}) => {
   const dispatch = useDispatch<AppDispatch>();
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>("");
@@ -35,12 +43,14 @@ const PartnerModal: React.FC<PartnerModalProps> = ({ show, onClose, selectedPart
       formData.append("nameAr", values.nameAr);
       formData.append("websiteUrl", values.websiteUrl);
       formData.append("description", values.description);
-      console.log(values);
+
       if (selectedPartner) {
         if (values.logo && typeof values.logo !== "string") {
           formData.append("logo", values.logo);
         }
-        const result = await dispatch(updatePartner({ id: selectedPartner._id, partner: formData }));
+        const result = await dispatch(
+          updatePartner({ id: selectedPartner._id, partner: formData })
+        );
         if (updatePartner.fulfilled.match(result)) {
           resetForm();
           setLogoPreview(null);
@@ -52,7 +62,7 @@ const PartnerModal: React.FC<PartnerModalProps> = ({ show, onClose, selectedPart
         // if (!values.logo || typeof values.logo === "string") {
         //   return;
         // }
-        console.log(values.logo);
+
         formData.append("logo", values!.logo as Blob);
         const result = await dispatch(addPartner(formData));
         if (addPartner.fulfilled.match(result)) {
@@ -101,7 +111,9 @@ const PartnerModal: React.FC<PartnerModalProps> = ({ show, onClose, selectedPart
   return (
     <div
       aria-hidden={!show}
-      className={`fixed top-0 left-0 right-0 z-50 flex justify-center items-center w-full h-screen bg-black bg-opacity-50 transition-opacity ${show ? "opacity-100 visible" : "opacity-0 invisible"}`}
+      className={`fixed top-0 left-0 right-0 z-50 flex justify-center items-center w-full h-screen bg-black bg-opacity-50 transition-opacity ${
+        show ? "opacity-100 visible" : "opacity-0 invisible"
+      }`}
     >
       <form
         onSubmit={formik.handleSubmit}
@@ -129,7 +141,9 @@ const PartnerModal: React.FC<PartnerModalProps> = ({ show, onClose, selectedPart
 
           <div className="p-4 md:p-5 space-y-4">
             <div className="mb-4">
-              <label className="block text-white text-sm font-medium mb-2">Partner Name (EN) <span className="text-red-500">*</span></label>
+              <label className="block text-white text-sm font-medium mb-2">
+                Partner Name (EN) <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 className="w-full text-[0.94rem] text-white focus:outline-0 bg-input-color rounded-[0.52rem] px-3 py-2"
@@ -140,7 +154,9 @@ const PartnerModal: React.FC<PartnerModalProps> = ({ show, onClose, selectedPart
               )}
             </div>
             <div className="mb-4">
-              <label className="block text-white text-sm font-medium mb-2">Partner Name (AR)</label>
+              <label className="block text-white text-sm font-medium mb-2">
+                Partner Name (AR)
+              </label>
               <input
                 type="text"
                 className="w-full text-[0.94rem] text-white focus:outline-0 bg-input-color rounded-[0.52rem] px-3 py-2"
@@ -151,28 +167,38 @@ const PartnerModal: React.FC<PartnerModalProps> = ({ show, onClose, selectedPart
               )}
             </div>
             <div className="mb-4">
-              <label className="block text-white text-sm font-medium mb-2">Website URL</label>
+              <label className="block text-white text-sm font-medium mb-2">
+                Website URL
+              </label>
               <input
                 type="text"
                 className="w-full text-[0.94rem] text-white focus:outline-0 bg-input-color rounded-[0.52rem] px-3 py-2"
                 {...formik.getFieldProps("websiteUrl")}
               />
               {formik.touched.websiteUrl && formik.errors.websiteUrl && (
-                <p className="text-red-600 text-sm">{formik.errors.websiteUrl}</p>
+                <p className="text-red-600 text-sm">
+                  {formik.errors.websiteUrl}
+                </p>
               )}
             </div>
             <div className="mb-4">
-              <label className="block text-white text-sm font-medium mb-2">Description</label>
+              <label className="block text-white text-sm font-medium mb-2">
+                Description
+              </label>
               <textarea
                 className="w-full text-[0.94rem] text-white focus:outline-0 bg-input-color rounded-[0.52rem] px-3 py-2"
                 {...formik.getFieldProps("description")}
               />
               {formik.touched.description && formik.errors.description && (
-                <p className="text-red-600 text-sm">{formik.errors.description}</p>
+                <p className="text-red-600 text-sm">
+                  {formik.errors.description}
+                </p>
               )}
             </div>
             <div className="mb-4">
-              <label className="block text-white text-sm font-medium mb-2">Logo <span className="text-red-500">*</span></label>
+              <label className="block text-white text-sm font-medium mb-2">
+                Logo <span className="text-red-500">*</span>
+              </label>
               <div className="relative">
                 <div className="flex items-center justify-center w-full">
                   <label
@@ -181,9 +207,9 @@ const PartnerModal: React.FC<PartnerModalProps> = ({ show, onClose, selectedPart
                   >
                     {logoPreview ? (
                       <div className="flex flex-col items-center justify-center pt-5 pb-6 w-full h-full">
-                        <img 
-                          src={logoPreview} 
-                          alt="Partner Logo Preview" 
+                        <img
+                          src={logoPreview}
+                          alt="Partner Logo Preview"
                           className="max-w-full max-h-24 object-contain mb-2"
                         />
                         <p className="text-xs text-gray-400 truncate w-full text-center px-2">
@@ -192,19 +218,34 @@ const PartnerModal: React.FC<PartnerModalProps> = ({ show, onClose, selectedPart
                       </div>
                     ) : (
                       <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <svg className="w-8 h-8 mb-4 text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                          <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                        <svg
+                          className="w-8 h-8 mb-4 text-gray-400"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 20 16"
+                        >
+                          <path
+                            stroke="currentColor"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                          />
                         </svg>
                         <p className="mb-2 text-sm text-gray-400">
-                          <span className="font-semibold">Click to upload</span> or drag and drop
+                          <span className="font-semibold">Click to upload</span>{" "}
+                          or drag and drop
                         </p>
-                        <p className="text-xs text-gray-400">SVG, PNG, JPG or GIF</p>
+                        <p className="text-xs text-gray-400">
+                          SVG, PNG, JPG or GIF
+                        </p>
                       </div>
                     )}
-                    <input 
-                      id="logo-upload" 
-                      type="file" 
-                      className="hidden" 
+                    <input
+                      id="logo-upload"
+                      type="file"
+                      className="hidden"
                       accept="image/*"
                       onChange={handleFileChange}
                     />
@@ -212,7 +253,9 @@ const PartnerModal: React.FC<PartnerModalProps> = ({ show, onClose, selectedPart
                 </div>
               </div>
               {formik.touched.logo && formik.errors.logo && (
-                <p className="text-red-600 text-sm">{formik.errors.logo as string}</p>
+                <p className="text-red-600 text-sm">
+                  {formik.errors.logo as string}
+                </p>
               )}
             </div>
           </div>
@@ -243,4 +286,4 @@ const PartnerModal: React.FC<PartnerModalProps> = ({ show, onClose, selectedPart
   );
 };
 
-export default PartnerModal; 
+export default PartnerModal;

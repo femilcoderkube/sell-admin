@@ -9,7 +9,7 @@ interface Participant {
   region?: string;
   logoImage: string;
   backgroundImage: string;
-  participantId: string
+  participantId: string;
 }
 
 interface GroupCardProps {
@@ -43,7 +43,6 @@ const GroupCard: React.FC<GroupCardProps> = ({
       sourceSlotIndex,
     };
     e.dataTransfer.setData("application/json", JSON.stringify(dragData));
-    console.log("Drag started:", dragData);
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -71,11 +70,6 @@ const GroupCard: React.FC<GroupCardProps> = ({
         sourceSlotIndex?: number;
       };
       const { participant, sourceGroupNumber, sourceSlotIndex } = dragData;
-      console.log("Dropped:", {
-        participant,
-        sourceGroupNumber,
-        sourceSlotIndex,
-      });
 
       if (
         sourceGroupNumber === groupNumber &&

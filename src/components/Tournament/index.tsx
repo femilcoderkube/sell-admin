@@ -38,7 +38,6 @@ export const Tournamentes: React.FC = ({ title }: any) => {
   useEffect(() => {
     if (role?.role) {
       if (jsonValue.role !== role?.role) {
-        console.log("lofg pade chhe");
         dispatch(logout());
       }
     }

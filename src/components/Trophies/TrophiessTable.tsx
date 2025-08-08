@@ -27,8 +27,6 @@ export const TrophiesTable: React.FC<ITrophiesProps> = ({
     actions: "Actions",
   };
 
-  console.log("data", data);
-
   const tdetail = data.map((trophie, key) => ({
     id: trophie?._id,
     key: (currentPage - 1) * 10 + key + 1,

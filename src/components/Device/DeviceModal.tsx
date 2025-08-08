@@ -32,12 +32,11 @@ export const DeviceModal: React.FC<ModalProps> = ({
   const debouncedCheckDevice = useMemo(
     () =>
       debounce(async (value, id, resolve) => {
-        console.log(`Checking device: ${value}`);
         if (value) {
           const result = await dispatch(
             checkDeviceExists({ device: value, id })
           );
-          console.log(`Result for ${value}:`, result.payload);
+
           resolve(result.payload.data ? "Device already exists" : undefined);
         } else {
           resolve(undefined);
@@ -158,7 +157,7 @@ export const DeviceModal: React.FC<ModalProps> = ({
       // Set preview for existing device logo
       if (selectedDevice.logo) {
         const fullUrl = `${baseURL}/api/v1/${selectedDevice.logo}`;
-        console.log("fullUrl", fullUrl);
+
         setPreviewUrl(fullUrl);
         const urlParts = selectedDevice.logo.split("/");
         setFileName(urlParts[urlParts.length - 1]);

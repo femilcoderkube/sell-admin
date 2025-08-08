@@ -244,7 +244,6 @@ const MatchDetails = () => {
         .trim(),
     }),
     onSubmit: async (values) => {
-      console.log("Saving score:", values?.team1, values?.team2);
       const resultAction = await dispatch(
         addScore({
           matchId: mid,

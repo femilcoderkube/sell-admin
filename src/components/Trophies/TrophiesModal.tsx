@@ -25,7 +25,6 @@ const TrophiesModal: React.FC<TrophiesModalProps> = ({
   badges,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
-  console.log(badges);
   const formik = useFormik({
     initialValues: {
       BadgeID: "",
