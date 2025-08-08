@@ -717,12 +717,12 @@ textarea:focus {
   width: 27.5vw;
 }
 
-.nf_stage-quick_scores .nf_serchbar .input-group.search-name{
+.nf_stage-quick_scores .nf_serchbar .input-group.search-name {
   width: 12rem;
 }
 
 .nf_topbar-wrap .btn-nf-gray.btn {
-    padding: 12px 19px;
+  padding: 12px 19px;
 }
 
 .input-group {
@@ -854,7 +854,7 @@ svg:not(:root).svg-inline--fa {
   margin-bottom: 0;
   font-size: 15px;
   line-height: 20px;
-  margin-top: 4px;
+  margin-top: 10px;
   font-weight: 400;
   color: #6b7897;
 }
