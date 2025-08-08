@@ -16,6 +16,7 @@ import GroupCard from "./GroupCard";
 import { allParticipants } from "../../utils/constant";
 import { Group, Participant } from "../../app/types";
 import { updateStageGroup } from "../../app/features/tournament/stageGroupSlice";
+import { baseURL } from "../../axios";
 
 // Mock function to fetch player details (replace with actual API call)
 // const fetchPlayerDetails = async (ids) => {
@@ -35,6 +36,7 @@ async function fetchTeamDetails(ids) {
     shortName: item.team
       ? item.team.teamName
       : item.user.firstName + " " + item.user.lastName,
+    logoImage: item.team ? item?.team?.logoImage : item?.user?.profilePicture,
     region: item.team ? item.team.region : item.user.nationality,
   }));
 }
@@ -56,8 +58,6 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
     (state: RootState) => state.tournamentStage
   );
 
-  console.log("stagesList", stagesList?.groups);
-
   const tournamentId = window.location.pathname.split("/")[3];
   const stageId = window.location.pathname.split("/")[7];
 
@@ -76,12 +76,19 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
         name: string;
         shortName: string;
         region: string;
+        logoImage: string;
       } | null;
       locked: boolean;
     }[]
   >([]);
   const [playerDetails, setPlayerDetails] = useState<
-    { id: string; name: string; shortName: string; region: string }[]
+    {
+      id: string;
+      name: string;
+      shortName: string;
+      logoImage: string;
+      region: string;
+    }[]
   >([]);
 
   const [groups, setGroups] = useState<Group[]>();
@@ -90,6 +97,9 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
   const { error, notInStageParticipants } = useSelector(
     (state: RootState) => state.notInStage
   );
+
+  console.log("notInStageParticipants", notInStageParticipants);
+
   const { updateTournamentStageloading } = useSelector(
     (state: RootState) => state.tournamentStage
   );
@@ -113,19 +123,23 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
         seed: index + 1,
         player: stagesList?.seed[index]
           ? {
-            id: stagesList?.seed[index]._id,
-            name: stagesList?.seed[index].team
-              ? stagesList?.seed[index].team?.teamName
-              : stagesList?.seed[index].user?.username,
-            shortName: stagesList?.seed[index].team
-              ? stagesList?.seed[index].team?.teamShortName
-              : stagesList?.seed[index].user?.firstName +
-              " " +
-              stagesList?.seed[index].user?.lastName,
-            region: stagesList?.seed[index]?.team
-              ? stagesList?.seed[index].team?.region
-              : stagesList?.seed[index].user?.nationality,
-          }
+              id: stagesList?.seed[index]._id,
+              name: stagesList?.seed[index].team
+                ? stagesList?.seed[index].team?.teamName
+                : stagesList?.seed[index].user?.username,
+              shortName: stagesList?.seed[index].team
+                ? stagesList?.seed[index].team?.teamShortName
+                : stagesList?.seed[index].user?.firstName +
+                  " " +
+                  stagesList?.seed[index].user?.lastName,
+              logoImage: stagesList?.seed[index].team
+                ? stagesList?.seed[index].team?.logoImage
+                : stagesList?.seed[index].user?.profilePicture,
+
+              region: stagesList?.seed[index]?.team
+                ? stagesList?.seed[index].team?.region
+                : stagesList?.seed[index].user?.nationality,
+            }
           : null,
         locked: false,
       }))
@@ -474,9 +488,10 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
       )
     );
     toast.success(
-      `Seed ${seed} ${seedingList.find((item) => item.seed === seed)?.locked
-        ? "unlocked"
-        : "locked"
+      `Seed ${seed} ${
+        seedingList.find((item) => item.seed === seed)?.locked
+          ? "unlocked"
+          : "locked"
       }.`
     );
   };
@@ -492,7 +507,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
       region: seed.team.region,
       logoImage: seed.team.logoImage,
       backgroundImage: seed.team.backgroundImage,
-      participantId: seed._id
+      participantId: seed._id,
     })),
   }));
 
@@ -505,7 +520,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
       region: seed.team.region,
       logoImage: seed.team.logoImage,
       backgroundImage: seed.team.backgroundImage,
-      participantId: seed._id
+      participantId: seed._id,
     }));
 
   const handleReplaceParticipant = (
@@ -539,7 +554,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
             backgroundImage: newParticipant.backgroundImage,
             logoImage: newParticipant.logoImage,
           },
-          _id: newParticipant.participantId
+          _id: newParticipant.participantId,
         };
         newGroups[targetGroupIndex].updatedAt = new Date().toISOString();
         return newGroups;
@@ -591,7 +606,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
       if (sourceGroupIndex !== targetGroupIndex) {
         newGroups[sourceGroupIndex].updatedAt = new Date().toISOString();
       }
-      
+
       dispatch(updateStageGroup({ stageGroupId: stageId, groups: newGroups }))
         .unwrap()
         .then(() => {
@@ -710,12 +725,20 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                         <div className="col-span-8">
                           {item.player ? (
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-sm font-bold">
-                                {item.player?.name?.charAt(0)}
-                              </div>
+                              {item.player.logoImage ? (
+                                <img
+                                  src={`${baseURL}/api/v1/${item.player.logoImage}`}
+                                  alt={item.player.name}
+                                  className="w-8 h-8 rounded-full"
+                                />
+                              ) : (
+                                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                                  {item.player.name.charAt(0)}
+                                </div>
+                              )}
                               <div>
                                 <div className="font-medium text-sm">
-                                  {item.player.name}
+                                  {item.player.shortName}
                                 </div>
                                 <div className="text-xs text-gray-400">
                                   {item.player.team}
@@ -858,12 +881,20 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                           className="p-3 bg-gray-700 hover:bg-gray-600 rounded-lg cursor-pointer transition-colors"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-sm font-bold">
-                              {player.name.charAt(0)}
-                            </div>
+                            {player.logoImage ? (
+                              <img
+                                src={`${baseURL}/api/v1/${player.logoImage}`}
+                                alt={player.name}
+                                className="w-8 h-8 rounded-full"
+                              />
+                            ) : (
+                              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                                {player.name.charAt(0)}
+                              </div>
+                            )}
                             <div>
                               <div className="font-medium text-sm">
-                                {player.name}
+                                {player.shortName}
                               </div>
                               <div className="text-xs text-gray-400">
                                 {player.team}
@@ -965,12 +996,21 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                               onChange={() => handleBulkSelect(player.id)}
                               className="w-5 h-5 text-blue-500 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2 transition-colors"
                             />
-                            <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                              {player.name.charAt(0)}
-                            </div>
+                            {player.logoImage ? (
+                              <img
+                                src={`${baseURL}/api/v1/${player.logoImage}`}
+                                alt={player.name}
+                                className="w-8 h-8 rounded-full"
+                              />
+                            ) : (
+                              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                                {player.name.charAt(0)}
+                              </div>
+                            )}
+
                             <div>
                               <div className="font-medium text-white">
-                                {player.name}
+                                {player.shortName}
                               </div>
                               <div className="text-xs text-gray-400">
                                 {player.team}
