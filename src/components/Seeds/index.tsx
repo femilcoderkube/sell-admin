@@ -98,8 +98,6 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
     (state: RootState) => state.notInStage
   );
 
-  console.log("notInStageParticipants", notInStageParticipants);
-
   const { updateTournamentStageloading } = useSelector(
     (state: RootState) => state.tournamentStage
   );
