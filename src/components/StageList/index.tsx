@@ -186,11 +186,11 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
     }
   }, [dispatch, selectedStage]);
 
-  // useEffect(() => {
-  //   if (stageType === "BattleRoyal") {
-  //     setSelectedRound(stageRound[0]?._id);
-  //   }
-  // }, [stageRound, stageType]);
+  useEffect(() => {
+    if (stageType === "BattleRoyal") {
+      setSelectedRound(stageRound[0]?._id);
+    }
+  }, [stageRound, stageType]);
 
   useEffect(() => {
     if (stageType === "BattleRoyal") {
