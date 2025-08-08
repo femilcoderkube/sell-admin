@@ -901,7 +901,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                       <HandLogoLoader />
                     ) : (
                       <>
-                        {localScores?.length > 0 && (
+                        {scores?.length > 0 && localScores?.length > 0 && (
                           <Scoreboard
                             localScores={localScores}
                             setLocalScores={setLocalScores}
