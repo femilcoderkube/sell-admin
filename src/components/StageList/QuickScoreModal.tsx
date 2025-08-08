@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { CancelIcon } from "../ui"; // Adjust path to your CancelIcon component
@@ -53,6 +53,16 @@ const QuickScoreModal: React.FC<QuickScoreModalProps> = ({
     },
     enableReinitialize: true,
   });
+
+  // Reset form and errors when modal is opened
+  useEffect(() => {
+    if (show) {
+      formik.resetForm({ values: { team1Score: "", team2Score: "" } });
+      setError(null);
+      formik.setTouched({}, false); // Clear touched fields
+      formik.setErrors({}); // Clear validation errors
+    }
+  }, [show]);
 
   return (
     <div

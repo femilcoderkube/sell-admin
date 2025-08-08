@@ -727,17 +727,34 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                   <div className="col-4">
                                     <div className="nf_stage-content">
                                       <div className="nf_stage-img">
-                                        <img
-                                          className=""
-                                          height=""
-                                          width=""
-                                          src={`${baseURL}/api/v1/${
-                                            val?.opponent1?.team
-                                              ? val?.opponent1?.team?.logoImage
-                                              : val?.opponent1?.user
-                                                  ?.profilePicture
-                                          }`}
-                                        />
+                                        {val?.opponent1?.team?.logoImage ||
+                                        val?.opponent1?.user?.profilePicture ? (
+                                          <img
+                                            className=""
+                                            height=""
+                                            width=""
+                                            src={`${baseURL}/api/v1/${
+                                              val?.opponent1?.team
+                                                ? val?.opponent1?.team
+                                                    ?.logoImage
+                                                : val?.opponent1?.user
+                                                    ?.profilePicture
+                                            }`}
+                                          />
+                                        ) : (
+                                          <div
+                                            className="bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold"
+                                            style={{
+                                              width: "4vw",
+                                              height: "4vw",
+                                            }}
+                                          >
+                                            {val?.opponent1?.team
+                                              ? val?.opponent1?.team
+                                                  ?.teamShortName
+                                              : val?.opponent1?.user?.username}
+                                          </div>
+                                        )}
                                       </div>
                                       <h3>
                                         {val?.opponent1?.team
@@ -800,17 +817,37 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                   <div className="col-4">
                                     <div className="nf_stage-content">
                                       <div className="nf_stage-img">
-                                        <img
-                                          className=""
-                                          height=""
-                                          width=""
-                                          src={`${baseURL}/api/v1/${
-                                            val?.opponent2?.team
-                                              ? val?.opponent2?.team?.logoImage
-                                              : val?.opponent2?.user
-                                                  ?.profilePicture
-                                          }`}
-                                        />
+                                        {val?.opponent2?.team?.logoImage ||
+                                        val?.opponent2?.user?.profilePicture ? (
+                                          <img
+                                            className=""
+                                            height=""
+                                            width=""
+                                            src={`${baseURL}/api/v1/${
+                                              val?.opponent2?.team?.logoImage ||
+                                              val?.opponent2?.user
+                                                ?.profilePicture
+                                            }`}
+                                            alt={
+                                              val?.opponent2?.team
+                                                ?.teamShortName ||
+                                              "Team/Opponent"
+                                            }
+                                          />
+                                        ) : (
+                                          <div
+                                            className="bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold"
+                                            style={{
+                                              width: "4vw",
+                                              height: "4vw",
+                                            }}
+                                          >
+                                            {val?.opponent2?.team
+                                              ? val?.opponent2?.team
+                                                  ?.teamShortName
+                                              : val?.opponent2?.user?.username}
+                                          </div>
+                                        )}
                                       </div>
                                       <h3>
                                         {val?.opponent2?.team
