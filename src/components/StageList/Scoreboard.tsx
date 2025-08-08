@@ -155,6 +155,7 @@ const Scoreboard = ({ localScores, setLocalScores, scoreSettings }: any) => {
                     <h6 className="placement">
                       <input
                         type="number"
+                        min={0}
                         className="form-control placement_point w-16 p-1 border rounded"
                         value={val?.placePoints || 0}
                         onChange={(e) =>
@@ -207,6 +208,7 @@ const Scoreboard = ({ localScores, setLocalScores, scoreSettings }: any) => {
                       <input
                         className="form-control kill_point w-16 p-1 border rounded"
                         type="number"
+                        min={0}
                         value={val?.killPoints || 0}
                         onChange={(e) =>
                           handleInputChange(
