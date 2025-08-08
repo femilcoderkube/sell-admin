@@ -140,10 +140,10 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
       setSelectedStage(stagesList[0]?._id);
       setStageType(stagesList[0]?.stageType);
     }
-  }, [stagesList, loading]);
+  }, [stagesList]);
 
   useEffect(() => {
-    if (stageType == "BattleRoyal") {
+    if (stageType === "BattleRoyal") {
       dispatch(getTournamentStagesById({ id: selectedStage }));
     }
   }, [stageType, selectedStage]);
