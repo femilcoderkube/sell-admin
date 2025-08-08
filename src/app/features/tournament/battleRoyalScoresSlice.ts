@@ -93,6 +93,7 @@ const battleRoyalScoresSlice = createSlice({
       .addCase(putBattleRoyalScores.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
+        toast.success("Score Updated successfully!");
       })
       .addCase(putBattleRoyalScores.rejected, (state, action) => {
         state.loading = false;

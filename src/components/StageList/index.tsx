@@ -187,6 +187,12 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
 
   useEffect(() => {
     if (stageType === "BattleRoyal") {
+      setSelectedRound(stageRound[0]?._id);
+    }
+  }, [stageRound, stageType]);
+
+  useEffect(() => {
+    if (stageType === "BattleRoyal") {
       dispatch(
         fetchBattleRoyalScores({
           stageId: selectedStage,
@@ -372,7 +378,13 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
     const resultAction = await dispatch(putBattleRoyalScores(payload));
 
     if (putBattleRoyalScores.fulfilled.match(resultAction)) {
-      toast.success("Upadte Score");
+      dispatch(
+        fetchBattleRoyalScores({
+          stageId: selectedStage,
+          roundId: selectedRound,
+          groupId: selectedGroup,
+        })
+      );
     }
   };
 
@@ -463,7 +475,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-
+                      setSelectedRound("");
                       setSelectedStage(stage?._id);
                       setStageType(stage?.stageType);
                     }}
@@ -875,7 +887,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                 )}
                 {stageType === "BattleRoyal" && (
                   <div className="grid sm:grid-cols-2 lg:grid-cols-2 grid-cols-1 items-center mt-5 gap-3 mb-3">
-                    {matchesLoading ? (
+                    {matchesLoading || scoresloading ? (
                       <HandLogoLoader />
                     ) : (
                       <>
