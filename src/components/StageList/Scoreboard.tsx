@@ -106,7 +106,7 @@ const Scoreboard = ({ localScores, setLocalScores, scoreSettings }: any) => {
       {Object.keys(groupedScores).map((groupName) => (
         <div key={groupName} className="group-section mb-8">
           <h2 className="text-2xl font-bold mb-4 text-white">{groupName}</h2>
-          {groupedScores[groupName].map((val: any) => (
+          {groupedScores[groupName].map((val: any, index: any) => (
             <div
               key={val.originalIndex}
               className="nf_manage-wrap flex justify-between nf_battel-score nf_battel bg-gray-100 p-4 mb-2 rounded-lg"
@@ -114,7 +114,8 @@ const Scoreboard = ({ localScores, setLocalScores, scoreSettings }: any) => {
               <div className="nf_manage-content">
                 <div className="nf_manage-num flex items-center">
                   <h4 className="player-number text-lg font-semibold mr-4">
-                    {val.originalIndex + 1}
+                    {/* {val.originalIndex + 1} */}
+                    {index + 1}
                   </h4>
                   <h5 className="player-name text-lg">
                     {val?.participant?.team?.teamName}

@@ -187,7 +187,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
   }, [dispatch, selectedStage]);
 
   useEffect(() => {
-    if (stageType === "BattleRoyal") {
+    if (stageRound?.length > 0 && stageType === "BattleRoyal") {
       setSelectedRound(stageRound[0]?._id);
     }
   }, [stageRound, stageType]);
@@ -893,11 +893,13 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                       <HandLogoLoader />
                     ) : (
                       <>
-                        <Scoreboard
-                          localScores={localScores}
-                          setLocalScores={setLocalScores}
-                          scoreSettings={scoreSettings}
-                        />
+                        {localScores?.length > 0 && (
+                          <Scoreboard
+                            localScores={localScores}
+                            setLocalScores={setLocalScores}
+                            scoreSettings={scoreSettings}
+                          />
+                        )}
                         {/* {localScores?.map((val: any, index: any) => {
                           return (
                             <div
