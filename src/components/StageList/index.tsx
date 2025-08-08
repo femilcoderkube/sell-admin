@@ -40,6 +40,7 @@ import {
   putBattleRoyalScores,
 } from "../../app/features/tournament/battleRoyalScoresSlice";
 import toast from "react-hot-toast";
+import Scoreboard from "./Scoreboard";
 
 interface Stage {
   _id: string;
@@ -185,11 +186,11 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
     }
   }, [dispatch, selectedStage]);
 
-  useEffect(() => {
-    if (stageType === "BattleRoyal") {
-      setSelectedRound(stageRound[0]?._id);
-    }
-  }, [stageRound, stageType]);
+  // useEffect(() => {
+  //   if (stageType === "BattleRoyal") {
+  //     setSelectedRound(stageRound[0]?._id);
+  //   }
+  // }, [stageRound, stageType]);
 
   useEffect(() => {
     if (stageType === "BattleRoyal") {
@@ -281,94 +282,94 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
   // Recalculate totalPoints when stagesDetails?.settings changes
 
   // Function to calculate total points
-  const calculateTotalPoints = (placement: number, kills: number) => {
-    const settings = scoreSettings;
-    if (!settings) return 0;
+  // const calculateTotalPoints = (placement: number, kills: number) => {
+  //   const settings = scoreSettings;
+  //   if (!settings) return 0;
 
-    // Calculate Kill Score
-    const killScore = kills * (settings.killPoints || 0);
+  //   // Calculate Kill Score
+  //   const killScore = kills * (settings.killPoints || 0);
 
-    // Calculate Placement Score
-    let placementScore = 0;
-    if (settings.placePoints && Array.isArray(settings.placePoints)) {
-      const matchedPlacement = settings.placePoints.find(
-        (point: any) => point.position === placement
-      );
-      placementScore = matchedPlacement ? matchedPlacement.point : 0;
-    }
+  //   // Calculate Placement Score
+  //   let placementScore = 0;
+  //   if (settings.placePoints && Array.isArray(settings.placePoints)) {
+  //     const matchedPlacement = settings.placePoints.find(
+  //       (point: any) => point.position === placement
+  //     );
+  //     placementScore = matchedPlacement ? matchedPlacement.point : 0;
+  //   }
 
-    return placementScore + killScore;
-  };
+  //   return placementScore + killScore;
+  // };
 
   // Handle input change for placement or kills
-  const handleInputChange = (
-    index: number,
-    field: "placement" | "kills",
-    value: number
-  ) => {
-    setLocalScores((prevScores: any) =>
-      prevScores.map((score: any, i: number) =>
-        i === index
-          ? {
-              ...score,
-              placePoints: field === "placement" ? value : score.placePoints,
-              killPoints: field === "kills" ? value : score.killPoints,
-              totalPoints: calculateTotalPoints(
-                field === "placement" ? value : score.placePoints,
-                field === "kills" ? value : score.killPoints
-              ),
-            }
-          : score
-      )
-    );
-  };
+  // const handleInputChange = (
+  //   index: number,
+  //   field: "placement" | "kills",
+  //   value: number
+  // ) => {
+  //   setLocalScores((prevScores: any) =>
+  //     prevScores.map((score: any, i: number) =>
+  //       i === index
+  //         ? {
+  //             ...score,
+  //             placePoints: field === "placement" ? value : score.placePoints,
+  //             killPoints: field === "kills" ? value : score.killPoints,
+  //             totalPoints: calculateTotalPoints(
+  //               field === "placement" ? value : score.placePoints,
+  //               field === "kills" ? value : score.killPoints
+  //             ),
+  //           }
+  //         : score
+  //     )
+  //   );
+  // };
 
   // Handle increment/decrement buttons
-  const handleIncrement = (index: number, field: "placement" | "kills") => {
-    setLocalScores((prevScores: any) =>
-      prevScores.map((score: any, i: number) =>
-        i === index
-          ? {
-              ...score,
-              [field === "placement" ? "placePoints" : "killPoints"]:
-                (field === "placement" ? score.placePoints : score.killPoints) +
-                1,
-              totalPoints: calculateTotalPoints(
-                field === "placement"
-                  ? score.placePoints + 1
-                  : score.placePoints,
-                field === "kills" ? score.killPoints + 1 : score.killPoints
-              ),
-            }
-          : score
-      )
-    );
-  };
+  // const handleIncrement = (index: number, field: "placement" | "kills") => {
+  //   setLocalScores((prevScores: any) =>
+  //     prevScores.map((score: any, i: number) =>
+  //       i === index
+  //         ? {
+  //             ...score,
+  //             [field === "placement" ? "placePoints" : "killPoints"]:
+  //               (field === "placement" ? score.placePoints : score.killPoints) +
+  //               1,
+  //             totalPoints: calculateTotalPoints(
+  //               field === "placement"
+  //                 ? score.placePoints + 1
+  //                 : score.placePoints,
+  //               field === "kills" ? score.killPoints + 1 : score.killPoints
+  //             ),
+  //           }
+  //         : score
+  //     )
+  //   );
+  // };
 
-  const handleDecrement = (index: number, field: "placement" | "kills") => {
-    setLocalScores((prevScores: any) =>
-      prevScores.map((score: any, i: number) =>
-        i === index
-          ? {
-              ...score,
-              [field === "placement" ? "placePoints" : "killPoints"]: Math.max(
-                0,
-                (field === "placement" ? score.placePoints : score.killPoints) -
-                  1
-              ),
-              totalPoints: calculateTotalPoints(
-                field === "placement"
-                  ? Math.max(0, score.placePoints - 1)
-                  : score.placePoints,
-                field === "kills"
-                  ? Math.max(0, score.killPoints - 1)
-                  : score.killPoints
-              ),
-            }
-          : score
-      )
-    );
-  };
+  // const handleDecrement = (index: number, field: "placement" | "kills") => {
+  //   setLocalScores((prevScores: any) =>
+  //     prevScores.map((score: any, i: number) =>
+  //       i === index
+  //         ? {
+  //             ...score,
+  //             [field === "placement" ? "placePoints" : "killPoints"]: Math.max(
+  //               0,
+  //               (field === "placement" ? score.placePoints : score.killPoints) -
+  //                 1
+  //             ),
+  //             totalPoints: calculateTotalPoints(
+  //               field === "placement"
+  //                 ? Math.max(0, score.placePoints - 1)
+  //                 : score.placePoints,
+  //               field === "kills"
+  //                 ? Math.max(0, score.killPoints - 1)
+  //                 : score.killPoints
+  //             ),
+  //           }
+  //         : score
+  //     )
+  //   );
+  // };
 
   const updatescore = async () => {
     const payload = {
@@ -886,12 +887,18 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                   </div>
                 )}
                 {stageType === "BattleRoyal" && (
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-2 grid-cols-1 items-center mt-5 gap-3 mb-3">
+                  // <div className="grid sm:grid-cols-2 lg:grid-cols-2 grid-cols-1 items-center mt-5 gap-3 mb-3">
+                  <div>
                     {matchesLoading || scoresloading ? (
                       <HandLogoLoader />
                     ) : (
                       <>
-                        {localScores?.map((val: any, index: any) => {
+                        <Scoreboard
+                          localScores={localScores}
+                          setLocalScores={setLocalScores}
+                          scoreSettings={scoreSettings}
+                        />
+                        {/* {localScores?.map((val: any, index: any) => {
                           return (
                             <div
                               key={index}
@@ -1033,7 +1040,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                               </div>
                             </div>
                           );
-                        })}
+                        })} */}
                       </>
                     )}
                   </div>
