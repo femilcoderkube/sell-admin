@@ -58,7 +58,7 @@ export const checkboxOptions = [
 ];
 
 export function getWinnerTeamName(matchData: any) {
-  const winner = matchData.winner; // Get the winner field ("opponent1" or "opponent2")
+  const winner = matchData?.winner; // Get the winner field ("opponent1" or "opponent2")
   const winnerTeam = matchData[winner]; // Access the winner's object dynamically
-  return winnerTeam.team.teamName; // Return the teamName from the team sub-object
+  return winnerTeam?.team?.teamName; // Return the teamName from the team sub-object
 }
