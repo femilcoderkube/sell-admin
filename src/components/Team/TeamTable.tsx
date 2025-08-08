@@ -123,14 +123,23 @@ export const TeamTable: React.FC<TeamTableProps> = ({
               </td>
               <td className="text-sm py-4 px-3 hidden md:table-cell">
                 <span className="inline-block bg-gray-600/50 p-2 rounded-lg shadow-sm ring-2 ring-gray-500/20">
-                  <img
-                    src={`${baseURL}/api/v1/${team.logoImage}`}
-                    alt={team.teamName}
-                    style={{ width: "2rem", height: "2rem" }}
-                    // onError={(e) => {
-                    //   e.currentTarget.src = "/path/to/fallback-image.png"; // Fallback image
-                    // }}
-                  />
+                  {team.logoImage ? (
+                    <img
+                      src={`${baseURL}/api/v1/${team.logoImage}`}
+                      alt={team.teamName}
+                      style={{ width: "2rem", height: "2rem" }}
+                      // onError={(e) => {
+                      //   e.currentTarget.src = "/path/to/fallback-image.png"; // Fallback image
+                      // }}
+                    />
+                  ) : (
+                    <div
+                      className=" bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold"
+                      style={{ width: "2rem", height: "2rem" }}
+                    >
+                      {team.teamName.charAt(0)}
+                    </div>
+                  )}
                 </span>
               </td>
               <td className="text-sm py-4 px-3">
