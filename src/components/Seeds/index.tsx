@@ -93,6 +93,10 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
 
   const [groups, setGroups] = useState<Group[]>();
 
+  const [slotAssignments, setSlotAssignments] = useState<{
+    [playerId: string]: number | null;
+  }>({});
+
   // Redux state
   const { error, notInStageParticipants } = useSelector(
     (state: RootState) => state.notInStage
@@ -223,25 +227,86 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
     limitedSelectableIds.every((id) => selectedPlayers.includes(id));
 
   // Toggle Select All
+  // const handleSelectAll = () => {
+  //   if (isAllSelected) {
+  //     // Deselect all
+  //     setSelectedPlayers((prev) =>
+  //       prev.filter((id) => !limitedSelectableIds.includes(id))
+  //     );
+  //   } else {
+  //     // Select up to limit
+  //     setSelectedPlayers((prev) => [
+  //       ...prev.filter((id) => !limitedSelectableIds.includes(id)),
+  //       ...limitedSelectableIds,
+  //     ]);
+  //   }
+  // };
+
   const handleSelectAll = () => {
     if (isAllSelected) {
       // Deselect all
-      setSelectedPlayers((prev) =>
-        prev.filter((id) => !limitedSelectableIds.includes(id))
-      );
+      setSelectedPlayers([]);
+      setSlotAssignments({});
     } else {
-      // Select up to limit
-      setSelectedPlayers((prev) => [
-        ...prev.filter((id) => !limitedSelectableIds.includes(id)),
-        ...limitedSelectableIds,
-      ]);
+      // Select up to limit and assign slot numbers
+      const newSelectedPlayers = limitedSelectableIds.slice(0, remainingSlots);
+      setSelectedPlayers(newSelectedPlayers);
+
+      // Assign slot numbers based on overall limit
+      const newSlotAssignments: { [playerId: string]: number | null } = {};
+      const emptySeeds = seedingList
+        .filter((s) => !s.player)
+        .map((s) => s.seed);
+      newSelectedPlayers.forEach((playerId, index) => {
+        if (index < emptySeeds.length) {
+          newSlotAssignments[playerId] = emptySeeds[index];
+        }
+      });
+      setSlotAssignments(newSlotAssignments);
     }
   };
 
   // Manual single select with limit check
+  // const handleBulkSelect = (playerId: string) => {
+  //   if (selectedPlayers.includes(playerId)) {
+  //     setSelectedPlayers((prev) => prev.filter((id) => id !== playerId));
+  //   } else {
+  //     const alreadyAdded = seedingList.some(
+  //       (item) => item.player?.id === playerId
+  //     );
+  //     if (alreadyAdded) {
+  //       toast.error("Player already added.");
+  //       return;
+  //     }
+  //     if (selectedPlayers.length >= remainingSlots) {
+  //       toast.error("No remaining slots available.");
+  //       return;
+  //     }
+  //     setSelectedPlayers((prev) => [...prev, playerId]);
+  //   }
+  // };
+
   const handleBulkSelect = (playerId: string) => {
     if (selectedPlayers.includes(playerId)) {
+      // Deselect player
       setSelectedPlayers((prev) => prev.filter((id) => id !== playerId));
+      setSlotAssignments((prev) => {
+        const newAssignments = { ...prev };
+        delete newAssignments[playerId];
+        // Reassign slots for remaining selected players
+        const emptySeeds = seedingList
+          .filter((s) => !s.player)
+          .map((s) => s.seed);
+        const updatedAssignments: { [playerId: string]: number | null } = {};
+        selectedPlayers
+          .filter((id) => id !== playerId)
+          .forEach((id, index) => {
+            if (index < emptySeeds.length) {
+              updatedAssignments[id] = emptySeeds[index];
+            }
+          });
+        return updatedAssignments;
+      });
     } else {
       const alreadyAdded = seedingList.some(
         (item) => item.player?.id === playerId
@@ -255,10 +320,56 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
         return;
       }
       setSelectedPlayers((prev) => [...prev, playerId]);
+      setSlotAssignments((prev) => {
+        const emptySeeds = seedingList
+          .filter((s) => !s.player)
+          .map((s) => s.seed);
+        const newIndex = selectedPlayers.length; // Slot based on selection order
+        return {
+          ...prev,
+          [playerId]: emptySeeds[newIndex] || null,
+        };
+      });
     }
   };
 
   // Add selected players to seedingList
+  // const handleBulkAdd = () => {
+  //   if (selectedPlayers.length === 0) return;
+
+  //   const playersToAdd = selectedPlayers
+  //     .map((id) => playerDetails.find((p) => p.id === id))
+  //     .filter(
+  //       (player): player is any =>
+  //         !!player && !seedingList.some((item) => item.player?.id === player.id)
+  //     );
+
+  //   const emptySeeds = seedingList.filter((s) => !s.player);
+  //   const limit = stagesList?.numberOfParticipants ?? emptySeeds.length;
+
+  //   if (playersToAdd.length > limit) {
+  //     toast.error("Not enough empty seeds for selected players.");
+  //     return;
+  //   }
+
+  //   const updatedSeeds = [...seedingList];
+  //   let seedIndex = 0;
+
+  //   for (
+  //     let i = 0;
+  //     i < updatedSeeds.length && seedIndex < playersToAdd.length;
+  //     i++
+  //   ) {
+  //     if (!updatedSeeds[i].player) {
+  //       updatedSeeds[i].player = playersToAdd[seedIndex++];
+  //     }
+  //   }
+
+  //   setSeedingList(updatedSeeds);
+  //   setSelectedPlayers([]);
+  //   setShowBulkModal(false);
+  // };
+
   const handleBulkAdd = () => {
     if (selectedPlayers.length === 0) return;
 
@@ -278,20 +389,21 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
     }
 
     const updatedSeeds = [...seedingList];
-    let seedIndex = 0;
-
-    for (
-      let i = 0;
-      i < updatedSeeds.length && seedIndex < playersToAdd.length;
-      i++
-    ) {
-      if (!updatedSeeds[i].player) {
-        updatedSeeds[i].player = playersToAdd[seedIndex++];
+    playersToAdd.forEach((player) => {
+      const assignedSeed = slotAssignments[player.id];
+      if (assignedSeed) {
+        const seedIndex = updatedSeeds.findIndex(
+          (s) => s.seed === assignedSeed && !s.player
+        );
+        if (seedIndex !== -1) {
+          updatedSeeds[seedIndex].player = player;
+        }
       }
-    }
+    });
 
     setSeedingList(updatedSeeds);
     setSelectedPlayers([]);
+    setSlotAssignments({});
     setShowBulkModal(false);
   };
 
@@ -379,6 +491,28 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
   };
 
   // Handle removing a player from a seed
+  // const handleRemovePlayer = (seed: number) => {
+  //   const removedPlayer = seedingList.find(
+  //     (item) => item.seed === seed
+  //   )?.player;
+
+  //   if (removedPlayer) {
+  //     setPlayerDetails((prev) => {
+  //       const alreadyExists = prev.some((p) => p.id === removedPlayer.id);
+  //       if (!alreadyExists) {
+  //         return [...prev, removedPlayer];
+  //       }
+  //       return prev;
+  //     });
+  //   }
+
+  //   setSeedingList((prev) =>
+  //     prev.map((item) =>
+  //       item.seed === seed ? { ...item, player: null } : item
+  //     )
+  //   );
+  // };
+
   const handleRemovePlayer = (seed: number) => {
     const removedPlayer = seedingList.find(
       (item) => item.seed === seed
@@ -399,6 +533,27 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
         item.seed === seed ? { ...item, player: null } : item
       )
     );
+
+    // Update slot assignments for selected players
+    setSlotAssignments((prev) => {
+      const newAssignments = { ...prev };
+      // Remove any assignments that are no longer valid
+      Object.keys(newAssignments).forEach((playerId) => {
+        if (newAssignments[playerId] === seed) {
+          delete newAssignments[playerId];
+        }
+      });
+      // Reassign slots based on current selection
+      const emptySeeds = seedingList
+        .filter((s) => (s.seed === seed ? true : !s.player))
+        .map((s) => s.seed);
+      selectedPlayers.forEach((playerId, index) => {
+        if (index < emptySeeds.length) {
+          newAssignments[playerId] = emptySeeds[index];
+        }
+      });
+      return newAssignments;
+    });
   };
 
   // Handle saving changes to the server
@@ -919,6 +1074,129 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
           )}
 
           {/* Bulk Add Modal */}
+          {/* {showBulkModal && (
+            <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+              <div className="bg-gray-900 rounded-xl w-full max-w-lg max-h-[85vh] overflow-hidden shadow-2xl">
+                <div className="p-5 border-b border-gray-700 flex items-center justify-between">
+                  <h2 className="text-xl font-semibold text-white">
+                    Add Players
+                  </h2>
+                  <button
+                    onClick={() => setShowBulkModal(false)}
+                    className="text-gray-300 hover:text-white transition-colors"
+                  >
+                    <X size={24} />
+                  </button>
+                </div>
+
+                <div className="p-5 max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+                  <div className="relative mb-5">
+                    <Search
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                      size={18}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Search Player Name"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-white placeholder-gray-400 transition-colors"
+                    />
+                  </div>
+                  <div className="mb-5 p-4 bg-gray-800 rounded-lg">
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={
+                          selectedPlayers.length ===
+                          filteredPlayers
+                            .filter(
+                              (player) =>
+                                !seedingList.some(
+                                  (s) => s.player?.id === player.id
+                                )
+                            )
+                            .slice(0, remainingSlots).length
+                        }
+                        onChange={handleSelectAll}
+                        className="w-5 h-5 text-blue-500 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2 transition-colors"
+                      />
+                      <span className="text-sm font-medium text-white">
+                        {`Select Top Players`}
+                      </span>
+                    </label>
+                  </div>
+                  <div className="space-y-3">
+                    {filteredPlayers
+                      .filter(
+                        (player) =>
+                          !seedingList.some(
+                            (item) => item.player?.id === player?.id
+                          )
+                      )
+                      .map((player) => (
+                        <div
+                          key={player.id}
+                          className="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg cursor-pointer transition-all duration-200"
+                          onClick={() => handleBulkSelect(player.id)}
+                        >
+                          <div className="flex items-center gap-4">
+                            <input
+                              type="checkbox"
+                              checked={selectedPlayers.includes(player.id)}
+                              onChange={() => handleBulkSelect(player.id)}
+                              className="w-5 h-5 text-blue-500 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2 transition-colors"
+                            />
+                            {player.logoImage ? (
+                              <img
+                                src={`${baseURL}/api/v1/${player.logoImage}`}
+                                alt={player.name}
+                                className="w-8 h-8 rounded-full"
+                              />
+                            ) : (
+                              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                                {player.name.charAt(0)}
+                              </div>
+                            )}
+
+                            <div>
+                              <div className="font-medium text-white">
+                                {player.shortName}
+                              </div>
+                              <div className="text-xs text-gray-400">
+                                {player.team}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+
+                <div className="p-5 border-t border-gray-700 flex justify-between items-center">
+                  <span className="text-sm text-gray-400">
+                    {selectedPlayers.length} selected / {playerDetails.length}{" "}
+                    available
+                  </span>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setShowBulkModal(false)}
+                      className="px-5 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleBulkAdd}
+                      disabled={selectedPlayers.length === 0}
+                      className="px-5 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+                    >
+                      Add
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )} */}
           {showBulkModal && (
             <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
               <div className="bg-gray-900 rounded-xl w-full max-w-lg max-h-[85vh] overflow-hidden shadow-2xl">
@@ -1005,10 +1283,16 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                                 {player.name.charAt(0)}
                               </div>
                             )}
-
-                            <div>
-                              <div className="font-medium text-white">
-                                {player.shortName}
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between">
+                                <div className="font-medium text-white">
+                                  {player.shortName}
+                                </div>
+                                {slotAssignments[player.id] && (
+                                  <span className="text-sm text-gray-400">
+                                    Slot {slotAssignments[player.id]}
+                                  </span>
+                                )}
                               </div>
                               <div className="text-xs text-gray-400">
                                 {player.team}
