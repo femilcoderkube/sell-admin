@@ -199,10 +199,11 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
           stageId: selectedStage,
           roundId: selectedRound,
           groupId: selectedGroup,
+          search: search,
         })
       );
     }
-  }, [selectedStage, selectedGroup, selectedRound]);
+  }, [selectedStage, selectedGroup, selectedRound, search]);
 
   const handlePageChange = (page: number) => {
     dispatch(setPage(page));
@@ -477,6 +478,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                       e.preventDefault();
                       e.stopPropagation();
                       setSelectedRound("");
+                      setSearch("");
                       setSelectedStage(stage?._id);
                       setStageType(stage?.stageType);
                     }}
@@ -635,30 +637,32 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                       </div>
                     )}
 
-                    <div id="checkbox_1">
-                      {checkboxOptions.map((option) => (
-                        <div key={option.id} className="nf_normal-checkbox">
-                          <div className="checkbox">
-                            <label className="checkbox-wrapper focus-input">
-                              <input
-                                type="checkbox"
-                                name={option.name}
-                                checked={selectedStatus === option.name}
-                                id={option.id}
-                                className="checkbox-input form-control"
-                                onChange={() =>
-                                  handleCheckboxChange(option.name)
-                                }
-                              />
-                              <span className="checkbox-tile">
-                                <h4>{option.label}</h4>
-                              </span>
-                            </label>
+                    {stageType !== "BattleRoyal" && (
+                      <div id="checkbox_1">
+                        {checkboxOptions.map((option) => (
+                          <div key={option.id} className="nf_normal-checkbox">
+                            <div className="checkbox">
+                              <label className="checkbox-wrapper focus-input">
+                                <input
+                                  type="checkbox"
+                                  name={option.name}
+                                  checked={selectedStatus === option.name}
+                                  id={option.id}
+                                  className="checkbox-input form-control"
+                                  onChange={() =>
+                                    handleCheckboxChange(option.name)
+                                  }
+                                />
+                                <span className="checkbox-tile">
+                                  <h4>{option.label}</h4>
+                                </span>
+                              </label>
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="nf_serchbar mt-0">
+                        ))}
+                      </div>
+                    )}
+                    <div className="nf_serchbar mt-0 ml-2">
                       <div className="search-name input-group md-form form-sm form-1 pl-0">
                         <input
                           className="form-control my-0 py-1"
@@ -683,6 +687,8 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                           Update Scores
                         </button>
                       )}
+                    </div>
+                    <div className="nf_topbar-btn mt-0 ml-2">
                       <button
                         className="btn btn-nf-gray round_timechange_data mt-2"
                         data-toggle="modal"

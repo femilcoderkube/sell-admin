@@ -10,12 +10,13 @@ export const fetchBattleRoyalScores = createAsyncThunk(
       stageId,
       roundId,
       groupId,
-    }: { stageId: string; roundId: string; groupId: string },
+      search,
+    }: { stageId: string; roundId: string; groupId: string; search: string },
     { rejectWithValue }
   ) => {
     try {
       const { data } = await axiosInstance.get(`/BattleRoyalScores`, {
-        params: { stageId, roundId, groupId },
+        params: { stageId, roundId, groupId, search },
       });
       return data.data;
     } catch (error: any) {
