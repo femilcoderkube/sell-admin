@@ -57,45 +57,8 @@ export const checkboxOptions = [
   },
 ];
 
-export const allParticipants: any[] = [
-  { id: "1", name: "John Doe", shortName: "JD" },
-  { id: "2", name: "Jane Smith", shortName: "JS" },
-  { id: "3", name: "Alice Johnson", shortName: "AJ" },
-  { id: "4", name: "Bob Williams", shortName: "BW" },
-  { id: "5", name: "Charlie Brown", shortName: "CB" },
-  { id: "6", name: "Emma Davis", shortName: "ED" },
-  { id: "7", name: "Michael Lee", shortName: "ML" },
-  { id: "8", name: "Sarah Wilson", shortName: "SW" },
-  { id: "9", name: "David Miller", shortName: "DM", region: "Unknown" },
-  { id: "10", name: "Laura Taylor", shortName: "LT", region: "Unknown" },
-  { id: "11", name: "James Brown", shortName: "JB", region: "Unknown" },
-  { id: "12", name: "Emily White", shortName: "EW", region: "Unknown" },
-];
-
-// Dummy data for groups
-export const groups = [
-  {
-    groupNumber: 1,
-    participants: [
-      allParticipants[0], // John Doe
-      allParticipants[1], // Jane Smith
-      null, // Empty slot
-    ],
-  },
-  {
-    groupNumber: 2,
-    participants: [
-      allParticipants[2], // Alice Johnson
-      allParticipants[3], // Bob Williams
-      allParticipants[4], // Charlie Brown
-    ],
-  },
-  {
-    groupNumber: 3,
-    participants: [
-      null, // Empty slot
-      allParticipants[5], // Emma Davis
-      null, // Empty slot
-    ],
-  },
-];
+export function getWinnerTeamName(matchData: any) {
+  const winner = matchData.winner; // Get the winner field ("opponent1" or "opponent2")
+  const winnerTeam = matchData[winner]; // Access the winner's object dynamically
+  return winnerTeam.team.teamName; // Return the teamName from the team sub-object
+}

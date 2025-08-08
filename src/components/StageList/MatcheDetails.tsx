@@ -14,7 +14,7 @@ import toast from "react-hot-toast";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { socket } from "../../app/socket/socket";
-import { SOCKET } from "../../utils/constant";
+import { getWinnerTeamName, SOCKET } from "../../utils/constant";
 import AttachmentModal from "./AttachmentModal";
 import {
   acceptScore,
@@ -327,8 +327,6 @@ const MatchDetails = () => {
     setSelectedAttachment(null);
   };
 
-  console.log("singleMatch", singleMatch);
-
   if (matchesLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-gradient-to-br from-gray-900 to-gray-800">
@@ -384,6 +382,11 @@ const MatchDetails = () => {
     }
   };
 
+  const teamName = getWinnerTeamName(singleMatch);
+
+  const team1Name = singleMatch?.opponent1?.team?.teamName; // "Clash of Can2"
+  const team2Name = singleMatch?.opponent2?.team?.teamName;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
       <div className="max-w-6xl mx-auto px-4 py-6">
@@ -403,15 +406,25 @@ const MatchDetails = () => {
                 <div className="flex flex-col items-center justify-center gap-1">
                   <div className="relative">
                     <img
-                      src={`${baseURL}/api/v1/${singleMatch?.opponent1?.team ? singleMatch?.opponent1?.team?.logoImage : singleMatch?.opponent1?.user?.profilePicture}`}
-                      alt={singleMatch?.opponent1?.team ? singleMatch?.opponent1?.team?.teamName : singleMatch?.opponent1?.user?.username}
+                      src={`${baseURL}/api/v1/${
+                        singleMatch?.opponent1?.team
+                          ? singleMatch?.opponent1?.team?.logoImage
+                          : singleMatch?.opponent1?.user?.profilePicture
+                      }`}
+                      alt={
+                        singleMatch?.opponent1?.team
+                          ? singleMatch?.opponent1?.team?.teamName
+                          : singleMatch?.opponent1?.user?.username
+                      }
                       className="w-16 h-16 rounded-xl object-cover border-2 border-gray-600 shadow-lg"
                     />
                     <div className="absolute inset-0 rounded-xl bg-gradient-to-t from-black/20 to-transparent" />
                   </div>
                   <div>
                     <h1 className="font-bold text-xl text-white ">
-                      {singleMatch?.opponent1?.team ? singleMatch?.opponent1?.team?.teamName : singleMatch?.opponent1?.user?.username}
+                      {singleMatch?.opponent1?.team
+                        ? singleMatch?.opponent1?.team?.teamName
+                        : singleMatch?.opponent1?.user?.username}
                     </h1>
                   </div>
                 </div>
@@ -419,15 +432,25 @@ const MatchDetails = () => {
                 <div className="flex flex-col items-center justify-center gap-1">
                   <div className="relative">
                     <img
-                      src={`${baseURL}/api/v1/${singleMatch?.opponent2?.team ? singleMatch?.opponent2?.team?.logoImage : singleMatch?.opponent2?.user?.profilePicture}`}
-                      alt={singleMatch?.opponent2?.team ? singleMatch?.opponent2?.team?.teamName : singleMatch?.opponent2?.user?.username}
+                      src={`${baseURL}/api/v1/${
+                        singleMatch?.opponent2?.team
+                          ? singleMatch?.opponent2?.team?.logoImage
+                          : singleMatch?.opponent2?.user?.profilePicture
+                      }`}
+                      alt={
+                        singleMatch?.opponent2?.team
+                          ? singleMatch?.opponent2?.team?.teamName
+                          : singleMatch?.opponent2?.user?.username
+                      }
                       className="w-16 h-16 rounded-xl object-cover border-2 border-gray-600 shadow-lg"
                     />
                     <div className="absolute inset-0 rounded-xl bg-gradient-to-t from-black/20 to-transparent" />
                   </div>
                   <div>
                     <h1 className="font-bold text-xl text-white">
-                      {singleMatch?.opponent2?.team ? singleMatch?.opponent2?.team?.teamName : singleMatch?.opponent2?.user?.username}
+                      {singleMatch?.opponent2?.team
+                        ? singleMatch?.opponent2?.team?.teamName
+                        : singleMatch?.opponent2?.user?.username}
                     </h1>
                   </div>
                 </div>
@@ -526,10 +549,10 @@ const MatchDetails = () => {
                         </th>
 
                         <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
-                          Team 1
+                          {team1Name}
                         </th>
                         <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
-                          Team 2
+                          {team2Name}
                         </th>
                         <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
                           Notes
@@ -932,7 +955,7 @@ const MatchDetails = () => {
                   <span className="text-gray-400 font-medium">Winner</span>
                 </div>
                 <p className="text-green-400 font-bold text-lg capitalize">
-                  {singleMatch?.winner}
+                  {teamName}
                 </p>
               </div>
             )}
