@@ -128,9 +128,13 @@ export const AddStage: FC = () => {
       placePoints: Yup.array()
         .of(
           Yup.object().shape({
-            position: Yup.number()
+            position: Yup.string()
               .required("Position is required")
-              .min(1, "position must be at least 1"),
+              .matches(
+                /^\d+(-\d+)?$/,
+                "Position must be a number or a range like '1' or '1-2'"
+              ),
+            // .min(1, "position must be at least 1"),
             point: Yup.number()
               .required("Point are required")
               .min(0, "Point must be non-negative"),
@@ -381,7 +385,7 @@ export const AddStage: FC = () => {
       settings.placePoints = values.placePoints
         .filter((item) => item.position && item.point) // Filter out empty entries
         .map((item) => ({
-          position: parseInt(item.position),
+          position: item.position,
           point: parseInt(item.point),
         }));
       settings.tieBreaker = values.tieBreaker;
@@ -1056,7 +1060,7 @@ export const AddStage: FC = () => {
                                     <div className="grid grid-cols-2 gap-3">
                                       <div className="form-group">
                                         <Field
-                                          type="number"
+                                          type="text"
                                           name={`placePoints[${index}].position`}
                                           id={`placePoints[${index}].position`}
                                           className={`form-control w-full p-3 rounded-lg bg-slate-900 text-white border ${
