@@ -719,6 +719,18 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                         Round Time Change
                       </button>
                     </div>
+                    {stageType === "DoubleElimination" && (
+                      <div className="nf_topbar-btn mt-0 ml-2">
+                        <button
+                          className="btn btn-nf-gray round_timechange_data mt-2"
+                          data-toggle="modal"
+                          data-target="#changetime_round"
+                          // onClick={() => setShowRoundTimeChangeModal(true)}
+                        >
+                          Match Time Change
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   <a
