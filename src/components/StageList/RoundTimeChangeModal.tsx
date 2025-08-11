@@ -35,7 +35,7 @@ const RoundTimeChangeModal: React.FC<RoundTimeChangeModalProps> = ({
 
   const formik = useFormik({
     initialValues: {
-      groupId: stageType === "BattleRoyal" ? "-1" : "",
+      groupId: stageType === "BattleRoyal" ? stageGroups[0]?._id : "",
       roundId: stageRound?.length > 0 ? stageRound[0]?._id : "",
       startDate: "",
       endDate: "",
@@ -185,7 +185,7 @@ const RoundTimeChangeModal: React.FC<RoundTimeChangeModalProps> = ({
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
                     >
-                      <option value="-1">All groups</option>
+                      {/* <option value="-1">All groups</option> */}
                       {stageGroups?.map((round) => (
                         <option key={round._id} value={round._id}>
                           {round.name}{" "}
@@ -194,7 +194,7 @@ const RoundTimeChangeModal: React.FC<RoundTimeChangeModalProps> = ({
                     </select>
                   </div>
                 </div>
-                {formik.touched.roundId && formik.errors.roundId && (
+                {formik.touched.groupId && formik.errors.groupId && (
                   <p className="text-red-600 mt-1 text-sm">
                     {formik.errors.groupId}
                   </p>
@@ -216,7 +216,7 @@ const RoundTimeChangeModal: React.FC<RoundTimeChangeModalProps> = ({
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                   >
-                    <option value="-1">All rounds</option>
+                    {/* <option value="-1">All rounds</option> */}
                     {stageRound?.map((round) => (
                       <option key={round._id} value={round._id}>
                         {round.roundName}{" "}
