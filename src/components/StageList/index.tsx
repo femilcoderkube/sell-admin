@@ -228,8 +228,12 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
       })
     );
     if (addScore.fulfilled.match(resultAction)) {
-      setSelectedStatus("");
-      dispatch(fetchTournamentMatches({ stageId: selectedStage }));
+      dispatch(
+        fetchTournamentMatches({
+          stageId: selectedStage,
+          status: selectedStatus,
+        })
+      );
     }
   };
 
@@ -247,8 +251,12 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
     );
 
     if (updateTournamentMatch.fulfilled.match(resultAction)) {
-      setSelectedStatus("");
-      dispatch(fetchTournamentMatches({ stageId: selectedStage }));
+      dispatch(
+        fetchTournamentMatches({
+          stageId: selectedStage,
+          status: selectedStatus,
+        })
+      );
     }
   };
 
@@ -266,8 +274,12 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
     );
 
     if (updateStageRound.fulfilled.match(resultAction)) {
-      setSelectedStatus("");
-      dispatch(fetchTournamentMatches({ stageId: selectedStage }));
+      dispatch(
+        fetchTournamentMatches({
+          stageId: selectedStage,
+          status: selectedStatus,
+        })
+      );
     }
   };
 
@@ -482,9 +494,9 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                       e.stopPropagation();
                       setSelectedRound("");
                       setSearch("");
+                      setSelectedStatus("");
                       setSelectedStage(stage?._id);
                       setStageType(stage?.stageType);
-                      setSelectedStatus("");
                     }}
                   >
                     <div className="nf_ts-topbar cust p-2">

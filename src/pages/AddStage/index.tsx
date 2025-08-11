@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { Layout } from "../../components/layout";
 import { Link, useLocation, useNavigate } from "react-router";
 import { Check } from "lucide-react";
@@ -28,6 +28,7 @@ interface StageSettings {
   tieBreaker?: string;
   htmlFile?: string;
   cssFile?: string;
+  maps?: Array<{ name: string; photo: string }>;
 }
 
 // Interface for stage data
@@ -54,6 +55,7 @@ interface FormValues {
   htmlFile?: string;
   cssFile?: string;
   numberOfRounds?: string;
+  maps?: Array<{ name: string; photo: any }>;
 }
 
 // Main Component
@@ -70,7 +72,12 @@ export const AddStage: FC = () => {
 
   // Determine if editing
   const isEditing = !!stage?._id;
-
+  const [previews, setPreviews] = useState<{ [key: number]: string | null }>(
+    {}
+  );
+  const [uploadErrors, setUploadErrors] = useState<{
+    [key: number]: string | null;
+  }>({});
   // Validation schema
   const validationSchema = Yup.object().shape({
     stageName: Yup.string()
@@ -130,6 +137,32 @@ export const AddStage: FC = () => {
         .min(1, "At least one Position point entry is required")
         .required("Position points are required"),
       tieBreaker: Yup.string().required("Please select a tie breaker."),
+      maps: Yup.array()
+        .of(
+          Yup.object().shape({
+            name: Yup.string().required("Map name is required"),
+            photo: Yup.mixed().test(
+              "file-or-url",
+              "Map photo is required",
+              (value) => {
+                if (!value) return false;
+                // accept either a URL string (edit mode) or a File object
+                return typeof value === "string"
+                  ? value.trim().length > 0
+                  : !!(value && (value.name || value.size));
+              }
+            ),
+          })
+        )
+        .test(
+          "maps-length",
+          "Number of maps must equal number of rounds",
+          function (value) {
+            const rounds = parseInt(this.parent.numberOfRounds || "0", 10);
+            return Array.isArray(value) && value.length === rounds;
+          }
+        )
+        .required("Maps are required"),
     }),
     ...(selectedStage === "Custom" && {
       htmlFile: Yup.string().required("Please enter HTML file path."),
@@ -168,6 +201,13 @@ export const AddStage: FC = () => {
         htmlFile: stage.settings?.htmlFile || "",
         cssFile: stage.settings?.cssFile || "",
         numberOfRounds: stage.settings?.numberOfRounds?.toString() || "",
+        maps:
+          stage.settings?.maps?.length > 0
+            ? stage.settings.maps.map((m: any) => ({
+                name: m.name || "",
+                photo: m.photo || "",
+              }))
+            : [],
       }
     : {
         stageName: "",
@@ -184,6 +224,7 @@ export const AddStage: FC = () => {
         htmlFile: "",
         cssFile: "",
         numberOfRounds: "",
+        maps: [],
       };
 
   // Set selected stage for editing
@@ -388,7 +429,7 @@ export const AddStage: FC = () => {
               validationSchema={validationSchema}
               onSubmit={handleSubmit}
             >
-              {({ errors, touched, setFieldValue }) => (
+              {({ values, errors, touched, setFieldValue }) => (
                 <Form className="space-y-6">
                   {/* Common Fields */}
                   <div className="form-group">
@@ -650,6 +691,32 @@ export const AddStage: FC = () => {
                               ? "border-red-500"
                               : "border-slate-600"
                           } focus:border-blue-500 focus:outline-none`}
+                          onChange={(
+                            e: React.ChangeEvent<HTMLInputElement>
+                          ) => {
+                            const val = e.target.value;
+                            const rounds = Math.max(
+                              0,
+                              parseInt(val || "0", 10)
+                            );
+                            setFieldValue("numberOfRounds", val);
+
+                            const currentMaps = values.maps || [];
+                            if (rounds > currentMaps.length) {
+                              // add empty entries to match rounds
+                              const toAdd = rounds - currentMaps.length;
+                              const newMaps = [...currentMaps];
+                              for (let i = 0; i < toAdd; i++)
+                                newMaps.push({ name: "", photo: "" });
+                              setFieldValue("maps", newMaps);
+                            } else if (rounds < currentMaps.length) {
+                              // trim excess maps
+                              setFieldValue(
+                                "maps",
+                                currentMaps.slice(0, rounds)
+                              );
+                            }
+                          }}
                         />
                         <label
                           htmlFor="numberOfRounds"
@@ -662,6 +729,76 @@ export const AddStage: FC = () => {
                           component="div"
                           className="text-red-500 text-xs mt-1"
                         />
+                      </div>
+
+                      <div className="form-group">
+                        <FieldArray name="maps">
+                          {({ form }) => {
+                            const { values } = form;
+                            return (
+                              <>
+                                {values?.maps &&
+                                  values?.maps.map(
+                                    (map: any, index: number) => (
+                                      <div
+                                        key={index}
+                                        className="mb-4 bg-slate-800 p-4 rounded-lg border border-slate-600"
+                                      >
+                                        <div className="mb-2">
+                                          <Field
+                                            name={`maps[${index}].name`}
+                                            placeholder={`Name #${index + 1}`}
+                                            className="form-control w-full p-3 rounded-lg bg-slate-900 text-white border border-slate-600"
+                                          />
+                                          <ErrorMessage
+                                            name={`maps[${index}].name`}
+                                            component="div"
+                                            className="text-red-500 text-xs mt-1"
+                                          />
+                                        </div>
+
+                                        <div>
+                                          <input
+                                            id={`maps-${index}-photo`}
+                                            name={`maps[${index}].photo`}
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(
+                                              e: React.ChangeEvent<HTMLInputElement>
+                                            ) => {
+                                              const file =
+                                                e.currentTarget.files &&
+                                                e.currentTarget.files[0];
+                                              setFieldValue(
+                                                `maps[${index}].photo`,
+                                                file || ""
+                                              );
+                                            }}
+                                            className="w-full"
+                                          />
+                                          <ErrorMessage
+                                            name={`maps[${index}].photo`}
+                                            component="div"
+                                            className="text-red-500 text-xs mt-1"
+                                          />
+
+                                          {/* preview / filename */}
+                                          <div className="mt-2 text-sm text-slate-300">
+                                            {map?.photo &&
+                                              (typeof map.photo === "string" ? (
+                                                <span>{map.photo}</span> // existing url
+                                              ) : (
+                                                <span>{map.photo.name}</span> // file name
+                                              ))}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )
+                                  )}
+                              </>
+                            );
+                          }}
+                        </FieldArray>
                       </div>
 
                       <div className="form-group">
