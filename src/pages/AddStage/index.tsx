@@ -137,32 +137,32 @@ export const AddStage: FC = () => {
         .min(1, "At least one Position point entry is required")
         .required("Position points are required"),
       tieBreaker: Yup.string().required("Please select a tie breaker."),
-      maps: Yup.array()
-        .of(
-          Yup.object().shape({
-            name: Yup.string().required("Map name is required"),
-            photo: Yup.mixed().test(
-              "file-or-url",
-              "Map photo is required",
-              (value) => {
-                if (!value) return false;
-                // accept either a URL string (edit mode) or a File object
-                return typeof value === "string"
-                  ? value.trim().length > 0
-                  : !!(value && (value.name || value.size));
-              }
-            ),
-          })
-        )
-        .test(
-          "maps-length",
-          "Number of maps must equal number of rounds",
-          function (value) {
-            const rounds = parseInt(this.parent.numberOfRounds || "0", 10);
-            return Array.isArray(value) && value.length === rounds;
-          }
-        )
-        .required("Maps are required"),
+      // maps: Yup.array()
+      //   .of(
+      //     Yup.object().shape({
+      //       name: Yup.string().required("Map name is required"),
+      //       photo: Yup.mixed().test(
+      //         "file-or-url",
+      //         "Map photo is required",
+      //         (value) => {
+      //           if (!value) return false;
+      //           // accept either a URL string (edit mode) or a File object
+      //           return typeof value === "string"
+      //             ? value.trim().length > 0
+      //             : !!(value && (value.name || value.size));
+      //         }
+      //       ),
+      //     })
+      //   )
+      //   .test(
+      //     "maps-length",
+      //     "Number of maps must equal number of rounds",
+      //     function (value) {
+      //       const rounds = parseInt(this.parent.numberOfRounds || "0", 10);
+      //       return Array.isArray(value) && value.length === rounds;
+      //     }
+      //   )
+      //   .required("Maps are required"),
     }),
     ...(selectedStage === "Custom" && {
       htmlFile: Yup.string().required("Please enter HTML file path."),
@@ -201,13 +201,13 @@ export const AddStage: FC = () => {
         htmlFile: stage.settings?.htmlFile || "",
         cssFile: stage.settings?.cssFile || "",
         numberOfRounds: stage.settings?.numberOfRounds?.toString() || "",
-        maps:
-          stage.settings?.maps?.length > 0
-            ? stage.settings.maps.map((m: any) => ({
-                name: m.name || "",
-                photo: m.photo || "",
-              }))
-            : [],
+        // maps:
+        //   stage.settings?.maps?.length > 0
+        //     ? stage.settings.maps.map((m: any) => ({
+        //         name: m.name || "",
+        //         photo: m.photo || "",
+        //       }))
+        //     : [],
       }
     : {
         stageName: "",
@@ -224,7 +224,7 @@ export const AddStage: FC = () => {
         htmlFile: "",
         cssFile: "",
         numberOfRounds: "",
-        maps: [],
+        // maps: [],
       };
 
   // Set selected stage for editing
@@ -691,32 +691,32 @@ export const AddStage: FC = () => {
                               ? "border-red-500"
                               : "border-slate-600"
                           } focus:border-blue-500 focus:outline-none`}
-                          onChange={(
-                            e: React.ChangeEvent<HTMLInputElement>
-                          ) => {
-                            const val = e.target.value;
-                            const rounds = Math.max(
-                              0,
-                              parseInt(val || "0", 10)
-                            );
-                            setFieldValue("numberOfRounds", val);
+                          // onChange={(
+                          //   e: React.ChangeEvent<HTMLInputElement>
+                          // ) => {
+                          //   const val = e.target.value;
+                          //   const rounds = Math.max(
+                          //     0,
+                          //     parseInt(val || "0", 10)
+                          //   );
+                          //   setFieldValue("numberOfRounds", val);
 
-                            const currentMaps = values.maps || [];
-                            if (rounds > currentMaps.length) {
-                              // add empty entries to match rounds
-                              const toAdd = rounds - currentMaps.length;
-                              const newMaps = [...currentMaps];
-                              for (let i = 0; i < toAdd; i++)
-                                newMaps.push({ name: "", photo: "" });
-                              setFieldValue("maps", newMaps);
-                            } else if (rounds < currentMaps.length) {
-                              // trim excess maps
-                              setFieldValue(
-                                "maps",
-                                currentMaps.slice(0, rounds)
-                              );
-                            }
-                          }}
+                          //   const currentMaps = values.maps || [];
+                          //   if (rounds > currentMaps.length) {
+                          //     // add empty entries to match rounds
+                          //     const toAdd = rounds - currentMaps.length;
+                          //     const newMaps = [...currentMaps];
+                          //     for (let i = 0; i < toAdd; i++)
+                          //       newMaps.push({ name: "", photo: "" });
+                          //     setFieldValue("maps", newMaps);
+                          //   } else if (rounds < currentMaps.length) {
+                          //     // trim excess maps
+                          //     setFieldValue(
+                          //       "maps",
+                          //       currentMaps.slice(0, rounds)
+                          //     );
+                          //   }
+                          // }}
                         />
                         <label
                           htmlFor="numberOfRounds"
@@ -731,7 +731,7 @@ export const AddStage: FC = () => {
                         />
                       </div>
 
-                      <div className="form-group">
+                      {/* <div className="form-group">
                         <FieldArray name="maps">
                           {({ form }) => {
                             const { values } = form;
@@ -782,13 +782,12 @@ export const AddStage: FC = () => {
                                             className="text-red-500 text-xs mt-1"
                                           />
 
-                                          {/* preview / filename */}
                                           <div className="mt-2 text-sm text-slate-300">
                                             {map?.photo &&
                                               (typeof map.photo === "string" ? (
-                                                <span>{map.photo}</span> // existing url
+                                                <span>{map.photo}</span>
                                               ) : (
-                                                <span>{map.photo.name}</span> // file name
+                                                <span>{map.photo.name}</span>
                                               ))}
                                           </div>
                                         </div>
@@ -799,7 +798,7 @@ export const AddStage: FC = () => {
                             );
                           }}
                         </FieldArray>
-                      </div>
+                      </div> */}
 
                       <div className="form-group">
                         <Field
