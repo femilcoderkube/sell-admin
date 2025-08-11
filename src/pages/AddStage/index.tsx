@@ -14,6 +14,8 @@ import {
   setStep,
   updateTournamentStage,
 } from "../../app/features/tournament/tournamentStageSlice";
+import { baseURL } from "../../axios";
+import { uploadFile } from "../../app/features/fileupload/fileUploadSlice";
 
 // Interface for stage settings
 interface StageSettings {
@@ -137,32 +139,32 @@ export const AddStage: FC = () => {
         .min(1, "At least one Position point entry is required")
         .required("Position points are required"),
       tieBreaker: Yup.string().required("Please select a tie breaker."),
-      // maps: Yup.array()
-      //   .of(
-      //     Yup.object().shape({
-      //       name: Yup.string().required("Map name is required"),
-      //       photo: Yup.mixed().test(
-      //         "file-or-url",
-      //         "Map photo is required",
-      //         (value) => {
-      //           if (!value) return false;
-      //           // accept either a URL string (edit mode) or a File object
-      //           return typeof value === "string"
-      //             ? value.trim().length > 0
-      //             : !!(value && (value.name || value.size));
-      //         }
-      //       ),
-      //     })
-      //   )
-      //   .test(
-      //     "maps-length",
-      //     "Number of maps must equal number of rounds",
-      //     function (value) {
-      //       const rounds = parseInt(this.parent.numberOfRounds || "0", 10);
-      //       return Array.isArray(value) && value.length === rounds;
-      //     }
-      //   )
-      //   .required("Maps are required"),
+      maps: Yup.array()
+        .of(
+          Yup.object().shape({
+            name: Yup.string().required("Map name is required"),
+            photo: Yup.mixed().test(
+              "file-or-url",
+              "Map photo is required",
+              (value) => {
+                if (!value) return false;
+                // accept either a URL string (edit mode) or a File object
+                return typeof value === "string"
+                  ? value.trim().length > 0
+                  : !!(value && (value.name || value.size));
+              }
+            ),
+          })
+        )
+        .test(
+          "maps-length",
+          "Number of maps must equal number of rounds",
+          function (value) {
+            const rounds = parseInt(this.parent.numberOfRounds || "0", 10);
+            return Array.isArray(value) && value.length === rounds;
+          }
+        )
+        .required("Maps are required"),
     }),
     ...(selectedStage === "Custom" && {
       htmlFile: Yup.string().required("Please enter HTML file path."),
@@ -201,13 +203,13 @@ export const AddStage: FC = () => {
         htmlFile: stage.settings?.htmlFile || "",
         cssFile: stage.settings?.cssFile || "",
         numberOfRounds: stage.settings?.numberOfRounds?.toString() || "",
-        // maps:
-        //   stage.settings?.maps?.length > 0
-        //     ? stage.settings.maps.map((m: any) => ({
-        //         name: m.name || "",
-        //         photo: m.photo || "",
-        //       }))
-        //     : [],
+        maps:
+          stage?.settings?.maps?.length > 0
+            ? stage.settings.maps.map((m: any) => ({
+                name: m.name || "",
+                photo: m.photo || "",
+              }))
+            : [],
       }
     : {
         stageName: "",
@@ -224,7 +226,7 @@ export const AddStage: FC = () => {
         htmlFile: "",
         cssFile: "",
         numberOfRounds: "",
-        // maps: [],
+        maps: [],
       };
 
   // Set selected stage for editing
@@ -234,6 +236,36 @@ export const AddStage: FC = () => {
       dispatch(setStep("form"));
     }
   }, [dispatch, isEditing, stage]);
+
+  useEffect(() => {
+    return () => {
+      // Cleanup blob URLs on unmount
+      Object.entries(previews).forEach(([index, preview]) => {
+        if (preview && preview.startsWith("blob:")) {
+          URL.revokeObjectURL(preview);
+        }
+      });
+    };
+  }, [previews]); // Depend on previews to ensure cleanup only when necessary, but primarily for unmount
+
+  useEffect(() => {
+    if (!initialValues.maps || initialValues.maps.length === 0) return;
+
+    setPreviews((prev) => {
+      const newPreviews: { [key: number]: string | null } = {};
+      initialValues.maps.forEach((map, index) => {
+        if (map.photo && typeof map.photo === "string" && !prev[index]) {
+          newPreviews[index] = map.photo.startsWith(baseURL)
+            ? map.photo
+            : `${baseURL}/api/v1/${map.photo}`;
+        }
+      });
+      if (Object.keys(newPreviews).length === 0) {
+        return prev; // No changes, return same reference to skip update
+      }
+      return { ...prev, ...newPreviews };
+    });
+  }, [initialValues.maps]);
 
   const btnBack = () => {
     if (step === "form") {
@@ -249,6 +281,86 @@ export const AddStage: FC = () => {
   const handleStageToggle = (stageId: string) => {
     dispatch(setSelectedStage(stageId));
   };
+
+  // Handle file change and upload to API
+  const handleFileChange = async (
+    index: number,
+    file: File | null,
+    setFieldValue: (field: string, value: any) => void
+  ) => {
+    if (!file) {
+      setFieldValue(`maps[${index}].photo`, null);
+      setPreviews((prev) => {
+        const newPreviews = { ...prev };
+        if (newPreviews[index] && newPreviews[index]?.startsWith("blob:")) {
+          URL.revokeObjectURL(newPreviews[index]!);
+        }
+        newPreviews[index] = null;
+        return newPreviews;
+      });
+      setUploadErrors((prev) => ({ ...prev, [index]: null }));
+      return;
+    }
+
+    // Generate local preview
+    const previewUrl = URL.createObjectURL(file);
+    setPreviews((prev) => ({ ...prev, [index]: previewUrl }));
+
+    // Prepare form data for API
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const result = await dispatch(uploadFile(formData));
+      if (result?.payload?.data) {
+        const fileUrl = `${result.payload.data}`;
+        setFieldValue(`maps[${index}].photo`, fileUrl);
+        setPreviews((prev) => ({
+          ...prev,
+          [index]: `${baseURL}/api/v1/${fileUrl}`,
+        })); // Update preview to server URL
+        setUploadErrors((prev) => ({ ...prev, [index]: null }));
+      } else {
+        throw new Error("No file URL returned from API");
+      }
+    } catch (err) {
+      console.error("File upload error:", err);
+      setUploadErrors((prev) => ({
+        ...prev,
+        [index]: "Failed to upload image",
+      }));
+      setFieldValue(`maps[${index}].photo`, null);
+      setPreviews((prev) => {
+        const newPreviews = { ...prev };
+        if (newPreviews[index]?.startsWith("blob:")) {
+          URL.revokeObjectURL(newPreviews[index]!);
+        }
+        newPreviews[index] = null;
+        return newPreviews;
+      });
+    }
+  };
+
+  // Handle file removal
+  // const handleRemoveFile = (
+  //   index: number,
+  //   setFieldValue: (field: string, value: any) => void
+  // ) => {
+  //   setFieldValue(`maps[${index}].photo`, null);
+  //   setPreviews((prev) => {
+  //     const newPreviews = { ...prev };
+  //     if (newPreviews[index]?.startsWith("blob:")) {
+  //       URL.revokeObjectURL(newPreviews[index]!);
+  //     }
+  //     delete newPreviews[index];
+  //     return newPreviews;
+  //   });
+  //   setUploadErrors((prev) => {
+  //     const newErrors = { ...prev };
+  //     delete newErrors[index];
+  //     return newErrors;
+  //   });
+  // };
 
   const handleSubmit = (values: FormValues) => {
     const settings: StageSettings = {};
@@ -273,6 +385,13 @@ export const AddStage: FC = () => {
           point: parseInt(item.point),
         }));
       settings.tieBreaker = values.tieBreaker;
+      settings.maps = values.maps
+        .filter((map) => map.name && map.photo) // Filter out incomplete maps
+        .map((map, index) => ({
+          index: index + 1,
+          name: map.name,
+          photo: map.photo, // Server URL from uploadFile
+        }));
     } else if (selectedStage === "Custom") {
       settings.htmlFile = values.htmlFile;
       settings.cssFile = values.cssFile;
@@ -290,6 +409,7 @@ export const AddStage: FC = () => {
       stageNameAr: values.stageNameAr,
       numberOfParticipants: parseInt(values.numberOfParticipants),
       settings,
+      // ...(selectedStage === "BattleRoyal" ? { maps: values.maps } : {}),
     };
 
     if (isEditing) {
@@ -691,32 +811,32 @@ export const AddStage: FC = () => {
                               ? "border-red-500"
                               : "border-slate-600"
                           } focus:border-blue-500 focus:outline-none`}
-                          // onChange={(
-                          //   e: React.ChangeEvent<HTMLInputElement>
-                          // ) => {
-                          //   const val = e.target.value;
-                          //   const rounds = Math.max(
-                          //     0,
-                          //     parseInt(val || "0", 10)
-                          //   );
-                          //   setFieldValue("numberOfRounds", val);
+                          onChange={(
+                            e: React.ChangeEvent<HTMLInputElement>
+                          ) => {
+                            const val = e.target.value;
+                            const rounds = Math.max(
+                              0,
+                              parseInt(val || "0", 10)
+                            );
+                            setFieldValue("numberOfRounds", val);
 
-                          //   const currentMaps = values.maps || [];
-                          //   if (rounds > currentMaps.length) {
-                          //     // add empty entries to match rounds
-                          //     const toAdd = rounds - currentMaps.length;
-                          //     const newMaps = [...currentMaps];
-                          //     for (let i = 0; i < toAdd; i++)
-                          //       newMaps.push({ name: "", photo: "" });
-                          //     setFieldValue("maps", newMaps);
-                          //   } else if (rounds < currentMaps.length) {
-                          //     // trim excess maps
-                          //     setFieldValue(
-                          //       "maps",
-                          //       currentMaps.slice(0, rounds)
-                          //     );
-                          //   }
-                          // }}
+                            const currentMaps = values.maps || [];
+                            if (rounds > currentMaps.length) {
+                              // add empty entries to match rounds
+                              const toAdd = rounds - currentMaps.length;
+                              const newMaps = [...currentMaps];
+                              for (let i = 0; i < toAdd; i++)
+                                newMaps.push({ name: "", photo: "" });
+                              setFieldValue("maps", newMaps);
+                            } else if (rounds < currentMaps.length) {
+                              // trim excess maps
+                              setFieldValue(
+                                "maps",
+                                currentMaps.slice(0, rounds)
+                              );
+                            }
+                          }}
                         />
                         <label
                           htmlFor="numberOfRounds"
@@ -731,10 +851,13 @@ export const AddStage: FC = () => {
                         />
                       </div>
 
-                      {/* <div className="form-group">
+                      <div className="form-group">
+                        <label className="text-sm text-slate-400 mb-2">
+                          Maps
+                        </label>
                         <FieldArray name="maps">
                           {({ form }) => {
-                            const { values } = form;
+                            const { values, errors, touched } = form;
                             return (
                               <>
                                 {values?.maps &&
@@ -744,11 +867,39 @@ export const AddStage: FC = () => {
                                         key={index}
                                         className="mb-4 bg-slate-800 p-4 rounded-lg border border-slate-600"
                                       >
+                                        <div className="flex justify-between items-center mb-2">
+                                          <h6 className="text-white text-sm font-medium">
+                                            Map #{index + 1}
+                                          </h6>
+                                          {/* <button
+                                            type="button"
+                                            onClick={() =>
+                                              handleRemoveFile(
+                                                index,
+                                                setFieldValue
+                                              )
+                                            }
+                                            className="bg-gray-600 hover:bg-gray-700 p-2 rounded-lg duration-300"
+                                          >
+                                            <img
+                                              src={deleteIcon}
+                                              alt="Delete"
+                                              style={{ width: "1.25rem" }}
+                                            />
+                                          </button> */}
+                                        </div>
                                         <div className="mb-2">
                                           <Field
                                             name={`maps[${index}].name`}
-                                            placeholder={`Name #${index + 1}`}
-                                            className="form-control w-full p-3 rounded-lg bg-slate-900 text-white border border-slate-600"
+                                            placeholder={`Map Name #${
+                                              index + 1
+                                            }`}
+                                            className={`form-control w-full p-3 rounded-lg bg-slate-900 text-white border ${
+                                              errors.maps?.[index]?.name &&
+                                              touched.maps?.[index]?.name
+                                                ? "border-red-500"
+                                                : "border-slate-600"
+                                            } focus:border-blue-500 focus:outline-none`}
                                           />
                                           <ErrorMessage
                                             name={`maps[${index}].name`}
@@ -757,7 +908,7 @@ export const AddStage: FC = () => {
                                           />
                                         </div>
 
-                                        <div>
+                                        <div className="relative">
                                           <input
                                             id={`maps-${index}-photo`}
                                             name={`maps[${index}].photo`}
@@ -769,27 +920,64 @@ export const AddStage: FC = () => {
                                               const file =
                                                 e.currentTarget.files &&
                                                 e.currentTarget.files[0];
-                                              setFieldValue(
-                                                `maps[${index}].photo`,
-                                                file || ""
+                                              handleFileChange(
+                                                index,
+                                                file || null,
+                                                setFieldValue
                                               );
                                             }}
-                                            className="w-full"
+                                            className="block w-full text-[0.78125rem] text-white bg-slate-900 rounded-[0.52rem] px-3 py-2 file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#2792FF] file:text-white hover:file:bg-[#1c74d1]"
                                           />
+                                          {/* {previews[index] && (
+                                            <button
+                                              type="button"
+                                              onClick={() =>
+                                                handleRemoveFile(
+                                                  index,
+                                                  setFieldValue
+                                                )
+                                              }
+                                              className="absolute top-2 right-2 text-gray-400 bg-transparent rounded-full hover:bg-gray-600 hover:text-white p-1 transition duration-200"
+                                              title="Remove Image"
+                                            >
+                                              <svg
+                                                className="w-4 h-4"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                              >
+                                                <path
+                                                  strokeLinecap="round"
+                                                  strokeLinejoin="round"
+                                                  strokeWidth={2}
+                                                  d="M6 18L18 6M6 6l12 12"
+                                                />
+                                              </svg>
+                                              <span className="sr-only">
+                                                Remove Image
+                                              </span>
+                                            </button>
+                                          )} */}
                                           <ErrorMessage
                                             name={`maps[${index}].photo`}
                                             component="div"
                                             className="text-red-500 text-xs mt-1"
                                           />
-
-                                          <div className="mt-2 text-sm text-slate-300">
-                                            {map?.photo &&
-                                              (typeof map.photo === "string" ? (
-                                                <span>{map.photo}</span>
-                                              ) : (
-                                                <span>{map.photo.name}</span>
-                                              ))}
-                                          </div>
+                                          {uploadErrors[index] && (
+                                            <div className="text-red-500 text-xs mt-1">
+                                              {uploadErrors[index]}
+                                            </div>
+                                          )}
+                                          {previews[index] && (
+                                            <div className="mt-2">
+                                              <img
+                                                src={previews[index]}
+                                                alt={`Map ${index + 1} Preview`}
+                                                className="max-w-full h-auto rounded-[0.52rem]"
+                                                style={{ maxHeight: "100px" }}
+                                              />
+                                            </div>
+                                          )}
                                         </div>
                                       </div>
                                     )
@@ -798,7 +986,14 @@ export const AddStage: FC = () => {
                             );
                           }}
                         </FieldArray>
-                      </div> */}
+                        {touched.maps &&
+                          errors.maps &&
+                          typeof errors.maps === "string" && (
+                            <div className="text-red-500 text-xs mt-1">
+                              {errors.maps}
+                            </div>
+                          )}
+                      </div>
 
                       <div className="form-group">
                         <Field
