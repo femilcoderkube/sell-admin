@@ -6,6 +6,7 @@ import { User } from "../../app/types";
 import deleteIcon from "../../assets/images/trash_can.svg";
 
 interface BannedUsersTableProps {
+  activeTab: any;
   users: any[];
   currentPage: any;
   loading: boolean;
@@ -14,6 +15,7 @@ interface BannedUsersTableProps {
 }
 
 export const BannedUsersTable: React.FC<BannedUsersTableProps> = ({
+  activeTab,
   users,
   currentPage,
   loading,
@@ -86,9 +88,11 @@ export const BannedUsersTable: React.FC<BannedUsersTableProps> = ({
             <th className="text-left py-4 px-3 text-gray-300 uppercase text-sm font-semibold tracking-wide hidden xl:table-cell">
               {thead.ip_address}
             </th>
-            <th className="text-center py-4 px-3 text-gray-300 uppercase text-sm font-semibold tracking-wide min-w-[100px]">
-              {thead.status}
-            </th>
+            {activeTab === "bannedUsers" && (
+              <th className="text-center py-4 px-3 text-gray-300 uppercase text-sm font-semibold tracking-wide min-w-[100px]">
+                {thead.status}
+              </th>
+            )}
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-700">
@@ -129,21 +133,23 @@ export const BannedUsersTable: React.FC<BannedUsersTableProps> = ({
                 <td className="text-sm py-4 px-3 text-gray-400 font-mono hidden xl:table-cell">
                   {user.ipAddress || "-"}
                 </td>
-                <td className="text-sm py-4 px-3 text-center">
-                  <div className="flex justify-center">
-                    <button
-                      onClick={() => handleUnbanUser(user)}
-                      className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 p-2 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md"
-                      title="Unban user"
-                    >
-                      <img
-                        src={deleteIcon}
-                        alt="Delete"
-                        style={{ width: "1.26rem" }}
-                      />
-                    </button>
-                  </div>
-                </td>
+                {activeTab === "bannedUsers" && (
+                  <td className="text-sm py-4 px-3 text-center">
+                    <div className="flex justify-center">
+                      <button
+                        onClick={() => handleUnbanUser(user)}
+                        className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 p-2 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md"
+                        title="Unban user"
+                      >
+                        <img
+                          src={deleteIcon}
+                          alt="Delete"
+                          style={{ width: "1.26rem" }}
+                        />
+                      </button>
+                    </div>
+                  </td>
+                )}
               </tr>
             ))
           ) : (

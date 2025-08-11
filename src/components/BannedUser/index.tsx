@@ -16,17 +16,6 @@ import {
 } from "../../app/features/bannedusers/bannedUsersSlice";
 import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
 
-// Placeholder History component
-const History: React.FC = () => {
-  return (
-    <div className="text-white p-6 bg-slate-800/50 rounded-xl border border-slate-700/50 shadow-lg">
-      <h3 className="text-xl font-semibold mb-4">Ban History</h3>
-      <p className="text-slate-300">No history data available yet.</p>
-      {/* Add history table or content here when developed */}
-    </div>
-  );
-};
-
 export const BannedUser: React.FC = ({ title }: any) => {
   const dispatch = useDispatch<AppDispatch>();
   const {
@@ -41,6 +30,7 @@ export const BannedUser: React.FC = ({ title }: any) => {
   const [isBanModalOpen, setIsBanModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string>("");
+  const [status, setStatus] = useState<string>("");
   const [activeTab, setActiveTab] = useState<"bannedUsers" | "history">(
     "bannedUsers"
   );
@@ -48,8 +38,17 @@ export const BannedUser: React.FC = ({ title }: any) => {
   useEffect(() => {
     if (activeTab === "bannedUsers") {
       dispatch(fetchBannedUsers({ page: currentPage, perPage, searchTerm }));
+    } else {
+      dispatch(
+        fetchBannedUsers({
+          page: currentPage,
+          perPage,
+          searchTerm,
+          status: status,
+        })
+      );
     }
-  }, [dispatch, currentPage, perPage, searchTerm, activeTab]);
+  }, [dispatch, currentPage, perPage, searchTerm, activeTab, status]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     dispatch(setSearchTerm(e.target.value));
@@ -224,7 +223,13 @@ export const BannedUser: React.FC = ({ title }: any) => {
                 ? "border-b-2 border-blue-500 text-white"
                 : "text-slate-400 hover:text-white"
             }`}
-            onClick={() => setActiveTab("bannedUsers")}
+            onClick={() => {
+              setActiveTab("bannedUsers");
+              setStatus("");
+              dispatch(setPage(1));
+              dispatch(setSearchTerm(""));
+              dispatch(setPerPage(10));
+            }}
           >
             Banned Users
           </button>
@@ -234,7 +239,13 @@ export const BannedUser: React.FC = ({ title }: any) => {
                 ? "border-b-2 border-blue-500 text-white"
                 : "text-slate-400 hover:text-white"
             }`}
-            onClick={() => setActiveTab("history")}
+            onClick={() => {
+              setActiveTab("history");
+              setStatus("history");
+              dispatch(setPage(1));
+              dispatch(setSearchTerm(""));
+              dispatch(setPerPage(10));
+            }}
           >
             History
           </button>
@@ -248,6 +259,7 @@ export const BannedUser: React.FC = ({ title }: any) => {
             <HandLogoLoader />
           ) : bannedUsers.length > 0 ? (
             <BannedUsersTable
+              activeTab={activeTab}
               users={bannedUsers}
               currentPage={currentPage}
               loading={loading}
@@ -273,7 +285,36 @@ export const BannedUser: React.FC = ({ title }: any) => {
           )}
         </>
       ) : (
-        <History />
+        <>
+          {loading ? (
+            <HandLogoLoader />
+          ) : bannedUsers.length > 0 ? (
+            <BannedUsersTable
+              activeTab={activeTab}
+              users={bannedUsers}
+              currentPage={currentPage}
+              loading={loading}
+              error={error}
+              handleUnbanUser={async (user) => {
+                setDeleteId(user?._id);
+                setIsDeleteModalOpen(true);
+              }}
+            />
+          ) : (
+            <div className="text-custom-gray flex items-center justify-center h-20">
+              No data found.
+            </div>
+          )}
+          {!loading && totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              onPagePrevious={() => handlePageChange(currentPage - 1)}
+              onPageNext={() => handlePageChange(currentPage + 1)}
+            />
+          )}
+        </>
       )}
 
       <BanModal

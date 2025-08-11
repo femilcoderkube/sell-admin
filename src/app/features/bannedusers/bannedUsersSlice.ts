@@ -38,7 +38,8 @@ export const fetchBannedUsers = createAsyncThunk(
       page,
       perPage,
       searchTerm,
-    }: { page: number; perPage: number; searchTerm: string },
+      status,
+    }: { page: number; perPage: number; searchTerm: string; status?: string },
     { rejectWithValue }
   ) => {
     try {
@@ -47,6 +48,7 @@ export const fetchBannedUsers = createAsyncThunk(
           page,
           limit: perPage,
           searchKey: searchTerm,
+          ...(status && { status }),
         },
       });
       return response.data;
