@@ -247,6 +247,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
     );
 
     if (updateTournamentMatch.fulfilled.match(resultAction)) {
+      setSelectedStatus("");
       dispatch(fetchTournamentMatches({ stageId: selectedStage }));
     }
   };
@@ -265,6 +266,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
     );
 
     if (updateStageRound.fulfilled.match(resultAction)) {
+      setSelectedStatus("");
       dispatch(fetchTournamentMatches({ stageId: selectedStage }));
     }
   };
