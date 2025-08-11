@@ -3,10 +3,8 @@ import { BannedUsersTable } from "./BannedUsersTable";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../app/store";
 import { Pagination } from "../ui/Pagination";
-
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import HandLogoLoader from "../Loader/Loader";
-
 import { PlusIcon } from "lucide-react";
 import BanModal from "./BanModal";
 import {
@@ -18,7 +16,16 @@ import {
 } from "../../app/features/bannedusers/bannedUsersSlice";
 import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
 
-// Ban Modal
+// Placeholder History component
+const History: React.FC = () => {
+  return (
+    <div className="text-white p-6 bg-slate-800/50 rounded-xl border border-slate-700/50 shadow-lg">
+      <h3 className="text-xl font-semibold mb-4">Ban History</h3>
+      <p className="text-slate-300">No history data available yet.</p>
+      {/* Add history table or content here when developed */}
+    </div>
+  );
+};
 
 export const BannedUser: React.FC = ({ title }: any) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -34,9 +41,15 @@ export const BannedUser: React.FC = ({ title }: any) => {
   const [isBanModalOpen, setIsBanModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string>("");
+  const [activeTab, setActiveTab] = useState<"bannedUsers" | "history">(
+    "bannedUsers"
+  );
+
   useEffect(() => {
-    dispatch(fetchBannedUsers({ page: currentPage, perPage, searchTerm }));
-  }, [dispatch, currentPage, perPage, searchTerm]);
+    if (activeTab === "bannedUsers") {
+      dispatch(fetchBannedUsers({ page: currentPage, perPage, searchTerm }));
+    }
+  }, [dispatch, currentPage, perPage, searchTerm, activeTab]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     dispatch(setSearchTerm(e.target.value));
@@ -50,10 +63,9 @@ export const BannedUser: React.FC = ({ title }: any) => {
     dispatch(setPerPage(Number(e.target.value)));
   };
 
-  const handleBanSubmit = (values, { setSubmitting }) => {
+  const handleBanSubmit = (values: any, { setSubmitting }: any) => {
     setSubmitting(false);
     setIsBanModalOpen(false);
-    setIsUnderDevModalOpen(true);
     // Add actual ban logic here when developed
   };
 
@@ -72,6 +84,7 @@ export const BannedUser: React.FC = ({ title }: any) => {
   };
 
   const totalPages = Math.ceil(totalCount / perPage);
+
   return (
     <>
       <div className="nf_legue_head--con bg-gradient-to-r from-slate-900/50 to-slate-800/30 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-2xl p-6 mb-6">
@@ -201,24 +214,68 @@ export const BannedUser: React.FC = ({ title }: any) => {
           </div>
         </div>
       </div>
-      {loading ? (
-        <HandLogoLoader />
-      ) : bannedUsers.length > 0 ? (
-        <BannedUsersTable
-          users={bannedUsers}
-          currentPage={currentPage}
-          loading={loading}
-          error={error}
-          handleUnbanUser={async (user) => {
-            setDeleteId(user?._id);
-            setIsDeleteModalOpen(true);
-          }}
-        />
-      ) : (
-        <div className="text-custom-gray flex items-center justify-center h-20">
-          No data found.
+
+      {/* Tab Navigation */}
+      <div className="mb-6">
+        <div className="flex border-b border-slate-700/50">
+          <button
+            className={`px-6 py-3 text-sm font-semibold transition-all duration-200 ${
+              activeTab === "bannedUsers"
+                ? "border-b-2 border-blue-500 text-white"
+                : "text-slate-400 hover:text-white"
+            }`}
+            onClick={() => setActiveTab("bannedUsers")}
+          >
+            Banned Users
+          </button>
+          <button
+            className={`px-6 py-3 text-sm font-semibold transition-all duration-200 ${
+              activeTab === "history"
+                ? "border-b-2 border-blue-500 text-white"
+                : "text-slate-400 hover:text-white"
+            }`}
+            onClick={() => setActiveTab("history")}
+          >
+            History
+          </button>
         </div>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === "bannedUsers" ? (
+        <>
+          {loading ? (
+            <HandLogoLoader />
+          ) : bannedUsers.length > 0 ? (
+            <BannedUsersTable
+              users={bannedUsers}
+              currentPage={currentPage}
+              loading={loading}
+              error={error}
+              handleUnbanUser={async (user) => {
+                setDeleteId(user?._id);
+                setIsDeleteModalOpen(true);
+              }}
+            />
+          ) : (
+            <div className="text-custom-gray flex items-center justify-center h-20">
+              No data found.
+            </div>
+          )}
+          {!loading && totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              onPagePrevious={() => handlePageChange(currentPage - 1)}
+              onPageNext={() => handlePageChange(currentPage + 1)}
+            />
+          )}
+        </>
+      ) : (
+        <History />
       )}
+
       <BanModal
         isOpen={isBanModalOpen}
         onClose={() => setIsBanModalOpen(false)}
@@ -232,15 +289,6 @@ export const BannedUser: React.FC = ({ title }: any) => {
         }}
         onDelete={handleDeleteUser}
       />
-      {!loading && totalPages > 1 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-          onPagePrvious={() => handlePageChange(currentPage - 1)}
-          onPageNext={() => handlePageChange(currentPage + 1)}
-        />
-      )}
     </>
   );
 };
