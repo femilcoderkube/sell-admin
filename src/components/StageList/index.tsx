@@ -228,6 +228,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
       })
     );
     if (addScore.fulfilled.match(resultAction)) {
+      setSelectedStatus("");
       dispatch(fetchTournamentMatches({ stageId: selectedStage }));
     }
   };
@@ -481,6 +482,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                       setSearch("");
                       setSelectedStage(stage?._id);
                       setStageType(stage?.stageType);
+                      setSelectedStatus("");
                     }}
                   >
                     <div className="nf_ts-topbar cust p-2">
