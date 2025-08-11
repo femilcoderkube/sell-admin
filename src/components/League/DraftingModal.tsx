@@ -239,12 +239,12 @@ export const DraftingModal: React.FC<DraftingModalProps> = ({
                     ? "border border-red-500"
                     : ""
                 }`}
-                onInput={(e: any) => {
-                  const val = e.target.value;
-                  if (val && val % 10 !== 0) {
-                    e.target.value = Math.round(val / 10) * 10; // auto-correct
-                  }
-                }}
+                // onInput={(e: any) => {
+                //   const val = e.target.value;
+                //   if (val && val % 10 !== 0) {
+                //     e.target.value = Math.round(val / 10) * 10; // auto-correct
+                //   }
+                // }}
                 {...formik.getFieldProps("pickTimeSeconds")}
               />
               <label

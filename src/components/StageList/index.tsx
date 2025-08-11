@@ -1137,6 +1137,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
       />
       <RoundTimeChangeModal
         stageRound={stageRound}
+        stageGroups={stageGroups}
         show={showRoundTimeChangeModal}
         onClose={() => setShowRoundTimeChangeModal(false)}
         matches={matches}

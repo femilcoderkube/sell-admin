@@ -4,10 +4,11 @@ import * as Yup from "yup";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { CancelIcon } from "../ui"; // Adjust path to your CancelIcon component
-import { Match } from "./StageLists"; // Adjust path to your types
+import { Match } from "../../app/types";
 
 interface RoundTimeChangeModalProps {
   stageRound: any;
+  stageGroups: any;
   show: boolean;
   onClose: () => void;
   matches: Match[];
@@ -20,6 +21,7 @@ interface RoundTimeChangeModalProps {
 
 const RoundTimeChangeModal: React.FC<RoundTimeChangeModalProps> = ({
   stageRound,
+  stageGroups,
   show,
   onClose,
   matches,
@@ -72,8 +74,9 @@ const RoundTimeChangeModal: React.FC<RoundTimeChangeModalProps> = ({
     <div
       id="changetime-round-modal"
       aria-hidden={!show}
-      className={`fixed top-0 left-0 right-0 z-50 flex justify-center items-center w-full h-screen bg-black bg-opacity-50 transition-opacity ${show ? "opacity-100 visible" : "opacity-0 invisible"
-        }`}
+      className={`fixed top-0 left-0 right-0 z-50 flex justify-center items-center w-full h-screen bg-black bg-opacity-50 transition-opacity ${
+        show ? "opacity-100 visible" : "opacity-0 invisible"
+      }`}
     >
       <style>{`
         .custom-datepicker {
@@ -170,7 +173,50 @@ const RoundTimeChangeModal: React.FC<RoundTimeChangeModalProps> = ({
                     <option value="-1">All rounds</option>
                     {stageRound?.map((round) => (
                       <option key={round._id} value={round._id}>
-                        {round.roundName} {round.config ? round.config.group_id == 0 ? '(WB)' : round.config.group_id == 1 ? '(LB)' : '(FB)' : ''}
+                        {round.roundName}{" "}
+                        {round.config
+                          ? round.config.group_id == 0
+                            ? "(WB)"
+                            : round.config.group_id == 1
+                            ? "(LB)"
+                            : "(FB)"
+                          : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              {formik.touched.roundId && formik.errors.roundId && (
+                <p className="text-red-600 mt-1 text-sm">
+                  {formik.errors.roundId}
+                </p>
+              )}
+            </div>
+            <div className="relative mb-4">
+              <label className="block text-white text-sm font-medium mb-2">
+                Select Group <span className="text-red-500">*</span>
+              </label>
+              <div className="nf_top-filter nf_bg flex items-center">
+                <div className="nf_cust-select nf_simple-select focus-input w-full">
+                  <select
+                    className="form-control color-white cust-arrow w-full text-[0.78125rem] bg-input-color rounded-[0.52rem] px-3 py-[0.35rem] text-white focus:outline-0"
+                    id="round_dropdown_time"
+                    name="roundId"
+                    value={formik.values.roundId}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                  >
+                    <option value="-1">All rounds</option>
+                    {stageGroups?.map((round) => (
+                      <option key={round._id} value={round._id}>
+                        {round.roundName}{" "}
+                        {round.config
+                          ? round.config.group_id == 0
+                            ? "(WB)"
+                            : round.config.group_id == 1
+                            ? "(LB)"
+                            : "(FB)"
+                          : ""}
                       </option>
                     ))}
                   </select>
@@ -203,10 +249,11 @@ const RoundTimeChangeModal: React.FC<RoundTimeChangeModalProps> = ({
                 showTimeSelect
                 timeFormat="h:mm aa"
                 dateFormat="yyyy-MM-dd h:mm aa"
-                className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[0.35rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 appearance-none leading-normal ${formik.touched.startDate && formik.errors.startDate
+                className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[0.35rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 appearance-none leading-normal ${
+                  formik.touched.startDate && formik.errors.startDate
                     ? "border border-red-500"
                     : ""
-                  }`}
+                }`}
                 id="startDate"
                 name="startDate"
                 placeholderText="Select start date"
@@ -242,10 +289,11 @@ const RoundTimeChangeModal: React.FC<RoundTimeChangeModalProps> = ({
                 showTimeSelect
                 timeFormat="h:mm aa"
                 dateFormat="yyyy-MM-dd h:mm aa"
-                className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[0.35rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 appearance-none leading-normal ${formik.touched.endDate && formik.errors.endDate
+                className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[0.35rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 appearance-none leading-normal ${
+                  formik.touched.endDate && formik.errors.endDate
                     ? "border border-red-500"
                     : ""
-                  }`}
+                }`}
                 id="endDate"
                 name="endDate"
                 placeholderText="Select end date"
@@ -279,8 +327,9 @@ const RoundTimeChangeModal: React.FC<RoundTimeChangeModalProps> = ({
             <button
               type="submit"
               disabled={formik.isSubmitting}
-              className={`bg-primary-gradient w-1/2 text-white font-medium rounded-lg text-[0.94rem] px-5 py-[0.795rem] me-2 mb-2 duration-300 focus:outline-none ${formik.isSubmitting ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+              className={`bg-primary-gradient w-1/2 text-white font-medium rounded-lg text-[0.94rem] px-5 py-[0.795rem] me-2 mb-2 duration-300 focus:outline-none ${
+                formik.isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
               {formik.isSubmitting ? "Processing..." : "Update Round Time"}
             </button>
