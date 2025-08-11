@@ -40,6 +40,7 @@ interface UpdateStageRoundPayload {
   roundId: string;
   startTime?: string;
   endTime?: string;
+  groupId?: string;
 }
 interface UpdateTournamentMatchPayload {
   id: string;
@@ -147,8 +148,11 @@ export const updateStageRound = createAsyncThunk(
   "stageRounds/updateStageRound",
   async (payload: UpdateStageRoundPayload, { rejectWithValue }) => {
     try {
+      const query = `/StageRound?id=${payload.roundId}${
+        payload.groupId ? `&groupId=${payload.groupId}` : ""
+      }`;
       const response = await axiosInstance.put(
-        `/StageRound?id=${payload.roundId}`,
+        `${query}`,
         {
           startTime: payload.startTime,
           endTime: payload.endTime,

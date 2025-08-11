@@ -264,14 +264,19 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
     roundId: string;
     startDate: string;
     endDate: string;
+    groupId?: string; // optional for non-BattleRoyal
   }) => {
-    const resultAction = await dispatch(
-      updateStageRound({
-        roundId: values.roundId,
-        startTime: values.startDate,
-        endTime: values.endDate,
-      })
-    );
+    const payload: any = {
+      roundId: values.roundId,
+      startTime: values.startDate,
+      endTime: values.endDate,
+    };
+
+    // Include groupId only if stageType is BattleRoyal
+    if (stageType === "BattleRoyal" && values.groupId) {
+      payload.groupId = values.groupId;
+    }
+    const resultAction = await dispatch(updateStageRound(payload));
 
     if (updateStageRound.fulfilled.match(resultAction)) {
       dispatch(
@@ -1136,6 +1141,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
         onSubmit={handleTimeSubmit}
       />
       <RoundTimeChangeModal
+        stageType={stageType}
         stageRound={stageRound}
         stageGroups={stageGroups}
         show={showRoundTimeChangeModal}

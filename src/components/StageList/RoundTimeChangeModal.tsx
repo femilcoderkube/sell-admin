@@ -7,6 +7,7 @@ import { CancelIcon } from "../ui"; // Adjust path to your CancelIcon component
 import { Match } from "../../app/types";
 
 interface RoundTimeChangeModalProps {
+  stageType: any;
   stageRound: any;
   stageGroups: any;
   show: boolean;
@@ -20,6 +21,7 @@ interface RoundTimeChangeModalProps {
 }
 
 const RoundTimeChangeModal: React.FC<RoundTimeChangeModalProps> = ({
+  stageType,
   stageRound,
   stageGroups,
   show,
@@ -33,14 +35,21 @@ const RoundTimeChangeModal: React.FC<RoundTimeChangeModalProps> = ({
 
   const formik = useFormik({
     initialValues: {
+      groupId: stageType === "BattleRoyal" ? "-1" : "",
       roundId: stageRound?.length > 0 ? stageRound[0]?._id : "",
       startDate: "",
       endDate: "",
     },
     validationSchema: Yup.object({
+      ...(stageType === "BattleRoyal" && {
+        groupId: Yup.string()
+          .required("Group selection is required")
+          .notOneOf(["-1"], "Please select a valid group"),
+      }),
       roundId: Yup.string()
         .required("Round selection is required")
         .notOneOf(["-1"], "Please select a valid round"),
+
       startDate: Yup.string().required("Start date is required"),
       endDate: Yup.string()
         .required("End date is required")
@@ -56,11 +65,15 @@ const RoundTimeChangeModal: React.FC<RoundTimeChangeModalProps> = ({
     }),
     onSubmit: (values) => {
       try {
-        onSubmit({
+        const submitData: any = {
           roundId: values.roundId,
           startDate: values.startDate,
           endDate: values.endDate,
-        });
+        };
+        if (stageType === "BattleRoyal") {
+          submitData.groupId = values.groupId;
+        }
+        onSubmit(submitData);
         formik.resetForm();
         onClose();
       } catch (err) {
@@ -156,6 +169,39 @@ const RoundTimeChangeModal: React.FC<RoundTimeChangeModalProps> = ({
                 {error}
               </div>
             )}
+
+            {stageType === "BattleRoyal" && (
+              <div className="relative mb-4">
+                <label className="block text-white text-sm font-medium mb-2">
+                  Select Group <span className="text-red-500">*</span>
+                </label>
+                <div className="nf_top-filter nf_bg flex items-center">
+                  <div className="nf_cust-select nf_simple-select focus-input w-full">
+                    <select
+                      className="form-control color-white cust-arrow w-full text-[0.78125rem] bg-input-color rounded-[0.52rem] px-3 py-[0.35rem] text-white focus:outline-0"
+                      id="round_dropdown_time"
+                      name="groupId"
+                      value={formik.values.groupId}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                    >
+                      <option value="-1">All groups</option>
+                      {stageGroups?.map((round) => (
+                        <option key={round._id} value={round._id}>
+                          {round.name}{" "}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                {formik.touched.roundId && formik.errors.roundId && (
+                  <p className="text-red-600 mt-1 text-sm">
+                    {formik.errors.groupId}
+                  </p>
+                )}
+              </div>
+            )}
+
             <div className="relative mb-4">
               <label className="block text-white text-sm font-medium mb-2">
                 Select Round <span className="text-red-500">*</span>
@@ -172,42 +218,6 @@ const RoundTimeChangeModal: React.FC<RoundTimeChangeModalProps> = ({
                   >
                     <option value="-1">All rounds</option>
                     {stageRound?.map((round) => (
-                      <option key={round._id} value={round._id}>
-                        {round.roundName}{" "}
-                        {round.config
-                          ? round.config.group_id == 0
-                            ? "(WB)"
-                            : round.config.group_id == 1
-                            ? "(LB)"
-                            : "(FB)"
-                          : ""}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              {formik.touched.roundId && formik.errors.roundId && (
-                <p className="text-red-600 mt-1 text-sm">
-                  {formik.errors.roundId}
-                </p>
-              )}
-            </div>
-            <div className="relative mb-4">
-              <label className="block text-white text-sm font-medium mb-2">
-                Select Group <span className="text-red-500">*</span>
-              </label>
-              <div className="nf_top-filter nf_bg flex items-center">
-                <div className="nf_cust-select nf_simple-select focus-input w-full">
-                  <select
-                    className="form-control color-white cust-arrow w-full text-[0.78125rem] bg-input-color rounded-[0.52rem] px-3 py-[0.35rem] text-white focus:outline-0"
-                    id="round_dropdown_time"
-                    name="roundId"
-                    value={formik.values.roundId}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                  >
-                    <option value="-1">All rounds</option>
-                    {stageGroups?.map((round) => (
                       <option key={round._id} value={round._id}>
                         {round.roundName}{" "}
                         {round.config
