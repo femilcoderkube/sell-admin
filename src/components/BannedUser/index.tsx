@@ -63,6 +63,7 @@ export const BannedUser: React.FC = ({ title }: any) => {
       if (deleteBannedUser.fulfilled.match(resultAction)) {
         setDeleteId("");
         setIsDeleteModalOpen(false);
+        dispatch(setPage(1));
         dispatch(fetchBannedUsers({ page: currentPage, perPage, searchTerm }));
       }
     } catch (error) {

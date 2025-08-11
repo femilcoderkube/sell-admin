@@ -7,6 +7,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import {
   createBannedUser,
   fetchBannedUsers,
+  setPage,
 } from "../../app/features/bannedusers/bannedUsersSlice";
 
 const BanModal = ({ isOpen, onClose }) => {
@@ -88,6 +89,7 @@ const BanModal = ({ isOpen, onClose }) => {
       if (createBannedUser.fulfilled.match(result)) {
         resetForm();
         onClose();
+        dispatch(setPage(1));
         dispatch(fetchBannedUsers({ page: 1, perPage: 10, searchTerm: "" }));
       }
       resetForm();
@@ -212,11 +214,14 @@ const BanModal = ({ isOpen, onClose }) => {
                   <DatePicker
                     selected={values.date}
                     onChange={(date) => setFieldValue("date", date)}
+                    showTimeSelect
+                    timeFormat="h:mm aa"
+                    dateFormat="yyyy-MM-dd h:mm aa"
                     className="w-full px-4 py-3 bg-[#242B3C] text-white rounded-xl border border-gray-600/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 placeholder-gray-400"
                     placeholderText="Select ban date"
-                    dateFormat="yyyy-MM-dd"
                     wrapperClassName="w-full"
                     disabled={values.permanentBan}
+                    calendarClassName="custom-datepicker"
                   />
                   <ErrorMessage
                     name="date"
@@ -270,6 +275,59 @@ const BanModal = ({ isOpen, onClose }) => {
           </Formik>
         </div>
       </div>
+      <style>{`
+        .custom-datepicker {
+          background-color: #212739;
+          border: none;
+          border-radius: 0.52rem;
+          padding: 0.5rem;
+          font-size: 0.78125rem;
+          color: #fff;
+          font-family: inherit;
+          display: flex
+
+        }
+        .custom-datepicker .react-datepicker__header {
+          background-color: #2b3245;
+          border-bottom: none;
+          padding: 0.5rem;
+        }
+        .custom-datepicker .react-datepicker__current-month,
+        .custom-datepicker .react-datepicker__day-name {
+          color: #fff;
+          font-size: 0.78125rem;
+        }
+        .custom-datepicker .react-datepicker__day {
+          color: #fff;
+          border-radius: 0.3rem;
+          padding: 0.3rem;
+        }
+        .custom-datepicker .react-datepicker__day:hover {
+          background-color: #2b3245;
+        }
+        .custom-datepicker .react-datepicker__day--selected,
+        .custom-datepicker .react-datepicker__day--keyboard-selected {
+          background-color: #007eff;
+          color: #fff;
+        }
+        .custom-datepicker .react-datepicker__day--disabled {
+          color: #6b7280;
+          opacity: 0.5;
+        }
+        .custom-datepicker .react-datepicker__navigation {
+          top: 0.75rem;
+        }
+        .custom-datepicker .react-datepicker__navigation-icon::before {
+          border-color: #fff;
+        }
+        .custom-datepicker .react-datepicker__triangle {
+          display: none;
+        }
+          e {
+    display: flex;
+    height: 300px;
+}
+      `}</style>
     </div>
   );
 };
