@@ -41,6 +41,7 @@ import {
 } from "../../app/features/tournament/battleRoyalScoresSlice";
 import toast from "react-hot-toast";
 import Scoreboard from "./Scoreboard";
+import MultipleMatchTimeChangeModal from "./MultipleMatchTimeChangeModal";
 
 interface Stage {
   _id: string;
@@ -101,6 +102,8 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
 
   const [showQuickScoreModal, setShowQuickScoreModal] = useState(false);
   const [showChangeTimeModal, setShowChangeTimeModal] = useState(false);
+  const [showMultipleMatchTimeModal, setShowMultipleMatchTimeModal] =
+    useState(false);
   const [showRoundTimeChangeModal, setShowRoundTimeChangeModal] =
     useState(false);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
@@ -407,6 +410,19 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
           groupId: selectedGroup,
         })
       );
+    }
+  };
+
+  // Add this function to handle multiple match time submissions
+  const handleMultipleMatchTimeSubmit = async (values: {
+    matchIds: string[];
+    startDate: string;
+    endDate: string;
+  }) => {
+    try {
+      console.log("matchIds", values?.matchIds);
+    } catch (err) {
+      toast.error("Failed to update match times. Please try again.");
     }
   };
 
@@ -725,9 +741,9 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                           className="btn btn-nf-gray round_timechange_data mt-2"
                           data-toggle="modal"
                           data-target="#changetime_round"
-                          // onClick={() => setShowRoundTimeChangeModal(true)}
+                          onClick={() => setShowMultipleMatchTimeModal(true)}
                         >
-                          Match Time Change
+                          Multiple Match Time Change
                         </button>
                       </div>
                     )}
@@ -1160,6 +1176,12 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
         onClose={() => setShowRoundTimeChangeModal(false)}
         matches={matches}
         onSubmit={handleRoundTimeSubmit}
+      />
+      <MultipleMatchTimeChangeModal
+        show={showMultipleMatchTimeModal}
+        onClose={() => setShowMultipleMatchTimeModal(false)}
+        matches={matches}
+        onSubmit={handleMultipleMatchTimeSubmit}
       />
       <DeleteConfirmationModal
         show={isDeleteModalOpen}
