@@ -1,7 +1,16 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { PlusIcon } from "../ui";
 import { useEffect, useState } from "react";
-import { Edit2, Lock, Plus, Search, Shuffle, Unlock, X } from "lucide-react";
+import {
+  Edit2,
+  Fullscreen,
+  Lock,
+  Plus,
+  Search,
+  Shuffle,
+  Unlock,
+  X,
+} from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchNotInStageParticipants } from "../../app/features/tournament/notInStageSlice";
 import { RootState } from "../../app/store";
@@ -173,6 +182,38 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
           selector: "#first",
         }
       );
+      // Create toggle button
+      const toggleBtn = document.createElement("button");
+      toggleBtn.innerText = "⛶ Fullscreen";
+      toggleBtn.style.position = "absolute";
+      toggleBtn.style.top = "10px";
+      toggleBtn.style.right = "10px";
+      toggleBtn.style.zIndex = "9";
+      toggleBtn.style.padding = "6px 10px";
+      toggleBtn.style.background = "#333";
+      toggleBtn.style.color = "#fff";
+      toggleBtn.style.border = "none";
+      toggleBtn.style.borderRadius = "4px";
+      toggleBtn.style.cursor = "pointer";
+
+      let isFullscreen = false;
+
+      toggleBtn.addEventListener("click", () => {
+        if (!isFullscreen) {
+          openFullscreen(container);
+        } else {
+          closeFullscreen();
+        }
+      });
+
+      // Listen for fullscreen change to update button text
+      document.addEventListener("fullscreenchange", () => {
+        isFullscreen = !!document.fullscreenElement;
+        toggleBtn.innerText = isFullscreen ? "⤢ Minimize" : "⛶ Fullscreen";
+      });
+
+      container.style.position = "relative";
+      container.appendChild(toggleBtn);
     }
 
     // Cleanup on unmount
@@ -648,6 +689,33 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
       }.`
     );
   };
+
+  function openFullscreen(elem) {
+    if (elem.requestFullscreen) {
+      elem.requestFullscreen();
+    } else if (elem.mozRequestFullScreen) {
+      // Firefox
+      elem.mozRequestFullScreen();
+    } else if (elem.webkitRequestFullscreen) {
+      // Chrome, Safari, Opera
+      elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) {
+      // IE/Edge
+      elem.msRequestFullscreen();
+    }
+  }
+
+  function closeFullscreen() {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.mozCancelFullScreen) {
+      document.mozCancelFullScreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+    }
+  }
 
   // Transform groups for GroupCard props
   const transformedGroups = groups?.map((group, index) => ({
