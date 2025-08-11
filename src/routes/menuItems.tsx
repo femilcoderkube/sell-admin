@@ -277,7 +277,7 @@ export const generateRoutes = (adminside: any[]): RoutesProps[] => {
       path: "/:id/leagues/:lid/seed/:did",
       dark_svg: downarr,
       white_svg: white_arr,
-      component: <SeedDetail title={"Seeding"} />,
+      component: <SeedDetail title={"Drafting Phase"} />,
       auth: true,
       isShow: false,
       partnerColor: undefined,

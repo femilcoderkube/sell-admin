@@ -314,7 +314,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
             <div className="bg-gray-800 rounded-lg p-4 mb-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <h1 className="text-xl font-bold">Seeding</h1>
+                  <h1 className="text-xl font-bold">Drafting</h1>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <button
