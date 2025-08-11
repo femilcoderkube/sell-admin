@@ -41,7 +41,12 @@ export const DraftingModal: React.FC<DraftingModalProps> = ({
       .min(new Date(), "Start time cannot be in the past")
       .typeError("Start time must be a valid date"),
     pickTimeSeconds: Yup.number()
-      .min(1, "Pick time must be at least 1 second")
+      .min(10, "Pick time must be at least 10 second")
+      .test(
+        "multiple-of-10",
+        "Pick time must be in multiples of 10 (e.g., 10, 20, 30, 40)",
+        (value: any) => value % 10 === 0
+      )
       .required("Pick time is required")
       .integer("Pick time must be an integer"),
   });
@@ -226,6 +231,7 @@ export const DraftingModal: React.FC<DraftingModalProps> = ({
               <input
                 type="number"
                 id="pickTimeSeconds"
+                step="10"
                 placeholder=" "
                 className={`w-full text-[0.94rem] text-white focus:outline-0 focus:!border focus:!border-highlight-color pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
                   formik.touched.pickTimeSeconds &&
@@ -233,6 +239,12 @@ export const DraftingModal: React.FC<DraftingModalProps> = ({
                     ? "border border-red-500"
                     : ""
                 }`}
+                onInput={(e: any) => {
+                  const val = e.target.value;
+                  if (val && val % 10 !== 0) {
+                    e.target.value = Math.round(val / 10) * 10; // auto-correct
+                  }
+                }}
                 {...formik.getFieldProps("pickTimeSeconds")}
               />
               <label
