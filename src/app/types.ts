@@ -315,6 +315,7 @@ export interface Tournament {
 }
 
 export interface TournamentState {
+  allmatches: any;
   tournaments: Tournament[];
   loading: boolean;
   totalCounts: any;
@@ -458,7 +459,7 @@ export interface Participant {
   region: string;
   logoImage: string;
   backgroundImage: string;
-  participantId: string
+  participantId: string;
 }
 
 export interface Group {

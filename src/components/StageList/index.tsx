@@ -1178,9 +1178,9 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
         onSubmit={handleRoundTimeSubmit}
       />
       <MultipleMatchTimeChangeModal
+        stageId={selectedStage}
         show={showMultipleMatchTimeModal}
         onClose={() => setShowMultipleMatchTimeModal(false)}
-        matches={matches}
         onSubmit={handleMultipleMatchTimeSubmit}
       />
       <DeleteConfirmationModal

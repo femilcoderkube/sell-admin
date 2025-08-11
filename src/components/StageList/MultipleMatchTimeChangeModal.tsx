@@ -5,11 +5,15 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { CancelIcon } from "../ui"; // Adjust path to your CancelIcon component
 import { Match } from "../../app/types";
+import { fetchTournamentAllMatches } from "../../app/features/tournament/tournamentMatchesSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../app/store";
 
 interface MultipleMatchTimeChangeModalProps {
   show: boolean;
+  stageId: any;
   onClose: () => void;
-  matches: Match[];
+
   onSubmit: (values: {
     matchIds: string[];
     startDate: string;
@@ -19,8 +23,12 @@ interface MultipleMatchTimeChangeModalProps {
 
 const MultipleMatchTimeChangeModal: React.FC<
   MultipleMatchTimeChangeModalProps
-> = ({ show, onClose, matches, onSubmit }) => {
+> = ({ show, stageId, onClose, onSubmit }) => {
   const [error, setError] = useState<string | null>(null);
+  const { allmatches, matchesLoading } = useSelector(
+    (state: RootState) => state.tournamentMatches
+  );
+  const dispatch = useDispatch();
 
   const formik = useFormik({
     initialValues: {
@@ -70,6 +78,7 @@ const MultipleMatchTimeChangeModal: React.FC<
       setError(null);
       formik.setTouched({}, false);
       formik.setErrors({});
+      dispatch(fetchTournamentAllMatches({ stageId: stageId }));
     }
   }, [show]);
 
@@ -177,7 +186,7 @@ const MultipleMatchTimeChangeModal: React.FC<
                 Select Matches <span className="text-red-500">*</span>
               </label>
 
-              {matches.length > 0 && (
+              {allmatches?.length > 0 && (
                 <div className="flex items-center mb-3">
                   <input
                     type="checkbox"
@@ -185,14 +194,14 @@ const MultipleMatchTimeChangeModal: React.FC<
                     className="mr-2"
                     checked={
                       formik.values.matchIds.length > 0 &&
-                      formik.values.matchIds.length === matches.length
+                      formik.values.matchIds.length === allmatches.length
                     }
                     onChange={(e) => {
                       if (e.target.checked) {
                         // Select all
                         formik.setFieldValue(
                           "matchIds",
-                          matches.map((m) => m._id)
+                          allmatches.map((m) => m._id)
                         );
                       } else {
                         // Deselect all
@@ -210,10 +219,10 @@ const MultipleMatchTimeChangeModal: React.FC<
               )}
 
               <div className="max-h-48 overflow-y-auto border border-gray-600 rounded-lg p-3 bg-input-color">
-                {matches.length === 0 ? (
+                {allmatches.length === 0 ? (
                   <p className="text-gray-400">No matches available</p>
                 ) : (
-                  matches.map((match) => (
+                  allmatches.map((match) => (
                     <div
                       key={match._id}
                       className="flex items-center mb-2 text-white"
@@ -229,11 +238,14 @@ const MultipleMatchTimeChangeModal: React.FC<
                         htmlFor={`match-${match._id}`}
                         className="text-sm cursor-pointer"
                       >
+                        {match?.config?.id + 1}{" "}
                         {match.opponent1?.team?.teamName ||
-                          match.opponent1?.user?.username}{" "}
+                          match.opponent1?.user?.username ||
+                          "-"}{" "}
                         vs{" "}
                         {match.opponent2?.team?.teamName ||
-                          match.opponent2?.user?.username}{" "}
+                          match.opponent2?.user?.username ||
+                          "-"}{" "}
                         ({match.stageRoundId?.roundName})
                       </label>
                     </div>

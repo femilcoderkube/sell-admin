@@ -76,6 +76,34 @@ export const fetchTournamentMatches = createAsyncThunk(
     }
   }
 );
+export const fetchTournamentAllMatches = createAsyncThunk(
+  "tournaments/fetchTournamentAllMatches",
+  async (payload: FetchTournamentMatchesPayload, { rejectWithValue }) => {
+    try {
+      // Build query string dynamically based on provided parameters
+      const queryParams = new URLSearchParams();
+      queryParams.append("stageId", payload.stageId);
+      if (payload.roundId) queryParams.append("roundId", payload.roundId);
+      if (payload.status) queryParams.append("status", payload.status);
+      if (payload.search) queryParams.append("search", payload.search);
+
+      const response = await axiosInstance.get(
+        `/TournamentMatch/matchs?${queryParams.toString()}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data.data;
+    } catch (error: any) {
+      console.log("err fetch tournament matches", error);
+      return rejectWithValue(
+        error.response?.data?.message || "Error fetching tournament matches"
+      );
+    }
+  }
+);
 
 export const fetchTournamentMatchById = createAsyncThunk(
   "tournaments/fetchTournamentMatchById",
@@ -203,6 +231,7 @@ const tournamentMatchesSlice = createSlice({
   name: "tournamentMatches",
   initialState: {
     matches: [] as TournamentMatch[],
+    allmatches: [],
     matchesLoading: false,
     matchesError: null,
     roundsLoading: false,
@@ -227,6 +256,20 @@ const tournamentMatchesSlice = createSlice({
         // toast.success("Tournament matches fetched successfully!");
       })
       .addCase(fetchTournamentMatches.rejected, (state, action) => {
+        state.matchesLoading = false;
+        state.matchesError = action.payload as string;
+        // toast.error("Failed to fetch tournament matches!");
+      })
+      .addCase(fetchTournamentAllMatches.pending, (state) => {
+        state.matchesLoading = true;
+        state.matchesError = null;
+      })
+      .addCase(fetchTournamentAllMatches.fulfilled, (state, action) => {
+        state.matchesLoading = false;
+        state.allmatches = action.payload.result; // Assuming API returns array of matches
+        // toast.success("Tournament matches fetched successfully!");
+      })
+      .addCase(fetchTournamentAllMatches.rejected, (state, action) => {
         state.matchesLoading = false;
         state.matchesError = action.payload as string;
         // toast.error("Failed to fetch tournament matches!");
