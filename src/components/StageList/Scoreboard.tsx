@@ -33,7 +33,7 @@ const Scoreboard = ({ localScores, setLocalScores, scoreSettings }: any) => {
       const matchedPlacement = result.find(
         (point: any) => point.position === placement
       );
-      return matchedPlacement ? matchedPlacement.point * placement : 0;
+      return matchedPlacement ? matchedPlacement.point : 0;
     }
     return 0;
   };
@@ -47,6 +47,10 @@ const Scoreboard = ({ localScores, setLocalScores, scoreSettings }: any) => {
               ...score,
               placement: field === "placement" ? value : score.placement,
               killPoints: field === "kills" ? value : score.killPoints,
+              placePoints:
+                field === "placement"
+                  ? calculatePlacePoints(value)
+                  : score.placePoints,
               totalPoints: calculateTotalPoints(
                 field === "placement" ? value : score.placement,
                 field === "kills" ? value : score.killPoints
@@ -67,6 +71,10 @@ const Scoreboard = ({ localScores, setLocalScores, scoreSettings }: any) => {
               [field === "placement" ? "placement" : "killPoints"]:
                 (field === "placement" ? score.placement : score.killPoints) +
                 1,
+              placePoints:
+                field === "placement"
+                  ? calculatePlacePoints(score.placement + 1)
+                  : score.placePoints,
               totalPoints: calculateTotalPoints(
                 field === "placement" ? score.placement + 1 : score.placement,
                 field === "kills" ? score.killPoints + 1 : score.killPoints
@@ -87,6 +95,10 @@ const Scoreboard = ({ localScores, setLocalScores, scoreSettings }: any) => {
                 0,
                 (field === "placement" ? score.placement : score.killPoints) - 1
               ),
+              placePoints:
+                field === "placement"
+                  ? calculatePlacePoints(Math.max(0, score.placement - 1))
+                  : score.placePoints,
               totalPoints: calculateTotalPoints(
                 field === "placement"
                   ? Math.max(0, score.placement - 1)
