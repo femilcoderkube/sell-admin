@@ -77,6 +77,7 @@ export function expandPositions(data: any) {
 }
 
 export const setLocalZone = (date: Date, timezone: string) => {
+  if (!date) return null;
   const dateWithoutZone = moment
     .tz(date, timezone)
     .format("YYYY-MM-DDTHH:mm:ss.SSS");

@@ -9,6 +9,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { addDraftingPhase } from "../../app/features/draftingPhase/draftingPhaseSlice";
 import { fetchLeagueById } from "../../app/features/league/leagueSlice";
+import { setLocalZone, setOtherZone } from "../../utils/constant";
 
 interface DraftingModalProps {
   show: boolean;
@@ -55,7 +56,7 @@ export const DraftingModal: React.FC<DraftingModalProps> = ({
     initialValues: {
       totalTeams: 5,
       totalPlayers: 25,
-      startTime: null as Date | null,
+      startTime: new Date() as Date | null,
       pickTimeSeconds: 60,
     },
     validationSchema: draftingSchema,
@@ -192,9 +193,12 @@ export const DraftingModal: React.FC<DraftingModalProps> = ({
 
             <div className="relative float-label-input custom-input mb-4">
               <DatePicker
-                selected={formik.values.startTime}
+                selected={setLocalZone(formik.values.startTime, "Asia/Riyadh")}
                 onChange={(date: Date) =>
-                  formik.setFieldValue("startTime", date)
+                  formik.setFieldValue(
+                    "startTime",
+                    setOtherZone(date, "Asia/Riyadh")
+                  )
                 }
                 onBlur={() => formik.setFieldTouched("startTime", true)}
                 showTimeSelect
