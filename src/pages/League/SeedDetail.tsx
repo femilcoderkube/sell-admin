@@ -1,6 +1,16 @@
 import { FC, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Edit2, Plus, Search, X } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  Edit2,
+  Plus,
+  Search,
+  Target,
+  Trophy,
+  Users,
+  X,
+} from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchEligiblePlayers,
@@ -12,6 +22,7 @@ import toast from "react-hot-toast";
 import HandLogoLoader from "../../components/Loader/Loader";
 import { baseURL } from "../../axios";
 import { fetchDraftingPhase } from "../../app/features/draftingPhase/draftingPhaseSlice";
+import moment from "moment-timezone";
 
 interface EligiblePlayer {
   totalWins: number;
@@ -65,12 +76,13 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
   const [isSeedingListInitialized, setIsSeedingListInitialized] =
     useState(false);
   const { data } = useSelector((state: RootState) => state.draftingPhase);
-
+  console.log("data", data);
   const { state } = useLocation();
   const did = window.location.pathname.split("/")[5];
 
   // State for UI and data
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
+  const [removedPlayers, setRemovedPlayers] = useState<string[]>([]); // New state to track removed players
   const [showAddModal, setShowAddModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -150,37 +162,54 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
 
   // Handle bulk selection of players
   const handleBulkSelect = (playerId: string) => {
-    setSelectedPlayers((prev) =>
-      prev.includes(playerId)
+    setSelectedPlayers((prev) => {
+      const newSelected = prev.includes(playerId)
         ? prev.filter((id) => id !== playerId)
-        : [...prev, playerId]
-    );
+        : [...prev, playerId];
+      // Ensure the number of selected players does not exceed removed players
+      if (newSelected.length > removedPlayers.length) {
+        toast.error(
+          `Cannot select more than ${removedPlayers.length} players. Remove more players first.`
+        );
+        return prev;
+      }
+      return newSelected;
+    });
   };
 
   // Handle bulk addition of players to empty seeds with randomization
   const handleBulkAdd = () => {
+    // Check if the number of selected players equals the number of removed players
+    if (selectedPlayers.length !== removedPlayers.length) {
+      toast.error(
+        `You must select exactly ${removedPlayers.length} players to match the number of removed players.`
+      );
+      return;
+    }
+
     const emptySeeds = seedingList
       .filter((item) => !item.player)
       .map((item) => item.seed);
 
-    const playersToAdd = selectedPlayers
-      .map((id) => playerDetails.find((p) => p.id === id))
-      .filter((player) => player !== undefined); // Filter out any undefined players
-
-    if (playersToAdd.length > emptySeeds.length) {
+    if (selectedPlayers.length > emptySeeds.length) {
       toast.error(
-        `Cannot add ${playersToAdd.length} players. Only ${emptySeeds.length} empty seeds available.`
+        `Cannot add ${selectedPlayers.length} players. Only ${emptySeeds.length} empty seeds available.`
       );
       return;
     }
 
     setSeedingList((prev) => {
       const newList = [...prev];
-      let playerIndex = 0;
+      const shuffledPlayers = shuffleArray(
+        selectedPlayers
+          .map((id) => playerDetails.find((p) => p.id === id))
+          .filter((player) => player !== undefined)
+      );
 
+      let playerIndex = 0;
       for (const seed of emptySeeds) {
-        if (playerIndex < playersToAdd.length) {
-          const player = playersToAdd[playerIndex];
+        if (playerIndex < shuffledPlayers.length) {
+          const player = shuffledPlayers[playerIndex];
           const index = newList.findIndex((item) => item.seed === seed);
           newList[index].player = player;
           playerIndex++;
@@ -192,16 +221,20 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
 
     setSelectedPlayers([]);
     setShowBulkModal(false);
-    // toast.success(`${playersToAdd.length} players added to seeds randomly.`);
+    toast.success(`${selectedPlayers.length} players added to seeds randomly.`);
   };
 
   // Handle removing a player from a seed
   const handleRemovePlayer = (seed: number) => {
-    setSeedingList((prev) =>
-      prev.map((item) =>
+    setSeedingList((prev) => {
+      const playerToRemove = prev.find((item) => item.seed === seed)?.player;
+      if (playerToRemove) {
+        setRemovedPlayers((prev) => [...prev, playerToRemove.id]);
+      }
+      return prev.map((item) =>
         item.seed === seed ? { ...item, player: null } : item
-      )
-    );
+      );
+    });
   };
 
   // Handle saving changes
@@ -210,8 +243,16 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
       .filter((item) => item.player)
       .map((item) => item.player!.id);
 
-    if (seedIds?.length !== state?.draftPlayer) {
-      toast.error(`You must select at least ${state?.draftPlayer} players.`);
+    if (seedIds.length !== state?.draftPlayer) {
+      toast.error(`You must select exactly ${state?.draftPlayer} players.`);
+      return;
+    }
+
+    // Ensure the number of selected players equals the number of removed players
+    if (selectedPlayers.length !== removedPlayers.length) {
+      toast.error(
+        `You must select exactly ${removedPlayers.length} players to match the number of removed players.`
+      );
       return;
     }
 
@@ -221,10 +262,12 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
       );
       if (updateEligiblePlayers.fulfilled.match(resultAction)) {
         dispatch(fetchDraftingPhase({ id: did }));
-        // toast.success("Seeding saved successfully!");
+        setRemovedPlayers([]); // Reset removed players after successful save
+        toast.success("Seeding saved successfully!");
       }
     } catch (error) {
       console.log("error", error);
+      toast.error("Failed to save seeding.");
     }
   };
 
@@ -274,6 +317,32 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
     });
   };
 
+  const getStatusColor = (status: any) => {
+    switch (status?.toLowerCase()) {
+      case "active":
+        return "bg-green-500/10 text-green-400 border-green-500/30";
+      case "pending":
+        return "bg-yellow-500/10 text-yellow-400 border-yellow-500/30";
+      case "completed":
+        return "bg-blue-500/10 text-blue-400 border-blue-500/30";
+      case "cancelled":
+        return "bg-red-500/10 text-red-400 border-red-500/30";
+      default:
+        return "bg-gray-500/10 text-gray-400 border-gray-500/30";
+    }
+  };
+
+  const formatStartTime = (startTime: any) => {
+    if (!startTime) return "TBD";
+    const date = new Date(startTime);
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   return (
     <Layout>
       <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-start items-center pt-3 pb-[2rem] border-b border-light-border">
@@ -308,7 +377,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
       {loading ? (
         <HandLogoLoader />
       ) : (
-        <div className="flex gap-3 min-h-screen bg-gray-900 text-white p-4">
+        <div className="flex gap-3  bg-gray-900 text-white p-4">
           <div className="max-w-4xl w-full">
             {/* Header */}
             <div className="bg-gray-800 rounded-lg p-4 mb-6">
@@ -320,13 +389,22 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                   <button
                     onClick={() => setShowBulkModal(true)}
                     className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors text-sm"
-                    disabled={filteredPlayers.length === 0}
+                    disabled={
+                      filteredPlayers.length === 0 ||
+                      removedPlayers.length === 0
+                    }
                   >
                     <Plus size={16} />
                     <span>Add</span>
                   </button>
                 </div>
               </div>
+              {removedPlayers.length > 0 && (
+                <div className="mt-4 text-sm text-yellow-400">
+                  {removedPlayers.length} player(s) removed. Please select{" "}
+                  {removedPlayers.length} player(s) to add.
+                </div>
+              )}
             </div>
 
             {/* Seeding Table */}
@@ -455,13 +533,82 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                 onClick={handleSaveChanges}
                 className="px-8 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 rounded-lg font-medium transition-colors"
                 disabled={
-                  data?.captain?.length > 0 || data?.otherPlayers?.length > 0
-                    ? true
-                    : false
+                  data?.captain?.length > 0 ||
+                  data?.otherPlayers?.length > 0 ||
+                  selectedPlayers.length !== removedPlayers.length
                 }
               >
                 Save Changes
               </button>
+            </div>
+          </div>
+          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 max-w-4xl w-full">
+            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+              <Trophy className="text-yellow-400" size={20} />
+              Draft Information
+            </h3>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50 hover:border-green-500/30 transition-colors">
+                <div className="flex items-center gap-3 mb-2">
+                  <Target className="text-green-400" size={18} />
+                  <span className="text-gray-400 text-sm font-medium">
+                    Status
+                  </span>
+                </div>
+                <span
+                  className={`inline-flex px-3 py-1 rounded-full text-sm font-semibold border ${getStatusColor(
+                    data?.status
+                  )}`}
+                >
+                  {data?.status}
+                </span>
+              </div>
+
+              <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50 hover:border-purple-500/30 transition-colors">
+                <div className="flex items-center gap-3 mb-2">
+                  <Users className="text-purple-400" size={18} />
+                  <span className="text-gray-400 text-sm font-medium">
+                    Players
+                  </span>
+                </div>
+                <span className="text-xl font-bold text-white">
+                  {data?.totalPlayers}
+                </span>
+              </div>
+
+              <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50 hover:border-orange-500/30 transition-colors">
+                <div className="flex items-center gap-3 mb-2">
+                  <Trophy className="text-orange-400" size={18} />
+                  <span className="text-gray-400 text-sm font-medium">
+                    Teams
+                  </span>
+                </div>
+                <span className="text-xl font-bold text-white">
+                  {data?.totalTeams}
+                </span>
+              </div>
+
+              <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50 hover:border-indigo-500/30 transition-colors col-span-2 lg:col-span-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <Calendar className="text-indigo-400" size={18} />
+                  <span className="text-gray-400 text-sm font-medium">
+                    Start Time
+                  </span>
+                </div>
+                <span className="text-lg font-bold text-white">
+                  {moment(data?.startTime).format("MMMM Do YYYY, h:mm:ss a")}
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-gray-700/50">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-gray-400">Players per Team</span>
+                <span className="text-white font-medium">
+                  ~{Math.round(data?.totalPlayers / data?.totalTeams)}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -574,33 +721,15 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                     <label className="flex items-center gap-3 cursor-pointer">
                       <input
                         type="checkbox"
-                        // checked={
-                        //   selectedPlayers.length === filteredPlayers.length &&
-                        //   filteredPlayers.length > 0
-                        // }
                         checked={
-                          selectedPlayers.length ===
-                            Math.min(
-                              filteredPlayers.length,
-                              state?.draftPlayer
-                            ) && filteredPlayers.length > 0
+                          selectedPlayers.length === removedPlayers.length &&
+                          removedPlayers.length > 0
                         }
-                        // onChange={(e) => {
-                        //   if (e.target.checked) {
-                        //     setSelectedPlayers(
-                        //       filteredPlayers.map((p) => p.id)
-                        //     );
-                        //   } else {
-                        //     setSelectedPlayers([]);
-                        //   }
-                        // }}
-
                         onChange={(e) => {
                           if (e.target.checked) {
-                            const draftLimit = state?.draftPlayer; // Default to 25 if undefined
                             setSelectedPlayers(
                               filteredPlayers
-                                .slice(0, draftLimit)
+                                .slice(0, removedPlayers.length)
                                 .map((p) => p.id)
                             );
                           } else {
@@ -610,7 +739,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                         className="w-5 h-5 text-blue-500 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2 transition-colors"
                       />
                       <span className="text-sm font-medium text-white">
-                        {`Select Top ${state?.draftPlayer} Players`}
+                        {`Select ${removedPlayers.length} Players`}
                       </span>
                     </label>
                   </div>
@@ -654,8 +783,8 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                 </div>
                 <div className="p-5 border-t border-gray-700 flex justify-between items-center">
                   <span className="text-sm text-gray-400">
-                    {selectedPlayers.length} selected / {filteredPlayers.length}{" "}
-                    available
+                    {selectedPlayers.length} selected / {removedPlayers.length}{" "}
+                    required
                   </span>
                   <div className="flex gap-3">
                     <button
@@ -666,7 +795,9 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                     </button>
                     <button
                       onClick={handleBulkAdd}
-                      disabled={selectedPlayers.length === 0}
+                      disabled={
+                        selectedPlayers.length !== removedPlayers.length
+                      }
                       className="px-5 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
                     >
                       Add
