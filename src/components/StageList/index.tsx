@@ -30,17 +30,16 @@ import { Match } from "../../app/types";
 import ChangeTimeModal from "./ChangeTimeModal";
 import RoundTimeChangeModal from "./RoundTimeChangeModal";
 import { checkboxOptions, formatDate } from "../../utils/constant";
-import { CirclePlus, CirclePlusIcon, Clock, Settings } from "lucide-react";
+import { CirclePlusIcon, Clock, Settings } from "lucide-react";
 import { fetchStageRound } from "../../app/features/tournament/stageRoundSlice";
 import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
-import topArrow from "../../assets/images/nf_top-arrow.svg";
-import downArrow from "../../assets/images/nf_bottom-arrow.svg";
+import prime_hover from "../../assets/images/prime_hover.png";
 import { fetchStageGroup } from "../../app/features/tournament/stageGroupSlice";
 import {
   fetchBattleRoyalScores,
   putBattleRoyalScores,
 } from "../../app/features/tournament/battleRoyalScoresSlice";
-import toast from "react-hot-toast";
+
 import Scoreboard from "./Scoreboard";
 import MultipleMatchTimeChangeModal from "./MultipleMatchTimeChangeModal";
 
@@ -426,17 +425,17 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
       endTime: values.endDate,
     };
     try {
-    const resultAction =  await dispatch(updateTime(payload));
-    if(updateTime.fulfilled.match(resultAction)){
-      dispatch(
-        fetchTournamentMatches({
-          stageId: selectedStage,
-          status: selectedStatus,
-        })
-      );
-    }
+      const resultAction = await dispatch(updateTime(payload));
+      if (updateTime.fulfilled.match(resultAction)) {
+        dispatch(
+          fetchTournamentMatches({
+            stageId: selectedStage,
+            status: selectedStatus,
+          })
+        );
+      }
     } catch (err) {
-      console.log("err",err);
+      console.log("err", err);
       // toast.error("Failed to update match times. Please try again.");
     }
   };
@@ -790,41 +789,59 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                 <div className="grid grid-cols-3">
                                   <div className="col-4">
                                     <div className="nf_stage-content">
-                                      <div className="nf_stage-img">
-                                        {val?.opponent1?.team?.logoImage ||
-                                        val?.opponent1?.user?.profilePicture ? (
-                                          <img
-                                            className=""
-                                            height=""
-                                            width=""
-                                            src={`${baseURL}/api/v1/${
-                                              val?.opponent1?.team
-                                                ? val?.opponent1?.team
-                                                    ?.logoImage
-                                                : val?.opponent1?.user
-                                                    ?.profilePicture
-                                            }`}
-                                          />
-                                        ) : (
-                                          <div
-                                            className="bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold"
-                                            style={{
-                                              width: "4vw",
-                                              height: "4vw",
-                                            }}
-                                          >
-                                            {val?.opponent1?.team
-                                              ? val?.opponent1?.team
-                                                  ?.teamShortName
-                                              : val?.opponent1?.user?.username}
+                                      {val?.opponent1 ? (
+                                        <>
+                                          <div className="nf_stage-img">
+                                            {val?.opponent1?.team?.logoImage ||
+                                            val?.opponent1?.user
+                                              ?.profilePicture ? (
+                                              <img
+                                                className=""
+                                                height=""
+                                                width=""
+                                                src={`${baseURL}/api/v1/${
+                                                  val?.opponent1?.team
+                                                    ? val?.opponent1?.team
+                                                        ?.logoImage
+                                                    : val?.opponent1?.user
+                                                        ?.profilePicture
+                                                }`}
+                                              />
+                                            ) : (
+                                              <div
+                                                className="bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold"
+                                                style={{
+                                                  width: "4vw",
+                                                  height: "4vw",
+                                                }}
+                                              >
+                                                {val?.opponent1?.team
+                                                  ? val?.opponent1?.team
+                                                      ?.teamShortName
+                                                  : val?.opponent1?.user
+                                                      ?.username}
+                                              </div>
+                                            )}
                                           </div>
-                                        )}
-                                      </div>
-                                      <h3>
-                                        {val?.opponent1?.team
-                                          ? val?.opponent1?.team?.teamName
-                                          : val?.opponent1?.user?.username}
-                                      </h3>
+                                          <h3>
+                                            {val?.opponent1?.team
+                                              ? val?.opponent1?.team?.teamName
+                                              : val?.opponent1?.user?.username}
+                                          </h3>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <div className="nf_stage-img">
+                                            <img
+                                              className=""
+                                              height=""
+                                              width=""
+                                              src={prime_hover}
+                                            />
+                                          </div>
+                                          <h3>Team 1</h3>
+                                        </>
+                                      )}
                                     </div>
                                   </div>
                                   <div className="flex items-center justify-center">
@@ -880,44 +897,68 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                   </div>
                                   <div className="col-4">
                                     <div className="nf_stage-content">
-                                      <div className="nf_stage-img">
-                                        {val?.opponent2?.team?.logoImage ||
-                                        val?.opponent2?.user?.profilePicture ? (
-                                          <img
-                                            className=""
-                                            height=""
-                                            width=""
-                                            src={`${baseURL}/api/v1/${
-                                              val?.opponent2?.team?.logoImage ||
-                                              val?.opponent2?.user
-                                                ?.profilePicture
-                                            }`}
-                                            alt={
-                                              val?.opponent2?.team
-                                                ?.teamShortName ||
-                                              "Team/Opponent"
-                                            }
-                                          />
-                                        ) : (
-                                          <div
-                                            className="bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold"
-                                            style={{
-                                              width: "4vw",
-                                              height: "4vw",
-                                            }}
-                                          >
-                                            {val?.opponent2?.team
-                                              ? val?.opponent2?.team
-                                                  ?.teamShortName
-                                              : val?.opponent2?.user?.username}
+                                      {val?.opponent2 ? (
+                                        <>
+                                          <div className="nf_stage-img">
+                                            {val?.opponent2?.team?.logoImage ||
+                                            val?.opponent2?.user
+                                              ?.profilePicture ? (
+                                              <img
+                                                className=""
+                                                height=""
+                                                width=""
+                                                src={`${baseURL}/api/v1/${
+                                                  val?.opponent2?.team
+                                                    ?.logoImage ||
+                                                  val?.opponent2?.user
+                                                    ?.profilePicture
+                                                }`}
+                                                alt={
+                                                  val?.opponent2?.team
+                                                    ?.teamShortName ||
+                                                  "Team/Opponent"
+                                                }
+                                              />
+                                            ) : (
+                                              <div
+                                                className="bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold"
+                                                style={{
+                                                  width: "4vw",
+                                                  height: "4vw",
+                                                }}
+                                              >
+                                                {val?.opponent2?.team
+                                                  ? val?.opponent2?.team
+                                                      ?.teamShortName
+                                                  : val?.opponent2?.user
+                                                      ?.username}
+                                              </div>
+                                            )}
                                           </div>
-                                        )}
-                                      </div>
-                                      <h3>
-                                        {val?.opponent2?.team
-                                          ? val?.opponent2?.team?.teamName
-                                          : val?.opponent2?.user?.username}
-                                      </h3>
+                                          <h3>
+                                            {val?.opponent2?.team
+                                              ? val?.opponent2?.team?.teamName
+                                              : val?.opponent2?.user?.username}
+                                          </h3>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <div className="nf_stage-img">
+                                            <img
+                                              className=""
+                                              height=""
+                                              width=""
+                                              src={prime_hover}
+                                              alt={
+                                                val?.opponent2?.team
+                                                  ?.teamShortName ||
+                                                "Team/Opponent"
+                                              }
+                                            />
+                                          </div>
+                                          <h3>Team 2</h3>
+                                        </>
+                                      )}
                                     </div>
                                   </div>
                                 </div>
