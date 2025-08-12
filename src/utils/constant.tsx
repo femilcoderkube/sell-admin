@@ -62,3 +62,16 @@ export function getWinnerTeamName(matchData: any) {
   const winnerTeam = matchData[winner]; // Access the winner's object dynamically
   return winnerTeam?.team?.teamName; // Return the teamName from the team sub-object
 }
+
+export function expandPositions(data: any) {
+  return data.flatMap((item: any) => {
+    if (typeof item.position === "string" && item.position.includes("-")) {
+      const [start, end] = item.position.split("-").map(Number);
+      return Array.from({ length: end - start + 1 }, (_, i) => ({
+        position: start + i, // integer
+        point: item.point,
+      }));
+    }
+    return { ...item, position: Number(item.position) };
+  });
+}

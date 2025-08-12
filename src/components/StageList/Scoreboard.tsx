@@ -2,6 +2,7 @@ import React from "react";
 
 import topArrow from "../../assets/images/nf_top-arrow.svg";
 import downArrow from "../../assets/images/nf_bottom-arrow.svg";
+import { expandPositions } from "../../utils/constant";
 const Scoreboard = ({ localScores, setLocalScores, scoreSettings }: any) => {
   // Function to calculate total points
   const calculateTotalPoints = (placement: any, kills: any) => {
@@ -10,10 +11,12 @@ const Scoreboard = ({ localScores, setLocalScores, scoreSettings }: any) => {
     // Calculate Kill Score
     const killScore = kills * (scoreSettings.killPoints || 0);
 
+    const result = expandPositions(scoreSettings?.placePoints);
+
     // Calculate Placement Score
     let placementScore = 0;
-    if (scoreSettings.placePoints && Array.isArray(scoreSettings.placePoints)) {
-      const matchedPlacement = scoreSettings.placePoints.find(
+    if (result && Array.isArray(result)) {
+      const matchedPlacement = result.find(
         (point: any) => point.position === placement
       );
       placementScore = matchedPlacement ? matchedPlacement.point : 0;
