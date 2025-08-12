@@ -21,6 +21,7 @@ import {
   fetchTournamentMatches,
   resetMatches,
   updateStageRound,
+  updateTime,
   updateTournamentMatch,
 } from "../../app/features/tournament/tournamentMatchesSlice";
 import { baseURL } from "../../axios";
@@ -419,8 +420,13 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
     startDate: string;
     endDate: string;
   }) => {
+    const payload = {
+      matchIds: values.matchIds,
+      startDate: values.startDate,
+      endDate: values.endDate,
+    };
     try {
-      console.log("matchIds", values?.matchIds);
+      dispatch(updateTime(payload));
     } catch (err) {
       toast.error("Failed to update match times. Please try again.");
     }

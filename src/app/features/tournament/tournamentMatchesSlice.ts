@@ -47,6 +47,11 @@ interface UpdateTournamentMatchPayload {
   startTime: string;
   endTime: string;
 }
+interface UpdateTournamentMatchTimePayload {
+  matchIds: any;
+  startTime: string;
+  endTime: string;
+}
 
 export const fetchTournamentMatches = createAsyncThunk(
   "tournaments/fetchTournamentMatches",
@@ -226,6 +231,32 @@ export const updateTournamentMatch = createAsyncThunk(
     }
   }
 );
+export const updateTime = createAsyncThunk(
+  "tournaments/updateTime",
+  async (payload: UpdateTournamentMatchTimePayload, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.put(
+        `/TournamentMatch?id/update-time`,
+        {
+          matchIds: payload.matchIds,
+          startTime: payload.startTime,
+          endTime: payload.endTime,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data.data;
+    } catch (error: any) {
+      console.log("err updating tournament match", error);
+      return rejectWithValue(
+        error.response?.data?.message || "Error updating tournament match"
+      );
+    }
+  }
+);
 
 const tournamentMatchesSlice = createSlice({
   name: "tournamentMatches",
@@ -327,6 +358,20 @@ const tournamentMatchesSlice = createSlice({
         toast.success("Tournament match updated successfully!");
       })
       .addCase(updateTournamentMatch.rejected, (state, action) => {
+        state.matchesLoading = false;
+        state.matchesError = action.payload as string;
+        toast.error("Failed to update tournament match!");
+      })
+      .addCase(updateTime.pending, (state) => {
+        state.matchesLoading = true;
+        state.matchesError = null;
+      })
+      .addCase(updateTime.fulfilled, (state, action) => {
+        state.matchesLoading = false;
+        // Update the specific match in the state
+        toast.success("Tournament match Time updated successfully!");
+      })
+      .addCase(updateTime.rejected, (state, action) => {
         state.matchesLoading = false;
         state.matchesError = action.payload as string;
         toast.error("Failed to update tournament match!");
