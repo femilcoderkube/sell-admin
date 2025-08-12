@@ -672,7 +672,9 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
         <div className="relative float-label-input custom-input">
           <DatePicker
             selected={values.startDate ? new Date(values.startDate) : null}
-            onChange={(date: Date) => setFieldValue("startDate", date)}
+            onChange={(date: Date) =>
+              setFieldValue("startDate", date.toISOString())
+            }
             onBlur={() => setFieldTouched("startDate", true)}
             showTimeSelect
             timeFormat="h:mm aa"
@@ -707,7 +709,9 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
         <div className="relative float-label-input custom-input">
           <DatePicker
             selected={values.endDate ? new Date(values.endDate) : null}
-            onChange={(date: Date) => setFieldValue("endDate", date)}
+            onChange={(date: Date) =>
+              setFieldValue("endDate", date.toISOString())
+            }
             onBlur={() => setFieldTouched("endDate", true)}
             showTimeSelect
             timeFormat="h:mm aa"
@@ -1413,7 +1417,7 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                         onChange={(date: Date) =>
                           setFieldValue(
                             `timeLine[${index}].startDate`,
-                            date ? date : ""
+                            date ? date.toISOString() : ""
                           )
                         }
                         onBlur={() =>
@@ -1460,7 +1464,7 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                         onChange={(date: Date) =>
                           setFieldValue(
                             `timeLine[${index}].endDate`,
-                            date ? date : ""
+                            date ? date.toISOString() : ""
                           )
                         }
                         onBlur={() =>

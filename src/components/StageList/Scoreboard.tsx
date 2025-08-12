@@ -25,6 +25,19 @@ const Scoreboard = ({ localScores, setLocalScores, scoreSettings }: any) => {
     return placementScore + killScore;
   };
 
+  // Calculate placePoints based on placement
+  const calculatePlacePoints = (placement: any) => {
+    if (!scoreSettings || !scoreSettings.placePoints) return 0;
+    const result = expandPositions(scoreSettings.placePoints);
+    if (result && Array.isArray(result)) {
+      const matchedPlacement = result.find(
+        (point: any) => point.position === placement
+      );
+      return matchedPlacement ? matchedPlacement.point * placement : 0;
+    }
+    return 0;
+  };
+
   // Handle input change for placement or kills
   const handleInputChange = (index: any, field: any, value: any) => {
     setLocalScores((prevScores: any) =>
@@ -32,10 +45,10 @@ const Scoreboard = ({ localScores, setLocalScores, scoreSettings }: any) => {
         i === index
           ? {
               ...score,
-              placePoints: field === "placement" ? value : score.placePoints,
+              placement: field === "placement" ? value : score.placement,
               killPoints: field === "kills" ? value : score.killPoints,
               totalPoints: calculateTotalPoints(
-                field === "placement" ? value : score.placePoints,
+                field === "placement" ? value : score.placement,
                 field === "kills" ? value : score.killPoints
               ),
             }
@@ -51,13 +64,11 @@ const Scoreboard = ({ localScores, setLocalScores, scoreSettings }: any) => {
         i === index
           ? {
               ...score,
-              [field === "placement" ? "placePoints" : "killPoints"]:
-                (field === "placement" ? score.placePoints : score.killPoints) +
+              [field === "placement" ? "placement" : "killPoints"]:
+                (field === "placement" ? score.placement : score.killPoints) +
                 1,
               totalPoints: calculateTotalPoints(
-                field === "placement"
-                  ? score.placePoints + 1
-                  : score.placePoints,
+                field === "placement" ? score.placement + 1 : score.placement,
                 field === "kills" ? score.killPoints + 1 : score.killPoints
               ),
             }
@@ -72,15 +83,14 @@ const Scoreboard = ({ localScores, setLocalScores, scoreSettings }: any) => {
         i === index
           ? {
               ...score,
-              [field === "placement" ? "placePoints" : "killPoints"]: Math.max(
+              [field === "placement" ? "placement" : "killPoints"]: Math.max(
                 0,
-                (field === "placement" ? score.placePoints : score.killPoints) -
-                  1
+                (field === "placement" ? score.placement : score.killPoints) - 1
               ),
               totalPoints: calculateTotalPoints(
                 field === "placement"
-                  ? Math.max(0, score.placePoints - 1)
-                  : score.placePoints,
+                  ? Math.max(0, score.placement - 1)
+                  : score.placement,
                 field === "kills"
                   ? Math.max(0, score.killPoints - 1)
                   : score.killPoints
@@ -161,7 +171,7 @@ const Scoreboard = ({ localScores, setLocalScores, scoreSettings }: any) => {
                         type="number"
                         min={0}
                         className="form-control placement_point w-16 p-1 border rounded"
-                        value={val?.placePoints || 0}
+                        value={val?.placement || 0}
                         onChange={(e) =>
                           handleInputChange(
                             val.originalIndex,
