@@ -2,7 +2,6 @@ import { FC, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Calendar,
-  Clock,
   Edit2,
   Plus,
   Search,
@@ -76,13 +75,12 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
   const [isSeedingListInitialized, setIsSeedingListInitialized] =
     useState(false);
   const { data } = useSelector((state: RootState) => state.draftingPhase);
-  console.log("data", data);
+
   const { state } = useLocation();
   const did = window.location.pathname.split("/")[5];
 
   // State for UI and data
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
-  const [removedPlayers, setRemovedPlayers] = useState<string[]>([]); // New state to track removed players
   const [showAddModal, setShowAddModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -162,54 +160,37 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
 
   // Handle bulk selection of players
   const handleBulkSelect = (playerId: string) => {
-    setSelectedPlayers((prev) => {
-      const newSelected = prev.includes(playerId)
+    setSelectedPlayers((prev) =>
+      prev.includes(playerId)
         ? prev.filter((id) => id !== playerId)
-        : [...prev, playerId];
-      // Ensure the number of selected players does not exceed removed players
-      if (newSelected.length > removedPlayers.length) {
-        toast.error(
-          `Cannot select more than ${removedPlayers.length} players. Remove more players first.`
-        );
-        return prev;
-      }
-      return newSelected;
-    });
+        : [...prev, playerId]
+    );
   };
 
   // Handle bulk addition of players to empty seeds with randomization
   const handleBulkAdd = () => {
-    // Check if the number of selected players equals the number of removed players
-    if (selectedPlayers.length !== removedPlayers.length) {
-      toast.error(
-        `You must select exactly ${removedPlayers.length} players to match the number of removed players.`
-      );
-      return;
-    }
-
     const emptySeeds = seedingList
       .filter((item) => !item.player)
       .map((item) => item.seed);
 
-    if (selectedPlayers.length > emptySeeds.length) {
+    const playersToAdd = selectedPlayers
+      .map((id) => playerDetails.find((p) => p.id === id))
+      .filter((player) => player !== undefined); // Filter out any undefined players
+
+    if (playersToAdd.length > emptySeeds.length) {
       toast.error(
-        `Cannot add ${selectedPlayers.length} players. Only ${emptySeeds.length} empty seeds available.`
+        `Cannot add ${playersToAdd.length} players. Only ${emptySeeds.length} empty seeds available.`
       );
       return;
     }
 
     setSeedingList((prev) => {
       const newList = [...prev];
-      const shuffledPlayers = shuffleArray(
-        selectedPlayers
-          .map((id) => playerDetails.find((p) => p.id === id))
-          .filter((player) => player !== undefined)
-      );
-
       let playerIndex = 0;
+
       for (const seed of emptySeeds) {
-        if (playerIndex < shuffledPlayers.length) {
-          const player = shuffledPlayers[playerIndex];
+        if (playerIndex < playersToAdd.length) {
+          const player = playersToAdd[playerIndex];
           const index = newList.findIndex((item) => item.seed === seed);
           newList[index].player = player;
           playerIndex++;
@@ -221,20 +202,16 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
 
     setSelectedPlayers([]);
     setShowBulkModal(false);
-    toast.success(`${selectedPlayers.length} players added to seeds randomly.`);
+    // toast.success(`${playersToAdd.length} players added to seeds randomly.`);
   };
 
   // Handle removing a player from a seed
   const handleRemovePlayer = (seed: number) => {
-    setSeedingList((prev) => {
-      const playerToRemove = prev.find((item) => item.seed === seed)?.player;
-      if (playerToRemove) {
-        setRemovedPlayers((prev) => [...prev, playerToRemove.id]);
-      }
-      return prev.map((item) =>
+    setSeedingList((prev) =>
+      prev.map((item) =>
         item.seed === seed ? { ...item, player: null } : item
-      );
-    });
+      )
+    );
   };
 
   // Handle saving changes
@@ -243,16 +220,8 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
       .filter((item) => item.player)
       .map((item) => item.player!.id);
 
-    if (seedIds.length !== state?.draftPlayer) {
-      toast.error(`You must select exactly ${state?.draftPlayer} players.`);
-      return;
-    }
-
-    // Ensure the number of selected players equals the number of removed players
-    if (selectedPlayers.length !== removedPlayers.length) {
-      toast.error(
-        `You must select exactly ${removedPlayers.length} players to match the number of removed players.`
-      );
+    if (seedIds?.length !== state?.draftPlayer) {
+      toast.error(`You must select at least ${state?.draftPlayer} players.`);
       return;
     }
 
@@ -262,12 +231,10 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
       );
       if (updateEligiblePlayers.fulfilled.match(resultAction)) {
         dispatch(fetchDraftingPhase({ id: did }));
-        setRemovedPlayers([]); // Reset removed players after successful save
-        toast.success("Seeding saved successfully!");
+        // toast.success("Seeding saved successfully!");
       }
     } catch (error) {
       console.log("error", error);
-      toast.error("Failed to save seeding.");
     }
   };
 
@@ -316,7 +283,6 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
       return newList;
     });
   };
-
   const getStatusColor = (status: any) => {
     switch (status?.toLowerCase()) {
       case "active":
@@ -331,18 +297,6 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
         return "bg-gray-500/10 text-gray-400 border-gray-500/30";
     }
   };
-
-  const formatStartTime = (startTime: any) => {
-    if (!startTime) return "TBD";
-    const date = new Date(startTime);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   return (
     <Layout>
       <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-start items-center pt-3 pb-[2rem] border-b border-light-border">
@@ -377,7 +331,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
       {loading ? (
         <HandLogoLoader />
       ) : (
-        <div className="flex gap-3  bg-gray-900 text-white p-4">
+        <div className="flex gap-3 min-h-screen bg-gray-900 text-white p-4">
           <div className="max-w-4xl w-full">
             {/* Header */}
             <div className="bg-gray-800 rounded-lg p-4 mb-6">
@@ -389,22 +343,13 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                   <button
                     onClick={() => setShowBulkModal(true)}
                     className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors text-sm"
-                    disabled={
-                      filteredPlayers.length === 0 ||
-                      removedPlayers.length === 0
-                    }
+                    disabled={filteredPlayers.length === 0}
                   >
                     <Plus size={16} />
                     <span>Add</span>
                   </button>
                 </div>
               </div>
-              {removedPlayers.length > 0 && (
-                <div className="mt-4 text-sm text-yellow-400">
-                  {removedPlayers.length} player(s) removed. Please select{" "}
-                  {removedPlayers.length} player(s) to add.
-                </div>
-              )}
             </div>
 
             {/* Seeding Table */}
@@ -533,9 +478,9 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                 onClick={handleSaveChanges}
                 className="px-8 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 rounded-lg font-medium transition-colors"
                 disabled={
-                  data?.captain?.length > 0 ||
-                  data?.otherPlayers?.length > 0 ||
-                  selectedPlayers.length !== removedPlayers.length
+                  data?.captain?.length > 0 || data?.otherPlayers?.length > 0
+                    ? true
+                    : false
                 }
               >
                 Save Changes
@@ -721,15 +666,33 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                     <label className="flex items-center gap-3 cursor-pointer">
                       <input
                         type="checkbox"
+                        // checked={
+                        //   selectedPlayers.length === filteredPlayers.length &&
+                        //   filteredPlayers.length > 0
+                        // }
                         checked={
-                          selectedPlayers.length === removedPlayers.length &&
-                          removedPlayers.length > 0
+                          selectedPlayers.length ===
+                            Math.min(
+                              filteredPlayers.length,
+                              state?.draftPlayer
+                            ) && filteredPlayers.length > 0
                         }
+                        // onChange={(e) => {
+                        //   if (e.target.checked) {
+                        //     setSelectedPlayers(
+                        //       filteredPlayers.map((p) => p.id)
+                        //     );
+                        //   } else {
+                        //     setSelectedPlayers([]);
+                        //   }
+                        // }}
+
                         onChange={(e) => {
                           if (e.target.checked) {
+                            const draftLimit = state?.draftPlayer; // Default to 25 if undefined
                             setSelectedPlayers(
                               filteredPlayers
-                                .slice(0, removedPlayers.length)
+                                .slice(0, draftLimit)
                                 .map((p) => p.id)
                             );
                           } else {
@@ -739,7 +702,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                         className="w-5 h-5 text-blue-500 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2 transition-colors"
                       />
                       <span className="text-sm font-medium text-white">
-                        {`Select ${removedPlayers.length} Players`}
+                        {`Select Top ${state?.draftPlayer} Players`}
                       </span>
                     </label>
                   </div>
@@ -783,8 +746,8 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                 </div>
                 <div className="p-5 border-t border-gray-700 flex justify-between items-center">
                   <span className="text-sm text-gray-400">
-                    {selectedPlayers.length} selected / {removedPlayers.length}{" "}
-                    required
+                    {selectedPlayers.length} selected / {filteredPlayers.length}{" "}
+                    available
                   </span>
                   <div className="flex gap-3">
                     <button
@@ -795,9 +758,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                     </button>
                     <button
                       onClick={handleBulkAdd}
-                      disabled={
-                        selectedPlayers.length !== removedPlayers.length
-                      }
+                      disabled={selectedPlayers.length === 0}
                       className="px-5 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
                     >
                       Add
