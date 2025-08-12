@@ -94,7 +94,7 @@ ul.submenu {
 }
 
 [type="checkbox"]:checked {
-  background-position: center 0.5rem;
+  background-position: center;
   background-size: 0.625rem;
 }
 

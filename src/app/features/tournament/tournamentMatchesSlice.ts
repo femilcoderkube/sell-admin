@@ -236,6 +236,8 @@ const tournamentMatchesSlice = createSlice({
     matchesError: null,
     roundsLoading: false,
     roundsError: null,
+    allmatchesLoading: false,
+    allmatchesError: null,
     singleMatch: undefined,
   } as TournamentState, // Extend TournamentState if needed
   reducers: {
@@ -261,17 +263,17 @@ const tournamentMatchesSlice = createSlice({
         // toast.error("Failed to fetch tournament matches!");
       })
       .addCase(fetchTournamentAllMatches.pending, (state) => {
-        state.matchesLoading = true;
-        state.matchesError = null;
+        state.allmatchesLoading = true;
+        state.allmatchesError = null;
       })
       .addCase(fetchTournamentAllMatches.fulfilled, (state, action) => {
-        state.matchesLoading = false;
+        state.allmatchesLoading = false;
         state.allmatches = action.payload.result; // Assuming API returns array of matches
         // toast.success("Tournament matches fetched successfully!");
       })
       .addCase(fetchTournamentAllMatches.rejected, (state, action) => {
-        state.matchesLoading = false;
-        state.matchesError = action.payload as string;
+        state.allmatchesLoading = false;
+        state.allmatchesError = action.payload as string;
         // toast.error("Failed to fetch tournament matches!");
       })
       .addCase(addScore.pending, (state) => {
