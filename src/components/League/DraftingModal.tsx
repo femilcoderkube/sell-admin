@@ -118,7 +118,7 @@ export const DraftingModal: React.FC<DraftingModalProps> = ({
         <div className="relative bg-dark-blue rounded-lg shadow-sm dark:bg-gray-700 flex flex-col">
           <div className="relative p-4 md:p-5 border-b rounded-t border-light-border">
             <h3 className="text-[1.5rem] font-semibold text-white text-center">
-              Add Drafting Phase
+              Drafting Phase
             </h3>
             <button
               type="button"
@@ -285,7 +285,7 @@ export const DraftingModal: React.FC<DraftingModalProps> = ({
                 formik.isSubmitting ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
-              {formik.isSubmitting ? "Processing..." : "Add Drafting Phase"}
+              {formik.isSubmitting ? "Processing..." : "Submit"}
             </button>
           </div>
         </div>
