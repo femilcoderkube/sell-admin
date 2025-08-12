@@ -23,6 +23,7 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 // import { convertSchedule } from "../../utils/constant";
 import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
+import { setLocalZone, setOtherZone } from "../../utils/constant";
 
 // Type Definitions
 interface Winner {
@@ -671,9 +672,13 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
       <div className="grid grid-cols-2 gap-3 mb-4">
         <div className="relative float-label-input custom-input">
           <DatePicker
-            selected={values.startDate ? new Date(values.startDate) : null}
+            selected={
+              values.startDate
+                ? setLocalZone(new Date(values.startDate), "Asia/Riyadh")
+                : null
+            }
             onChange={(date: Date) =>
-              setFieldValue("startDate", date.toISOString())
+              setFieldValue("startDate", setOtherZone(date, "Asia/Riyadh"))
             }
             onBlur={() => setFieldTouched("startDate", true)}
             showTimeSelect
@@ -708,9 +713,13 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
         </div>
         <div className="relative float-label-input custom-input">
           <DatePicker
-            selected={values.endDate ? new Date(values.endDate) : null}
+            selected={
+              values.endDate
+                ? setLocalZone(new Date(values.endDate), "Asia/Riyadh")
+                : null
+            }
             onChange={(date: Date) =>
-              setFieldValue("endDate", date.toISOString())
+              setFieldValue("endDate", setOtherZone(date, "Asia/Riyadh"))
             }
             onBlur={() => setFieldTouched("endDate", true)}
             showTimeSelect

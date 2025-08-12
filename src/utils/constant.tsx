@@ -75,3 +75,21 @@ export function expandPositions(data: any) {
     return { ...item, position: Number(item.position) };
   });
 }
+
+export const setLocalZone = (date: Date, timezone: string) => {
+  const dateWithoutZone = moment
+    .tz(date, timezone)
+    .format("YYYY-MM-DDTHH:mm:ss.SSS");
+  const localZone = moment(dateWithoutZone).format("Z");
+  const dateWithLocalZone = [dateWithoutZone, localZone].join("");
+
+  return new Date(dateWithLocalZone);
+};
+
+export const setOtherZone = (date: Date, timezone: string) => {
+  const dateWithoutZone = moment(date).format("YYYY-MM-DDTHH:mm:ss.SSS");
+  const otherZone = moment.tz(date, timezone).format("Z");
+  const dateWithOtherZone = [dateWithoutZone, otherZone].join("");
+
+  return new Date(dateWithOtherZone);
+};
