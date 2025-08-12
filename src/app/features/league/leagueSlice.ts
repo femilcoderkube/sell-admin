@@ -257,28 +257,28 @@ export const addLeague = createAsyncThunk(
   "leagues/addLeague",
   async (league: any, { rejectWithValue }) => {
     try {
-      if (Array.isArray(league?.timeLine)) {
-        league.timeLine = league.timeLine.map((item: any) => {
-          const newItem = { ...item };
-          if (newItem.startDate) {
-            newItem.startDate = moment(newItem.startDate)
-              .tz("Asia/Riyadh")
-              .format();
-          }
-          if (newItem.endDate) {
-            newItem.endDate = moment(newItem.endDate)
-              .tz("Asia/Riyadh")
-              .format();
-          }
-          return newItem;
-        });
-      }
-      if (league?.startDate) {
-        league.startDate = moment(league.startDate).tz("Asia/Riyadh").format();
-      }
-      if (league?.endDate) {
-        league.endDate = moment(league.endDate).tz("Asia/Riyadh").format();
-      }
+      // if (Array.isArray(league?.timeLine)) {
+      //   league.timeLine = league.timeLine.map((item: any) => {
+      //     const newItem = { ...item };
+      //     if (newItem.startDate) {
+      //       newItem.startDate = moment(newItem.startDate)
+      //         .tz("Asia/Riyadh")
+      //         .format();
+      //     }
+      //     if (newItem.endDate) {
+      //       newItem.endDate = moment(newItem.endDate)
+      //         .tz("Asia/Riyadh")
+      //         .format();
+      //     }
+      //     return newItem;
+      //   });
+      // }
+      // if (league?.startDate) {
+      //   league.startDate = moment(league.startDate).tz("Asia/Riyadh").format();
+      // }
+      // if (league?.endDate) {
+      //   league.endDate = moment(league.endDate).tz("Asia/Riyadh").format();
+      // }
 
       const response = await axiosInstance.post("/Leagues", league, {
         headers: {
@@ -458,7 +458,7 @@ export const adoptLeagueMatchScore = createAsyncThunk(
 
 export const generateExcelFile = createAsyncThunk(
   "leagues/generateExcelFile", // Fixed typo and more descriptive name
-  async ({ lid, tab }: { lid: string, tab: string }, { rejectWithValue }) => {
+  async ({ lid, tab }: { lid: string; tab: string }, { rejectWithValue }) => {
     try {
       let endpoint = "";
       if (tab === "participant") {
@@ -472,11 +472,13 @@ export const generateExcelFile = createAsyncThunk(
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         },
         responseType: "blob",
-      }
-      );
+      });
       const blob = response.data;
       const contentDisposition = response.headers["content-disposition"];
-      let filename = tab === "participant" ? "participants export.xlsx" : "matches export.xlsx";
+      let filename =
+        tab === "participant"
+          ? "participants export.xlsx"
+          : "matches export.xlsx";
       if (contentDisposition) {
         const match = contentDisposition.match(
           /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
