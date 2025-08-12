@@ -839,7 +839,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                               src={prime_hover}
                                             />
                                           </div>
-                                          <h3>Team 1</h3>
+                                          <h3>TBD</h3>
                                         </>
                                       )}
                                     </div>
@@ -956,7 +956,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                               }
                                             />
                                           </div>
-                                          <h3>Team 2</h3>
+                                          <h3>TBD</h3>
                                         </>
                                       )}
                                     </div>
