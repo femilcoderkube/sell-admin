@@ -62,6 +62,18 @@ export const fetchDraftingPhase = createAsyncThunk(
   }
 );
 
+export const updateDraftpublish = createAsyncThunk(
+  "eligiblePlayers/updateDraftpublish",
+  async ({ id }: { id: string }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.put(`/DraftingPhase/${id}/publish`);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || "Error updating");
+    }
+  }
+);
+
 const draftingPhaseSlice = createSlice({
   name: "draftingPhase",
   initialState,
@@ -93,6 +105,20 @@ const draftingPhaseSlice = createSlice({
         state.data = action.payload.data;
       })
       .addCase(fetchDraftingPhase.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        toast.error(action.payload as string);
+      })
+      .addCase(updateDraftpublish.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        toast.success("Drafting phase publish successfully!");
+      })
+      .addCase(updateDraftpublish.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(updateDraftpublish.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
         toast.error(action.payload as string);

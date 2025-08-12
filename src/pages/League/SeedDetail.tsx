@@ -20,7 +20,10 @@ import { Layout } from "../../components/layout";
 import toast from "react-hot-toast";
 import HandLogoLoader from "../../components/Loader/Loader";
 import { baseURL } from "../../axios";
-import { fetchDraftingPhase } from "../../app/features/draftingPhase/draftingPhaseSlice";
+import {
+  fetchDraftingPhase,
+  updateDraftpublish,
+} from "../../app/features/draftingPhase/draftingPhaseSlice";
 import moment from "moment-timezone";
 
 interface EligiblePlayer {
@@ -232,6 +235,17 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
       if (updateEligiblePlayers.fulfilled.match(resultAction)) {
         dispatch(fetchDraftingPhase({ id: did }));
         // toast.success("Seeding saved successfully!");
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+  const handleChanges = async () => {
+    try {
+      const resultAction = await dispatch(updateDraftpublish({ id: did }));
+      if (updateDraftpublish.fulfilled.match(resultAction)) {
+        dispatch(fetchDraftingPhase({ id: did }));
       }
     } catch (error) {
       console.log("error", error);
@@ -472,19 +486,30 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
               </div>
             </div>
 
-            {/* Save Button */}
-            <div className="mt-6 text-center">
-              <button
-                onClick={handleSaveChanges}
-                className="px-8 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 rounded-lg font-medium transition-colors"
-                disabled={
-                  data?.captain?.length > 0 || data?.otherPlayers?.length > 0
-                    ? true
-                    : false
-                }
-              >
-                Save Changes
-              </button>
+            <div className="flex items-center justify-evenly">
+              {/* Save Button */}
+              <div className="mt-6 text-center">
+                <button
+                  onClick={handleSaveChanges}
+                  className="px-8 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 rounded-lg font-medium transition-colors"
+                  disabled={
+                    data?.captain?.length > 0 || data?.otherPlayers?.length > 0
+                      ? true
+                      : false
+                  }
+                >
+                  Save Changes
+                </button>
+              </div>
+              <div className="mt-6 text-center">
+                <button
+                  onClick={handleChanges}
+                  className="px-8 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 rounded-lg font-medium transition-colors"
+                  disabled={data?.isPublished}
+                >
+                  Publish
+                </button>
+              </div>
             </div>
           </div>
           <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 max-w-4xl w-full">
