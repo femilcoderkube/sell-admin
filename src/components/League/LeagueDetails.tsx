@@ -30,7 +30,7 @@ import edit from "../../assets/images/Edit.svg";
 import ParticipantsEditModel from "./ParticipantsEditModel";
 import toast from "react-hot-toast";
 import DraftingModal from "./DraftingModal";
-import { CircleChevronRight } from "lucide-react";
+import { CircleChevronRight, Edit } from "lucide-react";
 
 const LeagueDetails: React.FC = () => {
   const statusOptions = [
@@ -40,6 +40,7 @@ const LeagueDetails: React.FC = () => {
     "canceled",
     "in_dispute",
   ];
+  const currentDate = new Date();
 
   const ticketOptions = ["all", "open", "closed"];
   const { lid } = useParams<{ lid: string }>();
@@ -466,7 +467,8 @@ const LeagueDetails: React.FC = () => {
             <button
               className="group relative flex items-center justify-between bg-gray-900/50 border border-gray-700/60 rounded-xl px-4 py-3 hover:border-blue-500/50 hover:bg-gray-800/60 transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={new Date(leagueDetail?.endDate) > new Date()}
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 if (leagueDetail?.draft?.status === "active") {
                   navigate(
                     `/${partnerId}/leagues/${lid}/seed/${leagueDetail?.draft?._id}`,
@@ -500,11 +502,24 @@ const LeagueDetails: React.FC = () => {
                   </span>
                 </div>
               </div>
-              {leagueDetail?.draft?.status === "active" && (
-                <div className="flex items-center justify-center p-1.5 bg-gray-700/30 rounded-lg transition-transform duration-300 group-hover:translate-x-1">
-                  <CircleChevronRight color="#FFFFFF" />
-                </div>
-              )}
+              <div className="flex gap-2">
+                {leagueDetail?.draft?.status === "active" && (
+                  <div className="flex items-center justify-center p-1.5 bg-gray-700/30 rounded-lg transition-transform duration-300 group-hover:translate-x-1">
+                    <CircleChevronRight color="#FFFFFF" />
+                  </div>
+                )}
+                {new Date(leagueDetail?.draft?.startTime) > currentDate && (
+                  <button
+                    className="flex items-center justify-center p-1.5 bg-gray-700/30 rounded-lg transition-transform duration-300 group-hover:translate-x-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDraftingModal(true);
+                    }}
+                  >
+                    <Edit color="#FFFFFF" />
+                  </button>
+                )}
+              </div>
             </button>
           </div>
         </div>

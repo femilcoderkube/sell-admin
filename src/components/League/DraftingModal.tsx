@@ -54,10 +54,10 @@ export const DraftingModal: React.FC<DraftingModalProps> = ({
 
   const formik = useFormik({
     initialValues: {
-      totalTeams: 5,
-      totalPlayers: 25,
-      startTime: new Date() as Date | null,
-      pickTimeSeconds: 60,
+      totalTeams: null,
+      totalPlayers: null,
+      startTime: null as Date | null,
+      pickTimeSeconds: null,
     },
     validationSchema: draftingSchema,
     onSubmit: async (values, { resetForm, setSubmitting }) => {

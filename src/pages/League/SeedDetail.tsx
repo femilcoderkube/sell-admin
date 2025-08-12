@@ -75,6 +75,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
   const { eligiblePlayers, loading, error } = useSelector(
     (state: RootState) => state.eligiblePlayers
   );
+  const currentDate = new Date();
   const [isSeedingListInitialized, setIsSeedingListInitialized] =
     useState(false);
   const { data } = useSelector((state: RootState) => state.draftingPhase);
@@ -493,9 +494,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                   onClick={handleSaveChanges}
                   className="px-8 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 rounded-lg font-medium transition-colors"
                   disabled={
-                    data?.captain?.length > 0 || data?.otherPlayers?.length > 0
-                      ? true
-                      : false
+                    new Date(data?.startTime) > currentDate ? true : false
                   }
                 >
                   Save Changes
@@ -504,7 +503,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
               <div className="mt-6 text-center">
                 <button
                   onClick={handleChanges}
-                  className="px-8 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 rounded-lg font-medium transition-colors"
+                  className="px-8 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 rounded-lg font-medium transition-colors"
                   disabled={data?.isPublished}
                 >
                   Publish
