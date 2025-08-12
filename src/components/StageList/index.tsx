@@ -422,13 +422,22 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
   }) => {
     const payload = {
       matchIds: values.matchIds,
-      startDate: values.startDate,
-      endDate: values.endDate,
+      startTime: values.startDate,
+      endTime: values.endDate,
     };
     try {
-      dispatch(updateTime(payload));
+    const resultAction =  await dispatch(updateTime(payload));
+    if(updateTime.fulfilled.match(resultAction)){
+      dispatch(
+        fetchTournamentMatches({
+          stageId: selectedStage,
+          status: selectedStatus,
+        })
+      );
+    }
     } catch (err) {
-      toast.error("Failed to update match times. Please try again.");
+      console.log("err",err);
+      // toast.error("Failed to update match times. Please try again.");
     }
   };
 

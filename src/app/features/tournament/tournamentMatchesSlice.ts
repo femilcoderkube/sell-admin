@@ -236,7 +236,7 @@ export const updateTime = createAsyncThunk(
   async (payload: UpdateTournamentMatchTimePayload, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.put(
-        `/TournamentMatch?id/update-time`,
+        `/TournamentMatch/update-time`,
         {
           matchIds: payload.matchIds,
           startTime: payload.startTime,
