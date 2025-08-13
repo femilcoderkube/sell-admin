@@ -8,6 +8,7 @@ import { Match } from "../../app/types";
 import { fetchTournamentAllMatches } from "../../app/features/tournament/tournamentMatchesSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../app/store";
+import { setLocalZone, setOtherZone } from "../../utils/constant";
 
 interface MultipleMatchTimeChangeModalProps {
   show: boolean;
@@ -99,8 +100,9 @@ const MultipleMatchTimeChangeModal: React.FC<
     <div
       id="multiple-match-time-modal"
       aria-hidden={!show}
-      className={`fixed top-0 left-0 right-0 z-50 flex justify-center items-center w-full h-screen bg-black bg-opacity-50 transition-opacity ${show ? "opacity-100 visible" : "opacity-0 invisible"
-        }`}
+      className={`fixed top-0 left-0 right-0 z-50 flex justify-center items-center w-full h-screen bg-black bg-opacity-50 transition-opacity ${
+        show ? "opacity-100 visible" : "opacity-0 invisible"
+      }`}
     >
       <style>{`
         .custom-datepicker {
@@ -224,7 +226,10 @@ const MultipleMatchTimeChangeModal: React.FC<
                   <p className="text-gray-400">No matches available</p>
                 ) : (
                   allmatches.map((match) => (
-                    <div key={match._id} className="flex items-center mb-2 text-white">
+                    <div
+                      key={match._id}
+                      className="flex items-center mb-2 text-white"
+                    >
                       <input
                         type="checkbox"
                         id={`match-${match._id}`}
@@ -268,20 +273,27 @@ const MultipleMatchTimeChangeModal: React.FC<
               <DatePicker
                 selected={
                   formik.values.startDate
-                    ? new Date(formik.values.startDate)
+                    ? setLocalZone(
+                        new Date(formik.values.startDate),
+                        "Asia/Riyadh"
+                      )
                     : null
                 }
                 onChange={(date: Date) =>
-                  formik.setFieldValue("startDate", date.toISOString())
+                  formik.setFieldValue(
+                    "startDate",
+                    setOtherZone(date, "Asia/Riyadh")
+                  )
                 }
                 onBlur={() => formik.setFieldTouched("startDate", true)}
                 showTimeSelect
                 timeFormat="h:mm aa"
                 dateFormat="yyyy-MM-dd h:mm aa"
-                className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[0.35rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 appearance-none leading-normal ${formik.touched.startDate && formik.errors.startDate
+                className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[0.35rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 appearance-none leading-normal ${
+                  formik.touched.startDate && formik.errors.startDate
                     ? "border border-red-500"
                     : ""
-                  }`}
+                }`}
                 id="startDate"
                 name="startDate"
                 placeholderText="Select start date"
@@ -308,19 +320,28 @@ const MultipleMatchTimeChangeModal: React.FC<
               </label>
               <DatePicker
                 selected={
-                  formik.values.endDate ? new Date(formik.values.endDate) : null
+                  formik.values.endDate
+                    ? setLocalZone(
+                        new Date(formik.values.endDate),
+                        "Asia/Riyadh"
+                      )
+                    : null
                 }
                 onChange={(date: Date) =>
-                  formik.setFieldValue("endDate", date.toISOString())
+                  formik.setFieldValue(
+                    "endDate",
+                    setOtherZone(date, "Asia/Riyadh")
+                  )
                 }
                 onBlur={() => formik.setFieldTouched("endDate", true)}
                 showTimeSelect
                 timeFormat="h:mm aa"
                 dateFormat="yyyy-MM-dd h:mm aa"
-                className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[0.35rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 appearance-none leading-normal ${formik.touched.endDate && formik.errors.endDate
+                className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[0.35rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 appearance-none leading-normal ${
+                  formik.touched.endDate && formik.errors.endDate
                     ? "border border-red-500"
                     : ""
-                  }`}
+                }`}
                 id="endDate"
                 name="endDate"
                 placeholderText="Select end date"
@@ -354,8 +375,9 @@ const MultipleMatchTimeChangeModal: React.FC<
             <button
               type="submit"
               disabled={formik.isSubmitting}
-              className={`bg-primary-gradient w-1/2 text-white font-medium rounded-lg text-[0.94rem] px-5 py-[0.795rem] me-2 mb-2 duration-300 focus:outline-none ${formik.isSubmitting ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+              className={`bg-primary-gradient w-1/2 text-white font-medium rounded-lg text-[0.94rem] px-5 py-[0.795rem] me-2 mb-2 duration-300 focus:outline-none ${
+                formik.isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
               {formik.isSubmitting ? "Processing..." : "Update Times"}
             </button>
