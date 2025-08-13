@@ -9,6 +9,7 @@ import {
   fetchBannedUsers,
   setPage,
 } from "../../app/features/bannedusers/bannedUsersSlice";
+import { setLocalZone, setOtherZone } from "../../utils/constant";
 
 const BanModal = ({ isOpen, onClose }) => {
   const dispatch = useDispatch();
@@ -212,8 +213,17 @@ const BanModal = ({ isOpen, onClose }) => {
                     Ban Date
                   </label>
                   <DatePicker
-                    selected={values.date}
-                    onChange={(date) => setFieldValue("date", date)}
+                    onChange={(date) =>
+                      setFieldValue(
+                        "date",
+                        setOtherZone(date as any, "Asia/Riyadh")
+                      )
+                    }
+                    selected={
+                      values.date
+                        ? setLocalZone(new Date(values.date), "Asia/Riyadh")
+                        : null
+                    }
                     showTimeSelect
                     timeFormat="h:mm aa"
                     dateFormat="yyyy-MM-dd h:mm aa"
