@@ -93,6 +93,9 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
     { seed: number; player: PlayerDetails | null }[]
   >([]);
   const [playerDetails, setPlayerDetails] = useState<PlayerDetails[]>([]);
+  const [slotAssignments, setSlotAssignments] = useState<{
+    [playerId: string]: number | null;
+  }>({});
 
   // Fetch eligible players
   useEffect(() => {
@@ -145,6 +148,14 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
       !seedingList.some((item) => item.player?.id === player.id)
   );
 
+  // Get available slots
+  const getAvailableSlots = () => {
+    return seedingList
+      .filter((item) => !item.player)
+      .map((item) => item.seed)
+      .sort((a, b) => a - b);
+  };
+
   // Handle adding a single player to a seed
   const handleAddPlayer = (seed: number) => {
     setCurrentSeed(seed);
@@ -158,29 +169,92 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
         item.seed === currentSeed ? { ...item, player } : item
       )
     );
+    toast.success(`Player ${player.name} added to slot ${currentSeed}.`);
     setShowAddModal(false);
     setCurrentSeed(null);
   };
 
   // Handle bulk selection of players
   const handleBulkSelect = (playerId: string) => {
-    setSelectedPlayers((prev) =>
-      prev.includes(playerId)
-        ? prev.filter((id) => id !== playerId)
-        : [...prev, playerId]
-    );
+    if (selectedPlayers.includes(playerId)) {
+      // Deselect player
+      setSelectedPlayers((prev) => prev.filter((id) => id !== playerId));
+      setSlotAssignments((prev) => {
+        const newAssignments = { ...prev };
+        delete newAssignments[playerId];
+        // Reassign slots for remaining selected players
+        const emptySeeds = getAvailableSlots();
+        const updatedAssignments: { [playerId: string]: number | null } = {};
+        selectedPlayers
+          .filter((id) => id !== playerId)
+          .forEach((id, index) => {
+            if (index < emptySeeds.length) {
+              updatedAssignments[id] = emptySeeds[index];
+            }
+          });
+        return updatedAssignments;
+      });
+    } else {
+      const alreadyAdded = seedingList.some(
+        (item) => item.player?.id === playerId
+      );
+      if (alreadyAdded) {
+        toast.error("Player already added.");
+        return;
+      }
+      const remainingSlots =
+        (state?.draftPlayer || 0) -
+        seedingList.filter((item) => item.player).length;
+      if (selectedPlayers.length >= remainingSlots) {
+        toast.error("No remaining slots available.");
+        return;
+      }
+      setSelectedPlayers((prev) => [...prev, playerId]);
+      setSlotAssignments((prev) => {
+        const emptySeeds = getAvailableSlots();
+        const newIndex = selectedPlayers.length; // Slot based on selection order
+        return {
+          ...prev,
+          [playerId]: emptySeeds[newIndex] || null,
+        };
+      });
+    }
   };
 
-  // Handle bulk addition of players to empty seeds with randomization
+  // Handle select all
+  const handleSelectAll = () => {
+    const availableSlots = getAvailableSlots();
+    if (selectedPlayers.length === filteredPlayers.length) {
+      // Deselect all
+      setSelectedPlayers([]);
+      setSlotAssignments({});
+    } else {
+      // Select up to available slots and assign slot numbers
+      const newSelectedPlayers = filteredPlayers
+        .slice(0, availableSlots.length)
+        .map((p) => p.id);
+      setSelectedPlayers(newSelectedPlayers);
+
+      // Assign slot numbers
+      const newSlotAssignments: { [playerId: string]: number | null } = {};
+      newSelectedPlayers.forEach((playerId, index) => {
+        if (index < availableSlots.length) {
+          newSlotAssignments[playerId] = availableSlots[index];
+        }
+      });
+      setSlotAssignments(newSlotAssignments);
+    }
+  };
+
+  // Handle bulk addition of players to empty seeds
   const handleBulkAdd = () => {
-    const emptySeeds = seedingList
-      .filter((item) => !item.player)
-      .map((item) => item.seed);
+    if (selectedPlayers.length === 0) return;
 
     const playersToAdd = selectedPlayers
       .map((id) => playerDetails.find((p) => p.id === id))
-      .filter((player) => player !== undefined); // Filter out any undefined players
+      .filter((player): player is PlayerDetails => !!player);
 
+    const emptySeeds = getAvailableSlots();
     if (playersToAdd.length > emptySeeds.length) {
       toast.error(
         `Cannot add ${playersToAdd.length} players. Only ${emptySeeds.length} empty seeds available.`
@@ -190,32 +264,73 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
 
     setSeedingList((prev) => {
       const newList = [...prev];
-      let playerIndex = 0;
-
-      for (const seed of emptySeeds) {
-        if (playerIndex < playersToAdd.length) {
-          const player = playersToAdd[playerIndex];
-          const index = newList.findIndex((item) => item.seed === seed);
-          newList[index].player = player;
-          playerIndex++;
+      playersToAdd.forEach((player) => {
+        const assignedSeed = slotAssignments[player.id];
+        if (assignedSeed) {
+          const seedIndex = newList.findIndex(
+            (s) => s.seed === assignedSeed && !s.player
+          );
+          if (seedIndex !== -1) {
+            newList[seedIndex].player = player;
+          }
         }
-      }
-
+      });
       return newList;
     });
 
     setSelectedPlayers([]);
+    setSlotAssignments({});
     setShowBulkModal(false);
-    // toast.success(`${playersToAdd.length} players added to seeds randomly.`);
+    toast.success(`${playersToAdd.length} players added to slots.`);
   };
 
   // Handle removing a player from a seed
   const handleRemovePlayer = (seed: number) => {
+    const player = seedingList.find((item) => item.seed === seed)?.player;
+    if (player) {
+      setPlayerDetails((prev) => {
+        const alreadyExists = prev.some((p) => p.id === player.id);
+        if (!alreadyExists) {
+          return [...prev, player];
+        }
+        return prev;
+      });
+    }
+
     setSeedingList((prev) =>
       prev.map((item) =>
         item.seed === seed ? { ...item, player: null } : item
       )
     );
+
+    const remainingSlots =
+      (state?.draftPlayer || 0) -
+      seedingList.filter((item) => item.player).length +
+      1; // +1 to account for the player just removed
+    toast.success(
+      `Player ${
+        player?.name || ""
+      } removed from slot ${seed}. ${remainingSlots} more players can be selected.`
+    );
+
+    // Update slot assignments for selected players
+    setSlotAssignments((prev) => {
+      const newAssignments = { ...prev };
+      // Remove any assignments that are no longer valid
+      Object.keys(newAssignments).forEach((playerId) => {
+        if (newAssignments[playerId] === seed) {
+          delete newAssignments[playerId];
+        }
+      });
+      // Reassign slots based on current selection
+      const emptySeeds = getAvailableSlots();
+      selectedPlayers.forEach((playerId, index) => {
+        if (index < emptySeeds.length) {
+          newAssignments[playerId] = emptySeeds[index];
+        }
+      });
+      return newAssignments;
+    });
   };
 
   // Handle saving changes
@@ -298,6 +413,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
       return newList;
     });
   };
+
   const getStatusColor = (status: any) => {
     switch (status?.toLowerCase()) {
       case "active":
@@ -312,6 +428,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
         return "bg-gray-500/10 text-gray-400 border-gray-500/30";
     }
   };
+
   return (
     <Layout>
       <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-start items-center pt-3 pb-[2rem] border-b border-light-border">
@@ -473,7 +590,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                           ) : (
                             <button
                               onClick={() => handleAddPlayer(item.seed)}
-                              className="p-2 text-gray-400 hover:bg-gray-700  disabled:text-gray-600 rounded-lg transition-colors"
+                              className="p-2 text-gray-400 hover:bg-gray-700 disabled:text-gray-600 rounded-lg transition-colors"
                               disabled={filteredPlayers.length === 0}
                             >
                               <Plus size={16} />
@@ -494,7 +611,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                   onClick={handleSaveChanges}
                   className="px-8 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 rounded-lg font-medium transition-colors"
                   disabled={
-                    new Date(data?.startTime) > currentDate ? true : false
+                    new Date(data?.startTime) > currentDate ? false : true
                   }
                 >
                   Save Changes
@@ -690,43 +807,22 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                     <label className="flex items-center gap-3 cursor-pointer">
                       <input
                         type="checkbox"
-                        // checked={
-                        //   selectedPlayers.length === filteredPlayers.length &&
-                        //   filteredPlayers.length > 0
-                        // }
                         checked={
                           selectedPlayers.length ===
                             Math.min(
                               filteredPlayers.length,
-                              state?.draftPlayer
+                              (state?.draftPlayer || 0) -
+                                seedingList.filter((item) => item.player).length
                             ) && filteredPlayers.length > 0
                         }
-                        // onChange={(e) => {
-                        //   if (e.target.checked) {
-                        //     setSelectedPlayers(
-                        //       filteredPlayers.map((p) => p.id)
-                        //     );
-                        //   } else {
-                        //     setSelectedPlayers([]);
-                        //   }
-                        // }}
-
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            const draftLimit = state?.draftPlayer; // Default to 25 if undefined
-                            setSelectedPlayers(
-                              filteredPlayers
-                                .slice(0, draftLimit)
-                                .map((p) => p.id)
-                            );
-                          } else {
-                            setSelectedPlayers([]);
-                          }
-                        }}
+                        onChange={handleSelectAll}
                         className="w-5 h-5 text-blue-500 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2 transition-colors"
                       />
                       <span className="text-sm font-medium text-white">
-                        {`Select Top ${state?.draftPlayer} Players`}
+                        {`Select Top ${
+                          (state?.draftPlayer || 0) -
+                          seedingList.filter((item) => item.player).length
+                        } Players`}
                       </span>
                     </label>
                   </div>
@@ -752,11 +848,18 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                             <img
                               src={`${baseURL}/api/v1/${player.profilePicture}`}
                               alt={player.name}
-                              className="w-10 h-10 rounded-full"
+                              className="w-8 h-8 rounded-full"
                             />
-                            <div>
-                              <div className="font-medium text-white">
-                                {player.name}
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between">
+                                <div className="font-medium text-white">
+                                  {player.name}
+                                </div>
+                                {slotAssignments[player.id] && (
+                                  <span className="text-sm text-gray-400">
+                                    Slot {slotAssignments[player.id]}
+                                  </span>
+                                )}
                               </div>
                               <div className="text-xs text-gray-400">
                                 {player.shortName}
