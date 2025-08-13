@@ -4,7 +4,6 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../app/store";
-
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { addDraftingPhase } from "../../app/features/draftingPhase/draftingPhaseSlice";
@@ -36,13 +35,22 @@ export const DraftingModal: React.FC<DraftingModalProps> = ({
     totalPlayers: Yup.number()
       .min(1, "Total players must be at least 1")
       .required("Total players is required")
-      .integer("Total players must be an integer"),
+      .integer("Total players must be an integer")
+      .test(
+        "divisible-by-teams",
+        "Total players must be divisible by total teams",
+        function (value) {
+          const totalTeams = this.parent.totalTeams;
+          if (!value || !totalTeams) return false;
+          return value % totalTeams === 0;
+        }
+      ),
     startTime: Yup.date()
       .required("Start time is required")
       .min(new Date(), "Start time cannot be in the past")
       .typeError("Start time must be a valid date"),
     pickTimeSeconds: Yup.number()
-      .min(10, "Pick time must be at least 10 second")
+      .min(10, "Pick time must be at least 10 seconds")
       .test(
         "multiple-of-10",
         "Pick time must be in multiples of 10 (e.g., 10, 20, 30, 40)",
@@ -69,10 +77,7 @@ export const DraftingModal: React.FC<DraftingModalProps> = ({
             payload: {
               totalTeams: values.totalTeams,
               totalPlayers: values.totalPlayers,
-              startTime: values.startTime
-                ? // ? values.startTime.getTime().toString()
-                  values.startTime
-                : "",
+              startTime: values.startTime ? values.startTime : "",
               pickTimeSeconds: values.pickTimeSeconds,
             },
           })
@@ -136,7 +141,7 @@ export const DraftingModal: React.FC<DraftingModalProps> = ({
             </button>
           </div>
 
-          <div className="p-4 md:p-5 space-y-4  max-h-[calc(90vh-200px)] scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+          <div className="p-4 md:p-5 space-y-4 max-h-[calc(90vh-200px)] scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
             {error && (
               <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
                 {error}
@@ -190,6 +195,12 @@ export const DraftingModal: React.FC<DraftingModalProps> = ({
                   {formik.errors.totalPlayers}
                 </p>
               )}
+              {/* {formik.values.totalTeams && formik.values.totalPlayers && (
+                <p className="text-white mt-1 text-sm">
+                  Players per team:{" "}
+                  {formik.values.totalPlayers / formik.values.totalTeams}
+                </p>
+              )} */}
             </div>
 
             <div className="relative float-label-input custom-input mb-4">
@@ -244,12 +255,6 @@ export const DraftingModal: React.FC<DraftingModalProps> = ({
                     ? "border border-red-500"
                     : ""
                 }`}
-                // onInput={(e: any) => {
-                //   const val = e.target.value;
-                //   if (val && val % 10 !== 0) {
-                //     e.target.value = Math.round(val / 10) * 10; // auto-correct
-                //   }
-                // }}
                 {...formik.getFieldProps("pickTimeSeconds")}
               />
               <label
