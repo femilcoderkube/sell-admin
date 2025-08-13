@@ -4,6 +4,7 @@ import { AppDispatch } from "../../app/store";
 import { updateUser } from "../../app/features/users/usersSlice";
 import { User } from "../../app/types";
 import deleteIcon from "../../assets/images/trash_can.svg";
+import { Infinity, InfinityIcon } from "lucide-react";
 
 interface BannedUsersTableProps {
   activeTab: any;
@@ -22,6 +23,8 @@ export const BannedUsersTable: React.FC<BannedUsersTableProps> = ({
   error,
   handleUnbanUser,
 }) => {
+  console.log("users", users);
+
   const thead = {
     id: (
       <svg
@@ -44,7 +47,7 @@ export const BannedUsersTable: React.FC<BannedUsersTableProps> = ({
     email: "Email",
     role: "Role",
     lastLoginDate: "Last Login Date",
-    // mobile: "Mobile",
+    permanent: "Permanent",
     ip_address: "IP Address",
     status: "Action", // Changed from "Ban Status" to "Action"
   };
@@ -82,9 +85,9 @@ export const BannedUsersTable: React.FC<BannedUsersTableProps> = ({
             <th className="text-left py-4 px-3 text-gray-300 uppercase text-sm font-semibold tracking-wide hidden lg:table-cell">
               {thead.lastLoginDate}
             </th>
-            {/* <th className="text-left py-3 text-custom-gray uppercase text-[1.0625rem]">
-              {thead.mobile}
-            </th> */}
+            <th className="text-left py-4 px-3 text-gray-300 uppercase text-sm font-semibold tracking-wide hidden lg:table-cell">
+              {thead.permanent}
+            </th>
             <th className="text-left py-4 px-3 text-gray-300 uppercase text-sm font-semibold tracking-wide hidden xl:table-cell">
               {thead.ip_address}
             </th>
@@ -130,6 +133,13 @@ export const BannedUsersTable: React.FC<BannedUsersTableProps> = ({
                     : "-"}
                 </td>
                 {/* <td className="text-[1.0625rem] py-3">{user.phone || "-"}</td> */}
+                <td className="text-xs py-4 px-3 text-gray-400 hidden lg:table-cell">
+                  {user.isPermanent ? (
+                    <InfinityIcon />
+                  ) : (
+                    new Date(user.Date).toLocaleString()
+                  )}
+                </td>
                 <td className="text-sm py-4 px-3 text-gray-400 font-mono hidden xl:table-cell">
                   {user.ipAddress || "-"}
                 </td>

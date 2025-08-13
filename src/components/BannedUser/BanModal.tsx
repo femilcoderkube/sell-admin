@@ -11,12 +11,12 @@ import {
 } from "../../app/features/bannedusers/bannedUsersSlice";
 import { setLocalZone, setOtherZone } from "../../utils/constant";
 
-const BanModal = ({ isOpen, onClose }) => {
+const BanModal = ({ isOpen, onClose }: any) => {
   const dispatch = useDispatch();
 
   if (!isOpen) return null;
 
-  const Switch = ({ checked, onChange, id }) => {
+  const Switch = ({ checked, onChange, id }: any) => {
     return (
       <button
         type="button"
@@ -75,7 +75,7 @@ const BanModal = ({ isOpen, onClose }) => {
     comment: "",
   };
 
-  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+  const handleSubmit = async (values, { setSubmitting, resetForm }: any) => {
     try {
       const userData = {
         username: values.playerName,
