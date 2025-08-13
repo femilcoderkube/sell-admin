@@ -235,6 +235,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
         fetchTournamentMatches({
           stageId: selectedStage,
           status: selectedStatus,
+          roundId: selectedRound,
         })
       );
     }
@@ -258,6 +259,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
         fetchTournamentMatches({
           stageId: selectedStage,
           status: selectedStatus,
+          roundId: selectedRound,
         })
       );
     }
@@ -1005,27 +1007,29 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                           Manage Match
                                         </strong>
                                       </div>
-                                      {!val?.isScoreVerified && (
-                                        <div className="nf_cs-btn-group">
+                                      {!val?.isScoreVerified &&
+                                        val?.opponent1 &&
+                                        val?.opponent2 && (
                                           <div className="nf_cs-btn-group">
-                                            <button
-                                              className="btn btn-nf-gray quickscore_data"
-                                              data-toggle="modal"
-                                              data-target="#quickscore"
-                                              data-id={34042}
-                                              onClick={() => {
-                                                setSelectedMatch(val);
-                                                setShowQuickScoreModal(true);
-                                              }}
-                                            >
-                                              <CirclePlusIcon className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
-                                            </button>
-                                            <strong className="text-center">
-                                              Quick Scoring
-                                            </strong>
+                                            <div className="nf_cs-btn-group">
+                                              <button
+                                                className="btn btn-nf-gray quickscore_data"
+                                                data-toggle="modal"
+                                                data-target="#quickscore"
+                                                data-id={34042}
+                                                onClick={() => {
+                                                  setSelectedMatch(val);
+                                                  setShowQuickScoreModal(true);
+                                                }}
+                                              >
+                                                <CirclePlusIcon className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
+                                              </button>
+                                              <strong className="text-center">
+                                                Quick Scoring
+                                              </strong>
+                                            </div>
                                           </div>
-                                        </div>
-                                      )}
+                                        )}
                                     </div>
                                   </div>
                                 </div>
