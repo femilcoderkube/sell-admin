@@ -9,6 +9,7 @@ interface DraftingPhasePayload {
   totalPlayers: number;
   startTime: string;
   pickTimeSeconds: number;
+  isUpdate: boolean;
 }
 
 interface DraftingPhaseState {

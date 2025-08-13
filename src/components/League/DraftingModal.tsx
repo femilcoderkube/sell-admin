@@ -79,6 +79,7 @@ export const DraftingModal: React.FC<DraftingModalProps> = ({
               totalPlayers: values.totalPlayers,
               startTime: values.startTime ? values.startTime : "",
               pickTimeSeconds: values.pickTimeSeconds,
+              isUpdate: draft?.status === "not_active" ? false : true,
             },
           })
         );
