@@ -70,7 +70,8 @@ export const DraftingModal: React.FC<DraftingModalProps> = ({
               totalTeams: values.totalTeams,
               totalPlayers: values.totalPlayers,
               startTime: values.startTime
-                ? values.startTime.getTime().toString()
+                ? // ? values.startTime.getTime().toString()
+                  values.startTime
                 : "",
               pickTimeSeconds: values.pickTimeSeconds,
             },
