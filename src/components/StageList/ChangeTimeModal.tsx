@@ -5,6 +5,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { CancelIcon } from "../ui"; // Adjust path to your CancelIcon component
 import { Match } from "../../app/types";
+import { setLocalZone, setOtherZone } from "../../utils/constant";
 
 interface ChangeTimeModalProps {
   show: boolean;
@@ -158,11 +159,17 @@ const ChangeTimeModal: React.FC<ChangeTimeModalProps> = ({
               <DatePicker
                 selected={
                   formik.values.startDate
-                    ? new Date(formik.values.startDate)
+                    ? setLocalZone(
+                        new Date(formik.values.startDate),
+                        "Asia/Riyadh"
+                      )
                     : null
                 }
                 onChange={(date: Date) =>
-                  formik.setFieldValue("startDate", date.toISOString())
+                  formik.setFieldValue(
+                    "startDate",
+                    setOtherZone(date, "Asia/Riyadh")
+                  )
                 }
                 onBlur={() => formik.setFieldTouched("startDate", true)}
                 showTimeSelect
@@ -199,10 +206,18 @@ const ChangeTimeModal: React.FC<ChangeTimeModalProps> = ({
               </label>
               <DatePicker
                 selected={
-                  formik.values.endDate ? new Date(formik.values.endDate) : null
+                  formik.values.endDate
+                    ? setLocalZone(
+                        new Date(formik.values.endDate),
+                        "Asia/Riyadh"
+                      )
+                    : null
                 }
                 onChange={(date: Date) =>
-                  formik.setFieldValue("endDate", date.toISOString())
+                  formik.setFieldValue(
+                    "endDate",
+                    setOtherZone(date, "Asia/Riyadh")
+                  )
                 }
                 onBlur={() => formik.setFieldTouched("endDate", true)}
                 showTimeSelect
