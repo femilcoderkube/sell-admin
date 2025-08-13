@@ -103,6 +103,11 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
   }, [dispatch, did]);
 
   useEffect(() => {
+    setSeedingList([]);
+    setPlayerDetails([]);
+    setIsSeedingListInitialized(false);
+    setSelectedPlayers([]);
+    setSlotAssignments({});
     dispatch(
       fetchEligiblePlayers({
         id: did,
