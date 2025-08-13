@@ -30,14 +30,14 @@ export const BannedUser: React.FC = ({ title }: any) => {
   const [isBanModalOpen, setIsBanModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string>("");
-  const [status, setStatus] = useState<string>("");
+  const [status, setStatus] = useState<string>("active");
   const [activeTab, setActiveTab] = useState<"bannedUsers" | "history">(
     "bannedUsers"
   );
 
   useEffect(() => {
     if (activeTab === "bannedUsers") {
-      dispatch(fetchBannedUsers({ page: currentPage, perPage, searchTerm }));
+      dispatch(fetchBannedUsers({ page: currentPage, perPage, searchTerm, status: status }));
     } else {
       dispatch(
         fetchBannedUsers({
@@ -218,14 +218,13 @@ export const BannedUser: React.FC = ({ title }: any) => {
       <div className="mb-6">
         <div className="flex border-b border-slate-700/50">
           <button
-            className={`px-6 py-3 text-sm font-semibold transition-all duration-200 ${
-              activeTab === "bannedUsers"
+            className={`px-6 py-3 text-sm font-semibold transition-all duration-200 ${activeTab === "bannedUsers"
                 ? "border-b-2 border-blue-500 text-white"
                 : "text-slate-400 hover:text-white"
-            }`}
+              }`}
             onClick={() => {
               setActiveTab("bannedUsers");
-              setStatus("");
+              setStatus("active");
               dispatch(setPage(1));
               dispatch(setSearchTerm(""));
               dispatch(setPerPage(10));
@@ -234,11 +233,10 @@ export const BannedUser: React.FC = ({ title }: any) => {
             Banned Users
           </button>
           <button
-            className={`px-6 py-3 text-sm font-semibold transition-all duration-200 ${
-              activeTab === "history"
+            className={`px-6 py-3 text-sm font-semibold transition-all duration-200 ${activeTab === "history"
                 ? "border-b-2 border-blue-500 text-white"
                 : "text-slate-400 hover:text-white"
-            }`}
+              }`}
             onClick={() => {
               setActiveTab("history");
               setStatus("history");
