@@ -24,6 +24,7 @@ import {
   addTournament,
   updateTournament,
 } from "../../app/features/tournament/tournamentSlice";
+import { setLocalZone, setOtherZone } from "../../utils/constant";
 
 // Type Definitions
 interface Tournament {
@@ -591,9 +592,13 @@ const TournamentStep1: FC<{ step: number }> = ({ step }) => {
       <div className="grid grid-cols-2 gap-3 mb-4">
         <div className="relative float-label-input custom-input">
           <DatePicker
-            selected={values.startDate ? new Date(values.startDate) : null}
+            selected={
+              values.startDate
+                ? setLocalZone(new Date(values.startDate), "Asia/Riyadh")
+                : null
+            }
             onChange={(date: Date) =>
-              setFieldValue("startDate", date.toISOString())
+              setFieldValue("startDate", setOtherZone(date, "Asia/Riyadh"))
             }
             onBlur={() => setFieldTouched("startDate", true)}
             showTimeSelect
@@ -628,9 +633,13 @@ const TournamentStep1: FC<{ step: number }> = ({ step }) => {
         </div>
         <div className="relative float-label-input custom-input">
           <DatePicker
-            selected={values.endDate ? new Date(values.endDate) : null}
+            selected={
+              values.endDate
+                ? setLocalZone(new Date(values.endDate), "Asia/Riyadh")
+                : null
+            }
             onChange={(date: Date) =>
-              setFieldValue("endDate", date.toISOString())
+              setFieldValue("endDate", setOtherZone(date, "Asia/Riyadh"))
             }
             onBlur={() => setFieldTouched("endDate", true)}
             showTimeSelect
@@ -669,11 +678,17 @@ const TournamentStep1: FC<{ step: number }> = ({ step }) => {
           <DatePicker
             selected={
               values.registrationStartDate
-                ? new Date(values.registrationStartDate)
+                ? setLocalZone(
+                    new Date(values.registrationStartDate),
+                    "Asia/Riyadh"
+                  )
                 : null
             }
             onChange={(date: Date) =>
-              setFieldValue("registrationStartDate", date.toISOString())
+              setFieldValue(
+                "registrationStartDate",
+                setOtherZone(date, "Asia/Riyadh")
+              )
             }
             onBlur={() => setFieldTouched("registrationStartDate", true)}
             showTimeSelect
@@ -710,11 +725,17 @@ const TournamentStep1: FC<{ step: number }> = ({ step }) => {
           <DatePicker
             selected={
               values.registrationEndDate
-                ? new Date(values.registrationEndDate)
+                ? setLocalZone(
+                    new Date(values.registrationEndDate),
+                    "Asia/Riyadh"
+                  )
                 : null
             }
             onChange={(date: Date) =>
-              setFieldValue("registrationEndDate", date.toISOString())
+              setFieldValue(
+                "registrationEndDate",
+                setOtherZone(date, "Asia/Riyadh")
+              )
             }
             onBlur={() => setFieldTouched("registrationEndDate", true)}
             showTimeSelect
