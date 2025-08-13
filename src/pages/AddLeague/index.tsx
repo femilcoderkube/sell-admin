@@ -1420,13 +1420,16 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                       <DatePicker
                         selected={
                           values.timeLine[index]?.startDate
-                            ? new Date(values.timeLine[index].startDate)
+                            ? setLocalZone(
+                                new Date(values.timeLine[index]?.startDate),
+                                "Asia/Riyadh"
+                              )
                             : null
                         }
                         onChange={(date: Date) =>
                           setFieldValue(
                             `timeLine[${index}].startDate`,
-                            date ? date.toISOString() : ""
+                            setOtherZone(date, "Asia/Riyadh")
                           )
                         }
                         onBlur={() =>
@@ -1467,13 +1470,16 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
                       <DatePicker
                         selected={
                           values.timeLine[index]?.endDate
-                            ? new Date(values.timeLine[index].endDate)
+                            ? setLocalZone(
+                                new Date(values.timeLine[index]?.endDate),
+                                "Asia/Riyadh"
+                              )
                             : null
                         }
                         onChange={(date: Date) =>
                           setFieldValue(
                             `timeLine[${index}].endDate`,
-                            date ? date.toISOString() : ""
+                            setOtherZone(date, "Asia/Riyadh")
                           )
                         }
                         onBlur={() =>
