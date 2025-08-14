@@ -650,7 +650,9 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                           value={selectedRound}
                           onChange={(e) => setSelectedRound(e.target.value)}
                         >
-                          <option value="">All rounds</option>
+                          {stageType !== "BattleRoyal" && (
+                            <option value="">All rounds</option>
+                          )}
                           {stageRound?.map((round: any) => (
                             <option key={round?._id} value={round?._id}>
                               {round?.roundName}{" "}
