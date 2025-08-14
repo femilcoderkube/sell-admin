@@ -344,10 +344,10 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
       .filter((item) => item.player)
       .map((item) => item.player!.id);
 
-    if (seedIds?.length !== state?.draftPlayer) {
-      toast.error(`You must select at least ${state?.draftPlayer} players.`);
-      return;
-    }
+    // if (seedIds?.length !== state?.draftPlayer) {
+    //   toast.error(`You must select at least ${state?.draftPlayer} players.`);
+    //   return;
+    // }
 
     try {
       const resultAction = await dispatch(
@@ -479,8 +479,8 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                 <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => setShowBulkModal(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors text-sm"
-                    disabled={filteredPlayers.length === 0}
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 rounded-lg transition-colors text-sm"
+                    disabled={filteredPlayers.length === 0 || data?.isPublished}
                   >
                     <Plus size={16} />
                     <span>Add</span>
@@ -580,14 +580,20 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                               <button
                                 onClick={() => handleAddPlayer(item.seed)}
                                 className="p-2 text-blue-400 hover:bg-blue-700 disabled:text-gray-600 rounded-lg transition-colors"
-                                disabled={filteredPlayers.length === 0}
+                                disabled={
+                                  filteredPlayers.length === 0 ||
+                                  data?.isPublished
+                                }
                               >
                                 <Edit2 size={16} />
                               </button>
                               <button
                                 onClick={() => handleRemovePlayer(item.seed)}
                                 className="p-2 text-red-400 hover:bg-red-900/20 disabled:text-gray-600 rounded-lg transition-colors"
-                                disabled={filteredPlayers.length === 0}
+                                disabled={
+                                  filteredPlayers.length === 0 ||
+                                  data?.isPublished
+                                }
                               >
                                 <X size={16} />
                               </button>
@@ -609,29 +615,31 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
               </div>
             </div>
 
-            <div className="flex items-center justify-evenly">
-              {/* Save Button */}
-              <div className="mt-6 text-center">
-                <button
-                  onClick={handleSaveChanges}
-                  className="px-8 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 rounded-lg font-medium transition-colors"
-                  disabled={
-                    new Date(data?.startTime) > currentDate ? false : true
-                  }
-                >
-                  Save Changes
-                </button>
+            {!data?.isPublished && (
+              <div className="flex items-center justify-evenly">
+                {/* Save Button */}
+                <div className="mt-6 text-center">
+                  <button
+                    onClick={handleSaveChanges}
+                    className="px-8 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 rounded-lg font-medium transition-colors"
+                    disabled={
+                      new Date(data?.startTime) > currentDate ? false : true
+                    }
+                  >
+                    Save Changes
+                  </button>
+                </div>
+                <div className="mt-6 text-center">
+                  <button
+                    onClick={handleChanges}
+                    className="px-8 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 rounded-lg font-medium transition-colors"
+                    disabled={data?.isPublished}
+                  >
+                    Publish
+                  </button>
+                </div>
               </div>
-              <div className="mt-6 text-center">
-                <button
-                  onClick={handleChanges}
-                  className="px-8 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 rounded-lg font-medium transition-colors"
-                  disabled={data?.isPublished}
-                >
-                  Publish
-                </button>
-              </div>
-            </div>
+            )}
           </div>
           <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 max-w-4xl w-full">
             <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
