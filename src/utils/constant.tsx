@@ -4,10 +4,12 @@ export const SOCKET = {
   MATCHUPDATE: "matchUpdate",
   ONADMINMESSAGE: "onAdminMessage",
   ONADMINMESSAGESTART: "onAdminMessageStart",
+  ONDRAFTDATAUPDATE: "onDraftDataUpdate",
+  GETDRAFTDATA: "getDraftData",
 };
 
 // Helper to convert Saudi time to local time for form display
-export function toLocalTimeFromSaudi(saudiTime) {
+export function toLocalTimeFromSaudi(saudiTime: any) {
   if (!saudiTime) return "";
   // Parse as Saudi time, then convert to local, then format as "HH:mm"
   return moment

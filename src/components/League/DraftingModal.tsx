@@ -47,7 +47,7 @@ export const DraftingModal: React.FC<DraftingModalProps> = ({
       ),
     startTime: Yup.date()
       .required("Start time is required")
-      .min(new Date(), "Start time cannot be in the past")
+      // .min((new Date()), "Start time cannot be in the past")
       .typeError("Start time must be a valid date"),
     pickTimeSeconds: Yup.number()
       .min(10, "Pick time must be at least 10 seconds")

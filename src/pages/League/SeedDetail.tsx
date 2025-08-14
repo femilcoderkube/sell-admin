@@ -22,9 +22,13 @@ import HandLogoLoader from "../../components/Loader/Loader";
 import { baseURL } from "../../axios";
 import {
   fetchDraftingPhase,
+  upadateTeam,
   updateDraftpublish,
 } from "../../app/features/draftingPhase/draftingPhaseSlice";
 import moment from "moment-timezone";
+import { socket } from "../../app/socket/socket";
+import { SOCKET } from "../../utils/constant";
+import DraftPlayerCard from "./DraftPlayerCard";
 
 interface EligiblePlayer {
   totalWins: number;
@@ -85,6 +89,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
 
   // State for UI and data
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
+  const [draftData, setDraftData] = useState<any[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -96,6 +101,35 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
   const [slotAssignments, setSlotAssignments] = useState<{
     [playerId: string]: number | null;
   }>({});
+
+  useEffect(() => {
+    socket.connect();
+  }, []);
+
+  useEffect(() => {
+    let isInitialDataSet = false; // local flag
+
+    socket.emit(SOCKET.GETDRAFTDATA, { draftId: did });
+
+    const handleDraftUpdate = (data: any) => {
+      if (data?.data?.currentInterval === -1) {
+        // Only set data the first time we meet the condition
+        if (!isInitialDataSet && draftData.length === 0) {
+          setDraftData(data?.data?.teams || []);
+          isInitialDataSet = true;
+        }
+      } else {
+        setDraftData([]); // Reset if interval changes
+        isInitialDataSet = false; // Allow setting again if it returns to -1
+      }
+    };
+
+    socket.on(SOCKET.ONDRAFTDATAUPDATE, handleDraftUpdate);
+
+    return () => {
+      socket.off(SOCKET.ONDRAFTDATAUPDATE, handleDraftUpdate);
+    };
+  }, [did, draftData?.length]);
 
   // Fetch eligible players
   useEffect(() => {
@@ -375,6 +409,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
 
   // Navigate back
   const btnBack = () => {
+    socket.disconnect();
     navigate(-1);
   };
 
@@ -432,6 +467,126 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
       default:
         return "bg-gray-500/10 text-gray-400 border-gray-500/30";
     }
+  };
+  const transformedDraftPlayers = draftData?.map((group, index) => ({
+    groupNumber: index + 1,
+    _id: group._id,
+    captain: {
+      totalWins: group.captains.totalWins,
+      totalLosses: group.captains.totalLosses,
+      totalMatches: group.captains.totalMatches,
+      totalScore: group.captains.totalScore,
+      totalLeaguesScore: group.captains.totalLeaguesScore,
+      winPercentage: group.captains.winPercentage,
+      wilsonScore: group.captains.wilsonScore,
+      userId: {
+        _id: group.captains.userId._id,
+        username: group.captains.userId.username,
+        profilePicture: group.captains.userId.profilePicture,
+        fullName: group.captains.userId.fullName,
+      },
+      rank: group.captains.rank,
+    },
+    players: group.players.map((player: any) => ({
+      index: player.index,
+      username: player.username,
+      fullName: player.fullName,
+      id: player.id,
+      rep: player.rep,
+      profilePic: player.profilePic,
+      rank: player.rank,
+      score: player.score,
+    })),
+  }));
+
+  const handleReplacePlayer = (
+    groupNumber: number,
+    slotIndex: number,
+    newPlayer: any | null,
+    sourceGroupNumber?: number,
+    sourceSlotIndex?: number
+  ) => {
+    setDraftData((prevDraftPlayers) => {
+      const newDraftPlayers = JSON.parse(JSON.stringify(prevDraftPlayers)); // Deep copy
+      const targetGroupIndex = groupNumber - 1;
+
+      if (newPlayer === null) {
+        // Handle removal (not used in current UI, but included for completeness)
+        newDraftPlayers[targetGroupIndex].players.splice(slotIndex, 1);
+        newDraftPlayers[targetGroupIndex].updatedAt = new Date().toISOString();
+        return newDraftPlayers;
+      }
+
+      if (sourceGroupNumber === undefined || sourceSlotIndex === undefined) {
+        // Dropped from another source (not implemented in UI)
+        newDraftPlayers[targetGroupIndex].players[slotIndex] = {
+          index: slotIndex + 1,
+          username: newPlayer.username,
+          fullName: newPlayer.fullName,
+          id: newPlayer.id,
+          rep: newPlayer.rep,
+          profilePic: newPlayer.profilePic,
+          rank: newPlayer.rank,
+          score: newPlayer.score,
+        };
+        newDraftPlayers[targetGroupIndex].updatedAt = new Date().toISOString();
+        return newDraftPlayers;
+      }
+
+      const sourceGroupIndex = sourceGroupNumber - 1;
+
+      if (sourceGroupIndex === targetGroupIndex) {
+        // In-group swap
+        const temp = newDraftPlayers[targetGroupIndex].players[slotIndex];
+        newDraftPlayers[targetGroupIndex].players[slotIndex] =
+          newDraftPlayers[targetGroupIndex].players[sourceSlotIndex];
+        newDraftPlayers[targetGroupIndex].players[sourceSlotIndex] = temp;
+      } else {
+        // Cross-group swap
+        const targetPlayer =
+          newDraftPlayers[targetGroupIndex].players[slotIndex];
+        const sourcePlayer =
+          newDraftPlayers[sourceGroupIndex].players[sourceSlotIndex];
+
+        newDraftPlayers[targetGroupIndex].players[slotIndex] = {
+          index: slotIndex + 1,
+          username: newPlayer.username,
+          fullName: newPlayer.fullName,
+          id: newPlayer.id,
+          rep: newPlayer.rep,
+          profilePic: newPlayer.profilePic,
+          rank: newPlayer.rank,
+          score: newPlayer.score,
+        };
+
+        newDraftPlayers[sourceGroupIndex].players[sourceSlotIndex] = {
+          index: sourceSlotIndex + 1,
+          username: targetPlayer.username,
+          fullName: targetPlayer.fullName,
+          id: targetPlayer.id,
+          rep: targetPlayer.rep,
+          profilePic: targetPlayer.profilePic,
+          rank: targetPlayer.rank,
+          score: targetPlayer.score,
+        };
+      }
+
+      newDraftPlayers[targetGroupIndex].updatedAt = new Date().toISOString();
+      if (sourceGroupIndex !== targetGroupIndex) {
+        newDraftPlayers[sourceGroupIndex].updatedAt = new Date().toISOString();
+      }
+
+      dispatch(upadateTeam({ id: did, teams: newDraftPlayers }))
+        .unwrap()
+        .then(() => {
+          dispatch(fetchDraftingPhase({ id: did }));
+        })
+        .catch(() => {
+          setDraftData(prevDraftPlayers); // Revert state on error
+        });
+
+      return newDraftPlayers;
+    });
   };
 
   return (
@@ -912,6 +1067,17 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
           )}
         </div>
       )}
+      <div className="flex gap-3 min-h-screen bg-gray-800 text-white p-4 mb-4 shadow-lg overflow-x-auto">
+        {transformedDraftPlayers.map((group) => (
+          <DraftPlayerCard
+            key={group._id}
+            groupNumber={group.groupNumber}
+            captain={group.captain}
+            players={group.players}
+            onReplacePlayer={handleReplacePlayer}
+          />
+        ))}
+      </div>
     </Layout>
   );
 };
