@@ -595,7 +595,6 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
   const handleToggleActive = async () => {
     try {
       const resultAction = await dispatch(draftActive({ id: did }));
-      console.log("resultAction", resultAction);
       if (draftActive.fulfilled.match(resultAction)) {
         dispatch(fetchDraftingPhase({ id: did }));
         toast.success(
