@@ -688,7 +688,9 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                   </span>
                 </div>
                 <span className="text-lg font-bold text-white">
-                  {moment(data?.startTime).format("MMMM Do YYYY, h:mm:ss a")}
+                  {moment(data?.startTime)
+                    .tz("Asia/Riyadh")
+                    .format("MMMM Do YYYY, h:mm:ss a")}
                 </span>
               </div>
             </div>
