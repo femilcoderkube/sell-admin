@@ -91,7 +91,7 @@ const BanModal = ({ isOpen, onClose }: any) => {
         resetForm();
         onClose();
         dispatch(setPage(1));
-        dispatch(fetchBannedUsers({ page: 1, perPage: 10, searchTerm: "" }));
+        dispatch(fetchBannedUsers({ page: 1, perPage: 10, searchTerm: "", status: "active" }));
       }
       resetForm();
       onClose();

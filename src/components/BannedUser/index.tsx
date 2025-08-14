@@ -75,7 +75,7 @@ export const BannedUser: React.FC = ({ title }: any) => {
         setDeleteId("");
         setIsDeleteModalOpen(false);
         dispatch(setPage(1));
-        dispatch(fetchBannedUsers({ page: currentPage, perPage, searchTerm }));
+        dispatch(fetchBannedUsers({ page: currentPage, perPage, searchTerm, status: status }));
       }
     } catch (error) {
       console.error("Failed to unban user:", error);
