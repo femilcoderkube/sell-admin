@@ -21,6 +21,7 @@ import toast from "react-hot-toast";
 import HandLogoLoader from "../../components/Loader/Loader";
 import { baseURL } from "../../axios";
 import {
+  draftActive,
   fetchDraftingPhase,
   upadateTeam,
   updateDraftpublish,
@@ -93,6 +94,8 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isDraftActive, setIsDraftActive] = useState(data?.status === "active");
+
   const [currentSeed, setCurrentSeed] = useState<number | null>(null);
   const [seedingList, setSeedingList] = useState<
     { seed: number; player: PlayerDetails | null }[]
@@ -589,6 +592,24 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
     });
   };
 
+  const handleToggleActive = async () => {
+    try {
+      const resultAction = await dispatch(draftActive({ id: did }));
+      console.log("resultAction", resultAction);
+      if (draftActive.fulfilled.match(resultAction)) {
+        dispatch(fetchDraftingPhase({ id: did }));
+        toast.success(
+          `Draft ${
+            resultAction?.payload?.data.isDeactivate ? "Active" : "Deactive"
+          } successfully!`
+        );
+      }
+    } catch (error) {
+      console.log("error", error);
+      toast.error("Failed to update draft status.");
+    }
+  };
+
   return (
     <Layout>
       <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-start items-center pt-3 pb-[2rem] border-b border-light-border">
@@ -866,6 +887,19 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                 </span>
               </div>
             </div>
+
+            <label className="relative inline-flex items-center cursor-pointer mt-4">
+              <input
+                type="checkbox"
+                checked={data?.isDeactivate}
+                onChange={handleToggleActive}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              <span className="ml-3 text-sm font-medium text-gray-300">
+                {isDraftActive ? "Active" : "Inactive"}
+              </span>
+            </label>
           </div>
 
           {/* Single Player Add Modal */}
