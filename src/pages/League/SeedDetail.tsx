@@ -30,7 +30,7 @@ import moment from "moment-timezone";
 import { socket } from "../../app/socket/socket";
 import { SOCKET } from "../../utils/constant";
 import DraftPlayerCard from "./DraftPlayerCard";
-import StartDraftPlayerCard from "./StartDraftPlayerCard";
+// import StartDraftPlayerCard from "./StartDraftPlayerCard";
 
 interface EligiblePlayer {
   totalWins: number;
