@@ -878,14 +878,14 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
               </div>
             </div>
 
-            <div className="mt-4 pt-4 border-t border-gray-700/50">
+            {/* <div className="mt-4 pt-4 border-t border-gray-700/50">
               <div className="flex justify-between items-center text-sm">
                 <span className="text-gray-400">Players per Team</span>
                 <span className="text-white font-medium">
                   ~{Math.round(data?.totalPlayers / data?.totalTeams)}
                 </span>
               </div>
-            </div>
+            </div> */}
 
             <label className="relative inline-flex items-center cursor-pointer mt-4">
               <input
