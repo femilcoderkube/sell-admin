@@ -30,6 +30,7 @@ import moment from "moment-timezone";
 import { socket } from "../../app/socket/socket";
 import { SOCKET } from "../../utils/constant";
 import DraftPlayerCard from "./DraftPlayerCard";
+import StartDraftPlayerCard from "./StartDraftPlayerCard";
 
 interface EligiblePlayer {
   totalWins: number;
@@ -94,6 +95,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [startDraftData, setstartDraftData] = useState();
   const [isDraftActive, setIsDraftActive] = useState(data?.status === "active");
 
   const [currentSeed, setCurrentSeed] = useState<number | null>(null);
@@ -122,6 +124,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
           isInitialDataSet = true;
         }
       } else {
+        setstartDraftData(data?.data);
         setDraftData([]); // Reset if interval changes
         isInitialDataSet = false; // Allow setting again if it returns to -1
       }
@@ -1100,17 +1103,24 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
           )}
         </div>
       )}
-      <div className="flex gap-3 min-h-screen bg-gray-800 text-white p-4 mb-4 shadow-lg overflow-x-auto">
-        {transformedDraftPlayers.map((group) => (
-          <DraftPlayerCard
-            key={group._id}
-            groupNumber={group.groupNumber}
-            captain={group.captain}
-            players={group.players}
-            onReplacePlayer={handleReplacePlayer}
-          />
-        ))}
-      </div>
+      {transformedDraftPlayers?.length > 0 && (
+        <div className="flex gap-3 min-h-screen bg-gray-800 text-white p-4 mb-4 shadow-lg overflow-x-auto">
+          {transformedDraftPlayers.map((group) => (
+            <DraftPlayerCard
+              key={group._id}
+              groupNumber={group.groupNumber}
+              captain={group.captain}
+              players={group.players}
+              onReplacePlayer={handleReplacePlayer}
+            />
+          ))}
+        </div>
+      )}
+      {startDraftData && (
+        <div className="flex gap-3 min-h-screen bg-gray-800 text-white p-4 mb-4 shadow-lg overflow-x-auto">
+          <StartDraftPlayerCard startDraftData={startDraftData} />
+        </div>
+      )}
     </Layout>
   );
 };
