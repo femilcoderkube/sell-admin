@@ -1122,7 +1122,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
         </>
       ) : (<>
         {startDraftData && (
-          <div className="flex gap-3 min-h-screen bg-gray-800 text-white p-4 mb-4 shadow-lg overflow-x-auto mt-10">
+          <div className="flex gap-3 min-h-screen bg-gray-800 text-white p-4 mb-4 shadow-lg overflow-x-auto">
             <StartDraftPlayerCard startDraftData={startDraftData} status={status} did={did} />
           </div>
         )}
