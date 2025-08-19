@@ -1,18 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { X } from "lucide-react";
 import { baseURL } from "../../axios";
 import moment from "moment";
-
-import GoldCrown from "../../assets/images/gold_crown.png";
-
-import {
-  FirstPosCard_gold,
-  EvenPosCard,
-  OddPosCard,
-} from "../../components/DraftingDetailComponents/DraftTeamsCards";
 import HandLogoLoader from "../../components/Loader/loader";
+import ConfirmationPopUp from "../../components/confirmationPopUp";
+import { socket } from "../../app/socket/socket";
+import { SOCKET } from "../../utils/constant";
 
-// Utility function to format countdown timer
 const formatCountdown = (seconds: any) => {
   const m = Math.floor(seconds / 60)
     .toString()
@@ -21,7 +14,6 @@ const formatCountdown = (seconds: any) => {
   return `${m}:${s}`;
 };
 
-// Utility function to calculate countdown based on pick time
 const getIntervalCountdown = (
   currentIntervalTime: any,
   pickTimeSeconds: any
@@ -93,21 +85,38 @@ interface DraftData {
 
 interface StartDraftPlayerCardProps {
   startDraftData: DraftData;
+  status: any,
+  did?: any;
 }
 
 const StartDraftPlayerCard: React.FC<StartDraftPlayerCardProps> = ({
   startDraftData,
+  status,
+  did
+
 }) => {
   const [countdown, setCountdown] = useState("00:00");
   const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [confirmationPopUp, setConfirmationPopUp] = useState(0);
+  const [selectedPlayerData, setSelectedPlayerData] = useState(null)
 
-  // Simulate fetching teams and players data (replace with actual API call if needed)
   const teams = startDraftData.teams || [];
   const otherPlayers = startDraftData.otherPlayers || [];
+
+  const pickes = otherPlayers?.map((pick, idx) => ({
+    index: idx,
+    username: pick?.userId?.username || "",
+    fullName: pick?.userId?.fullName || "",
+    id: pick?.userId?._id || "",
+    rep: pick?.wilsonScore || 0,
+    profilePic: `${baseURL}/api/v1/${pick?.userId?.profilePicture}` || "",
+    rank: pick?.rank || "",
+    score: Math.round(pick?.totalLeaguesScore || 0),
+  })) || [];
+
   const draftStarted = new Date(startDraftData?.startTime) < new Date();
 
   useEffect(() => {
-    // Simulate data fetching completion
     if (startDraftData) {
       setIsInitialLoading(false);
     }
@@ -141,98 +150,41 @@ const StartDraftPlayerCard: React.FC<StartDraftPlayerCardProps> = ({
     return path ? `${baseURL}/api/v1/${path}` : "";
   };
 
+  const handlePlayerClick = (Playerdata: any) => {
+    setSelectedPlayerData(Playerdata);
+    setConfirmationPopUp(3)
+  }
+
   if (isInitialLoading) {
     return <HandLogoLoader />;
   }
 
   return (
-    <main className="flex-1 admin-draft-page-wrapper p-6 bg-gray-100 min-h-screen">
+    <main className="flex-1 admin-draft-page-wrapper p-6 bg-gray-800 min-h-screen">
       <div className="max-w-7xl mx-auto">
-        {/* Draft Metadata */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h1 className="text-3xl font-bold font_oswald mb-4">
-            {startDraftData.leagueId.title} Draft
-          </h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <p>
-                <strong>status:</strong> {startDraftData.status.toUpperCase()}
-              </p>
-              <p>
-                <strong>startTime:</strong>{" "}
-                {moment(startDraftData.startTime)
-                  .local()
-                  .format("DD/MM/YYYY hh:mm A")}
-              </p>
-              <p>
-                <strong>totalTeams:</strong> {startDraftData.totalTeams}
-              </p>
-            </div>
-            <div>
-              <p>
-                <strong>totalPlayers:</strong> {startDraftData.totalPlayers}
-              </p>
-              <p>
-                <strong>currentInterval:</strong>{" "}
-                {startDraftData.currentInterval + 1 || "N/A"}
-              </p>
-              <p>
-                <strong>countdown:</strong>{" "}
-                {draftStarted ? countdown : "Not Started"}
-              </p>
-            </div>
-          </div>
-          {/* Admin Controls */}
-          <div className="mt-4 flex space-x-4">
-            <button
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-              disabled={draftStarted}
-              onClick={() => {
-                // Implement start draft logic (e.g., API call)
-                console.log("Start Draft");
-              }}
-            >
-              startDraft
-            </button>
-            <button
-              className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600"
-              disabled={!draftStarted || startDraftData.status !== "active"}
-              onClick={() => {
-                // Implement pause draft logic
-                console.log("Pause Draft");
-              }}
-            >
-              pauseDraft
-            </button>
-            <button
-              className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
-              onClick={() => {
-                // Implement reset draft logic
-                console.log("Reset Draft");
-              }}
-            >
-              resetDraft
-            </button>
-          </div>
-        </div>
 
-        {/* Draft Timer */}
         {draftStarted && otherPlayers.length > 0 && (
           <div className="text-center mb-6">
-            <h2 className="text-6xl font-bold font_oswald text-gray-800">
+            <h2 className="text-6xl font-bold font_oswald text-white">
               {countdown}
             </h2>
           </div>
         )}
 
-        {/* Teams Grid */}
         <div className="drafting__final_teams-wrapper mb-8">
-          <h2 className="text-3xl font-bold font_oswald text-center mb-4">
-            teams
+          {new Date(startDraftData?.startTime) > new Date() && (
+            <p className="text-center mb-4"> Draft Will Start At:  {moment(startDraftData.startTime)
+              .local()
+              .format("DD/MM/YYYY hh:mm A")}</p>
+          )}
+          
+          <h2 className="text-3xl font-bold font_oswald text-center mb-10">
+            Teams
           </h2>
+
           {teams.length === 0 ? (
             <div className="text-center py-8 text-xl text-gray-500">
-              noTeams
+              No Teams Available
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
@@ -263,44 +215,41 @@ const StartDraftPlayerCard: React.FC<StartDraftPlayerCardProps> = ({
 
                 return (
                   <div className="drafting__teams-list" key={teamIdx}>
-                    <h3 className="text-2xl font-medium font_oswald text-gray-800 mb-2">
-                      teams {teamIdx + 1}
+                    <h3 className="text-2xl font-medium font_oswald text-white mb-2">
+                      Team {teamIdx + 1}
+
                     </h3>
-                    <div className="drafting__teams-list-block bg-white rounded-lg shadow-md p-4">
+                    <div className="drafting__teams-list-block">
                       <div
-                        className={`relative ${
-                          isCurrentCaptainTurn && draftStarted
-                            ? "border-2 border-green-500"
-                            : ""
-                        }`}
+                        className={`relative ${isCurrentCaptainTurn && draftStarted
+                          ? "border-2 border-green-500 rounded-lg"
+                          : ""
+                          }`}
                       >
-                        <span className="absolute top-[-2.5rem] right-6">
+
+                        <div className="flex items-center justify-between p-3 rounded-lg bg-gray-900 bg-opacity-75">
                           <img
-                            alt={"gold_crown"}
-                            className="h-9"
-                            src={GoldCrown}
+                            src={
+                              team.captains.userId.profilePicture
+                                ? `${baseURL}/api/v1/${team.captains.userId.profilePicture}`
+                                : "/default-profile.png"
+                            }
+                            alt={`${team.captains.userId.fullName} profile picture`}
+                            className="w-8 h-8 rounded-full object-cover"
                           />
-                        </span>
-                        <FirstPosCard_gold
-                          props={{
-                            index: teamIdx,
-                            username: team?.captains?.userId?.username || "",
-                            fullName: team?.captains?.userId?.fullName || "",
-                            id: team?.captains?.userId?._id || "",
-                            rep: team?.captains?.wilsonScore || 0,
-                            profilePic: getServerURL(
-                              team?.captains?.userId?.profilePicture || ""
-                            ),
-                            rank: team?.captains?.rank || "",
-                            score: Math.round(
-                              team?.captains?.totalLeaguesScore || 0
-                            ),
-                          }}
-                        />
+                          <div className="group relative">
+                            <span className="font-medium text-white text-sm">
+                              {team.captains.userId.fullName}
+                            </span>
+                            <span className="absolute hidden group-hover:block bg-gray-900 text-white text-xs rounded p-2 mt-1 z-10">
+                              Rank: {team.captains.rank}, Score:{" "}
+                              {team.captains.totalScore}
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                      <ul className="drafting__teams-picked-list mt-4">
+                      <ul className="drafting__teams-picked-list mt-4 flex flex-col gap-4">
                         {team.players.map((p, slotIdx) => {
-                          const isPicked = !!p.username;
                           const data = {
                             index: p.index,
                             username: p.username || "",
@@ -311,17 +260,25 @@ const StartDraftPlayerCard: React.FC<StartDraftPlayerCardProps> = ({
                             rank: p.rank || "",
                             score: Math.round(p.score || 0),
                           };
-                          const Card =
-                            slotIdx % 2 === 0 ? EvenPosCard : OddPosCard;
+
                           return (
-                            <li
-                              key={data.id}
-                              className={`list-none ${
-                                isPicked ? "assign" : "empty"
-                              }`}
-                            >
-                              <Card props={data} />
-                            </li>
+
+                            <div className="flex items-center gap-3 p-3 justify-between rounded-lg transition-colors bg-gray-700 bg-opacity-75 hover:bg-gray-600 cursor-grab">
+                              <img
+                                src={`${baseURL}/api/v1/${data.profilePic}`}
+                                alt={`${data.fullName} profile picture`}
+                                className="w-8 h-8 rounded-full object-cover"
+                              />
+                              <div className="group relative">
+                                <div className="font-medium text-white text-sm">
+                                  {data.fullName}
+                                </div>
+                                <div className="absolute hidden group-hover:block bg-gray-900 text-white text-xs rounded p-2 mt-1 z-10">
+                                  {data.fullName} (Rank: {data.rank}, Score:{" "}
+                                  {data.score})
+                                </div>
+                              </div>
+                            </div>
                           );
                         })}
                       </ul>
@@ -334,41 +291,180 @@ const StartDraftPlayerCard: React.FC<StartDraftPlayerCardProps> = ({
         </div>
 
         {/* Available Players */}
-        <div className="draft-picks-wrapper">
+        <div className="draft-picks-wrapper pt-10">
           <h2 className="text-3xl font-bold font_oswald text-center mb-4">
-            {otherPlayers.length > 0 ? "availablePlayers" : "no_draft_picks"}
+            {otherPlayers.length > 0 ? "Available Draft Players" : "No Draft Picks"}
           </h2>
           {!draftStarted ? (
             <div className="text-center py-8">
-              <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
-                <p className="text-xl font-semibold">draft_not_started</p>
-                <p>
-                  draft_will_begin
-                  {moment(startDraftData.startTime)
-                    .local()
-                    .format("DD/MM/YYYY hh:mm A")}
-                </p>
+              {/* Show grayed out players */}
+              <div className="draft-picks-wrapper-list grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-2 gap-x-8 opacity-50 pointer-events-none">
+                {otherPlayers?.length > 0 && pickes?.map((data, rowIdx) => (
+                  <div className="draft-row" key={rowIdx + "A"}>
+                    <div className="draft-picks-wrapper-item" key={data.index}>
+                      {rowIdx % 2 === 0 ? (
+                        <div
+                          className="flex items-center gap-4 bg-gray-800 bg-opacity-90 hover:bg-gray-700 
+      cursor-pointer transition-all duration-200 ease-in-out rounded-lg p-3 
+      shadow-md hover:shadow-lg active:scale-[0.98] select-none"
+                          onClick={() => handlePlayerClick(data)}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => e.key === 'Enter' && handlePlayerClick(data)}
+                          aria-label={`Select player ${data.fullName}`}
+                        >
+                          <img
+                            src={`${baseURL}/api/v1/${data.profilePic}`}
+                            alt={`${data.fullName}'s profile picture`}
+                            className="w-10 h-10 rounded-full object-cover border-2 border-gray-600 
+        group-hover:border-blue-500 transition-colors duration-200"
+                          />
+                          <div className="group relative flex-1">
+                            <div className="font-semibold text-gray-100 text-sm truncate">
+                              {data.fullName}
+                            </div>
+                            <div className="absolute hidden group-hover:flex bg-gray-900 bg-opacity-95 
+        text-gray-200 text-xs rounded-lg p-3 mt-2 z-20 shadow-xl 
+        border border-gray-700 min-w-max"
+                            >
+                              <div className="flex flex-col gap-1">
+                                <span className="font-medium">{data.fullName}</span>
+                                <span>Rank: {data.rank}</span>
+                                <span>Score: {data.score}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          className="flex items-center gap-4 bg-gray-800 bg-opacity-90 hover:bg-gray-700 
+      cursor-pointer transition-all duration-200 ease-in-out rounded-lg p-3 
+      shadow-md hover:shadow-lg active:scale-[0.98] select-none"
+                          onClick={() => handlePlayerClick(data)}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => e.key === 'Enter' && handlePlayerClick(data)}
+                          aria-label={`Select player ${data.fullName}`}
+                        >
+                          <img
+                            src={`${baseURL}/api/v1/${data.profilePic}`}
+                            alt={`${data.fullName}'s profile picture`}
+                            className="w-10 h-10 rounded-full object-cover border-2 border-gray-600 
+        group-hover:border-blue-500 transition-colors duration-200"
+                          />
+                          <div className="group relative flex-1">
+                            <div className="font-semibold text-gray-100 text-sm truncate">
+                              {data.fullName}
+                            </div>
+                            <div className="absolute hidden group-hover:flex bg-gray-900 bg-opacity-95 
+        text-gray-200 text-xs rounded-lg p-3 mt-2 z-20 shadow-xl 
+        border border-gray-700 min-w-max"
+                            >
+                              <div className="flex flex-col gap-1">
+                                <span className="font-medium">{data.fullName}</span>
+                                <span>Rank: {data.rank}</span>
+                                <span>Score: {data.score}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-2 gap-x-8">
-              {otherPlayers.length > 0 ? (
-                otherPlayers.map((data, idx) => (
+              {otherPlayers?.length > 0 ? (
+                pickes?.map((data, idx) => (
                   <div className="draft-picks-wrapper-item" key={data.id}>
                     {idx % 2 === 0 ? (
-                      <OddPosCard props={data} />
+                      <div
+                        className="flex items-center gap-4 bg-gray-800 bg-opacity-90 hover:bg-gray-700 
+      cursor-pointer transition-all duration-200 ease-in-out rounded-lg p-3 
+      shadow-md hover:shadow-lg active:scale-[0.98] select-none"
+                        onClick={() => handlePlayerClick(data)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => e.key === 'Enter' && handlePlayerClick(data)}
+                        aria-label={`Select player ${data.fullName}`}
+                      >
+                        <img
+                          src={`${baseURL}/api/v1/${data.profilePic}`}
+                          alt={`${data.fullName}'s profile picture`}
+                          className="w-10 h-10 rounded-full object-cover border-2 border-gray-600 
+        group-hover:border-blue-500 transition-colors duration-200"
+                        />
+                        <div className="group relative flex-1">
+                          <div className="font-semibold text-gray-100 text-sm truncate">
+                            {data.fullName}
+                          </div>
+                          <div className="absolute hidden group-hover:flex bg-gray-900 bg-opacity-95 
+        text-gray-200 text-xs rounded-lg p-3 mt-2 z-20 shadow-xl 
+        border border-gray-700 min-w-max"
+                          >
+                            <div className="flex flex-col gap-1">
+                              <span className="font-medium">{data.fullName}</span>
+                              <span>Rank: {data.rank}</span>
+                              <span>Score: {data.score}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     ) : (
-                      <EvenPosCard props={data} />
+                      <div
+                        className="flex items-center gap-4 bg-gray-800 bg-opacity-90 hover:bg-gray-700 
+      cursor-pointer transition-all duration-200 ease-in-out rounded-lg p-3 
+      shadow-md hover:shadow-lg active:scale-[0.98] select-none"
+                        onClick={() => handlePlayerClick(data)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => e.key === 'Enter' && handlePlayerClick(data)}
+                        aria-label={`Select player ${data.fullName}`}
+                      >
+                        <img
+                          src={`${baseURL}/api/v1/${data.profilePic}`}
+                          alt={`${data.fullName}'s profile picture`}
+                          className="w-10 h-10 rounded-full object-cover border-2 border-gray-600 
+        group-hover:border-blue-500 transition-colors duration-200"
+                        />
+                        <div className="group relative flex-1">
+                          <div className="font-semibold text-gray-100 text-sm truncate">
+                            {data.fullName}
+                          </div>
+                          <div className="absolute hidden group-hover:flex bg-gray-900 bg-opacity-95 
+        text-gray-200 text-xs rounded-lg p-3 mt-2 z-20 shadow-xl 
+        border border-gray-700 min-w-max"
+                          >
+                            <div className="flex flex-col gap-1">
+                              <span className="font-medium">{data.fullName}</span>
+                              <span>Rank: {data.rank}</span>
+                              <span>Score: {data.score}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     )}
                   </div>
                 ))
               ) : (
                 <div className="w-full text-center py-8 text-xl text-gray-500">
-                  no_draft_player
+                  No Draft Players Available
                 </div>
               )}
             </div>
           )}
+
+          <ConfirmationPopUp
+            onPlayerSelect={({ did, Playerdata }) => {
+              socket.emit(SOCKET.SETPICKEDDRAFTPLAYER, { draftId: did, Playerdata })
+            }}
+            did={did}
+            setConfirmationPopUp={setConfirmationPopUp}
+            confirmationPopUp={confirmationPopUp}
+            selectedPlayerData={selectedPlayerData}
+          />
         </div>
       </div>
     </main>

@@ -30,6 +30,7 @@ import moment from "moment-timezone";
 import { socket } from "../../app/socket/socket";
 import { SOCKET } from "../../utils/constant";
 import DraftPlayerCard from "./DraftPlayerCard";
+import StartDraftPlayerCard from "./StartDraftPlayerCard";
 // import StartDraftPlayerCard from "./StartDraftPlayerCard";
 
 interface EligiblePlayer {
@@ -97,6 +98,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [startDraftData, setstartDraftData] = useState();
   const [isDraftActive, setIsDraftActive] = useState(data?.status === "active");
+  const [status, setStatus] = useState(null)
 
   const [currentSeed, setCurrentSeed] = useState<number | null>(null);
   const [seedingList, setSeedingList] = useState<
@@ -118,15 +120,15 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
 
     const handleDraftUpdate = (data: any) => {
       if (data?.data?.currentInterval === -1) {
-        // Only set data the first time we meet the condition
         if (!isInitialDataSet && draftData.length === 0) {
           setDraftData(data?.data?.teams || []);
           isInitialDataSet = true;
         }
       } else {
         setstartDraftData(data?.data);
-        setDraftData([]); // Reset if interval changes
-        isInitialDataSet = false; // Allow setting again if it returns to -1
+        setStatus(data?.status);
+        setDraftData([]);
+        isInitialDataSet = false;
       }
     };
 
@@ -169,11 +171,11 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
           seed: index + 1,
           player: data?.eligiblePlayers[index]
             ? {
-                id: data?.eligiblePlayers[index]._id,
-                name: data?.eligiblePlayers[index].username,
-                shortName: data?.eligiblePlayers[index].fullName,
-                profilePicture: data?.eligiblePlayers[index].profilePicture,
-              }
+              id: data?.eligiblePlayers[index]._id,
+              name: data?.eligiblePlayers[index].username,
+              shortName: data?.eligiblePlayers[index].fullName,
+              profilePicture: data?.eligiblePlayers[index].profilePicture,
+            }
             : null,
         }))
       );
@@ -353,8 +355,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
       seedingList.filter((item) => item.player).length +
       1; // +1 to account for the player just removed
     toast.success(
-      `Player ${
-        player?.name || ""
+      `Player ${player?.name || ""
       } removed from slot ${seed}. ${remainingSlots} more players can be selected.`
     );
 
@@ -601,8 +602,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
       if (draftActive.fulfilled.match(resultAction)) {
         dispatch(fetchDraftingPhase({ id: did }));
         toast.success(
-          `Draft ${
-            resultAction?.payload?.data.isDeactivate ? "Active" : "Deactive"
+          `Draft ${resultAction?.payload?.data.isDeactivate ? "Active" : "Deactive"
           } successfully!`
         );
       }
@@ -646,8 +646,8 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
       {loading ? (
         <HandLogoLoader />
       ) : (
-        <div className="flex gap-3 min-h-screen bg-gray-900 text-white p-4">
-          <div className="max-w-4xl w-full">
+        <div className="flex gap-3 max-h-screen bg-gray-900 text-white p-4">
+          {new Date(data?.startTime) > currentDate && <div className="max-w-4xl w-full">
             {/* Header */}
             <div className="bg-gray-800 rounded-lg p-4 mb-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -721,32 +721,32 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                               {eligiblePlayers.find(
                                 (p) => p.userId._id === item.player!.id
                               ) && (
-                                <>
-                                  <div>
-                                    W/L:{" "}
-                                    {
-                                      eligiblePlayers.find(
-                                        (p) => p.userId._id === item.player!.id
-                                      )!.totalWins
-                                    }
-                                    /
-                                    {
-                                      eligiblePlayers.find(
-                                        (p) => p.userId._id === item.player!.id
-                                      )!.totalLosses
-                                    }
-                                  </div>
-                                  <div>
-                                    Win%:{" "}
-                                    {eligiblePlayers
-                                      .find(
-                                        (p) => p.userId._id === item.player!.id
-                                      )!
-                                      .winPercentage.toFixed(2)}
-                                    %
-                                  </div>
-                                </>
-                              )}
+                                  <>
+                                    <div>
+                                      W/L:{" "}
+                                      {
+                                        eligiblePlayers.find(
+                                          (p) => p.userId._id === item.player!.id
+                                        )!.totalWins
+                                      }
+                                      /
+                                      {
+                                        eligiblePlayers.find(
+                                          (p) => p.userId._id === item.player!.id
+                                        )!.totalLosses
+                                      }
+                                    </div>
+                                    <div>
+                                      Win%:{" "}
+                                      {eligiblePlayers
+                                        .find(
+                                          (p) => p.userId._id === item.player!.id
+                                        )!
+                                        .winPercentage.toFixed(2)}
+                                      %
+                                    </div>
+                                  </>
+                                )}
                             </div>
                           ) : (
                             <span className="text-gray-500 text-sm">-</span>
@@ -796,10 +796,10 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
             {!data?.isPublished && (
               <div className="flex items-center justify-evenly">
                 {/* Save Button */}
-                <div className="mt-6 text-center">
+                <div className="mt-3 text-center">
                   <button
                     onClick={handleSaveChanges}
-                    className="px-8 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 rounded-lg font-medium transition-colors"
+                    className="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 rounded-lg font-medium transition-colors"
                     disabled={
                       new Date(data?.startTime) > currentDate ? false : true
                     }
@@ -807,10 +807,10 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                     Save Changes
                   </button>
                 </div>
-                <div className="mt-6 text-center">
+                <div className="mt-3 text-center">
                   <button
                     onClick={handleChanges}
-                    className="px-8 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 rounded-lg font-medium transition-colors"
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 rounded-lg font-medium transition-colors btn-sm"
                     disabled={data?.isPublished}
                   >
                     Publish
@@ -818,7 +818,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                 </div>
               </div>
             )}
-          </div>
+          </div>}
           <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 max-w-4xl w-full">
             <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
               <Trophy className="text-yellow-400" size={20} />
@@ -1015,20 +1015,19 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
                         type="checkbox"
                         checked={
                           selectedPlayers.length ===
-                            Math.min(
-                              filteredPlayers.length,
-                              (state?.draftPlayer || 0) -
-                                seedingList.filter((item) => item.player).length
-                            ) && filteredPlayers.length > 0
+                          Math.min(
+                            filteredPlayers.length,
+                            (state?.draftPlayer || 0) -
+                            seedingList.filter((item) => item.player).length
+                          ) && filteredPlayers.length > 0
                         }
                         onChange={handleSelectAll}
                         className="w-5 h-5 text-blue-500 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2 transition-colors"
                       />
                       <span className="text-sm font-medium text-white">
-                        {`Select Top ${
-                          (state?.draftPlayer || 0) -
+                        {`Select Top ${(state?.draftPlayer || 0) -
                           seedingList.filter((item) => item.player).length
-                        } Players`}
+                          } Players`}
                       </span>
                     </label>
                   </div>
@@ -1103,8 +1102,12 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
           )}
         </div>
       )}
-      {transformedDraftPlayers?.length > 0 && (
-        <div className="flex gap-3 min-h-screen bg-gray-800 text-white p-4 mb-4 shadow-lg overflow-x-auto">
+      {transformedDraftPlayers?.length > 0 ? (<>   
+        <div className="min-h-screen bg-gray-800 text-white p-4 mb-4 shadow-lg overflow-x-auto">
+           <h2 className="text-lg font-bold text-center text-white my-3">
+            Draft Finished!
+          </h2>
+          <div className="flex gap-3">  
           {transformedDraftPlayers.map((group) => (
             <DraftPlayerCard
               key={group._id}
@@ -1114,13 +1117,18 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
               onReplacePlayer={handleReplacePlayer}
             />
           ))}
+          </div>
         </div>
+        </>
+      ) : (<>
+        {startDraftData && (
+          <div className="flex gap-3 min-h-screen bg-gray-800 text-white p-4 mb-4 shadow-lg overflow-x-auto mt-10">
+            <StartDraftPlayerCard startDraftData={startDraftData} status={status} did={did} />
+          </div>
+        )}
+      </>
       )}
-      {/* {startDraftData && (
-        <div className="flex gap-3 min-h-screen bg-gray-800 text-white p-4 mb-4 shadow-lg overflow-x-auto">
-          <StartDraftPlayerCard startDraftData={startDraftData} />
-        </div>
-      )} */}
+
     </Layout>
   );
 };

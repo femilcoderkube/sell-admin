@@ -6,6 +6,8 @@ export const SOCKET = {
   ONADMINMESSAGESTART: "onAdminMessageStart",
   ONDRAFTDATAUPDATE: "onDraftDataUpdate",
   GETDRAFTDATA: "getDraftData",
+  SETPICKEDDRAFTPLAYER: "setPickedDraftPlayer",
+
 };
 
 // Helper to convert Saudi time to local time for form display

@@ -1032,10 +1032,10 @@ export const FirstPosCard_gold = ({ props }) => {
   )
 }
 
-export const EvenPosCard = ({ props, onClick  }) => {  
+export const EvenPosCard = ({ props, onClick }) => {
   
   return (
-   
+
     <svg onClick={onClick}
       width={"100%"}
       height={"100%"}
@@ -1379,16 +1379,16 @@ export const EvenPosCard = ({ props, onClick  }) => {
               />
             </g>
             <g id={`evenbox-mask-group-status${props.index}even`}>
-             
-                <rect
-                  id={`image 197${props.index}even`}
-                  x={16}
-                  y={20.5542}
-                  width={16}
-                  height={16}
-                  fill={`url(#pattern1_5056_2586${props.index}even)`}
-                />
-              
+
+              <rect
+                id={`image 197${props.index}even`}
+                x={16}
+                y={20.5542}
+                width={16}
+                height={16}
+                fill={`url(#pattern1_5056_2586${props.index}even)`}
+              />
+
               {/* <g mask={`url(#mask1_5056_2586${props.index}even)`}>
                 <rect
                   id={`image 198${props.index}even`}
@@ -2181,7 +2181,7 @@ export const EvenPosCard = ({ props, onClick  }) => {
           height={809}
           preserveAspectRatio="none"
           xlinkHref={props.profilePic}
-          // style={{"zIndex": 99}}
+        // style={{"zIndex": 99}}
         />
         <image
           id={`image1_5056_2586${props.index}even`}
@@ -2193,11 +2193,12 @@ export const EvenPosCard = ({ props, onClick  }) => {
         />
       </defs>
     </svg>
-    
+
   );
 }
 
-export const OddPosCard = ({ props,onClick  }) => {  
+export const OddPosCard = ({ props, onClick }) => {
+  
   return (
     <svg onClick={onClick}
       width={"100%"}
@@ -2546,18 +2547,18 @@ export const OddPosCard = ({ props,onClick  }) => {
             />
           </g>
           <g id={`oddbox-mask-group-status${props.index}odd`}>
-          
-              <rect
-                id={`oddbox-image197${props.index}odd`}
-                x={16.0665}
-                y={16.416}
-                width={16}
-                height={16}
-                fill={`url(#pattern1_5060_2319${props.index}odd)`}
-              />
-          
+
+            <rect
+              id={`oddbox-image197${props.index}odd`}
+              x={16.0665}
+              y={16.416}
+              width={16}
+              height={16}
+              fill={`url(#pattern1_5060_2319${props.index}odd)`}
+            />
+
             <g mask={`url(#mask1_5060_2319${props.index}odd)`}>
-            
+
             </g>
           </g>
           <g id={`oddbox-draft_svg_contant${props.index}odd`}>

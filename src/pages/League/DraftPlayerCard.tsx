@@ -117,9 +117,9 @@ const DraftPlayerCard: React.FC<DraftPlayerCardProps> = ({
       //       : "none",
       //   }}
     >
-      {/* <h2 className="text-lg font-bold text-white mb-3 bg-gray-900 bg-opacity-75 p-2 rounded">
-        Captain
-      </h2> */}
+      <h2 className="text-lg font-bold text-white mb-3 ">
+        Team {groupNumber}
+      </h2>
       <div className="space-y-3">
         {/* Captain Display (Non-draggable) */}
         <div
