@@ -271,7 +271,7 @@ export const SeedDetail: FC<{ title: string }> = ({ title }) => {
   // Handle select all
   const handleSelectAll = () => {
     const availableSlots = getAvailableSlots();
-    if (selectedPlayers.length === filteredPlayers.length) {
+    if (selectedPlayers.length > 0) {
       // Deselect all
       setSelectedPlayers([]);
       setSlotAssignments({});
