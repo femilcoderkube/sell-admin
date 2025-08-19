@@ -111,11 +111,11 @@ const DraftPlayerCard: React.FC<DraftPlayerCardProps> = ({
   return (
     <div
       className="min-w-[250px] p-4 rounded-lg bg-cover bg-center"
-      //   style={{
-      //     backgroundImage: captain.userId.profilePicture
-      //       ? `url(${baseURL}/api/v1/${captain.userId.profilePicture})`
-      //       : "none",
-      //   }}
+    //   style={{
+    //     backgroundImage: captain.userId.profilePicture
+    //       ? `url(${baseURL}/api/v1/${captain.userId.profilePicture})`
+    //       : "none",
+    //   }}
     >
       <h2 className="text-lg font-bold text-white mb-3 ">
         Team {groupNumber}
@@ -139,7 +139,10 @@ const DraftPlayerCard: React.FC<DraftPlayerCardProps> = ({
             />
             <div className="group relative ">
               <div className="font-medium text-white text-sm">
-                C. {captain.userId.fullName}
+                {captain.userId.fullName}
+              </div>
+              <div className="text-gray-400 text-xs">
+                @{captain.userId.username}
               </div>
               <div className="absolute hidden group-hover:block bg-gray-900 text-white text-xs rounded p-2 mt-1 z-10">
                 {captain.userId.fullName} (Rank: {captain.rank}, Score:{" "}
@@ -152,11 +155,10 @@ const DraftPlayerCard: React.FC<DraftPlayerCardProps> = ({
         {players.map((player, index) => (
           <div
             key={player?.id || `empty-${index}`}
-            className={`flex items-center justify-between p-3 rounded-lg transition-colors ${
-              player
+            className={`flex items-center justify-between p-3 rounded-lg transition-colors ${player
                 ? "bg-gray-700 bg-opacity-75 hover:bg-gray-600 cursor-grab"
                 : "bg-gray-800 border-2 border-dashed border-gray-600"
-            }`}
+              }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={(e) => handleDrop(e, index)}
@@ -179,6 +181,9 @@ const DraftPlayerCard: React.FC<DraftPlayerCardProps> = ({
                 <div className="group relative">
                   <div className="font-medium text-white text-sm">
                     {player.fullName}
+                  </div>
+                  <div className="text-gray-400 text-xs">
+                    @{player.username}
                   </div>
                   <div className="absolute hidden group-hover:block bg-gray-900 text-white text-xs rounded p-2 mt-1 z-10">
                     {player.fullName} (Rank: {player.rank}, Score:{" "}
