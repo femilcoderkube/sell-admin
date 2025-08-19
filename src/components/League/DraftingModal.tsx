@@ -226,6 +226,7 @@ export const DraftingModal: React.FC<DraftingModalProps> = ({
                 name="startTime"
                 placeholderText="Select start time"
                 autoComplete="off"
+                timeIntervals={15}
                 minDate={new Date()}
                 popperPlacement="bottom-start"
                 wrapperClassName="w-full"
