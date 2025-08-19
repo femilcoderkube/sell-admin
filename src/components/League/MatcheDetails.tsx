@@ -162,7 +162,7 @@ const MatchStatusSwitch = ({
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-10">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-20">
           <div className="bg-gray-800 border border-gray-700 p-8 rounded-2xl shadow-2xl max-w-md w-full transform transition-all duration-300">
             <div className="text-center">
               <div className="w-12 h-12 mx-auto mb-4 bg-[#46A2FF]/10 rounded-full flex items-center justify-center">
