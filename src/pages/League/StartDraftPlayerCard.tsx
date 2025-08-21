@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { baseURL } from "../../axios";
 import moment from "moment";
-import HandLogoLoader from "../../components/Loader/loader";
+
 import ConfirmationPopUp from "../../components/confirmationPopUp";
 import { socket } from "../../app/socket/socket";
 import { SOCKET } from "../../utils/constant";
+import HandLogoLoader from "../../components/Loader/Loader";
 
 const formatCountdown = (seconds: any) => {
   const m = Math.floor(seconds / 60)
@@ -85,34 +86,34 @@ interface DraftData {
 
 interface StartDraftPlayerCardProps {
   startDraftData: DraftData;
-  status: any,
+  status: any;
   did?: any;
 }
 
 const StartDraftPlayerCard: React.FC<StartDraftPlayerCardProps> = ({
   startDraftData,
   status,
-  did
-
+  did,
 }) => {
   const [countdown, setCountdown] = useState("00:00");
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [confirmationPopUp, setConfirmationPopUp] = useState(0);
-  const [selectedPlayerData, setSelectedPlayerData] = useState(null)
+  const [selectedPlayerData, setSelectedPlayerData] = useState(null);
 
   const teams = startDraftData.teams || [];
   const otherPlayers = startDraftData.otherPlayers || [];
 
-  const pickes = otherPlayers?.map((pick, idx) => ({
-    index: idx,
-    username: pick?.userId?.username || "",
-    fullName: pick?.userId?.fullName || "",
-    id: pick?.userId?._id || "",
-    rep: pick?.wilsonScore || 0,
-    profilePic: `${baseURL}/api/v1/${pick?.userId?.profilePicture}` || "",
-    rank: pick?.rank || "",
-    score: Math.round(pick?.totalLeaguesScore || 0),
-  })) || [];
+  const pickes =
+    otherPlayers?.map((pick, idx) => ({
+      index: idx,
+      username: pick?.userId?.username || "",
+      fullName: pick?.userId?.fullName || "",
+      id: pick?.userId?._id || "",
+      rep: pick?.wilsonScore || 0,
+      profilePic: `${baseURL}/api/v1/${pick?.userId?.profilePicture}` || "",
+      rank: pick?.rank || "",
+      score: Math.round(pick?.totalLeaguesScore || 0),
+    })) || [];
 
   const draftStarted = new Date(startDraftData?.startTime) < new Date();
 
@@ -152,8 +153,8 @@ const StartDraftPlayerCard: React.FC<StartDraftPlayerCardProps> = ({
 
   const handlePlayerClick = (Playerdata: any) => {
     setSelectedPlayerData(Playerdata);
-    setConfirmationPopUp(3)
-  }
+    setConfirmationPopUp(3);
+  };
 
   if (isInitialLoading) {
     return <HandLogoLoader />;
@@ -162,7 +163,6 @@ const StartDraftPlayerCard: React.FC<StartDraftPlayerCardProps> = ({
   return (
     <main className="flex-1 admin-draft-page-wrapper p-6 bg-gray-800 min-h-screen">
       <div className="max-w-7xl mx-auto">
-
         {draftStarted && otherPlayers.length > 0 && (
           <div className="text-center mb-6">
             <h2 className="text-6xl font-bold font_oswald text-white">
@@ -173,11 +173,15 @@ const StartDraftPlayerCard: React.FC<StartDraftPlayerCardProps> = ({
 
         <div className="drafting__final_teams-wrapper mb-8">
           {new Date(startDraftData?.startTime) > new Date() && (
-            <p className="text-center mb-4"> Draft Will Start At:  {moment(startDraftData.startTime)
-              .local()
-              .format("DD/MM/YYYY hh:mm A")}</p>
+            <p className="text-center mb-4">
+              {" "}
+              Draft Will Start At:{" "}
+              {moment(startDraftData.startTime)
+                .local()
+                .format("DD/MM/YYYY hh:mm A")}
+            </p>
           )}
-          
+
           <h2 className="text-3xl font-bold font_oswald text-center mb-10">
             Teams
           </h2>
@@ -217,16 +221,15 @@ const StartDraftPlayerCard: React.FC<StartDraftPlayerCardProps> = ({
                   <div className="drafting__teams-list" key={teamIdx}>
                     <h3 className="text-2xl font-medium font_oswald text-white mb-2">
                       Team {teamIdx + 1}
-
                     </h3>
                     <div className="drafting__teams-list-block">
                       <div
-                        className={`relative ${isCurrentCaptainTurn && draftStarted
-                          ? "border-2 border-green-500 rounded-lg"
-                          : ""
-                          }`}
+                        className={`relative ${
+                          isCurrentCaptainTurn && draftStarted
+                            ? "border-2 border-green-500 rounded-lg"
+                            : ""
+                        }`}
                       >
-
                         <div className="flex items-center justify-between p-3 rounded-lg bg-gray-900 bg-opacity-75">
                           <img
                             src={
@@ -262,7 +265,6 @@ const StartDraftPlayerCard: React.FC<StartDraftPlayerCardProps> = ({
                           };
 
                           return (
-
                             <div className="flex items-center gap-3 p-3 justify-between rounded-lg transition-colors bg-gray-700 bg-opacity-75 hover:bg-gray-600 cursor-grab">
                               <img
                                 src={`${baseURL}/api/v1/${data.profilePic}`}
@@ -293,85 +295,101 @@ const StartDraftPlayerCard: React.FC<StartDraftPlayerCardProps> = ({
         {/* Available Players */}
         <div className="draft-picks-wrapper pt-10">
           <h2 className="text-3xl font-bold font_oswald text-center mb-4">
-            {otherPlayers.length > 0 ? "Available Draft Players" : "No Draft Picks"}
+            {otherPlayers.length > 0
+              ? "Available Draft Players"
+              : "No Draft Picks"}
           </h2>
           {!draftStarted ? (
             <div className="text-center py-8">
               {/* Show grayed out players */}
               <div className="draft-picks-wrapper-list grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-2 gap-x-8 opacity-50 pointer-events-none">
-                {otherPlayers?.length > 0 && pickes?.map((data, rowIdx) => (
-                  <div className="draft-row" key={rowIdx + "A"}>
-                    <div className="draft-picks-wrapper-item" key={data.index}>
-                      {rowIdx % 2 === 0 ? (
-                        <div
-                          className="flex items-center gap-4 bg-gray-800 bg-opacity-90 hover:bg-gray-700 
+                {otherPlayers?.length > 0 &&
+                  pickes?.map((data, rowIdx) => (
+                    <div className="draft-row" key={rowIdx + "A"}>
+                      <div
+                        className="draft-picks-wrapper-item"
+                        key={data.index}
+                      >
+                        {rowIdx % 2 === 0 ? (
+                          <div
+                            className="flex items-center gap-4 bg-gray-800 bg-opacity-90 hover:bg-gray-700 
       cursor-pointer transition-all duration-200 ease-in-out rounded-lg p-3 
       shadow-md hover:shadow-lg active:scale-[0.98] select-none"
-                          onClick={() => handlePlayerClick(data)}
-                          role="button"
-                          tabIndex={0}
-                          onKeyDown={(e) => e.key === 'Enter' && handlePlayerClick(data)}
-                          aria-label={`Select player ${data.fullName}`}
-                        >
-                          <img
-                            src={`${baseURL}/api/v1/${data.profilePic}`}
-                            alt={`${data.fullName}'s profile picture`}
-                            className="w-10 h-10 rounded-full object-cover border-2 border-gray-600 
+                            onClick={() => handlePlayerClick(data)}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) =>
+                              e.key === "Enter" && handlePlayerClick(data)
+                            }
+                            aria-label={`Select player ${data.fullName}`}
+                          >
+                            <img
+                              src={`${baseURL}/api/v1/${data.profilePic}`}
+                              alt={`${data.fullName}'s profile picture`}
+                              className="w-10 h-10 rounded-full object-cover border-2 border-gray-600 
         group-hover:border-blue-500 transition-colors duration-200"
-                          />
-                          <div className="group relative flex-1">
-                            <div className="font-semibold text-gray-100 text-sm truncate">
-                              {data.fullName}
-                            </div>
-                            <div className="absolute hidden group-hover:flex bg-gray-900 bg-opacity-95 
+                            />
+                            <div className="group relative flex-1">
+                              <div className="font-semibold text-gray-100 text-sm truncate">
+                                {data.fullName}
+                              </div>
+                              <div
+                                className="absolute hidden group-hover:flex bg-gray-900 bg-opacity-95 
         text-gray-200 text-xs rounded-lg p-3 mt-2 z-20 shadow-xl 
         border border-gray-700 min-w-max"
-                            >
-                              <div className="flex flex-col gap-1">
-                                <span className="font-medium">{data.fullName}</span>
-                                <span>Rank: {data.rank}</span>
-                                <span>Score: {data.score}</span>
+                              >
+                                <div className="flex flex-col gap-1">
+                                  <span className="font-medium">
+                                    {data.fullName}
+                                  </span>
+                                  <span>Rank: {data.rank}</span>
+                                  <span>Score: {data.score}</span>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      ) : (
-                        <div
-                          className="flex items-center gap-4 bg-gray-800 bg-opacity-90 hover:bg-gray-700 
+                        ) : (
+                          <div
+                            className="flex items-center gap-4 bg-gray-800 bg-opacity-90 hover:bg-gray-700 
       cursor-pointer transition-all duration-200 ease-in-out rounded-lg p-3 
       shadow-md hover:shadow-lg active:scale-[0.98] select-none"
-                          onClick={() => handlePlayerClick(data)}
-                          role="button"
-                          tabIndex={0}
-                          onKeyDown={(e) => e.key === 'Enter' && handlePlayerClick(data)}
-                          aria-label={`Select player ${data.fullName}`}
-                        >
-                          <img
-                            src={`${baseURL}/api/v1/${data.profilePic}`}
-                            alt={`${data.fullName}'s profile picture`}
-                            className="w-10 h-10 rounded-full object-cover border-2 border-gray-600 
+                            onClick={() => handlePlayerClick(data)}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) =>
+                              e.key === "Enter" && handlePlayerClick(data)
+                            }
+                            aria-label={`Select player ${data.fullName}`}
+                          >
+                            <img
+                              src={`${baseURL}/api/v1/${data.profilePic}`}
+                              alt={`${data.fullName}'s profile picture`}
+                              className="w-10 h-10 rounded-full object-cover border-2 border-gray-600 
         group-hover:border-blue-500 transition-colors duration-200"
-                          />
-                          <div className="group relative flex-1">
-                            <div className="font-semibold text-gray-100 text-sm truncate">
-                              {data.fullName}
-                            </div>
-                            <div className="absolute hidden group-hover:flex bg-gray-900 bg-opacity-95 
+                            />
+                            <div className="group relative flex-1">
+                              <div className="font-semibold text-gray-100 text-sm truncate">
+                                {data.fullName}
+                              </div>
+                              <div
+                                className="absolute hidden group-hover:flex bg-gray-900 bg-opacity-95 
         text-gray-200 text-xs rounded-lg p-3 mt-2 z-20 shadow-xl 
         border border-gray-700 min-w-max"
-                            >
-                              <div className="flex flex-col gap-1">
-                                <span className="font-medium">{data.fullName}</span>
-                                <span>Rank: {data.rank}</span>
-                                <span>Score: {data.score}</span>
+                              >
+                                <div className="flex flex-col gap-1">
+                                  <span className="font-medium">
+                                    {data.fullName}
+                                  </span>
+                                  <span>Rank: {data.rank}</span>
+                                  <span>Score: {data.score}</span>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             </div>
           ) : (
@@ -387,7 +405,9 @@ const StartDraftPlayerCard: React.FC<StartDraftPlayerCardProps> = ({
                         onClick={() => handlePlayerClick(data)}
                         role="button"
                         tabIndex={0}
-                        onKeyDown={(e) => e.key === 'Enter' && handlePlayerClick(data)}
+                        onKeyDown={(e) =>
+                          e.key === "Enter" && handlePlayerClick(data)
+                        }
                         aria-label={`Select player ${data.fullName}`}
                       >
                         <img
@@ -400,12 +420,15 @@ const StartDraftPlayerCard: React.FC<StartDraftPlayerCardProps> = ({
                           <div className="font-semibold text-gray-100 text-sm truncate">
                             {data.fullName}
                           </div>
-                          <div className="absolute hidden group-hover:flex bg-gray-900 bg-opacity-95 
+                          <div
+                            className="absolute hidden group-hover:flex bg-gray-900 bg-opacity-95 
         text-gray-200 text-xs rounded-lg p-3 mt-2 z-20 shadow-xl 
         border border-gray-700 min-w-max"
                           >
                             <div className="flex flex-col gap-1">
-                              <span className="font-medium">{data.fullName}</span>
+                              <span className="font-medium">
+                                {data.fullName}
+                              </span>
                               <span>Rank: {data.rank}</span>
                               <span>Score: {data.score}</span>
                             </div>
@@ -420,7 +443,9 @@ const StartDraftPlayerCard: React.FC<StartDraftPlayerCardProps> = ({
                         onClick={() => handlePlayerClick(data)}
                         role="button"
                         tabIndex={0}
-                        onKeyDown={(e) => e.key === 'Enter' && handlePlayerClick(data)}
+                        onKeyDown={(e) =>
+                          e.key === "Enter" && handlePlayerClick(data)
+                        }
                         aria-label={`Select player ${data.fullName}`}
                       >
                         <img
@@ -433,12 +458,15 @@ const StartDraftPlayerCard: React.FC<StartDraftPlayerCardProps> = ({
                           <div className="font-semibold text-gray-100 text-sm truncate">
                             {data.fullName}
                           </div>
-                          <div className="absolute hidden group-hover:flex bg-gray-900 bg-opacity-95 
+                          <div
+                            className="absolute hidden group-hover:flex bg-gray-900 bg-opacity-95 
         text-gray-200 text-xs rounded-lg p-3 mt-2 z-20 shadow-xl 
         border border-gray-700 min-w-max"
                           >
                             <div className="flex flex-col gap-1">
-                              <span className="font-medium">{data.fullName}</span>
+                              <span className="font-medium">
+                                {data.fullName}
+                              </span>
                               <span>Rank: {data.rank}</span>
                               <span>Score: {data.score}</span>
                             </div>
@@ -458,7 +486,10 @@ const StartDraftPlayerCard: React.FC<StartDraftPlayerCardProps> = ({
 
           <ConfirmationPopUp
             onPlayerSelect={({ did, Playerdata }) => {
-              socket.emit(SOCKET.SETPICKEDDRAFTPLAYER, { draftId: did, Playerdata })
+              socket.emit(SOCKET.SETPICKEDDRAFTPLAYER, {
+                draftId: did,
+                Playerdata,
+              });
             }}
             did={did}
             setConfirmationPopUp={setConfirmationPopUp}
