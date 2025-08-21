@@ -118,7 +118,6 @@ export const updateLeagueMatchesByID = createAsyncThunk(
     },
     { rejectWithValue }
   ) => {
-    console.log("Updating match with ID:", matcheId);
     try {
       const response = await axiosInstance.put(`/LeagueMatch?id=${matcheId}`, {
         matchScores,
