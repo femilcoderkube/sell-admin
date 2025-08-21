@@ -1,7 +1,8 @@
 import { io, Socket } from "socket.io-client";
 
 // Define the socket URL using Vite environment variable or fallback
-const SOCKET_URL: string = "https://devnode.coderkubes.com";
+// const SOCKET_URL: string = "https://devnode.coderkubes.com";
+const SOCKET_URL: string = "https://staging-backend.primeeleague.com";
 
 // Define interface for chat message (matches MatchDetails component)
 interface ChatMessage {

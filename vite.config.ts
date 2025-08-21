@@ -48,7 +48,8 @@ export default defineConfig({
   server: {
     proxy: {
       "/socket.io": {
-        target: "https://devnode.coderkubes.com",
+        // target: "https://devnode.coderkubes.com",
+        target: "https://staging-backend.primeeleague.com",
         ws: true,
         changeOrigin: true,
         secure: false,
