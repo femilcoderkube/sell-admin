@@ -136,6 +136,7 @@ export const updateLeagueMatchesByID = createAsyncThunk(
 
         updatePayload.cancelMatchIds = cancelMatchIds;
         updatePayload.status = status;
+        updatePayload.isCanceled = true;
       } else if (status) {
         updatePayload.status = status;
       }
