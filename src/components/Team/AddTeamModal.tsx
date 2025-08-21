@@ -626,7 +626,7 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({
                         ))}
                         <button
                           type="button"
-                          onClick={() => push({ user: "", role: "" })}
+                          onClick={() => push({ user: "", role: "Player" })}
                           className="mt-2 text-blue-400 hover:text-blue-300 text-sm font-medium"
                         >
                           + Add Member
