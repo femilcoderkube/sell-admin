@@ -119,12 +119,35 @@ export const updateLeagueMatchesByID = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await axiosInstance.put(`/LeagueMatch?id=${matcheId}`, {
+      const updatePayload: any = {
         matchScores,
-        ...(status && { status }),
         winner,
-        // ...(winner && { winner }),
-      });
+      };
+
+      if (status == "canceled") {
+        let cancelMatchIds: string[] = [];
+
+        const matchResponse = await axiosInstance.get(`/LeagueMatch?id=${matcheId}`);
+        const matchData = matchResponse.data;
+
+        const team1Ids = matchData.data.team1?.map((member: any) => member.participant._id) || [];
+        const team2Ids = matchData.data.team2?.map((member: any) => member.participant._id) || [];
+        cancelMatchIds = [...team1Ids, ...team2Ids];
+
+        updatePayload.cancelMatchIds = cancelMatchIds;
+        updatePayload.status = status;
+      } else if (status) {
+        updatePayload.status = status;
+      }
+
+      const response = await axiosInstance.put(`/LeagueMatch?id=${matcheId}`, updatePayload);
+      // // const response = await axiosInstance.put(`/LeagueMatch?id=${matcheId}`, {
+      // //   matchScores,
+      // //   // ...(status && { status }),
+      // //   winner,
+      // //   // ...(winner && { winner }),
+      // // });
+      console.log("Match updated successfully:", response);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
