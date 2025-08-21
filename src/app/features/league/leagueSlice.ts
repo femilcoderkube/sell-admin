@@ -147,7 +147,6 @@ export const updateLeagueMatchesByID = createAsyncThunk(
       // //   winner,
       // //   // ...(winner && { winner }),
       // // });
-      console.log("Match updated successfully:", response);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
