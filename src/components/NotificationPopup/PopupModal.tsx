@@ -17,8 +17,10 @@ import { setLocalZone, setOtherZone } from "../../utils/constant";
 
 interface Popup {
   id?: string;
-  title: string;
-  description: string;
+  titleEn: string;
+  titleAr: string;
+  descriptionEn: string;
+  descriptionAr: string;
   expireDateTime: string;
   status: string;
 }
@@ -30,15 +32,25 @@ interface PopupModalProps {
 
 // Validation schema for popup
 const popupSchema = Yup.object().shape({
-  title: Yup.string()
-    .min(3, "Title must be at least 3 characters")
-    .max(100, "Title cannot exceed 100 characters")
-    .required("Title is required")
-    .matches(/^\S.*\S$/, "Title cannot start or end with spaces"),
-  description: Yup.string()
-    .min(10, "Description must be at least 10 characters")
-    .max(500, "Description cannot exceed 500 characters")
-    .required("Description is required")
+  titleEn: Yup.string()
+    .min(3, "Title(EN) must be at least 3 characters")
+    .max(100, "Title(EN) cannot exceed 100 characters")
+    .required("Title(EN) is required")
+    .matches(/^\S.*\S$/, "Title(EN) cannot start or end with spaces"),
+  titleAr: Yup.string()
+    .min(3, "Title(AR) must be at least 3 characters")
+    .max(100, "Title(AR) cannot exceed 100 characters")
+    .required("Title(AR) is required")
+    .matches(/^\S.*\S$/, "Title(AR) cannot start or end with spaces"),
+  descriptionEn: Yup.string()
+    .min(10, "Description(EN) must be at least 10 characters")
+    .max(500, "Description(EN) cannot exceed 500 characters")
+    .required("Description(EN) is required")
+    .matches(/^\S.*\S$/, "Description cannot start or end with spaces"),
+  descriptionAr: Yup.string()
+    .min(10, "Description(AR) must be at least 10 characters")
+    .max(500, "Description(AR) cannot exceed 500 characters")
+    .required("Description(AR) is required")
     .matches(/^\S.*\S$/, "Description cannot start or end with spaces"),
   expireDateTime: Yup.string().required("Expiration date is required"),
   status: Yup.string()
@@ -56,8 +68,10 @@ const PopupModal: React.FC<PopupModalProps> = ({
 
   const formik = useFormik({
     initialValues: {
-      title: "",
-      description: "",
+      titleEn: "",
+      titleAr: "",
+      descriptionEn: "",
+      descriptionAr: "",
       expireDateTime: "",
       status: "active",
     },
@@ -67,8 +81,10 @@ const PopupModal: React.FC<PopupModalProps> = ({
       try {
         setError(null);
         const popupData: Popup = {
-          title: values.title,
-          description: values.description,
+          titleEn: values.titleEn,
+          titleAr: values.titleAr,
+          descriptionEn: values.descriptionEn,
+          descriptionAr: values.descriptionAr,
           expireDateTime: values.expireDateTime,
           status: values.status,
         };
@@ -108,8 +124,10 @@ const PopupModal: React.FC<PopupModalProps> = ({
   useEffect(() => {
     if (selectedPopup) {
       formik.setValues({
-        title: selectedPopup.title || "",
-        description: selectedPopup.description || "",
+        titleEn: selectedPopup.titleEn || "",
+        titleAr: selectedPopup.titleAr || "",
+        descriptionEn: selectedPopup.descriptionEn || "",
+        descriptionAr: selectedPopup.descriptionAr || "",
         expireDateTime: selectedPopup.expireDateTime || "",
         status: selectedPopup.status || "active",
       });
@@ -157,40 +175,79 @@ const PopupModal: React.FC<PopupModalProps> = ({
             )}
             <div className="mb-4">
               <label className="block text-white text-sm font-medium mb-2">
-                Title <span className="text-red-500">*</span>
+                Title (EN)<span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
-                name="title"
+                name="titleEn"
                 className={`w-full text-[0.94rem] text-white focus:outline-0 bg-input-color rounded-[0.52rem] px-3 py-2 ${
-                  formik.touched.title && formik.errors.title
+                  formik.touched.titleEn && formik.errors.titleEn
                     ? "border border-red-500"
                     : ""
                 }`}
-                {...formik.getFieldProps("title")}
+                {...formik.getFieldProps("titleEn")}
               />
-              {formik.touched.title && formik.errors.title && (
+              {formik.touched.titleEn && formik.errors.titleEn && (
                 <p className="text-red-600 text-sm mt-1">
-                  {formik.errors.title}
+                  {formik.errors.titleEn}
                 </p>
               )}
             </div>
             <div className="mb-4">
               <label className="block text-white text-sm font-medium mb-2">
-                Description <span className="text-red-500">*</span>
+                Title (AR)<span className="text-red-500">*</span>
               </label>
-              <textarea
-                name="description"
-                className={`w-full text-[0.94rem] text-white focus:outline-0 bg-input-color rounded-[0.52rem] px-3 py-2 resize-y min-h-[100px] ${
-                  formik.touched.description && formik.errors.description
+              <input
+                type="text"
+                name="titleAr"
+                className={`w-full text-[0.94rem] text-white focus:outline-0 bg-input-color rounded-[0.52rem] px-3 py-2 ${
+                  formik.touched.titleAr && formik.errors.titleAr
                     ? "border border-red-500"
                     : ""
                 }`}
-                {...formik.getFieldProps("description")}
+                {...formik.getFieldProps("titleAr")}
               />
-              {formik.touched.description && formik.errors.description && (
+              {formik.touched.titleAr && formik.errors.titleAr && (
                 <p className="text-red-600 text-sm mt-1">
-                  {formik.errors.description}
+                  {formik.errors.titleAr}
+                </p>
+              )}
+            </div>
+            <div className="mb-4">
+              <label className="block text-white text-sm font-medium mb-2">
+                Description (EN)<span className="text-red-500">*</span>
+              </label>
+              <textarea
+                name="descriptionEn"
+                className={`w-full text-[0.94rem] text-white focus:outline-0 bg-input-color rounded-[0.52rem] px-3 py-2 resize-y min-h-[100px] ${
+                  formik.touched.descriptionEn && formik.errors.descriptionEn
+                    ? "border border-red-500"
+                    : ""
+                }`}
+                {...formik.getFieldProps("descriptionEn")}
+              />
+              {formik.touched.descriptionEn && formik.errors.descriptionEn && (
+                <p className="text-red-600 text-sm mt-1">
+                  {formik.errors.descriptionEn}
+                </p>
+              )}
+            </div>
+            <div className="mb-4">
+              <label className="block text-white text-sm font-medium mb-2">
+                Description (AR)<span className="text-red-500">*</span>
+              </label>
+              <textarea
+                name="descriptionAr"
+                className={`w-full text-[0.94rem] text-white focus:outline-0 bg-input-color rounded-[0.52rem] px-3 py-2 resize-y min-h-[100px] ${
+                  formik.touched.descriptionAr && formik.errors.descriptionAr
+                    ? "border border-red-500"
+                    : ""
+                }`}
+                {...formik.getFieldProps("descriptionAr")}
+              />
+              {formik.touched.descriptionAr && formik.errors.descriptionAr && (
+                <p className="text-red-600 text-sm mt-1">
+                  {formik.errors.descriptionAr}
                 </p>
               )}
             </div>

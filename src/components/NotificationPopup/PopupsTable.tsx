@@ -8,14 +8,14 @@ interface IPopupsProps {
   data: Popup[];
   currentPage: number;
   onEditClick: (selectedPopup: Popup) => void;
-  onDeleteClick: (popupId: string) => void;
+  // onDeleteClick: (popupId: string) => void;
 }
 
 export const PopupsTable: React.FC<IPopupsProps> = ({
   data,
   currentPage,
   onEditClick,
-  onDeleteClick,
+  // onDeleteClick,
 }) => {
   const thead = {
     id: <TableHashIcon />,
@@ -29,8 +29,8 @@ export const PopupsTable: React.FC<IPopupsProps> = ({
   const tdetail = data.map((popup, key) => ({
     id: popup._id,
     key: (currentPage - 1) * 10 + key + 1,
-    title: popup.title,
-    description: popup.description,
+    titleEn: popup.titleEn,
+    descriptionEn: popup.descriptionEn,
     expireDateTime: new Date(popup.expireDateTime).toLocaleString("en-US", {
       year: "numeric",
       month: "short",
@@ -86,12 +86,12 @@ export const PopupsTable: React.FC<IPopupsProps> = ({
                 {tdetail.key}
               </td>
               <td className="text-sm py-4 px-3 font-medium text-white min-w-[120px]">
-                <span>{tdetail.title}</span>
+                <span>{tdetail.titleEn}</span>
               </td>
               <td className="text-sm py-4 px-3 text-gray-200 hidden md:table-cell min-w-[200px]">
                 <div className="max-w-xs">
                   <p className="line-clamp-2 text-gray-300 leading-relaxed">
-                    {tdetail.description}
+                    {tdetail.descriptionEn}
                   </p>
                 </div>
               </td>
@@ -119,13 +119,13 @@ export const PopupsTable: React.FC<IPopupsProps> = ({
                   >
                     {tdetail.actions.edit}
                   </button>
-                  <button
+                  {/* <button
                     className="bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 p-2 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md"
                     onClick={() => onDeleteClick(tdetail.id)}
                     title="Delete popup"
                   >
                     {tdetail.actions.delete}
-                  </button>
+                  </button> */}
                 </div>
               </td>
             </tr>

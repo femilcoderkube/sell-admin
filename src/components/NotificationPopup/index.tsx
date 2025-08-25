@@ -30,22 +30,22 @@ export const NotificationPopup: React.FC = ({ title }: any) => {
     dispatch(fetchPopups({ page: currentPage, perPage, searchTerm }));
   }, [dispatch, currentPage, perPage, searchTerm]);
 
-  useEffect(() => {
-    if (deleteId) {
-      setIsDeleteModalOpen(true);
-    }
-  }, [deleteId]);
+  // useEffect(() => {
+  //   if (deleteId) {
+  //     setIsDeleteModalOpen(true);
+  //   }
+  // }, [deleteId]);
 
-  const handleDeletePopup = async () => {
-    const resultAction = await dispatch(deletePopup(deleteId));
-    if (deletePopup.fulfilled.match(resultAction)) {
-      setDeleteId("");
-      setIsDeleteModalOpen(false);
-      dispatch(
-        fetchPopups({ page: 1, perPage: perPage, searchTerm: searchTerm })
-      );
-    }
-  };
+  // const handleDeletePopup = async () => {
+  //   const resultAction = await dispatch(deletePopup(deleteId));
+  //   if (deletePopup.fulfilled.match(resultAction)) {
+  //     setDeleteId("");
+  //     setIsDeleteModalOpen(false);
+  //     dispatch(
+  //       fetchPopups({ page: 1, perPage: perPage, searchTerm: searchTerm })
+  //     );
+  //   }
+  // };
 
   return (
     <>
@@ -92,7 +92,7 @@ export const NotificationPopup: React.FC = ({ title }: any) => {
             setSelectedPopup(popup);
             setShowPopupModal(true);
           }}
-          onDeleteClick={(popupId) => setDeleteId(popupId)}
+          // onDeleteClick={(popupId) => setDeleteId(popupId)}
         />
       ) : (
         <div className="text-custom-gray flex items-center justify-center h-20">
@@ -100,14 +100,14 @@ export const NotificationPopup: React.FC = ({ title }: any) => {
         </div>
       )}
 
-      <DeleteConfirmationModal
+      {/* <DeleteConfirmationModal
         show={isDeleteModalOpen}
         onClose={() => {
           setIsDeleteModalOpen(false);
           setDeleteId("");
         }}
         onDelete={handleDeletePopup}
-      />
+      /> */}
 
       <PopupModal
         show={showPopupModal}
