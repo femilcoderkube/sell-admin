@@ -32,14 +32,12 @@ const RoundTimeChangeModal: React.FC<RoundTimeChangeModalProps> = ({
 }) => {
   const [error, setError] = useState<string | null>(null);
 
-  // Extract unique rounds from matches
-
   const formik = useFormik({
     initialValues: {
       groupId: stageType === "BattleRoyal" ? stageGroups[0]?._id : "",
       roundId: stageRound?.length > 0 ? stageRound[0]?._id : "",
-      startDate: "",
-      endDate: "",
+      startDate: stageRound?.length > 0 ? stageRound[0]?.startTime : "",
+      endDate: stageRound?.length > 0 ? stageRound[0]?.endTime : "",
     },
     validationSchema: Yup.object({
       ...(stageType === "BattleRoyal" && {
@@ -50,7 +48,6 @@ const RoundTimeChangeModal: React.FC<RoundTimeChangeModalProps> = ({
       roundId: Yup.string()
         .required("Round selection is required")
         .notOneOf(["-1"], "Please select a valid round"),
-
       startDate: Yup.string().required("Start date is required"),
       endDate: Yup.string()
         .required("End date is required")
@@ -83,6 +80,26 @@ const RoundTimeChangeModal: React.FC<RoundTimeChangeModalProps> = ({
     },
     enableReinitialize: true,
   });
+
+  // Handle round selection change to update startDate and endDate
+  const handleRoundChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedRoundId = e.target.value;
+    formik.handleChange(e); // Update roundId in formik
+
+    // Find the selected round from stageRound
+    const selectedRound = stageRound.find(
+      (round: any) => round._id === selectedRoundId
+    );
+
+    // Update startDate and endDate based on the selected round
+    if (selectedRound) {
+      formik.setFieldValue("startDate", selectedRound.startTime || "");
+      formik.setFieldValue("endDate", selectedRound.endTime || "");
+    } else {
+      formik.setFieldValue("startDate", "");
+      formik.setFieldValue("endDate", "");
+    }
+  };
 
   return (
     <div
@@ -180,16 +197,15 @@ const RoundTimeChangeModal: React.FC<RoundTimeChangeModalProps> = ({
                   <div className="nf_cust-select nf_simple-select focus-input w-full">
                     <select
                       className="form-control color-white cust-arrow w-full text-[0.78125rem] bg-input-color rounded-[0.52rem] px-3 py-[0.35rem] text-white focus:outline-0"
-                      id="round_dropdown_time"
+                      id="group_dropdown_time"
                       name="groupId"
                       value={formik.values.groupId}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
                     >
-                      {/* <option value="-1">All groups</option> */}
-                      {stageGroups?.map((round) => (
-                        <option key={round._id} value={round._id}>
-                          {round.name}{" "}
+                      {stageGroups?.map((group: any) => (
+                        <option key={group._id} value={group._id}>
+                          {group.name}
                         </option>
                       ))}
                     </select>
@@ -214,17 +230,16 @@ const RoundTimeChangeModal: React.FC<RoundTimeChangeModalProps> = ({
                     id="round_dropdown_time"
                     name="roundId"
                     value={formik.values.roundId}
-                    onChange={formik.handleChange}
+                    onChange={handleRoundChange} // Use custom handler
                     onBlur={formik.handleBlur}
                   >
-                    {/* <option value="-1">All rounds</option> */}
-                    {stageRound?.map((round) => (
+                    {stageRound?.map((round: any) => (
                       <option key={round._id} value={round._id}>
                         {round.roundName}{" "}
                         {round.config
-                          ? round.config.group_id == 0
+                          ? round.config.group_id === 0
                             ? "(WB)"
-                            : round.config.group_id == 1
+                            : round.config.group_id === 1
                             ? "(LB)"
                             : "(FB)"
                           : ""}
@@ -276,7 +291,6 @@ const RoundTimeChangeModal: React.FC<RoundTimeChangeModalProps> = ({
                 placeholderText="Select start date"
                 autoComplete="off"
                 timeIntervals={15}
-                // minDate={new Date()}
                 popperPlacement="bottom-start"
                 wrapperClassName="w-full"
                 calendarClassName="custom-datepicker"
@@ -324,7 +338,6 @@ const RoundTimeChangeModal: React.FC<RoundTimeChangeModalProps> = ({
                 placeholderText="Select end date"
                 autoComplete="off"
                 timeIntervals={15}
-                // minDate={new Date(formik.values.startDate)}
                 popperPlacement="bottom-start"
                 wrapperClassName="w-full"
                 calendarClassName="custom-datepicker"

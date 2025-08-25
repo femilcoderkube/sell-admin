@@ -290,6 +290,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
           status: selectedStatus,
         })
       );
+      dispatch(fetchStageRound(selectedStage));
     }
   };
 
