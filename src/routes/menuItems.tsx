@@ -40,6 +40,7 @@ import { BulkRegistration } from "../pages/BulkRegistration";
 import { StageMatcheDetail } from "../pages/StageList/MatcheDetail";
 import { Participant } from "../pages/Participant";
 import { SeedDetail } from "../pages/League/SeedDetail";
+import { Modal } from "../pages/Modal";
 
 // Helper function to convert snake_case to Title Case
 const toTitleCase = (str: string) =>
@@ -185,6 +186,17 @@ export const generateRoutes = (adminside: any[]): RoutesProps[] => {
       dark_svg: downarr,
       white_svg: white_arr,
       component: <Dashboard />,
+      auth: true,
+      isShow: true,
+      partnerColor: undefined,
+    },
+    {
+      label: "Notification Window",
+      icon: <DashboardIcon />,
+      path: "/modal",
+      dark_svg: downarr,
+      white_svg: white_arr,
+      component: <Modal title={"Notification Window"} />,
       auth: true,
       isShow: true,
       partnerColor: undefined,

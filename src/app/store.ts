@@ -3,6 +3,7 @@ import authReducer from "./features/auth/authSlice";
 import partnerReducer from "./features/partners/partnerSlice";
 import trophyReducer from "./features/trophies/trophiesSlice";
 import badgeReducer from "./features/badge/badgeSlice";
+import popupReducer from "./features/popup/popupsSlice";
 import deviceReducer from "./features/devices/deviceSlice";
 import gameReducer from "./features/games/gameSlice";
 import leaguesReducer from "./features/league/leagueSlice";
@@ -56,6 +57,7 @@ export const store = configureStore({
     draftingPhase: draftingPhaseReducer,
     stageGroup: stageGroupReducer,
     battleRoyalScore: battleRoyalScoresReducer,
+    popup: popupReducer,
   },
 });
 
