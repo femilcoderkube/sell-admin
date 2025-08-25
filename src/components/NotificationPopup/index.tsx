@@ -22,6 +22,7 @@ export const NotificationPopup: React.FC = ({ title }: any) => {
 
     searchTerm,
   } = useSelector((state: RootState) => state.popup);
+
   const [showPopupModal, setShowPopupModal] = useState(false);
   const [selectedPopup, setSelectedPopup] = useState<Popup | null>(null);
 
@@ -56,13 +57,13 @@ export const NotificationPopup: React.FC = ({ title }: any) => {
               <h3 className="font-bold text-2xl lg:text-3xl text-white tracking-tight">
                 {title}
                 <span className="ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-slate-700/50 text-slate-300 border border-slate-600/50">
-                  ({popups.length})
+                  ({popups?.length})
                 </span>
               </h3>
             </div>
           </div>
 
-          <div className="hidden lg:block">
+          {/* <div className="hidden lg:block">
             <button
               className="group relative overflow-hidden bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center gap-3 whitespace-nowrap"
               onClick={() => {
@@ -78,12 +79,12 @@ export const NotificationPopup: React.FC = ({ title }: any) => {
                 <span>Add</span>
               </div>
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
       {loading ? (
         <HandLogoLoader />
-      ) : popups.length > 0 ? (
+      ) : popups?.length > 0 ? (
         <PopupsTable
           data={popups}
           currentPage={currentPage}

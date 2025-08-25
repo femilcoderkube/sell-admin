@@ -49,6 +49,7 @@ export const fetchPopups = createAsyncThunk(
           searchKey: searchTerm,
         },
       });
+
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -137,7 +138,7 @@ const popupsSlice = createSlice({
       })
       .addCase(fetchPopups.fulfilled, (state, action) => {
         state.loading = false;
-        state.popups = action.payload.data?.result;
+        state.popups = action.payload.data;
         state.totalCount = action.payload.data.totalItem;
       })
       .addCase(fetchPopups.rejected, (state, action) => {

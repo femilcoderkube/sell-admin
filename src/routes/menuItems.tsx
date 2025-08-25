@@ -77,6 +77,7 @@ const componentMap: { [key: string]: React.ComponentType<any> } = {
   USER_CONTROL: Users, // Added for USER_CONTROL module
   GENRAL_CONTROL: Games, // Added for GENRAL_CONTROL module (assuming Games as default, adjust as needed)
   AWARDS: Trophies, // Added for AWARDS module (assuming Trophies as default, adjust as needed)
+  MODAL: Modal,
 };
 
 // Icon mapping for modules (store component types)
@@ -85,6 +86,7 @@ const iconMap: { [key: string]: React.ComponentType<any> } = {
   USER_CONTROL: AdminControlIcon,
   GENRAL_CONTROL: AdminControlIcon,
   AWARDS: DashboardIcon,
+  MODAL: DashboardIcon,
   AUDIT_LOG: DashboardIcon,
   TRANS_MAT: DashboardIcon,
   SEO: DashboardIcon,
@@ -190,17 +192,7 @@ export const generateRoutes = (adminside: any[]): RoutesProps[] => {
       isShow: true,
       partnerColor: undefined,
     },
-    {
-      label: "Notification Window",
-      icon: <DashboardIcon />,
-      path: "/modal",
-      dark_svg: downarr,
-      white_svg: white_arr,
-      component: <Modal title={"Notification Window"} />,
-      auth: true,
-      isShow: true,
-      partnerColor: undefined,
-    },
+
     // {
     //   label: "Add League",
     //   icon: <NafesLeagueIcon />,
