@@ -271,9 +271,10 @@ const PopupModal: React.FC<PopupModalProps> = ({
                   )
                 }
                 onBlur={() => formik.setFieldTouched("expireDateTime", true)}
-                showTimeSelect
-                timeFormat="h:mm aa"
-                dateFormat="yyyy-MM-dd h:mm aa"
+                // showTimeSelect
+                // timeFormat="h:mm aa"
+                // dateFormat="yyyy-MM-dd h:mm aa"
+                dateFormat="yyyy-MM-dd"
                 className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[0.35rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 appearance-none leading-normal ${
                   formik.touched.expireDateTime && formik.errors.expireDateTime
                     ? "border border-red-500"
