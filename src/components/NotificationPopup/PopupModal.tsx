@@ -75,7 +75,7 @@ const PopupModal: React.FC<PopupModalProps> = ({
       expireDateTime: "",
       status: "active",
     },
-    validationSchema: popupSchema,
+    // validationSchema: popupSchema,
     enableReinitialize: true,
     onSubmit: async (values, { resetForm, setSubmitting }) => {
       try {
@@ -175,7 +175,7 @@ const PopupModal: React.FC<PopupModalProps> = ({
             )}
             <div className="mb-4">
               <label className="block text-white text-sm font-medium mb-2">
-                Title (EN)<span className="text-red-500">*</span>
+                Title (EN)
               </label>
               <input
                 type="text"
@@ -195,7 +195,7 @@ const PopupModal: React.FC<PopupModalProps> = ({
             </div>
             <div className="mb-4">
               <label className="block text-white text-sm font-medium mb-2">
-                Title (AR)<span className="text-red-500">*</span>
+                Title (AR)
               </label>
               <input
                 type="text"
@@ -215,7 +215,7 @@ const PopupModal: React.FC<PopupModalProps> = ({
             </div>
             <div className="mb-4">
               <label className="block text-white text-sm font-medium mb-2">
-                Description (EN)<span className="text-red-500">*</span>
+                Description (EN)
               </label>
               <textarea
                 name="descriptionEn"
@@ -234,7 +234,7 @@ const PopupModal: React.FC<PopupModalProps> = ({
             </div>
             <div className="mb-4">
               <label className="block text-white text-sm font-medium mb-2">
-                Description (AR)<span className="text-red-500">*</span>
+                Description (AR)
               </label>
               <textarea
                 name="descriptionAr"
@@ -253,7 +253,7 @@ const PopupModal: React.FC<PopupModalProps> = ({
             </div>
             <div className="mb-4">
               <label className="block text-white text-sm font-medium mb-2">
-                Expiration Date <span className="text-red-500">*</span>
+                Expiration Date
               </label>
               <DatePicker
                 selected={
@@ -298,7 +298,7 @@ const PopupModal: React.FC<PopupModalProps> = ({
             </div>
             <div className="mb-4">
               <label className="block text-white text-sm font-medium mb-2">
-                Status <span className="text-red-500">*</span>
+                Status
               </label>
               <select
                 name="status"
