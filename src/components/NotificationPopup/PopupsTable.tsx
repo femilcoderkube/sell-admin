@@ -3,6 +3,8 @@ import edit from "../../assets/images/Edit.svg";
 import deleteIcon from "../../assets/images/trash_can.svg";
 import { TableHashIcon } from "../ui";
 import { Popup } from "./PopupModal";
+import { useDispatch } from "react-redux";
+import { fetchPopups, updatePopup } from "../../app/features/popup/popupsSlice";
 
 interface IPopupsProps {
   data: Popup[];
@@ -17,6 +19,8 @@ export const PopupsTable: React.FC<IPopupsProps> = ({
   onEditClick,
   // onDeleteClick,
 }) => {
+  const dispatch = useDispatch();
+
   const thead = {
     id: <TableHashIcon />,
     title: "Title",
@@ -24,6 +28,29 @@ export const PopupsTable: React.FC<IPopupsProps> = ({
     expireDateTime: "Expiration Date",
     status: "Status",
     actions: "Actions",
+  };
+
+  const handleStatusToggle = async (popup: Popup) => {
+    const newStatus = popup.status === "active" ? "inactive" : "active";
+    try {
+      const popupData: Popup = {
+        titleEn: popup.titleEn,
+        titleAr: popup.titleAr,
+        descriptionEn: popup.descriptionEn,
+        descriptionAr: popup.descriptionAr,
+        expireDateTime: popup.expireDateTime,
+        status: newStatus,
+      };
+      const resultAction = await dispatch(
+        updatePopup({ id: popup._id!, popup: popupData })
+      );
+      if (updatePopup.fulfilled.match(resultAction)) {
+        dispatch(fetchPopups({ page: 1, perPage: "", searchTerm: "" }));
+      }
+    } catch (error) {
+      console.error("Error updating popup status:", error);
+      alert("Failed to update status");
+    }
   };
 
   const tdetail = data.map((popup, key) => ({
@@ -35,8 +62,6 @@ export const PopupsTable: React.FC<IPopupsProps> = ({
       year: "numeric",
       month: "short",
       day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
       hour12: true,
     }),
     status: popup.status,
@@ -99,16 +124,19 @@ export const PopupsTable: React.FC<IPopupsProps> = ({
                 <span>{tdetail.expireDateTime}</span>
               </td>
               <td className="text-sm py-4 px-3 hidden sm:table-cell min-w-[100px]">
-                <span
-                  className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                    tdetail.status === "active"
-                      ? "bg-green-500/20 text-green-400"
-                      : "bg-red-500/20 text-red-400"
-                  }`}
-                >
-                  {tdetail.status.charAt(0).toUpperCase() +
-                    tdetail.status.slice(1)}
-                </span>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={tdetail.status === "active"}
+                    onChange={() => handleStatusToggle(data[index])}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-400 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                  <span className="ml-2 text-xs font-medium text-gray-300">
+                    {tdetail.status.charAt(0).toUpperCase() +
+                      tdetail.status.slice(1)}
+                  </span>
+                </label>
               </td>
               <td className="text-sm py-4 px-3">
                 <div className="flex space-x-2 justify-center items-center">
