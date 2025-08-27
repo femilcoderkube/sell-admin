@@ -57,7 +57,7 @@ export const NotificationPopup: React.FC = ({ title }: any) => {
               <h3 className="font-bold text-2xl lg:text-3xl text-white tracking-tight">
                 {title}
                 <span className="ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-slate-700/50 text-slate-300 border border-slate-600/50">
-                  ({popups?.length})
+                  ({1})
                 </span>
               </h3>
             </div>
@@ -84,12 +84,13 @@ export const NotificationPopup: React.FC = ({ title }: any) => {
       </div>
       {loading ? (
         <HandLogoLoader />
-      ) : popups?.length > 0 ? (
+      ) : popups ? (
         <PopupsTable
           data={popups}
           currentPage={currentPage}
-          onEditClick={(popup) => {
-            setSelectedPopup(popup);
+          onEditClick={() => {
+            // console.log("poppooop", popup);
+            setSelectedPopup(popups);
             setShowPopupModal(true);
           }}
           // onDeleteClick={(popupId) => setDeleteId(popupId)}

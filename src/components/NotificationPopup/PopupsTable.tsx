@@ -9,7 +9,7 @@ import { fetchPopups, updatePopup } from "../../app/features/popup/popupsSlice";
 interface IPopupsProps {
   data: Popup[];
   currentPage: number;
-  onEditClick: (selectedPopup: Popup) => void;
+  onEditClick: () => void;
   // onDeleteClick: (popupId: string) => void;
 }
 
@@ -53,7 +53,7 @@ export const PopupsTable: React.FC<IPopupsProps> = ({
     }
   };
 
-  const tdetail = data.map((popup, key) => ({
+  const tdetail = [data].map((popup, key) => ({
     id: popup._id,
     key: (currentPage - 1) * 10 + key + 1,
     titleEn: popup.titleEn,
@@ -143,7 +143,7 @@ export const PopupsTable: React.FC<IPopupsProps> = ({
                 <div className="flex space-x-2 justify-center items-center">
                   <button
                     className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 p-2 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md"
-                    onClick={() => onEditClick(data[index])}
+                    onClick={() => onEditClick()}
                     title="Edit popup"
                   >
                     {tdetail.actions.edit}
