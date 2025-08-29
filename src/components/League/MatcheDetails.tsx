@@ -62,8 +62,10 @@ interface MatchDetails {
 
 const MatchStatusSwitch = ({
   matcheDetail,
+  mid,
 }: {
   matcheDetail: MatchDetails;
+  mid: any;
 }) => {
   const [status, setStatus] = useState(matcheDetail?.status);
   const [isLoading, setIsLoading] = useState(false);
@@ -105,6 +107,11 @@ const MatchStatusSwitch = ({
         })
       );
       if (updateLeagueMatchesByID.fulfilled.match(result)) {
+        socket.emit(SOCKET.ONADMINMESSAGE, {
+          msg: "Your match is canceled.",
+          roomId: mid,
+          isMsg: true,
+        });
         setStatus(pendingStatus);
         dispatch(fetchLeagueMatchesByID({ matcheId: matcheDetail?._id }));
       }
@@ -434,7 +441,7 @@ const MatchDetails = () => {
 
     socket.on(SOCKET.MATCHUPDATE, (data: any) => {
       if (!data?.isMatchUpdate) {
-        setSendMessage("");
+        setSendMessage(undefined);
         setMessageData(data?.data);
       }
     });
@@ -556,7 +563,7 @@ const MatchDetails = () => {
               <h2 className="text-lg font-semibold text-gray-300 mb-2">
                 Match Status
               </h2>
-              <MatchStatusSwitch matcheDetail={matcheDetail} />
+              <MatchStatusSwitch matcheDetail={matcheDetail} mid={mid} />
             </div>
             {matcheDetail?.isScoreVerified && (
               <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-xl px-4 py-2">
