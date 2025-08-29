@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { fetchUserById } from "../../app/features/users/usersSlice";
 import { RootState } from "../../app/store";
 import HandLogoLoader from "../Loader/Loader";
+import { baseURL } from "../../axios";
 
 const UserDetails: React.FC = () => {
   const dispatch = useDispatch();
@@ -108,7 +109,7 @@ const UserDetails: React.FC = () => {
             <div className="flex-shrink-0 relative">
               {userDetail.profilePicture ? (
                 <img
-                  src={userDetail.profilePicture}
+                  src={`${baseURL}/api/v1/${userDetail.profilePicture}`}
                   alt="Profile"
                   className="w-28 h-28 rounded-full object-cover border-4 border-blue-400/50 shadow-xl"
                 />
