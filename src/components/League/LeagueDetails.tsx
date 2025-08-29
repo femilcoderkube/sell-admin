@@ -1149,6 +1149,9 @@ const LeagueDetails: React.FC = () => {
                                 Date
                               </th>
                               <th className="py-4 px-6 text-left font-semibold">
+                                Ticket Type
+                              </th>
+                              <th className="py-4 px-6 text-left font-semibold">
                                 Action
                               </th>
                             </tr>
@@ -1185,10 +1188,23 @@ const LeagueDetails: React.FC = () => {
                                       {ticket?.status}
                                     </span>
                                   </td>
+
                                   <td className="py-4 px-6 text-gray-300">
                                     {new Date(
                                       ticket?.createdAt
                                     ).toLocaleDateString()}
+                                  </td>
+                                  <td
+                                    className={`py-4 px-6 font-medium ${
+                                      ticket?.type === "Cancel Match"
+                                        ? "text-red-300"
+                                        : "text-blue-300"
+                                    }`}
+                                  >
+                                    {/* {ticket?.raiserID?.username} */}
+                                    {ticket?.type
+                                      ? ticket?.type
+                                      : "Score Mismatch"}
                                   </td>
                                   <td className="py-4 px-6">
                                     <Link
