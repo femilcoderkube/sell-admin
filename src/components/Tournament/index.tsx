@@ -280,7 +280,7 @@ export const Tournamentes: React.FC = ({ title }: any) => {
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={(page) => handlePageChange(page)}
-          onPagePrvious={() => handlePageChange(currentPage - 1)}
+          onPagePrevious={() => handlePageChange(currentPage - 1)}
           onPageNext={() => handlePageChange(currentPage + 1)}
         />
       )}

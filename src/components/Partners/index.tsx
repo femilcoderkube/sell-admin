@@ -33,7 +33,9 @@ export const Partner: React.FC = () => {
     searchTerm,
   } = useSelector((state: RootState) => state.partner);
   const [showPartnerModal, setShowPartnerModal] = useState(false);
-  const [selectedPartner, setSelectedPartner] = useState<PartnerType | null>(null);
+  const [selectedPartner, setSelectedPartner] = useState<PartnerType | null>(
+    null
+  );
 
   useEffect(() => {
     dispatch(fetchPartners({ page: currentPage, perPage, searchTerm }));
@@ -102,7 +104,6 @@ export const Partner: React.FC = () => {
                 name="search"
                 value={searchTerm}
                 onChange={handleSearchChange}
-                
               />
               <button
                 className="absolute left-[0.52rem] top-[0.6rem]"
@@ -128,20 +129,18 @@ export const Partner: React.FC = () => {
           </button>
         </div>
       </div>
-      { loading ? (
-          <HandLogoLoader />
-        ) : partners.length > 0 ? (
-       (
-          <PartnersTable
-            data={partners}
-            currentPage={currentPage}
-            onEditClick={partner => {
-              setSelectedPartner(partner);
-              setShowPartnerModal(true);
-            }}
-            onDeleteClick={(partnerId) => setDeleteId(partnerId)}
-          />
-        )
+      {loading ? (
+        <HandLogoLoader />
+      ) : partners.length > 0 ? (
+        <PartnersTable
+          data={partners}
+          currentPage={currentPage}
+          onEditClick={(partner) => {
+            setSelectedPartner(partner);
+            setShowPartnerModal(true);
+          }}
+          onDeleteClick={(partnerId) => setDeleteId(partnerId)}
+        />
       ) : (
         <div className="text-custom-gray flex items-center justify-center h-20">
           No data found.
@@ -162,7 +161,7 @@ export const Partner: React.FC = () => {
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={(page) => handlePageChange(page)}
-          onPagePrvious={() => handlePageChange(currentPage - 1)}
+          onPagePrevious={() => handlePageChange(currentPage - 1)}
           onPageNext={() => handlePageChange(currentPage + 1)}
         />
       )}

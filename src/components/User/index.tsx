@@ -269,7 +269,7 @@ export const User: React.FC = ({ title }: any) => {
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={handlePageChange}
-          onPagePrvious={() => handlePageChange(currentPage - 1)}
+          onPagePrevious={() => handlePageChange(currentPage - 1)}
           onPageNext={() => handlePageChange(currentPage + 1)}
         />
       )}
