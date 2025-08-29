@@ -79,9 +79,9 @@ export const Game: React.FC = ({ title }: any) => {
             <div className="flex items-center gap-3">
               <div className="w-1 h-8 bg-gradient-to-b from-blue-400 to-blue-600 rounded-full"></div>
               <h3 className="font-bold text-2xl lg:text-3xl text-white tracking-tight">
-                Games
+                {title}
                 <span className="ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-slate-700/50 text-slate-300 border border-slate-600/50">
-                  ({games.length})
+                  ({totalCount})
                 </span>
               </h3>
             </div>
