@@ -157,8 +157,8 @@ export const Participants: React.FC<any> = ({ title }) => {
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={(page) => handlePageChange(page)}
-          onPagePrevious={() => handlePageChange(teamCurrentPage - 1)}
-          onPageNext={() => handlePageChange(teamCurrentPage + 1)}
+          onPagePrevious={() => handlePageChange(currentPage - 1)}
+          onPageNext={() => handlePageChange(currentPage + 1)}
         />
       )}
       <DeleteConfirmationModal
