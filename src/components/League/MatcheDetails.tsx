@@ -88,8 +88,7 @@ const MatchStatusSwitch = ({
   };
 
   const handleStatusChange = (newStatus: string) => {
-    // Only allow status change to "canceled"
-    if (newStatus !== "canceled" || newStatus === status) return;
+    if (newStatus === status) return;
     setPendingStatus(newStatus);
     setShowModal(true);
   };
@@ -143,7 +142,7 @@ const MatchStatusSwitch = ({
           <button
             key={option}
             onClick={() => handleStatusChange(option)}
-            disabled={option !== "canceled" || isLoading} // Disable all buttons except "canceled"
+            disabled={isLoading || option === status}
             className={`px-4 py-3 font-medium capitalize transition-all duration-200 ${
               status === option
                 ? `${statusColors[option]} ${statusTextColors[option]}`
@@ -627,7 +626,7 @@ const MatchDetails = () => {
                     <span className="text-[#46A2FF] text-lg">👥</span>
                     Teams
                   </h3>
-                  {matcheDetail?.status !== "canceled" && (
+                  {/* {matcheDetail?.status !== "canceled" && ( */}
                     <button
                       className="py-2 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
                       title="Add Score"
@@ -635,7 +634,7 @@ const MatchDetails = () => {
                     >
                       Add Score
                     </button>
-                  )}
+                  {/* // )} */}
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
