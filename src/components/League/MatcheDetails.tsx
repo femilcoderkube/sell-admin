@@ -763,7 +763,7 @@ const MatchDetails = () => {
                             <td className="p-4 border-b border-gray-700/50">
                               {score?.isActive === false ? (
                                 <>
-                                  {matcheDetail?.status !== "canceled" && (
+                                  {/* {matcheDetail?.status !== "canceled" && ( */}
                                     <button
                                       className="py-2 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
                                       title="Adopt"
@@ -774,7 +774,7 @@ const MatchDetails = () => {
                                     >
                                       Accept
                                     </button>
-                                  )}
+                                  {/* )} */}
                                 </>
                               ) : (
                                 <span className="text-gray-400">Accepted</span>
