@@ -120,12 +120,28 @@ const MatchStatusSwitch = ({
             const updatedMatchData = await dispatch(fetchLeagueMatchesByID({ matcheId: matcheDetail?._id }));
             if (fetchLeagueMatchesByID.fulfilled.match(updatedMatchData)) {
               const latestScoreIndex = updatedMatchData.payload.data.matchScores.length - 1;
-              await dispatch(
+              const adoptResult = await dispatch(
                 adoptLeagueMatchScore({
                   matcheId: matcheDetail?._id,
                   index: latestScoreIndex
                 })
               );
+              if (adoptLeagueMatchScore.fulfilled.match(adoptResult)) {
+                const finalStatusUpdate = await dispatch(
+                  updateLeagueMatchesByID({
+                    matcheId: matcheDetail?._id,
+                    status: "canceled"
+                  })
+                );
+
+                if (updateLeagueMatchesByID.fulfilled.match(finalStatusUpdate)) {
+                  socket.emit(SOCKET.ONADMINMESSAGE, {
+                    msg: "Your match is canceled.",
+                    roomId: mid,
+                    isMsg: true,
+                  });
+                }
+              }
             }
           }
         }
@@ -396,7 +412,7 @@ const MatchDetails = () => {
         .matches(/^\s*\d*\.?\d+\s*$/, "Must be a valid number")
         .trim(),
     }),
-    onSubmit: async  (values) => {
+    onSubmit: async (values) => {
       console.log("Saving score:", values?.team1, values?.team2);
 
       const team1Score = parseFloat(values.team1.trim());
