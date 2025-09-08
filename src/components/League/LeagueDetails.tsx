@@ -864,7 +864,7 @@ const LeagueDetails: React.FC = () => {
                                   }`}
                                 >
                                   <td className="py-4 px-6 font-medium text-blue-300">
-                                    {(matchesCurrentPage - 1) * 10 + index + 1}
+                                    {(matchesCurrentPage - 1) * matchesPerPage + index + 1}
                                   </td>
                                   <td className="py-4 px-6 font-medium text-blue-300">
                                     {match?.matchTempId
@@ -1037,6 +1037,10 @@ const LeagueDetails: React.FC = () => {
                           <option value={10}>10</option>
                           <option value={25}>25</option>
                           <option value={50}>50</option>
+                          <option value={100}>100</option>
+                          <option value={200}>200</option>
+                          <option value={500}>500</option>
+                          <option value={1000}>1000</option>
                         </select>
                       </div>
                       <div className="flex gap-2">
