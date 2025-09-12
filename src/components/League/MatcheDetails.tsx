@@ -4,7 +4,9 @@ import {
   adoptLeagueMatchScore,
   fetchLeagueMatchesByID,
   updateLeagueMatchesByID,
+  resetSyncLoader
 } from "../../app/features/league/leagueSlice";
+
 import viewIcon from "../../assets/images/eye_icon.svg";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -18,6 +20,7 @@ import { socket } from "../../app/socket/socket";
 import { SOCKET } from "../../utils/constant";
 import AttachmentModal from "./AttachmentModal";
 import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
+import { Loader2 } from "lucide-react";
 
 interface MatchScore {
   yourScore: number;
@@ -58,6 +61,7 @@ interface MatchDetails {
   status: string;
   startTime: string;
   matchScores: MatchScore[];
+  syncLoader: any;
 }
 
 const MatchStatusSwitch = ({
@@ -386,13 +390,29 @@ const MatchDetails = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number>();
   const [selectedAttachment, setSelectedAttachment] = useState([]);
-  const { matcheDetail, loading, error } = useSelector(
+  const { matcheDetail, syncLoader, syncLoaderStart,  loading, error } = useSelector(
     (state: RootState) => state.leagues
   ) as {
     matcheDetail: MatchDetails | null;
+    syncLoader: MatchDetails | null;
+    syncLoaderStart : MatchDetails | null;
     loading: boolean;
     error: string | null;
   };
+
+  useEffect(() => {
+    if (syncLoader && syncLoaderStart) {
+      const interval = setInterval(() => {
+        const elapsed = Date.now() - syncLoaderStart;
+        if (elapsed >= 60000) {
+          dispatch(resetSyncLoader());
+          clearInterval(interval);
+        }
+      }, 1000);
+  
+      return () => clearInterval(interval);
+    }
+  }, [syncLoader, syncLoaderStart, dispatch]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -862,10 +882,18 @@ const MatchDetails = () => {
                             </td>
                             <td className="p-4 border-b border-gray-700/50">
                               {score?.isActive === false ? (
-                                <>
-                                  {/* {matcheDetail?.status !== "canceled" && ( */}
+                                syncLoader ? (
                                   <button
-                                    className="py-2 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium text-sm"
+                                    className="py-2 px-4 rounded-lg text-white font-medium text-sm transition-all duration-200 bg-blue-500 cursor-not-allowed flex items-center"
+                                    title="Sync"
+                                    disabled
+                                  >
+                                    <Loader2 className="w-4 h-4 animate-spin me-1" />
+                                    Syncing...
+                                  </button>
+                                ) : (
+                                  <button
+                                    className="py-2 px-4 rounded-lg text-white font-medium text-sm transition-all duration-200 bg-gradient-to-r from-green-500 to-emerald-500 hover:shadow-lg transform hover:scale-105"
                                     title="Adopt"
                                     onClick={() => {
                                       setDeleteId(index);
@@ -874,8 +902,7 @@ const MatchDetails = () => {
                                   >
                                     Accept
                                   </button>
-                                  {/* )} */}
-                                </>
+                                )
                               ) : (
                                 <span className="text-gray-400">Accepted</span>
                               )}

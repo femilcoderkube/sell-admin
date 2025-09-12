@@ -39,6 +39,8 @@ const initialState: LeagueState = {
   ticketsTotalCount: 0,
   ticketsCurrentPage: 1,
   ticketsPerPage: 10,
+  syncLoader: false,
+  syncLoaderStart: null as number | null,
 };
 
 export const fetchLeagueMatches = createAsyncThunk(
@@ -678,6 +680,10 @@ const leagueSlice = createSlice({
     setOperatorsPage: (state, action: PayloadAction<number>) => {
       state.operatorsCurrentPage = action.payload;
     },
+    resetSyncLoader: (state) => {
+      state.syncLoader = false;
+      state.syncLoaderStart = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -794,6 +800,8 @@ const leagueSlice = createSlice({
       })
       .addCase(adoptLeagueMatchScore.fulfilled, (state) => {
         state.loading = false;
+        state.syncLoader = true;
+        state.syncLoaderStart = Date.now();
         toast.success("Accept score successfully!");
       })
       .addCase(adoptLeagueMatchScore.rejected, (state, action) => {
@@ -878,6 +886,7 @@ export const {
   setTicketsPage,
   setOperatorsPerPage,
   setOperatorsPage,
+  resetSyncLoader,
 } = leagueSlice.actions;
 
 export default leagueSlice.reducer;

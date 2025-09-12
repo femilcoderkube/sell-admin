@@ -173,6 +173,8 @@ export interface LeagueState {
   ticketsTotalCount: any;
   ticketsCurrentPage: any;
   ticketsPerPage: any;
+  syncLoader: any;
+  syncLoaderStart: any;
 }
 
 export interface Rule {
