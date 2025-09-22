@@ -298,7 +298,7 @@ export interface Tournament {
     fieldType: string;
     required: boolean;
   }>;
-  timeLine: Array<{
+  `timeLine`: Array<{
     title: string;
     titleAr: string;
     startDate: string;

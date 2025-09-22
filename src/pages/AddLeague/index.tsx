@@ -633,7 +633,7 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
           <option value="" disabled>
             Select format
           </option>
-          {/* <option value="party queue">Party Queue</option> */}
+          <option value="party queue">Party Queue</option>
           <option value="solo queue">Solo Queue</option>
           {/* <option value="1v1">1v1</option> */}
         </Field>
