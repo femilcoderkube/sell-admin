@@ -1,4 +1,5 @@
 import { io, Socket } from "socket.io-client";
+import { wrapSocketWithEncryption } from "../../utils/socketEncryptionMiddleware";
 
 // Define the socket URL using Vite environment variable or fallback
 // const SOCKET_URL: string = "https://devnode.coderkubes.com";
@@ -14,10 +15,12 @@ interface ChatMessage {
 }
 
 // Initialize Socket.IO client
-export const socket: Socket = io(SOCKET_URL, {
-  transports: ["websocket"],
-  autoConnect: false,
-});
+export const socket: Socket = wrapSocketWithEncryption(
+  io(SOCKET_URL, {
+    transports: ["websocket"],
+    autoConnect: false,
+  })
+);
 
 // Connect to the socket
 socket.connect();
