@@ -80,30 +80,29 @@ axiosInstance.interceptors.response.use(
   },
   (error) => {
     if (encryptionEnabled) {
+      const isEncrypted =
+        error.response?.headers["x-encrypted"] === "true" ||
+        error.response?.headers["X-Encrypted"] === "true";
 
-    const isEncrypted =
-      error.response?.headers["x-encrypted"] === "true" ||
-      error.response?.headers["X-Encrypted"] === "true";
-
-    if (isEncrypted && error.response?.data?.encryptedData) {
-      try {
-        const decryptedError = cryptoUtils.decrypt(
-          error.response.data.encryptedData
-        );
-        error.response.data = decryptedError;
-      } catch (decryptError) {
-        console.error("Failed to decrypt error response:", decryptError);
-        console.error(
-          "Encrypted error data was:",
-          error.response.data.encryptedData
+      if (isEncrypted && error.response?.data?.encryptedData) {
+        try {
+          const decryptedError = cryptoUtils.decrypt(
+            error.response.data.encryptedData
+          );
+          error.response.data = decryptedError;
+        } catch (decryptError) {
+          console.error("Failed to decrypt error response:", decryptError);
+          console.error(
+            "Encrypted error data was:",
+            error.response.data.encryptedData
+          );
+        }
+      } else if (isEncrypted) {
+        console.warn(
+          "Error response marked as encrypted but no encryptedData found"
         );
       }
-    } else if (isEncrypted) {
-      console.warn(
-        "Error response marked as encrypted but no encryptedData found"
-      );
     }
-  }
 
     if (error.response && error.response.status === 401) {
       if (!isLoggingOut) {
