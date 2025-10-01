@@ -62,6 +62,7 @@ interface Tournament {
   registrationStartDate: string;
   registrationEndDate: string;
   randomMessages: Array<{ randomText: string; tags: string[] }>;
+  discordId: string;
 }
 
 // Validation Schema (defined above)
@@ -177,6 +178,9 @@ const validationSchema = Yup.object().shape({
     ),
 
   isActive: Yup.boolean(),
+  discordId: Yup.string()
+    .url("Must be a valid URL")
+    .required("Discord Server Link is required"),
 });
 // Step 1: General Information
 const TournamentStep1: FC<{ step: number }> = ({ step }) => {
@@ -314,6 +318,29 @@ const TournamentStep1: FC<{ step: number }> = ({ step }) => {
         {touched.titleAr && errors.titleAr && (
           <div className="text-red-500 text-[0.7rem] mt-1">
             {errors.titleAr}
+          </div>
+        )}
+      </div>
+
+      <div className="relative float-label-input custom-input mb-4">
+        <Field
+          type="text"
+          id="discordId"
+          name="discordId"
+          placeholder=" "
+          className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+            touched.discordId && errors.discordId ? "border border-red-500" : ""
+          }`}
+        />
+        <label
+          htmlFor="discordId"
+          className="absolute top-3 left-0 translate-y-[0.2rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
+        >
+          Discord Server Link
+        </label>
+        {touched.discordId && errors.discordId && (
+          <div className="text-red-500 text-[0.7rem] mt-1">
+            {errors.discordId}
           </div>
         )}
       </div>
@@ -1882,6 +1909,7 @@ export const AddTournament: FC = () => {
       tournamentData?.randomMessages?.length > 0
         ? tournamentData.randomMessages
         : [{ randomText: "", tags: [] }],
+    discordId: tournamentData?.discordId || "",
   };
 
   const handleSubmit = (values: Tournament) => {
@@ -1915,6 +1943,7 @@ export const AddTournament: FC = () => {
       randomMessages: values.randomMessages.filter(
         (msg) => msg.randomText.trim().length > 0 || msg.tags.length > 0
       ),
+      discordId: values?.discordId || "",
     };
 
     if (tournamentData?._id) {
@@ -1945,6 +1974,7 @@ export const AddTournament: FC = () => {
         1: [
           "title",
           "titleAr",
+          "discordId",
           "partner",
           "game",
           "platform",
@@ -2003,6 +2033,7 @@ export const AddTournament: FC = () => {
         1: [
           "title",
           "titleAr",
+          "discordId",
           "partner",
           "game",
           "platform",
