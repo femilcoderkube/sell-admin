@@ -129,7 +129,13 @@ const validationSchema = Yup.object().shape({
     .required("Device is required"),
   format: Yup.string().required("Format is required"),
   playersPerTeam: Yup.number()
-    .min(1, "Players per team must be at least 1")
+    // .min(1, "Players per team must be at least 1")
+    .when("format", {
+      is: "party queue",
+      then: (schema) => schema.min(2, "Players per team must be at least 2"),
+      otherwise: (schema) =>
+        schema.min(1, "Players per team must be at least 1"),
+    })
     .required("Players per team is required"),
   // maxMatchesPerPlayer: Yup.object().shape({
   //   isActive: Yup.boolean(),
