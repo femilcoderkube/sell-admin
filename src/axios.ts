@@ -37,21 +37,24 @@ axiosInstance.interceptors.request.use(
     const lang = localStorage.getItem("lang") || "en";
     config.headers["Accept-Language"] = lang;
 
-    // const contentTypeHeader =
-    //   typeof config.headers["Content-Type"] === "string"
-    //     ? config.headers["Content-Type"]
-    //     : undefined;
+    const contentTypeHeader =
+      typeof config.headers["Content-Type"] === "string"
+        ? config.headers["Content-Type"]
+        : undefined;
 
-    // if (config.data && cryptoUtils.shouldEncrypt(config.data, contentTypeHeader)) {
-    //   try {
-    //     const encryptedData = cryptoUtils.encrypt(config.data);
-    //     config.data = { encryptedData };
-    //     config.headers["X-Encrypted"] = "true";
-    //     config.headers["X-Encryption-Method"] = "AES-256-CBC";
-    //   } catch (error) {
-    //     console.error("Failed to encrypt request data:", error);
-    //   }
-    // }
+    if (
+      config.data &&
+      cryptoUtils.shouldEncrypt(config.data, contentTypeHeader)
+    ) {
+      try {
+        const encryptedData = cryptoUtils.encrypt(config.data);
+        config.data = { encryptedData };
+        config.headers["X-Encrypted"] = "true";
+        config.headers["X-Encryption-Method"] = "AES-256-CBC";
+      } catch (error) {
+        console.error("Failed to encrypt request data:", error);
+      }
+    }
 
     return config;
   },
