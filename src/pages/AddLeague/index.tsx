@@ -94,6 +94,7 @@ interface League {
   messages: string[]; // Changed from single message to array
   randomMessages: Array<{ randomText: string; tags: string[] }>;
   isWeekOfTheStar: boolean; // <-- NEW KEY
+  partySizeLimit: number;
 }
 
 interface StepProps {
@@ -137,6 +138,15 @@ const validationSchema = Yup.object().shape({
         schema.min(1, "Players per team must be at least 1"),
     })
     .required("Players per team is required"),
+
+  partySizeLimit: Yup.number().when("tournamentType", {
+    is: "Party Queue",
+    then: (schema) =>
+      schema
+        .min(2, "Party size limit must be at least 2")
+        .required("Party size limit is required"),
+    otherwise: (schema) => schema.notRequired(),
+  }), // Added
   // maxMatchesPerPlayer: Yup.object().shape({
   //   isActive: Yup.boolean(),
   //   maxMatches: Yup.number().when("isActive", {
@@ -398,6 +408,15 @@ const LeagueStep1: FC<StepProps> = ({ step }) => {
   React.useEffect(() => {
     if (values.format === "1v1") {
       setFieldValue("playersPerTeam", 1);
+    }
+  }, [values.format, setFieldValue]);
+
+  React.useEffect(() => {
+    if (values.format === "solo queue") {
+      setFieldValue("playersPerTeam", 1);
+      setFieldValue("partySizeLimit", undefined); // Clear partySizeLimit
+    } else if (values.format === "party queue") {
+      setFieldValue("partySizeLimit", values.partySizeLimit || 2); // Set default or keep existing
     }
   }, [values.format, setFieldValue]);
 
@@ -962,6 +981,33 @@ const LeagueStep2: FC<StepProps> = ({ step }) => {
         League Details
       </h4>
 
+      {values.format === "party queue" && (
+        <div className="relative float-label-input custom-input mb-4">
+          <Field
+            type="number"
+            id="partySizeLimit"
+            name="partySizeLimit"
+            placeholder=" "
+            min="2"
+            className={`block w-full text-[0.78125rem] text-white focus:outline-0 focus:!border focus:!border-[#2792FF] pt-[1.5rem] pb-[0.35rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal ${
+              touched.partySizeLimit && errors.partySizeLimit
+                ? "border border-red-500"
+                : ""
+            }`}
+          />
+          <label
+            htmlFor="partySizeLimit"
+            className="absolute top-3 left-0 translate-y-[0.2rem] font-bold text-[0.78125rem] pointer-events-none transition duration-200 bg-transparent px-3 text-custom-gray"
+          >
+            Party Size Limit
+          </label>
+          {touched.partySizeLimit && errors.partySizeLimit && (
+            <div className="text-red-500 text-[0.7rem] mt-1">
+              {errors.partySizeLimit}
+            </div>
+          )}
+        </div>
+      )}
       {/* <div className="check_setting flex items-center justify-between w-full text-[0.78125rem] text-custom-gray mb-4 focus:outline-0 focus:!border focus:!border-[#2792FF] py-[0.92rem] bg-input-color rounded-[0.52rem] px-3 block appearance-none leading-normal">
         <span className="text-white font-medium">Limit Matches Per Player</span>
         <label className="inline-flex items-center cursor-pointer">
@@ -2401,7 +2447,8 @@ export const AddLeague: FC = () => {
     isWeekOfTheStar:
       typeof leagueData?.isWeekOfTheStar === "boolean"
         ? leagueData.isWeekOfTheStar
-        : false, // default false
+        : false, // default false,
+    partySizeLimit: leagueData?.partySizeLimit ? leagueData?.partySizeLimit : 0,
   });
 
   const handleSubmit = (values: League) => {
@@ -2446,6 +2493,10 @@ export const AddLeague: FC = () => {
       isWeekOfTheStar: values.isWeekOfTheStar, // <-- pass to backend
     };
 
+    if (values.format === "party queue") {
+      bodyData.partySizeLimit = values.partySizeLimit;
+    }
+
     if (leagueData?._id) {
       dispatch(updateLeague({ id: leagueData?._id, league: bodyData })).then(
         (result) => {
@@ -2489,6 +2540,7 @@ export const AddLeague: FC = () => {
           "prizepool",
           "timeLine",
           "customRegistrationFields",
+          "partySizeLimit", // Added
         ],
         3: [
           "logo",
