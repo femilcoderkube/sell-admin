@@ -27,6 +27,8 @@ import fileUploadReducer from "./features/fileupload/fileUploadSlice";
 import bannedUsersReducer from "./features/bannedusers/bannedUsersSlice";
 import draftingPhaseReducer from "./features/draftingPhase/draftingPhaseSlice";
 import eligiblePlayersReducer from "./features/eligiblePlayers/eligiblePlayersSlice";
+import leagueTicketsReducer from "./features/tickets/leagueTicketsSlice";
+import tournamentTicketsReducer from "./features/tickets/tournamentTicketsSlice";
 
 export const store = configureStore({
   reducer: {
@@ -58,6 +60,8 @@ export const store = configureStore({
     stageGroup: stageGroupReducer,
     battleRoyalScore: battleRoyalScoresReducer,
     popup: popupReducer,
+    leagueTickets: leagueTicketsReducer,
+    tournamentTickets: tournamentTicketsReducer,
   },
 });
 

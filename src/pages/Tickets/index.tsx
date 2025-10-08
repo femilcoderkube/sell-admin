@@ -1,143 +1,121 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { Layout } from "../../components/layout";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchLeagueTickets,
+  setSearchTerm as setLeagueSearchTerm,
+  setPerPage as setLeaguePerPage,
+  setPage as setLeaguePage,
+  setStatus as setLeagueStatus,
+} from "../../app/features/tickets/leagueTicketsSlice";
+import {
+  fetchTournamentTickets,
+  setSearchTerm as setTournamentSearchTerm,
+  setPerPage as setTournamentPerPage,
+  setPage as setTournamentPage,
+  setStatus as setTournamentStatus,
+} from "../../app/features/tickets/tournamentTicketsSlice";
+import { RootState } from "../../app/store";
+import LeagueTickets from "../../components/Ticket/LeagueTickets";
+import TournamentTickets from "../../components/Ticket/TournamentTickets";
 
-interface Ticket {
-  event: string;
-  date: string;
-  venue: string;
-  price: number;
-}
-
-const tournamentTicketsData: Ticket[] = [
-  {
-    event: "Championship Finals",
-    date: "March 15, 2026",
-    venue: "Central Arena",
-    price: 99.99,
-  },
-  {
-    event: "Semi-Finals",
-    date: "March 10, 2026",
-    venue: "West Stadium",
-    price: 79.99,
-  },
-];
-
-const leagueTicketsData: Ticket[] = [
-  {
-    event: "Premier League Match",
-    date: "April 5, 2026",
-    venue: "East Stadium",
-    price: 49.99,
-  },
-  {
-    event: "Regular Season Game",
-    date: "April 12, 2026",
-    venue: "North Arena",
-    price: 39.99,
-  },
-];
-
-const TournamentTickets: FC = () => {
-  return (
-    <div className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6 shadow-xl">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-white mb-6">
-          Tournament Tickets
-        </h2>
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          <div className="flex gap-2">
-            <select className="bg-gray-700/50 text-gray-200 px-4 py-2 rounded-lg border border-gray-600 focus:outline-none">
-              <option value="asc">Ascending</option>
-              <option value="desc">Descending</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-gray-200">
-          <thead>
-            <tr className="bg-gray-700/50">
-              <th className="p-4 font-semibold">Event</th>
-              <th className="p-4 font-semibold">Date</th>
-              <th className="p-4 font-semibold">Venue</th>
-              <th className="p-4 font-semibold">Price</th>
-              <th className="p-4 font-semibold">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tournamentTicketsData.map((ticket, index) => (
-              <tr key={index} className="border-b border-gray-700/50">
-                <td className="p-4">{ticket.event}</td>
-                <td className="p-4 text-gray-400">{ticket.date}</td>
-                <td className="p-4 text-gray-400">{ticket.venue}</td>
-                <td className="p-4 text-green-400">
-                  ${ticket.price.toFixed(2)}
-                </td>
-                <td className="p-4">
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
-                    Buy Now
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-};
-
-const LeagueTickets: FC = () => {
-  return (
-    <div className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6 shadow-xl">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-white mb-6">League Tickets</h2>
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          <div className="flex gap-2">
-            <select className="bg-gray-700/50 text-gray-200 px-4 py-2 rounded-lg border border-gray-600 focus:outline-none">
-              <option value="asc">Ascending</option>
-              <option value="desc">Descending</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-gray-200">
-          <thead>
-            <tr className="bg-gray-700/50">
-              <th className="p-4 font-semibold">Event</th>
-              <th className="p-4 font-semibold">Date</th>
-              <th className="p-4 font-semibold">Venue</th>
-              <th className="p-4 font-semibold">Price</th>
-              <th className="p-4 font-semibold">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {leagueTicketsData.map((ticket, index) => (
-              <tr key={index} className="border-b border-gray-700/50">
-                <td className="p-4">{ticket.event}</td>
-                <td className="p-4 text-gray-400">{ticket.date}</td>
-                <td className="p-4 text-gray-400">{ticket.venue}</td>
-                <td className="p-4 text-green-400">
-                  ${ticket.price.toFixed(2)}
-                </td>
-                <td className="p-4">
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
-                    Buy Now
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-};
-
-export const Tickets: FC<{ title?: string }> = ({ title }) => {
+const Tickets: FC<{ title?: string }> = ({ title }) => {
   const [activeTab, setActiveTab] = useState("league-tickets");
+  const [searchInput, setSearchInput] = useState("");
+  const dispatch = useDispatch();
+
+  const ticketOptions = ["all", "open", "closed"];
+  // Selectors for league tickets
+  const {
+    tickets: leagueTickets,
+    loading: leagueLoading,
+    error: leagueError,
+    currentPage: leaguePage,
+    perPage: leaguePerPage,
+    totalCount: leagueTotalCount,
+    searchTerm: leagueSearchTerm,
+    status: leagueStatus,
+  } = useSelector((state: RootState) => state.leagueTickets);
+
+  // Selectors for tournament tickets
+  const {
+    tickets: tournamentTickets,
+    loading: tournamentLoading,
+    error: tournamentError,
+    currentPage: tournamentPage,
+    perPage: tournamentPerPage,
+    totalCount: tournamentTotalCount,
+    searchTerm: tournamentSearchTerm,
+    status: tournamentStatus,
+  } = useSelector((state: RootState) => state.tournamentTickets);
+
+  // Fetch tickets on mount and when page/perPage/searchTerm changes
+  useEffect(() => {
+    dispatch(
+      fetchLeagueTickets({
+        page: leaguePage,
+        perPage: leaguePerPage,
+        searchTerm: leagueSearchTerm,
+        status: leagueStatus,
+      })
+    );
+    dispatch(
+      fetchTournamentTickets({
+        page: tournamentPage,
+        perPage: tournamentPerPage,
+        searchTerm: tournamentSearchTerm,
+        status: tournamentStatus,
+      })
+    );
+  }, [
+    dispatch,
+    leaguePage,
+    leaguePerPage,
+    leagueSearchTerm,
+    leagueStatus,
+    tournamentPage,
+    tournamentPerPage,
+    tournamentSearchTerm,
+    tournamentStatus,
+  ]);
+
+  // Handle search input
+  const handleSearch = () => {
+    if (activeTab === "league-tickets") {
+      dispatch(setLeagueSearchTerm(searchInput));
+    } else {
+      dispatch(setTournamentSearchTerm(searchInput));
+    }
+  };
+
+  // Handle pagination
+  const handlePageChange = (page: number) => {
+    if (activeTab === "league-tickets") {
+      dispatch(setLeaguePage(page));
+    } else {
+      dispatch(setTournamentPage(page));
+    }
+  };
+
+  // Handle perPage change
+  const handlePerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const perPage = parseInt(e.target.value);
+    if (activeTab === "league-tickets") {
+      dispatch(setLeaguePerPage(perPage));
+    } else {
+      dispatch(setTournamentPerPage(perPage));
+    }
+  };
+
+  // Handle status change
+  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const status = e.target.value as "all" | "open" | "closed";
+    if (activeTab === "league-tickets") {
+      dispatch(setLeagueStatus(status));
+    } else {
+      dispatch(setTournamentStatus(status));
+    }
+  };
 
   return (
     <Layout>
@@ -168,12 +146,93 @@ export const Tickets: FC<{ title?: string }> = ({ title }) => {
               League Tickets
             </button>
           </div>
+          <div className="flex gap-4 mb-6">
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Search tickets..."
+              className="bg-gray-700/50 text-gray-200 px-4 py-2 rounded-lg border border-gray-600 focus:outline-none"
+            />
+            <button
+              onClick={handleSearch}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+            >
+              Search
+            </button>
+            <select
+              onChange={handlePerPageChange}
+              className="bg-gray-700/50 text-gray-200 px-4 py-2 rounded-lg border border-gray-600 focus:outline-none"
+            >
+              <option value="10">10 per page</option>
+              <option value="20">20 per page</option>
+              <option value="50">50 per page</option>
+            </select>
+            <div className="relative">
+              <select
+                value={
+                  activeTab === "league-tickets"
+                    ? leagueStatus
+                    : tournamentStatus
+                }
+                onChange={handleStatusChange}
+                className="w-40 py-2 px-4 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none cursor-pointer"
+              >
+                {ticketOptions.map((option) => (
+                  <option
+                    key={option}
+                    value={option}
+                    className="bg-gray-800 text-white"
+                  >
+                    {option
+                      .replace("_", " ")
+                      .replace(/\b\w/g, (c) => c.toUpperCase())}
+                  </option>
+                ))}
+              </select>
+              <svg
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/40 pointer-events-none w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </div>
+          </div>
           <div>
-            {activeTab === "tournament-tickets" && <TournamentTickets />}
-            {activeTab === "league-tickets" && <LeagueTickets />}
+            {activeTab === "tournament-tickets" && (
+              <TournamentTickets
+                tickets={tournamentTickets}
+                loading={tournamentLoading}
+                error={tournamentError}
+                currentPage={tournamentPage}
+                perPage={tournamentPerPage}
+                totalCount={tournamentTotalCount}
+                onPageChange={handlePageChange}
+              />
+            )}
+            {activeTab === "league-tickets" && (
+              <LeagueTickets
+                tickets={leagueTickets}
+                loading={leagueLoading}
+                error={leagueError}
+                currentPage={leaguePage}
+                perPage={leaguePerPage}
+                totalCount={leagueTotalCount}
+                onPageChange={handlePageChange}
+              />
+            )}
           </div>
         </div>
       </div>
     </Layout>
   );
 };
+
+export default Tickets;
