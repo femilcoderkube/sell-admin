@@ -549,9 +549,11 @@ const MatchDetails = () => {
 
                         <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
                           {team1Name}
+                          {/* {"opponent1"} */}
                         </th>
                         <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
                           {team2Name}
+                          {/* {"opponent2"} */}
                         </th>
                         <th className="p-4 text-gray-300 font-semibold border-b border-gray-700/50">
                           Notes
@@ -572,29 +574,23 @@ const MatchDetails = () => {
                         return (
                           <tr key={score._id} className="bg-gray-700/30">
                             <td className="p-4 border-b border-gray-700/50">
-                              {score?.submittedBy === "team1"
-                                ? "Team 1"
-                                : score?.submittedBy === "team2"
-                                ? "Team 2"
+                              {score?.submittedBy === "team1" ||
+                              score?.submittedBy === "opponent1"
+                                ? team1Name
+                                : score?.submittedBy === "team2" ||
+                                  score?.submittedBy === "opponent2"
+                                ? team2Name
                                 : "Admin"}
                             </td>
 
                             <td className="p-4 border-b border-gray-700/50">
                               <p className="font-semibold text-[#46A2FF] text-lg">
-                                {score?.submittedBy === "team1"
-                                  ? score?.opponent1Score.toFixed(0)
-                                  : score?.submittedBy === "admin"
-                                  ? score?.opponent1Score.toFixed(0)
-                                  : score?.opponent2Score.toFixed(0)}
+                                {score?.opponent1Score.toFixed(0)}
                               </p>
                             </td>
                             <td className="p-4 border-b border-gray-700/50">
                               <p className="font-semibold text-orange-500 text-lg">
-                                {score?.submittedBy === "team1"
-                                  ? score?.opponent2Score.toFixed(0)
-                                  : score?.submittedBy === "admin"
-                                  ? score?.opponent2Score.toFixed(0)
-                                  : score?.opponent1Score.toFixed(0)}
+                                {score?.opponent2Score.toFixed(0)}
                               </p>
                             </td>
                             <td className="p-4 border-b border-gray-700/50">

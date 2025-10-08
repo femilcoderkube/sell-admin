@@ -41,6 +41,7 @@ import { StageMatcheDetail } from "../pages/StageList/MatcheDetail";
 import { Participant } from "../pages/Participant";
 import { SeedDetail } from "../pages/League/SeedDetail";
 import { Modal } from "../pages/Modal";
+import { Tickets } from "../pages/Tickets";
 
 // Helper function to convert snake_case to Title Case
 const toTitleCase = (str: string) =>
@@ -414,6 +415,17 @@ export const generateRoutes = (adminside: any[]): RoutesProps[] => {
       dark_svg: downarr,
       white_svg: white_arr,
       component: <Member title={"Teams Members"} />,
+      auth: true,
+      isShow: false,
+      partnerColor: undefined,
+    },
+    {
+      label: "Tickets",
+      icon: <DashboardIcon />,
+      path: "/68466ecb6e8d3444d55e85f1/tickets",
+      dark_svg: downarr,
+      white_svg: white_arr,
+      component: <Tickets title={"Tickets"} />,
       auth: true,
       isShow: false,
       partnerColor: undefined,
