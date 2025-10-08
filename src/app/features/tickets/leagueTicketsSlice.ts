@@ -20,9 +20,14 @@ export const fetchLeagueTickets = createAsyncThunk(
     {
       page,
       perPage,
-      searchTerm,
+      // searchTerm,
       status,
-    }: { page: number; perPage: number; searchTerm: string; status: string },
+    }: {
+      page: number;
+      perPage: number;
+      //  searchTerm: string;
+      status: string;
+    },
     { rejectWithValue }
   ) => {
     try {
@@ -30,7 +35,7 @@ export const fetchLeagueTickets = createAsyncThunk(
         params: {
           page,
           limit: perPage,
-          searchKey: searchTerm,
+          // searchKey: searchTerm,
           status,
         },
       });

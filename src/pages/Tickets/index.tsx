@@ -3,14 +3,14 @@ import { Layout } from "../../components/layout";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchLeagueTickets,
-  setSearchTerm as setLeagueSearchTerm,
+  // setSearchTerm as setLeagueSearchTerm,
   setPerPage as setLeaguePerPage,
   setPage as setLeaguePage,
   setStatus as setLeagueStatus,
 } from "../../app/features/tickets/leagueTicketsSlice";
 import {
   fetchTournamentTickets,
-  setSearchTerm as setTournamentSearchTerm,
+  // setSearchTerm as setTournamentSearchTerm,
   setPerPage as setTournamentPerPage,
   setPage as setTournamentPage,
   setStatus as setTournamentStatus,
@@ -21,7 +21,7 @@ import TournamentTickets from "../../components/Ticket/TournamentTickets";
 
 const Tickets: FC<{ title?: string }> = ({ title }) => {
   const [activeTab, setActiveTab] = useState("league-tickets");
-  const [searchInput, setSearchInput] = useState("");
+  // const [searchInput, setSearchInput] = useState("");
   const dispatch = useDispatch();
 
   const ticketOptions = ["all", "open", "closed"];
@@ -33,7 +33,7 @@ const Tickets: FC<{ title?: string }> = ({ title }) => {
     currentPage: leaguePage,
     perPage: leaguePerPage,
     totalCount: leagueTotalCount,
-    searchTerm: leagueSearchTerm,
+    // searchTerm: leagueSearchTerm,
     status: leagueStatus,
   } = useSelector((state: RootState) => state.leagueTickets);
 
@@ -45,7 +45,7 @@ const Tickets: FC<{ title?: string }> = ({ title }) => {
     currentPage: tournamentPage,
     perPage: tournamentPerPage,
     totalCount: tournamentTotalCount,
-    searchTerm: tournamentSearchTerm,
+    // searchTerm: tournamentSearchTerm,
     status: tournamentStatus,
   } = useSelector((state: RootState) => state.tournamentTickets);
 
@@ -55,7 +55,7 @@ const Tickets: FC<{ title?: string }> = ({ title }) => {
       fetchLeagueTickets({
         page: leaguePage,
         perPage: leaguePerPage,
-        searchTerm: leagueSearchTerm,
+        // searchTerm: leagueSearchTerm,
         status: leagueStatus,
       })
     );
@@ -63,7 +63,7 @@ const Tickets: FC<{ title?: string }> = ({ title }) => {
       fetchTournamentTickets({
         page: tournamentPage,
         perPage: tournamentPerPage,
-        searchTerm: tournamentSearchTerm,
+        // searchTerm: tournamentSearchTerm,
         status: tournamentStatus,
       })
     );
@@ -71,22 +71,22 @@ const Tickets: FC<{ title?: string }> = ({ title }) => {
     dispatch,
     leaguePage,
     leaguePerPage,
-    leagueSearchTerm,
+    // leagueSearchTerm,
     leagueStatus,
     tournamentPage,
     tournamentPerPage,
-    tournamentSearchTerm,
+    // tournamentSearchTerm,
     tournamentStatus,
   ]);
 
   // Handle search input
-  const handleSearch = () => {
-    if (activeTab === "league-tickets") {
-      dispatch(setLeagueSearchTerm(searchInput));
-    } else {
-      dispatch(setTournamentSearchTerm(searchInput));
-    }
-  };
+  // const handleSearch = () => {
+  //   if (activeTab === "league-tickets") {
+  //     dispatch(setLeagueSearchTerm(searchInput));
+  //   } else {
+  //     dispatch(setTournamentSearchTerm(searchInput));
+  //   }
+  // };
 
   // Handle pagination
   const handlePageChange = (page: number) => {
@@ -119,7 +119,7 @@ const Tickets: FC<{ title?: string }> = ({ title }) => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gray-900 text-white p-6">
+      <div className="min-h-screen text-white p-6">
         <div className="max-w-5xl mx-auto">
           <h1 className="text-3xl font-bold mb-6">
             {title || "Sports Event Dashboard"}
@@ -147,19 +147,19 @@ const Tickets: FC<{ title?: string }> = ({ title }) => {
             </button>
           </div>
           <div className="flex gap-4 mb-6">
-            <input
+            {/* <input
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Search tickets..."
               className="bg-gray-700/50 text-gray-200 px-4 py-2 rounded-lg border border-gray-600 focus:outline-none"
-            />
-            <button
+            /> */}
+            {/* <button
               onClick={handleSearch}
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
             >
               Search
-            </button>
+            </button> */}
             <select
               onChange={handlePerPageChange}
               className="bg-gray-700/50 text-gray-200 px-4 py-2 rounded-lg border border-gray-600 focus:outline-none"
