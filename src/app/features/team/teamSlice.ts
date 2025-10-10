@@ -183,7 +183,7 @@ export const addTeam = createAsyncThunk(
       const response = await axiosInstance.post("Team/asAdmin", team, {
         headers: {
           "Content-Type": "application/json",
-          // "X-Encrypt-Response": false,
+          "X-Encrypt-Response": false,
         },
       });
       return response.data;
