@@ -381,12 +381,12 @@ export const AddStage: FC = () => {
       settings.numberOfGroups = parseInt(values.numberOfGroups || "0");
       settings.numberOfQualifiers = parseInt(values.numberOfQualifiers || "0");
       settings.numberOfRounds = parseInt(values.numberOfRounds || "0");
-      settings.killPoints = parseInt(values.killPoints || "0");
+      settings.killPoints = parseFloat(values.killPoints || "0");
       settings.placePoints = values.placePoints
         .filter((item) => item.position && item.point) // Filter out empty entries
         .map((item) => ({
           position: item.position,
-          point: parseInt(item.point),
+          point: parseFloat(item.point),
         }));
       settings.tieBreaker = values.tieBreaker;
       settings.maps = values.maps
