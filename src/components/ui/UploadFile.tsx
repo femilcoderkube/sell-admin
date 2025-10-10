@@ -6,6 +6,7 @@ interface FileUploadProps {
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   fileName?: string;
   previewUrl?: string;
+  accept?: string;
   ispdf: boolean;
   ismandatory: boolean;
 }

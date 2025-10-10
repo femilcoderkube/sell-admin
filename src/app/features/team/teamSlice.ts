@@ -2,18 +2,32 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import axiosInstance from "../../../axios";
 import toast from "react-hot-toast";
 
+interface TeamMemberPlayerGame {
+  game?: string;
+  gameId?: string;
+  gameRole?: "Player" | "President";
+}
+
+interface TeamMember {
+  user: string;
+  role: string;
+  playerGames?: TeamMemberPlayerGame[];
+}
+
 interface Team {
   _id?: string;
   teamName: string;
   teamShortName: string;
   region: string;
-  members: Array<{ user: string; role: string }>;
+  members: TeamMember[];
   social: {
-    facebookId?: string;
-    youtubeChannelId?: string;
-    discordId?: string;
-    twitchId?: string;
     twitterId?: string;
+    instagramId?: string;
+    twitchId?: string;
+    kickId?: string;
+    discordId?: string;
+    facebookId?: string;
+    tiktokId?: string;
   };
   logoImage?: string;
   backgroundImage?: string;
@@ -21,13 +35,14 @@ interface Team {
 
 interface TeamState {
   teams: Team[];
+  games: any;
   loading: boolean;
   error: string | null;
   currentPage: number; // For teams list
   perPage: number; // For teams list
   totalCount: number; // For teams list
   searchTerm: string; // For teams list
-  teamMembers: Array<{ user: string; role: string }>;
+  teamMembers: TeamMember[];
   membersCurrentPage: number; // For team members
   membersPerPage: number; // For team members
   membersSearchTerm: string; // For team members
@@ -39,6 +54,7 @@ interface TeamState {
 
 const initialState: TeamState = {
   teams: [],
+  games: [],
   loading: false,
   error: null,
   currentPage: 1,
@@ -139,18 +155,40 @@ export const updateTeamMemberRole = createAsyncThunk(
     }
   }
 );
+
+export const fetchGames = createAsyncThunk(
+  "lobby/fetchGames",
+  async (searchTerm: any, { rejectWithValue }) => {
+    try {
+      const params: { searchKey?: string } = {};
+      if (searchTerm) {
+        params.searchKey = searchTerm;
+      }
+      const response = await axiosInstance.get("/game/user", {
+        params,
+      });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error fetching partners"
+      );
+    }
+  }
+);
+
 export const addTeam = createAsyncThunk(
   "teams/addTeam",
   async (team: Team, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post("/Team", team, {
+      const response = await axiosInstance.post("Team/asAdmin", team, {
         headers: {
           "Content-Type": "application/json",
+          // "X-Encrypt-Response": false,
         },
       });
       return response.data;
     } catch (error: any) {
-      console.log("err addTeam", error);
+      // console.log("err addTeam", error);
       return rejectWithValue(
         error.response?.data?.message || "Error adding team"
       );
@@ -265,6 +303,17 @@ const teamSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(fetchGames.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchGames.fulfilled, (state, action) => {
+        state.loading = false;
+        state.games = action.payload.data;
+      })
+      .addCase(fetchGames.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
       .addCase(fetchTeams.pending, (state) => {
         state.loading = true;
       })
@@ -292,9 +341,9 @@ const teamSlice = createSlice({
       .addCase(addTeam.pending, (state) => {
         state.loading = true;
       })
-      .addCase(addTeam.fulfilled, (state) => {
+      .addCase(addTeam.fulfilled, (state, action) => {
         state.loading = false;
-        toast.success("Team added successfully!");
+        toast.success(action.payload?.message);
       })
       .addCase(addTeam.rejected, (state, action) => {
         state.loading = false;
