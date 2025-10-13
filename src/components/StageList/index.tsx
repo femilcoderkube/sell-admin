@@ -777,7 +777,9 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                   </a>
                 </div>
 
-                {stageType === "DoubleElimination" && (
+                {(stageType === "DoubleElimination" ||
+                  stageType === "RoundRobin" ||
+                  stageType === "SingleElimination") && (
                   <div className="grid sm:grid-cols-2 md:grid-cols-3 items-center mt-5 gap-3 mb-3">
                     {matchesLoading ? (
                       <HandLogoLoader />
