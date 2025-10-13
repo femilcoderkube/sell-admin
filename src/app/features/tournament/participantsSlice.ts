@@ -53,7 +53,7 @@ export const fetchParticipants = createAsyncThunk(
           page,
           limit: perPage,
           searchTerm: searchTerm || null,
-          status: "incomplete",
+          status,
         },
       });
 

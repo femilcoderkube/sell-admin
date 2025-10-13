@@ -1,4 +1,4 @@
-import { Download, SearchIcon } from "lucide-react";
+import { Download, SearchIcon, Upload } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { ParticipantsTable } from "./ParticipantsTable";
@@ -23,18 +23,22 @@ export const Participants: React.FC<any> = ({ title }) => {
     useSelector((state: RootState) => state.participants);
 
   const tournamentId = window.location.pathname.split("/")[3];
-
   const [deleteId, setDeleteId] = useState<string>("");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<"incomplete" | "complete">(
+    "complete"
+  );
+
   useEffect(() => {
     dispatch(
       fetchParticipants({
         tournamentId: tournamentId,
         page: currentPage,
         searchTerm: searchTerm,
+        status: activeTab,
       })
     );
-  }, [dispatch, currentPage, searchTerm]);
+  }, [dispatch, currentPage, searchTerm, activeTab, tournamentId]);
 
   const handleDeleteDevice = async () => {
     try {
@@ -48,6 +52,7 @@ export const Participants: React.FC<any> = ({ title }) => {
             tournamentId: tournamentId,
             page: 1,
             searchTerm: "",
+            status: activeTab,
           })
         );
       }
@@ -64,12 +69,14 @@ export const Participants: React.FC<any> = ({ title }) => {
     navigate(-1);
   };
 
-  // const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   dispatch(setSearchTerm(e.target.value));
-  // };
-
   const handlePageChange = (page: number) => {
     dispatch(setPage(page));
+  };
+
+  const handleTabChange = (tab: "incomplete" | "complete") => {
+    setActiveTab(tab);
+    dispatch(setPage(1)); // Reset to page 1 when switching tabs
+    dispatch(setSearchTerm("")); // Clear search term when switching tabs
   };
 
   const totalPages = Math.ceil(totalCount / 10);
@@ -119,33 +126,32 @@ export const Participants: React.FC<any> = ({ title }) => {
             onClick={handleExport}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-xl transition-colors duration-200 shadow-lg"
           >
-            <Download size={20} />
+            <Upload size={20} />
             Export All
           </button>
         </div>
-        {/* <div className="legue__head_right-con flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
-          <div className="flex flex-col sm:flex-row gap-4 flex-1">
-            <div className="relative group w-full max-w-md">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 blur-sm"></div>
-              <input
-                className="relative w-full bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 text-white placeholder-slate-400 rounded-xl py-3 pl-12 pr-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 shadow-lg hover:bg-slate-700/50"
-                placeholder="Search Participant"
-                type="text"
-                name="search"
-                value={searchTerm}
-                onChange={handleSearchChange}
-              />
-              <button
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-blue-400 transition-colors duration-200"
-                type="button"
-                name="searchbtn"
-                id="basic-addon2"
-              >
-                <SearchIcon />
-              </button>
-            </div>
-          </div>
-        </div> */}
+        <div className="flex border-b border-gray-700 mb-6">
+          <button
+            className={`px-4 py-2 font-semibold ${
+              activeTab === "complete"
+                ? "border-b-2 border-blue-600 text-blue-400"
+                : "text-gray-400"
+            }`}
+            onClick={() => handleTabChange("complete")}
+          >
+            Completed
+          </button>
+          <button
+            className={`px-4 py-2 font-semibold ${
+              activeTab === "incomplete"
+                ? "border-b-2 border-blue-600 text-blue-400"
+                : "text-gray-400"
+            }`}
+            onClick={() => handleTabChange("incomplete")}
+          >
+            Incomplete
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -158,6 +164,7 @@ export const Participants: React.FC<any> = ({ title }) => {
             setDeleteId(participant);
             setIsDeleteModalOpen(true);
           }}
+          activeTab={activeTab}
         />
       ) : (
         <div className="text-custom-gray flex items-center justify-center h-20">

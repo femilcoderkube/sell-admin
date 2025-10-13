@@ -6,12 +6,14 @@ interface TeamTableProps {
   currentPage: number;
   participants: any[];
   onleaveTeam: () => void;
+  activeTab: any;
 }
 
 export const ParticipantsTable: React.FC<TeamTableProps> = ({
   currentPage,
   participants,
   onleaveTeam,
+  activeTab,
 }) => {
   const thead = {
     id: (
@@ -58,9 +60,11 @@ export const ParticipantsTable: React.FC<TeamTableProps> = ({
             <th className="text-left py-4 px-3 text-gray-300 uppercase text-sm font-semibold tracking-wide hidden sm:table-cell">
               {thead.logo}
             </th>
-            <th className="py-4 px-3 text-gray-300 uppercase text-sm font-semibold tracking-wide text-center min-w-[100px]">
-              {thead.actions}
-            </th>
+            {activeTab !== "incomplete" && (
+              <th className="py-4 px-3 text-gray-300 uppercase text-sm font-semibold tracking-wide text-center min-w-[100px]">
+                {thead.actions}
+              </th>
+            )}
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-700">
@@ -91,23 +95,25 @@ export const ParticipantsTable: React.FC<TeamTableProps> = ({
                     />
                   </span>
                 </td>
-                <td className="text-sm py-4 px-3">
-                  <div className="flex justify-center items-center">
-                    <button
-                      onClick={() => {
-                        onleaveTeam(team?._id);
-                      }}
-                      className="bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 p-2 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md"
-                      title="Remove from team"
-                    >
-                      <img
-                        src={deleteIcon}
-                        alt="Delete"
-                        style={{ width: "1.26rem" }}
-                      />
-                    </button>
-                  </div>
-                </td>
+                {activeTab !== "incomplete" && (
+                  <td className="text-sm py-4 px-3">
+                    <div className="flex justify-center items-center">
+                      <button
+                        onClick={() => {
+                          onleaveTeam(team?._id);
+                        }}
+                        className="bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 p-2 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md"
+                        title="Remove from team"
+                      >
+                        <img
+                          src={deleteIcon}
+                          alt="Delete"
+                          style={{ width: "1.26rem" }}
+                        />
+                      </button>
+                    </div>
+                  </td>
+                )}
               </tr>
             );
           })}
