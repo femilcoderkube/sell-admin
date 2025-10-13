@@ -378,9 +378,10 @@ const teamSlice = createSlice({
       .addCase(deleteTeam.pending, (state) => {
         state.loading = true;
       })
-      .addCase(deleteTeam.fulfilled, (state) => {
+      .addCase(deleteTeam.fulfilled, (state, action) => {
         state.loading = false;
-        toast.success("Team deleted successfully!");
+        // toast.success("Team deleted successfully!");
+        toast.success(action?.payload?.message);
       })
       .addCase(deleteTeam.rejected, (state, action) => {
         state.loading = false;
