@@ -253,7 +253,7 @@ const Scoreboard = ({ localScores, setLocalScores, scoreSettings }: any) => {
                           handleInputChange(
                             val.originalIndex,
                             "kills",
-                            parseInt(e.target.value) || 0
+                            (e.target.value) || 0
                           )
                         }
                       />
