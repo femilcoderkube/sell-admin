@@ -54,12 +54,12 @@ const initialState: TournamentStageState = {
       nameAr: "إقصاء مزدوج",
       description: "Teams get a second chance with winner and loser brackets",
     },
-    // {
-    //   id: "RoundRobin",
-    //   nameEn: "Round Robin",
-    //   nameAr: "دوري",
-    //   description: "All participants compete against each other in groups",
-    // },
+    {
+      id: "RoundRobin",
+      nameEn: "Round Robin",
+      nameAr: "دوري",
+      description: "All participants compete against each other in groups",
+    },
     // {
     //   id: "Swiss",
     //   nameEn: "Swiss Stage",

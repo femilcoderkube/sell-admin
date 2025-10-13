@@ -120,7 +120,7 @@ const Tickets: FC<{ title?: string }> = ({ title }) => {
   return (
     <Layout>
       <div className="min-h-screen text-white p-6">
-        <div className="max-w-5xl mx-auto">
+        <div className=" mx-auto">
           <h1 className="text-3xl font-bold mb-6">
             {title || "Sports Event Dashboard"}
           </h1>

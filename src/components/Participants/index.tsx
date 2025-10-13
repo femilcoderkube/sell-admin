@@ -1,4 +1,4 @@
-import { SearchIcon } from "lucide-react";
+import { Download, SearchIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { ParticipantsTable } from "./ParticipantsTable";
@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   deleteParticipant,
   fetchParticipants,
+  generateExcelFile,
   setPage,
   setSearchTerm,
 } from "../../app/features/tournament/participantsSlice";
@@ -55,13 +56,17 @@ export const Participants: React.FC<any> = ({ title }) => {
     }
   };
 
+  const handleExport = () => {
+    dispatch(generateExcelFile({ tournamentId }));
+  };
+
   const btnBack = () => {
     navigate(-1);
   };
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(setSearchTerm(e.target.value));
-  };
+  // const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   dispatch(setSearchTerm(e.target.value));
+  // };
 
   const handlePageChange = (page: number) => {
     dispatch(setPage(page));
@@ -110,6 +115,13 @@ export const Participants: React.FC<any> = ({ title }) => {
               </div>
             </div>
           </div>
+          <button
+            onClick={handleExport}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-xl transition-colors duration-200 shadow-lg"
+          >
+            <Download size={20} />
+            Export All
+          </button>
         </div>
         {/* <div className="legue__head_right-con flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
           <div className="flex flex-col sm:flex-row gap-4 flex-1">
