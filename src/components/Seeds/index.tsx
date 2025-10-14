@@ -959,7 +959,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                               )}
                               <div>
                                 <div className="font-medium text-sm">
-                                  {item.player.shortName}
+                                  {item.player.name}
                                 </div>
                                 <div className="text-xs text-gray-400">
                                   {item.player.team}
