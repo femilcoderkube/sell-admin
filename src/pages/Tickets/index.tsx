@@ -56,7 +56,7 @@ const Tickets: FC<{ title?: string }> = ({ title }) => {
         page: leaguePage,
         perPage: leaguePerPage,
         // searchTerm: leagueSearchTerm,
-        status: leagueStatus,
+        status: leagueStatus !== "all" ? leagueStatus : "",
       })
     );
     dispatch(
@@ -64,7 +64,7 @@ const Tickets: FC<{ title?: string }> = ({ title }) => {
         page: tournamentPage,
         perPage: tournamentPerPage,
         // searchTerm: tournamentSearchTerm,
-        status: tournamentStatus,
+        status: tournamentStatus !== "all" ? tournamentStatus : "",
       })
     );
   }, [
