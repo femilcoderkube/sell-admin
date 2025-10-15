@@ -287,7 +287,7 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
             </div>
           </div>
           <div className="lg:hidden">
-            <button
+            {/* <button
               className="group relative overflow-hidden bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-3 w-full"
               onClick={openModal}
             >
@@ -298,7 +298,7 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
                 </div>
                 <span>Add new member</span>
               </div>
-            </button>
+            </button> */}
           </div>
         </div>
         <div className="legue__head_right-con flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
@@ -324,7 +324,7 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
             </div>
           </div>
           <div className="hidden lg:block">
-            <button
+            {/* <button
               className="group relative overflow-hidden bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center gap-3 whitespace-nowrap"
               onClick={openModal}
             >
@@ -335,7 +335,7 @@ export const Members: React.FC<MembersProps> = ({ title }) => {
                 </div>
                 <span>Add new member</span>
               </div>
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
