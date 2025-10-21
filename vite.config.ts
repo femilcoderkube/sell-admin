@@ -1,6 +1,8 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
+
+import javascriptObfuscator from "vite-plugin-javascript-obfuscator";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -41,6 +43,29 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 3000000,
       },
     }),
+    javascriptObfuscator({
+      options: {
+        compact: true,
+        controlFlowFlattening: true,
+        deadCodeInjection: true,
+        stringArray: true,
+        rotateStringArray: true,
+        stringArrayEncoding: ['rc4'],
+        stringArrayThreshold: 0.75,
+        splitStrings: true,
+        // disableConsoleOutput: false,
+        // debugProtection: isProduction ? true : false,
+        target: "browser",
+      },
+      include: ["src/**/*.{js,jsx,ts,tsx}"],
+      exclude: [
+        "node_modules/**",
+        "public/**",
+        "src/**/*.test.{js,jsx,ts,tsx}",
+      ],
+      apply: "build",
+    }),
+
   ],
   optimizeDeps: {
     exclude: ["lucide-react"],
