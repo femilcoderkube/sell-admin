@@ -117,14 +117,14 @@ export const MembersTable: React.FC<TeamTableProps> = ({
 
               <td className="text-sm py-4 px-3">
                 <div className="flex justify-center items-center gap-2">
-                  <button
+                  {/* <button
                     onClick={(e) => {
                       onEditClick(team);
                     }}
                     className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 p-2 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md"
                   >
                     <PencilLine size={20} />
-                  </button>
+                  </button> */}
 
                   <button
                     onClick={() => {

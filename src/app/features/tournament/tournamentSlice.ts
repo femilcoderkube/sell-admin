@@ -13,7 +13,7 @@ const initialState: TournamentState = {
   loading: false,
   error: null,
   currentPage: 1,
-  perPage: 10,
+  perPage: 12,
   totalCounts: null,
   totalCount: 0,
   searchTerm: "",
