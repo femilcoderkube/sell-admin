@@ -83,8 +83,6 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
     (state: RootState) => state.tournamentMatches
   );
 
-  console.log("matches", matches);
-
   const {
     stageRound,
     loading: stageRoundloading,
