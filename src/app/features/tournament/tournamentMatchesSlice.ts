@@ -17,7 +17,6 @@ interface FetchTournamentMatchesPayload {
   roundId?: string; // Optional
   status?: string; // Optional
   search?: string; // Optional
-  groupId?: string; // Optional
 }
 interface FetchTournamentMatchByIdPayload {
   id: string;
@@ -62,7 +61,6 @@ export const fetchTournamentMatches = createAsyncThunk(
       const queryParams = new URLSearchParams();
       queryParams.append("stageId", payload.stageId);
       if (payload.roundId) queryParams.append("roundId", payload.roundId);
-      if (payload.groupId) queryParams.append("groupId", payload.groupId);
       if (payload.status) queryParams.append("status", payload.status);
       if (payload.search) queryParams.append("search", payload.search);
 

@@ -83,6 +83,8 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
     (state: RootState) => state.tournamentMatches
   );
 
+  console.log("matches", matches);
+
   const {
     stageRound,
     loading: stageRoundloading,
@@ -175,33 +177,22 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
           roundId: selectedRound,
           status: selectedStatus,
           search: search,
-          ...(stageType === "RoundRobin" && { groupId: selectedGroup }),
         });
       }
     }
-  }, [
-    selectedStage,
-    selectedRound,
-    selectedStatus,
-    selectedGroup,
-    search,
-    debouncedDispatch,
-  ]);
+  }, [selectedStage, selectedRound, selectedStatus, search, debouncedDispatch]);
 
   useEffect(() => {
     if (selectedStage) {
       dispatch(fetchStageRound(selectedStage));
-      if (stageType === "BattleRoyal" || stageType === "RoundRobin") {
+      if (stageType === "BattleRoyal") {
         dispatch(fetchStageGroup(selectedStage));
       }
     }
   }, [dispatch, selectedStage]);
 
   useEffect(() => {
-    if (
-      stageRound?.length > 0 &&
-      (stageType === "BattleRoyal" || stageType === "RoundRobin")
-    ) {
+    if (stageRound?.length > 0 && stageType === "BattleRoyal") {
       setSelectedRound(stageRound[0]?._id);
     }
   }, [stageRound, stageType]);
@@ -662,8 +653,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                           value={selectedRound}
                           onChange={(e) => setSelectedRound(e.target.value)}
                         >
-                          {(stageType !== "BattleRoyal" ||
-                            stageType === "RoundRobin") && (
+                          {stageType !== "BattleRoyal" && (
                             <option value="">All rounds</option>
                           )}
                           {stageRound?.map((round: any) => (
@@ -681,8 +671,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                         </select>
                       </div>
                     </div>
-                    {(stageType === "BattleRoyal" ||
-                      stageType === "RoundRobin") && (
+                    {stageType === "BattleRoyal" && (
                       <div
                         className="nf_top-filter nf_bg flex items-center ml-2"
                         style={{ maxWidth: "max-content" }}
@@ -699,6 +688,39 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                             {stageGroups?.map((round: any) => (
                               <option key={round._id} value={round?._id}>
                                 {round?.name}{" "}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    )}
+
+                    {stageType === "RoundRobin" && (
+                      <div
+                        className="nf_top-filter nf_bg flex items-center ml-2"
+                        style={{ maxWidth: "max-content" }}
+                      >
+                        <p className="color_gray">Filter by:</p>
+                        <div className="nf_cust-select nf_simple-select focus-input">
+                          <select
+                            className="form-control color-white cust-arrow"
+                            id="group_dropdown"
+                            value={selectedGroup}
+                            onChange={(e) => setSelectedGroup(e.target.value)}
+                          >
+                            <option value="">All groups</option>
+                            {Array.from(
+                              new Set(
+                                matches
+                                  ?.filter(
+                                    (match: any) =>
+                                      match?.config?.group_id !== undefined
+                                  )
+                                  ?.map((match: any) => match?.config?.group_id)
+                              )
+                            ).map((groupId: any) => (
+                              <option key={groupId} value={groupId}>
+                                Group {groupId}
                               </option>
                             ))}
                           </select>
@@ -798,262 +820,539 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                       <HandLogoLoader />
                     ) : (
                       <>
-                        {stagesList?.length > 0 &&
-                          matches?.map((val) => {
-                            const activeScores = val?.matchScores?.filter(
-                              (match: any) => match?.isActive
-                            );
-
-                            return (
-                              <div className="nf_cs-content">
-                                <div className="grid grid-cols-3">
-                                  <div className="col-4">
-                                    <div className="nf_stage-content">
-                                      {val?.opponent1 ? (
-                                        <>
-                                          <div className="nf_stage-img">
-                                            {val?.opponent1?.team?.logoImage ||
-                                            val?.opponent1?.user
-                                              ?.profilePicture ? (
-                                              <img
-                                                className=""
-                                                height=""
-                                                width=""
-                                                src={`${baseURL}/api/v1/${
-                                                  val?.opponent1?.team
-                                                    ? val?.opponent1?.team
-                                                        ?.logoImage
-                                                    : val?.opponent1?.user
-                                                        ?.profilePicture
-                                                }`}
-                                              />
-                                            ) : (
-                                              <div
-                                                className="bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold"
-                                                style={{
-                                                  width: "4vw",
-                                                  height: "4vw",
-                                                }}
-                                              >
+                        {stagesList?.length > 0 && stageType === "RoundRobin"
+                          ? matches
+                              ?.filter((val: any) =>
+                                selectedGroup
+                                  ? val?.config?.group_id ===
+                                    parseInt(selectedGroup)
+                                  : true
+                              )
+                              ?.map((val) => {
+                                const activeScores = val?.matchScores?.filter(
+                                  (match: any) => match?.isActive
+                                );
+                                return (
+                                  <div className="nf_cs-content">
+                                    <div className="grid grid-cols-3">
+                                      <div className="col-4">
+                                        <div className="nf_stage-content">
+                                          {val?.opponent1 ? (
+                                            <>
+                                              <div className="nf_stage-img">
+                                                {val?.opponent1?.team
+                                                  ?.logoImage ||
+                                                val?.opponent1?.user
+                                                  ?.profilePicture ? (
+                                                  <img
+                                                    className=""
+                                                    height=""
+                                                    width=""
+                                                    src={`${baseURL}/api/v1/${
+                                                      val?.opponent1?.team
+                                                        ? val?.opponent1?.team
+                                                            ?.logoImage
+                                                        : val?.opponent1?.user
+                                                            ?.profilePicture
+                                                    }`}
+                                                  />
+                                                ) : (
+                                                  <div
+                                                    className="bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold"
+                                                    style={{
+                                                      width: "4vw",
+                                                      height: "4vw",
+                                                    }}
+                                                  >
+                                                    {val?.opponent1?.team
+                                                      ? val?.opponent1?.team
+                                                          ?.teamShortName
+                                                      : val?.opponent1?.user
+                                                          ?.username}
+                                                  </div>
+                                                )}
+                                              </div>
+                                              <h3>
                                                 {val?.opponent1?.team
                                                   ? val?.opponent1?.team
-                                                      ?.teamShortName
+                                                      ?.teamName
                                                   : val?.opponent1?.user
                                                       ?.username}
+                                              </h3>
+                                            </>
+                                          ) : (
+                                            <>
+                                              <div className="nf_stage-img">
+                                                <img
+                                                  className=""
+                                                  height=""
+                                                  width=""
+                                                  src={prime_hover}
+                                                />
                                               </div>
-                                            )}
-                                          </div>
-                                          <h3>
-                                            {val?.opponent1?.team
-                                              ? val?.opponent1?.team?.teamName
-                                              : val?.opponent1?.user?.username}
-                                          </h3>
-                                        </>
-                                      ) : (
-                                        <>
-                                          <div className="nf_stage-img">
-                                            <img
-                                              className=""
-                                              height=""
-                                              width=""
-                                              src={prime_hover}
-                                            />
-                                          </div>
-                                          <h3>TBD</h3>
-                                        </>
-                                      )}
-                                    </div>
-                                  </div>
-                                  <div className="flex items-center justify-center">
-                                    <div className="nf_stage-content text-center">
-                                      <div className="flex content-center justify-center">
-                                        <h5
-                                          className={
-                                            val?.winner === "opponent1"
-                                              ? "!bg-green-500/20 !text-green-300 border !border-green-500/30"
-                                              : val?.winner === "opponent2"
-                                              ? "!bg-red-500/20 !text-red-300 border !border-red-500/30"
-                                              : "!bg-blue-500/20 !text-blue-300 border !border-blue-500/30"
-                                          }
-                                        >
-                                          {activeScores[0]?.opponent1Score
-                                            ? activeScores[0]?.opponent1Score
-                                            : 0}
-                                        </h5>
-                                        <h5
-                                          className={
-                                            val?.winner === "opponent2"
-                                              ? "!bg-green-500/20 !text-green-300 border !border-green-500/30"
-                                              : val?.winner === "opponent1"
-                                              ? "!bg-red-500/20 !text-red-300 border !border-red-500/30"
-                                              : "!bg-blue-500/20 !text-blue-300 border !border-blue-500/30"
-                                          }
-                                        >
-                                          {activeScores[0]?.opponent2Score
-                                            ? activeScores[0]?.opponent2Score
-                                            : 0}
-                                        </h5>
-                                      </div>
-                                      <p
-                                        className={`px-3 py-1 whitespace-nowrap rounded-full text-sm font-medium ${
-                                          val?.status === "completed"
-                                            ? "bg-green-500/20 !text-green-400 border border-green-500/30"
-                                            : val?.status === "cancelled"
-                                            ? "bg-red-500/20 !text-red-400 border border-red-500/30"
-                                            : val?.status === "in_progress"
-                                            ? "bg-yellow-500/20 !text-yellow-400 border border-yellow-500/30"
-                                            : val?.status === "pending"
-                                            ? "bg-yellow-500/20 !text-yellow-400 border border-yellow-500/30"
-                                            : "bg-purple-500/20 !text-purple-400 border border-purple-500/30"
-                                        }`}
-                                      >
-                                        {val?.status
-                                          ?.replace("_", " ")
-                                          .replace(/\b\w/g, (c: any) =>
-                                            c.toUpperCase()
+                                              <h3>TBD</h3>
+                                            </>
                                           )}
+                                        </div>
+                                      </div>
+                                      <div className="flex items-center justify-center">
+                                        <div className="nf_stage-content text-center">
+                                          <div className="flex content-center justify-center">
+                                            <h5
+                                              className={
+                                                val?.winner === "opponent1"
+                                                  ? "!bg-green-500/20 !text-green-300 border !border-green-500/30"
+                                                  : val?.winner === "opponent2"
+                                                  ? "!bg-red-500/20 !text-red-300 border !border-red-500/30"
+                                                  : "!bg-blue-500/20 !text-blue-300 border !border-blue-500/30"
+                                              }
+                                            >
+                                              {activeScores[0]?.opponent1Score
+                                                ? activeScores[0]
+                                                    ?.opponent1Score
+                                                : 0}
+                                            </h5>
+                                            <h5
+                                              className={
+                                                val?.winner === "opponent2"
+                                                  ? "!bg-green-500/20 !text-green-300 border !border-green-500/30"
+                                                  : val?.winner === "opponent1"
+                                                  ? "!bg-red-500/20 !text-red-300 border !border-red-500/30"
+                                                  : "!bg-blue-500/20 !text-blue-300 border !border-blue-500/30"
+                                              }
+                                            >
+                                              {activeScores[0]?.opponent2Score
+                                                ? activeScores[0]
+                                                    ?.opponent2Score
+                                                : 0}
+                                            </h5>
+                                          </div>
+                                          <p
+                                            className={`px-3 py-1 whitespace-nowrap rounded-full text-sm font-medium ${
+                                              val?.status === "completed"
+                                                ? "bg-green-500/20 !text-green-400 border border-green-500/30"
+                                                : val?.status === "cancelled"
+                                                ? "bg-red-500/20 !text-red-400 border border-red-500/30"
+                                                : val?.status === "in_progress"
+                                                ? "bg-yellow-500/20 !text-yellow-400 border border-yellow-500/30"
+                                                : val?.status === "pending"
+                                                ? "bg-yellow-500/20 !text-yellow-400 border border-yellow-500/30"
+                                                : "bg-purple-500/20 !text-purple-400 border border-purple-500/30"
+                                            }`}
+                                          >
+                                            {val?.status
+                                              ?.replace("_", " ")
+                                              .replace(/\b\w/g, (c: any) =>
+                                                c.toUpperCase()
+                                              )}
+                                          </p>
+                                        </div>
+                                      </div>
+                                      <div className="col-4">
+                                        <div className="nf_stage-content">
+                                          {val?.opponent2 ? (
+                                            <>
+                                              <div className="nf_stage-img">
+                                                {val?.opponent2?.team
+                                                  ?.logoImage ||
+                                                val?.opponent2?.user
+                                                  ?.profilePicture ? (
+                                                  <img
+                                                    className=""
+                                                    height=""
+                                                    width=""
+                                                    src={`${baseURL}/api/v1/${
+                                                      val?.opponent2?.team
+                                                        ?.logoImage ||
+                                                      val?.opponent2?.user
+                                                        ?.profilePicture
+                                                    }`}
+                                                    alt={
+                                                      val?.opponent2?.team
+                                                        ?.teamShortName ||
+                                                      "Team/Opponent"
+                                                    }
+                                                  />
+                                                ) : (
+                                                  <div
+                                                    className="bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold"
+                                                    style={{
+                                                      width: "4vw",
+                                                      height: "4vw",
+                                                    }}
+                                                  >
+                                                    {val?.opponent2?.team
+                                                      ? val?.opponent2?.team
+                                                          ?.teamShortName
+                                                      : val?.opponent2?.user
+                                                          ?.username}
+                                                  </div>
+                                                )}
+                                              </div>
+                                              <h3>
+                                                {val?.opponent2?.team
+                                                  ? val?.opponent2?.team
+                                                      ?.teamName
+                                                  : val?.opponent2?.user
+                                                      ?.username}
+                                              </h3>
+                                            </>
+                                          ) : (
+                                            <>
+                                              <div className="nf_stage-img">
+                                                <img
+                                                  className=""
+                                                  height=""
+                                                  width=""
+                                                  src={prime_hover}
+                                                  alt={
+                                                    val?.opponent2?.team
+                                                      ?.teamShortName ||
+                                                    "Team/Opponent"
+                                                  }
+                                                />
+                                              </div>
+                                              <h3>TBD</h3>
+                                            </>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="nf_stage-bottombar items-center justify-center flex my-2 gap-1">
+                                      <p>{val?.stageRoundId?.roundName}</p>
+                                      <p>
+                                        {formatDate(val?.startTime)} -{" "}
+                                        {formatDate(val?.endTime)}
                                       </p>
                                     </div>
+                                    <div className="nf_match-list my-3">
+                                      <div
+                                        className="nf-cs-btn flex items-center justify-center"
+                                        style={{}}
+                                      >
+                                        <div className="nf_cs-buttons flex items-center content-center">
+                                          <div className="nf_cs-btn-group ">
+                                            <button
+                                              className="btn btn-nf-gray timechange_data"
+                                              data-toggle="modal"
+                                              data-target="#changetime"
+                                              data-id={34042}
+                                              onClick={() => {
+                                                setSelectedMatch(val);
+                                                setShowChangeTimeModal(true);
+                                              }}
+                                            >
+                                              <Clock className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
+                                            </button>
+                                            <strong className="text-center">
+                                              {" "}
+                                              Change Time
+                                            </strong>
+                                          </div>
+                                          <div className="nf_cs-btn-group">
+                                            <Link
+                                              to={`/${partnerId}/tournament/${tournamentId}/stage/list/${val?._id}`}
+                                              className="btn btn-nf-gray"
+                                            >
+                                              <Settings className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
+                                            </Link>
+                                            <strong className="text-center">
+                                              {" "}
+                                              Manage Match
+                                            </strong>
+                                          </div>
+                                          {!val?.isScoreVerified &&
+                                            val?.opponent1 &&
+                                            val?.opponent2 && (
+                                              <div className="nf_cs-btn-group">
+                                                <div className="nf_cs-btn-group">
+                                                  <button
+                                                    className="btn btn-nf-gray quickscore_data"
+                                                    data-toggle="modal"
+                                                    data-target="#quickscore"
+                                                    data-id={34042}
+                                                    onClick={() => {
+                                                      setSelectedMatch(val);
+                                                      setShowQuickScoreModal(
+                                                        true
+                                                      );
+                                                    }}
+                                                  >
+                                                    <CirclePlusIcon className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
+                                                  </button>
+                                                  <strong className="text-center">
+                                                    Quick Scoring
+                                                  </strong>
+                                                </div>
+                                              </div>
+                                            )}
+                                        </div>
+                                      </div>
+                                    </div>
                                   </div>
-                                  <div className="col-4">
-                                    <div className="nf_stage-content">
-                                      {val?.opponent2 ? (
-                                        <>
-                                          <div className="nf_stage-img">
-                                            {val?.opponent2?.team?.logoImage ||
-                                            val?.opponent2?.user
-                                              ?.profilePicture ? (
+                                );
+                              })
+                          : matches?.map((val) => {
+                              const activeScores = val?.matchScores?.filter(
+                                (match: any) => match?.isActive
+                              );
+
+                              return (
+                                <div className="nf_cs-content">
+                                  <div className="grid grid-cols-3">
+                                    <div className="col-4">
+                                      <div className="nf_stage-content">
+                                        {val?.opponent1 ? (
+                                          <>
+                                            <div className="nf_stage-img">
+                                              {val?.opponent1?.team
+                                                ?.logoImage ||
+                                              val?.opponent1?.user
+                                                ?.profilePicture ? (
+                                                <img
+                                                  className=""
+                                                  height=""
+                                                  width=""
+                                                  src={`${baseURL}/api/v1/${
+                                                    val?.opponent1?.team
+                                                      ? val?.opponent1?.team
+                                                          ?.logoImage
+                                                      : val?.opponent1?.user
+                                                          ?.profilePicture
+                                                  }`}
+                                                />
+                                              ) : (
+                                                <div
+                                                  className="bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold"
+                                                  style={{
+                                                    width: "4vw",
+                                                    height: "4vw",
+                                                  }}
+                                                >
+                                                  {val?.opponent1?.team
+                                                    ? val?.opponent1?.team
+                                                        ?.teamShortName
+                                                    : val?.opponent1?.user
+                                                        ?.username}
+                                                </div>
+                                              )}
+                                            </div>
+                                            <h3>
+                                              {val?.opponent1?.team
+                                                ? val?.opponent1?.team?.teamName
+                                                : val?.opponent1?.user
+                                                    ?.username}
+                                            </h3>
+                                          </>
+                                        ) : (
+                                          <>
+                                            <div className="nf_stage-img">
                                               <img
                                                 className=""
                                                 height=""
                                                 width=""
-                                                src={`${baseURL}/api/v1/${
-                                                  val?.opponent2?.team
-                                                    ?.logoImage ||
-                                                  val?.opponent2?.user
-                                                    ?.profilePicture
-                                                }`}
+                                                src={prime_hover}
+                                              />
+                                            </div>
+                                            <h3>TBD</h3>
+                                          </>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center justify-center">
+                                      <div className="nf_stage-content text-center">
+                                        <div className="flex content-center justify-center">
+                                          <h5
+                                            className={
+                                              val?.winner === "opponent1"
+                                                ? "!bg-green-500/20 !text-green-300 border !border-green-500/30"
+                                                : val?.winner === "opponent2"
+                                                ? "!bg-red-500/20 !text-red-300 border !border-red-500/30"
+                                                : "!bg-blue-500/20 !text-blue-300 border !border-blue-500/30"
+                                            }
+                                          >
+                                            {activeScores[0]?.opponent1Score
+                                              ? activeScores[0]?.opponent1Score
+                                              : 0}
+                                          </h5>
+                                          <h5
+                                            className={
+                                              val?.winner === "opponent2"
+                                                ? "!bg-green-500/20 !text-green-300 border !border-green-500/30"
+                                                : val?.winner === "opponent1"
+                                                ? "!bg-red-500/20 !text-red-300 border !border-red-500/30"
+                                                : "!bg-blue-500/20 !text-blue-300 border !border-blue-500/30"
+                                            }
+                                          >
+                                            {activeScores[0]?.opponent2Score
+                                              ? activeScores[0]?.opponent2Score
+                                              : 0}
+                                          </h5>
+                                        </div>
+                                        <p
+                                          className={`px-3 py-1 whitespace-nowrap rounded-full text-sm font-medium ${
+                                            val?.status === "completed"
+                                              ? "bg-green-500/20 !text-green-400 border border-green-500/30"
+                                              : val?.status === "cancelled"
+                                              ? "bg-red-500/20 !text-red-400 border border-red-500/30"
+                                              : val?.status === "in_progress"
+                                              ? "bg-yellow-500/20 !text-yellow-400 border border-yellow-500/30"
+                                              : val?.status === "pending"
+                                              ? "bg-yellow-500/20 !text-yellow-400 border border-yellow-500/30"
+                                              : "bg-purple-500/20 !text-purple-400 border border-purple-500/30"
+                                          }`}
+                                        >
+                                          {val?.status
+                                            ?.replace("_", " ")
+                                            .replace(/\b\w/g, (c: any) =>
+                                              c.toUpperCase()
+                                            )}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <div className="col-4">
+                                      <div className="nf_stage-content">
+                                        {val?.opponent2 ? (
+                                          <>
+                                            <div className="nf_stage-img">
+                                              {val?.opponent2?.team
+                                                ?.logoImage ||
+                                              val?.opponent2?.user
+                                                ?.profilePicture ? (
+                                                <img
+                                                  className=""
+                                                  height=""
+                                                  width=""
+                                                  src={`${baseURL}/api/v1/${
+                                                    val?.opponent2?.team
+                                                      ?.logoImage ||
+                                                    val?.opponent2?.user
+                                                      ?.profilePicture
+                                                  }`}
+                                                  alt={
+                                                    val?.opponent2?.team
+                                                      ?.teamShortName ||
+                                                    "Team/Opponent"
+                                                  }
+                                                />
+                                              ) : (
+                                                <div
+                                                  className="bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold"
+                                                  style={{
+                                                    width: "4vw",
+                                                    height: "4vw",
+                                                  }}
+                                                >
+                                                  {val?.opponent2?.team
+                                                    ? val?.opponent2?.team
+                                                        ?.teamShortName
+                                                    : val?.opponent2?.user
+                                                        ?.username}
+                                                </div>
+                                              )}
+                                            </div>
+                                            <h3>
+                                              {val?.opponent2?.team
+                                                ? val?.opponent2?.team?.teamName
+                                                : val?.opponent2?.user
+                                                    ?.username}
+                                            </h3>
+                                          </>
+                                        ) : (
+                                          <>
+                                            <div className="nf_stage-img">
+                                              <img
+                                                className=""
+                                                height=""
+                                                width=""
+                                                src={prime_hover}
                                                 alt={
                                                   val?.opponent2?.team
                                                     ?.teamShortName ||
                                                   "Team/Opponent"
                                                 }
                                               />
-                                            ) : (
-                                              <div
-                                                className="bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold"
-                                                style={{
-                                                  width: "4vw",
-                                                  height: "4vw",
-                                                }}
-                                              >
-                                                {val?.opponent2?.team
-                                                  ? val?.opponent2?.team
-                                                      ?.teamShortName
-                                                  : val?.opponent2?.user
-                                                      ?.username}
-                                              </div>
-                                            )}
-                                          </div>
-                                          <h3>
-                                            {val?.opponent2?.team
-                                              ? val?.opponent2?.team?.teamName
-                                              : val?.opponent2?.user?.username}
-                                          </h3>
-                                        </>
-                                      ) : (
-                                        <>
-                                          <div className="nf_stage-img">
-                                            <img
-                                              className=""
-                                              height=""
-                                              width=""
-                                              src={prime_hover}
-                                              alt={
-                                                val?.opponent2?.team
-                                                  ?.teamShortName ||
-                                                "Team/Opponent"
-                                              }
-                                            />
-                                          </div>
-                                          <h3>TBD</h3>
-                                        </>
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="nf_stage-bottombar items-center justify-center flex my-2 gap-1">
-                                  <p>{val?.stageRoundId?.roundName}</p>
-                                  <p>
-                                    {formatDate(val?.startTime)} -{" "}
-                                    {formatDate(val?.endTime)}
-                                  </p>
-                                </div>
-                                <div className="nf_match-list my-3">
-                                  <div
-                                    className="nf-cs-btn flex items-center justify-center"
-                                    style={{}}
-                                  >
-                                    <div className="nf_cs-buttons flex items-center content-center">
-                                      <div className="nf_cs-btn-group ">
-                                        <button
-                                          className="btn btn-nf-gray timechange_data"
-                                          data-toggle="modal"
-                                          data-target="#changetime"
-                                          data-id={34042}
-                                          onClick={() => {
-                                            setSelectedMatch(val);
-                                            setShowChangeTimeModal(true);
-                                          }}
-                                        >
-                                          <Clock className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
-                                        </button>
-                                        <strong className="text-center">
-                                          {" "}
-                                          Change Time
-                                        </strong>
-                                      </div>
-                                      <div className="nf_cs-btn-group">
-                                        <Link
-                                          to={`/${partnerId}/tournament/${tournamentId}/stage/list/${val?._id}`}
-                                          className="btn btn-nf-gray"
-                                        >
-                                          <Settings className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
-                                        </Link>
-                                        <strong className="text-center">
-                                          {" "}
-                                          Manage Match
-                                        </strong>
-                                      </div>
-                                      {!val?.isScoreVerified &&
-                                        val?.opponent1 &&
-                                        val?.opponent2 && (
-                                          <div className="nf_cs-btn-group">
-                                            <div className="nf_cs-btn-group">
-                                              <button
-                                                className="btn btn-nf-gray quickscore_data"
-                                                data-toggle="modal"
-                                                data-target="#quickscore"
-                                                data-id={34042}
-                                                onClick={() => {
-                                                  setSelectedMatch(val);
-                                                  setShowQuickScoreModal(true);
-                                                }}
-                                              >
-                                                <CirclePlusIcon className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
-                                              </button>
-                                              <strong className="text-center">
-                                                Quick Scoring
-                                              </strong>
                                             </div>
-                                          </div>
+                                            <h3>TBD</h3>
+                                          </>
                                         )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="nf_stage-bottombar items-center justify-center flex my-2 gap-1">
+                                    <p>{val?.stageRoundId?.roundName}</p>
+                                    <p>
+                                      {formatDate(val?.startTime)} -{" "}
+                                      {formatDate(val?.endTime)}
+                                    </p>
+                                  </div>
+                                  <div className="nf_match-list my-3">
+                                    <div
+                                      className="nf-cs-btn flex items-center justify-center"
+                                      style={{}}
+                                    >
+                                      <div className="nf_cs-buttons flex items-center content-center">
+                                        <div className="nf_cs-btn-group ">
+                                          <button
+                                            className="btn btn-nf-gray timechange_data"
+                                            data-toggle="modal"
+                                            data-target="#changetime"
+                                            data-id={34042}
+                                            onClick={() => {
+                                              setSelectedMatch(val);
+                                              setShowChangeTimeModal(true);
+                                            }}
+                                          >
+                                            <Clock className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
+                                          </button>
+                                          <strong className="text-center">
+                                            {" "}
+                                            Change Time
+                                          </strong>
+                                        </div>
+                                        <div className="nf_cs-btn-group">
+                                          <Link
+                                            to={`/${partnerId}/tournament/${tournamentId}/stage/list/${val?._id}`}
+                                            className="btn btn-nf-gray"
+                                          >
+                                            <Settings className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
+                                          </Link>
+                                          <strong className="text-center">
+                                            {" "}
+                                            Manage Match
+                                          </strong>
+                                        </div>
+                                        {!val?.isScoreVerified &&
+                                          val?.opponent1 &&
+                                          val?.opponent2 && (
+                                            <div className="nf_cs-btn-group">
+                                              <div className="nf_cs-btn-group">
+                                                <button
+                                                  className="btn btn-nf-gray quickscore_data"
+                                                  data-toggle="modal"
+                                                  data-target="#quickscore"
+                                                  data-id={34042}
+                                                  onClick={() => {
+                                                    setSelectedMatch(val);
+                                                    setShowQuickScoreModal(
+                                                      true
+                                                    );
+                                                  }}
+                                                >
+                                                  <CirclePlusIcon className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
+                                                </button>
+                                                <strong className="text-center">
+                                                  Quick Scoring
+                                                </strong>
+                                              </div>
+                                            </div>
+                                          )}
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
-                              </div>
-                            );
-                          })}
+                              );
+                            })}
                       </>
                     )}
                   </div>
