@@ -718,7 +718,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                               )
                             ).map((groupId: any) => (
                               <option key={groupId} value={groupId}>
-                                Group {groupId}
+                                Group {groupId + 1}
                               </option>
                             ))}
                           </select>
