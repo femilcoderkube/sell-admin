@@ -2,6 +2,7 @@ import axios from "axios";
 import { logout } from "./app/features/auth/authSlice";
 import { generateToken } from "./utils/SecurityService";
 import cryptoUtils from "./utils/cryptoUtils";
+import b from "./xtoken";
 
 export const baseURL = import.meta.env.VITE_API_BASE_URL;
 const secret = import.meta.env.VITE_SECRET_KEY;
@@ -22,12 +23,18 @@ export const setAxiosStore = (storeInstance: any) => {
 
 axiosInstance.interceptors.request.use(
   async (config) => {
+    let h = b();
     const token = localStorage.getItem("token");
-    const payload = { data: "SecurityPayload", time: Date.now() };
+    // const payload = { data: "SecurityPayload", time: Date.now() };
+    const payload = { timestamp: h.timestamp, nonce: h.nonce };
 
     if (secret) {
       let secrets = await generateToken(secret, payload);
       config.headers["X-Auth-Token"] = secrets;
+    }
+
+    if (h) {
+      config.headers["X-Token"] = h.hash;
     }
 
     if (token) {
