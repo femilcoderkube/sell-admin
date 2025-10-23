@@ -175,22 +175,33 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
           roundId: selectedRound,
           status: selectedStatus,
           search: search,
+          ...(stageType === "RoundRobin" && { groupId: selectedGroup }),
         });
       }
     }
-  }, [selectedStage, selectedRound, selectedStatus, search, debouncedDispatch]);
+  }, [
+    selectedStage,
+    selectedRound,
+    selectedStatus,
+    selectedGroup,
+    search,
+    debouncedDispatch,
+  ]);
 
   useEffect(() => {
     if (selectedStage) {
       dispatch(fetchStageRound(selectedStage));
-      if (stageType === "BattleRoyal") {
+      if (stageType === "BattleRoyal" || stageType === "RoundRobin") {
         dispatch(fetchStageGroup(selectedStage));
       }
     }
   }, [dispatch, selectedStage]);
 
   useEffect(() => {
-    if (stageRound?.length > 0 && stageType === "BattleRoyal") {
+    if (
+      stageRound?.length > 0 &&
+      (stageType === "BattleRoyal" || stageType === "RoundRobin")
+    ) {
       setSelectedRound(stageRound[0]?._id);
     }
   }, [stageRound, stageType]);
@@ -651,7 +662,8 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                           value={selectedRound}
                           onChange={(e) => setSelectedRound(e.target.value)}
                         >
-                          {stageType !== "BattleRoyal" && (
+                          {(stageType !== "BattleRoyal" ||
+                            stageType === "RoundRobin") && (
                             <option value="">All rounds</option>
                           )}
                           {stageRound?.map((round: any) => (
@@ -669,7 +681,8 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                         </select>
                       </div>
                     </div>
-                    {stageType === "BattleRoyal" && (
+                    {(stageType === "BattleRoyal" ||
+                      stageType === "RoundRobin") && (
                       <div
                         className="nf_top-filter nf_bg flex items-center ml-2"
                         style={{ maxWidth: "max-content" }}
