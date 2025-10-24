@@ -30,7 +30,8 @@ import { setLocalZone, setOtherZone } from "../../utils/constant";
 interface Tournament {
   title: string;
   titleAr: string;
-  partner: { value: string; label: string } | null;
+  partner: string;
+  // partner: { value: string; label: string } | null;
   game: { value: string; label: string } | null;
   platform: { value: string; label: string } | null;
   tournamentType: string;
@@ -76,13 +77,13 @@ const validationSchema = Yup.object().shape({
       /^\S.*\S$/,
       "Tournament Title (Arabic) cannot start or end with spaces"
     ),
-  partner: Yup.object()
-    .shape({
-      value: Yup.string().required(),
-      label: Yup.string().required("Partner is required"),
-    })
-    .nullable()
-    .required("Partner is required"),
+  // partner: Yup.object()
+  //   .shape({
+  //     value: Yup.string().required(),
+  //     label: Yup.string().required("Partner is required"),
+  //   })
+  //   .nullable()
+  //   .required("Partner is required"),
   game: Yup.object()
     .shape({
       value: Yup.string().required(),
@@ -194,27 +195,27 @@ const TournamentStep1: FC<{ step: number }> = ({ step }) => {
     setFieldTouched,
   } = useFormikContext<Tournament>();
 
-  const loadPartnerOptions = async (
-    search: string,
-    loadedOptions: any,
-    { page }: any
-  ) => {
-    const perPage = 10;
-    const response: any = await dispatch(
-      fetchPartners({ page, perPage, search })
-    );
-    const data = response.payload;
-    const options: any[] = data?.data.result.map((partner: any) => ({
-      value: partner._id,
-      label: partner.nameEn,
-    }));
+  // const loadPartnerOptions = async (
+  //   search: string,
+  //   loadedOptions: any,
+  //   { page }: any
+  // ) => {
+  //   const perPage = 10;
+  //   const response: any = await dispatch(
+  //     fetchPartners({ page, perPage, search })
+  //   );
+  //   const data = response.payload;
+  //   const options: any[] = data?.data.result.map((partner: any) => ({
+  //     value: partner._id,
+  //     label: partner.nameEn,
+  //   }));
 
-    return {
-      options,
-      hasMore: page * perPage < data.data.totalItem,
-      additional: { page: page + 1 },
-    };
-  };
+  //   return {
+  //     options,
+  //     hasMore: page * perPage < data.data.totalItem,
+  //     additional: { page: page + 1 },
+  //   };
+  // };
 
   const loadGameOptions = async (
     search: string,
@@ -345,7 +346,7 @@ const TournamentStep1: FC<{ step: number }> = ({ step }) => {
         )}
       </div>
 
-      <div className="relative flex-1 custom-input mb-4">
+      {/* <div className="relative flex-1 custom-input mb-4">
         <AsyncPaginate
           id="partner"
           name="partner"
@@ -422,7 +423,7 @@ const TournamentStep1: FC<{ step: number }> = ({ step }) => {
             {errors.partner.label}
           </div>
         )}
-      </div>
+      </div> */}
 
       <div className="relative flex-1 custom-input mb-4">
         <AsyncPaginate
@@ -1855,6 +1856,7 @@ const TournamentStep4: FC<{ step: number }> = ({ step }) => {
 export const AddTournament: FC = () => {
   const location = useLocation();
   const tournamentData = location?.state?.tournament;
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [step, setStep] = useState(1);
@@ -1916,7 +1918,7 @@ export const AddTournament: FC = () => {
     const bodyData = {
       title: values.title,
       titleAr: values.titleAr,
-      partner: values.partner?.value || pID,
+      partner: tournamentData?.partner?._id || pID,
       game: values.game?.value,
       platform: values.platform?.value,
       tournamentType: values.tournamentType,
@@ -1945,8 +1947,6 @@ export const AddTournament: FC = () => {
       ),
       discordId: values?.discordId || "",
     };
-
-    console.log("bodyData", bodyData);
 
     if (tournamentData?._id) {
       dispatch(
