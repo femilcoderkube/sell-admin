@@ -66,9 +66,9 @@ const DashboardCard = ({ title, value, delay = 0, color = "emerald" }) => {
 
   return (
     <div
-
-      className={`bg-gradient-to-br rounded-xl p-6 shadow-lg transform transition-all duration-700 hover:scale-105 hover:shadow-xl cursor-default ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-        } `}
+      className={`bg-gradient-to-br rounded-xl p-6 shadow-lg transform transition-all duration-700 hover:scale-105 hover:shadow-xl cursor-default ${
+        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+      } `}
     >
       <div className="flex items-center justify-between mb-4">
         <div className="text-left">
@@ -87,9 +87,9 @@ export const Dashboard: FC = () => {
   const { dashboard, loading, error } = useSelector(
     (state: RootState) => state.admins
   ); // Adjust to match slice name
-
+  const id = window.location.pathname.split("/")[1];
   useEffect(() => {
-    dispatch(fetchDashboard());
+    dispatch(fetchDashboard(id));
   }, [dispatch]);
 
   if (loading) {

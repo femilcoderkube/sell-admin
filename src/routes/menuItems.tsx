@@ -41,6 +41,7 @@ import { Participant } from "../pages/Participant";
 import { SeedDetail } from "../pages/League/SeedDetail";
 import { Modal } from "../pages/Modal";
 import Tickets from "../pages/Tickets";
+import { Home } from "../pages/Home";
 
 // Helper function to convert snake_case to Title Case
 const toTitleCase = (str: string) =>
@@ -60,6 +61,7 @@ const toPath = (str: string) =>
 // Component mapping for modules and submodules (store component types)
 const componentMap: { [key: string]: React.ComponentType<any> } = {
   LEAGUE: NafesLeague,
+  DASHBOARD: Dashboard,
   TOURNAMENT: Tournament,
   ALL_USER: Users,
   ALL_TEAM: AllTeams,
@@ -188,9 +190,9 @@ export const generateRoutes = (adminside: any[]): RoutesProps[] => {
       path: "/",
       dark_svg: downarr,
       white_svg: white_arr,
-      component: <Dashboard />,
+      component: <Home />,
       auth: true,
-      isShow: true,
+      isShow: false,
       partnerColor: undefined,
     },
 

@@ -35,7 +35,9 @@ export const fetchAdminAccess = createAsyncThunk(
   "adminAccess/fetchAdminAccess",
   async (adminId: string, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`/AdminAccess?id=${adminId}`);
+      const response = await axiosInstance.get(
+        `/AdminAccess/check?id=${adminId}`
+      );
       return response.data.data.modules;
     } catch (error: any) {
       return rejectWithValue(

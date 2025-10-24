@@ -43,9 +43,9 @@ export const fetchAdmin = createAsyncThunk(
 );
 export const fetchDashboard = createAsyncThunk(
   "admin/fetchDashboard",
-  async (_, { rejectWithValue }) => {
+  async (id: any, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("/admin/dashboard");
+      const response = await axiosInstance.get(`/admin/dashboard?id=${id}`);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
