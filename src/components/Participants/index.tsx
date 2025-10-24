@@ -22,6 +22,8 @@ export const Participants: React.FC<any> = ({ title }) => {
   const { loading, error, searchTerm, currentPage, participants, totalCount } =
     useSelector((state: RootState) => state.participants);
 
+  console.log("participants", participants);
+
   const tournamentId = window.location.pathname.split("/")[3];
   const [deleteId, setDeleteId] = useState<string>("");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);

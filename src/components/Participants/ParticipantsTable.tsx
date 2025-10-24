@@ -34,7 +34,7 @@ export const ParticipantsTable: React.FC<TeamTableProps> = ({
       </svg>
     ),
     teamName: "Name",
-    teamShortName: "Short Name",
+    teamShortName: participants[0]?.user?.username ? "Username" : "Short Name",
     logo: "LOGO",
     actions: "ACTIONS",
   };
@@ -78,11 +78,15 @@ export const ParticipantsTable: React.FC<TeamTableProps> = ({
                   {(currentPage - 1) * 10 + index + 1}
                 </td>
                 <td className="text-sm py-4 px-3 font-medium text-white min-w-[120px]">
-                  {team?.team?.teamName}
+                  {team?.team?.teamName
+                    ? team?.team?.teamName
+                    : `${team?.user?.firstName} ${team?.user?.lastName}`}
                 </td>
 
                 <td className="text-center text-sm py-4 px-3 text-gray-200 hidden md:table-cell min-w-[180px] truncate">
-                  {team?.team?.teamShortName}
+                  {team?.team?.teamShortName
+                    ? team?.team?.teamShortName
+                    : team?.user?.username}
                 </td>
 
                 <td className="text-sm py-4 px-3 hidden sm:table-cell">
