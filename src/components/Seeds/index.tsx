@@ -211,7 +211,6 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
       });
 
       window.bracketsViewer.onMatchClicked = async (match: any) => {
-        console.log("match", match);
         setSelectedMatch(match);
         setShowQuickScoreModal(true);
       };

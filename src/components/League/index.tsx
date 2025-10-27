@@ -91,7 +91,6 @@ export const League: React.FC = ({ title }: any) => {
   // Handle pagination navigation
   const handlePageChange = useCallback(
     (page: number) => {
-      console.log("Navigating to page:", page);
       if (page >= 1 && page <= Math.ceil(totalCount / perPage)) {
         dispatch(setPage(page));
       }

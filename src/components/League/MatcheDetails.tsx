@@ -4,7 +4,7 @@ import {
   adoptLeagueMatchScore,
   fetchLeagueMatchesByID,
   updateLeagueMatchesByID,
-  resetSyncLoader
+  resetSyncLoader,
 } from "../../app/features/league/leagueSlice";
 
 import viewIcon from "../../assets/images/eye_icon.svg";
@@ -110,35 +110,39 @@ const MatchStatusSwitch = ({
         })
       );
       if (updateLeagueMatchesByID.fulfilled.match(result)) {
-
         if (pendingStatus === "canceled") {
           const scoreResult = await dispatch(
             addLeagueMatchScore({
               matcheId: matcheDetail?._id,
               yourScore: 0,
-              opponentScore: 0
+              opponentScore: 0,
             })
           );
 
           if (addLeagueMatchScore.fulfilled.match(scoreResult)) {
-            const updatedMatchData = await dispatch(fetchLeagueMatchesByID({ matcheId: matcheDetail?._id }));
+            const updatedMatchData = await dispatch(
+              fetchLeagueMatchesByID({ matcheId: matcheDetail?._id })
+            );
             if (fetchLeagueMatchesByID.fulfilled.match(updatedMatchData)) {
-              const latestScoreIndex = updatedMatchData.payload.data.matchScores.length - 1;
+              const latestScoreIndex =
+                updatedMatchData.payload.data.matchScores.length - 1;
               const adoptResult = await dispatch(
                 adoptLeagueMatchScore({
                   matcheId: matcheDetail?._id,
-                  index: latestScoreIndex
+                  index: latestScoreIndex,
                 })
               );
               if (adoptLeagueMatchScore.fulfilled.match(adoptResult)) {
                 const finalStatusUpdate = await dispatch(
                   updateLeagueMatchesByID({
                     matcheId: matcheDetail?._id,
-                    status: "canceled"
+                    status: "canceled",
                   })
                 );
 
-                if (updateLeagueMatchesByID.fulfilled.match(finalStatusUpdate)) {
+                if (
+                  updateLeagueMatchesByID.fulfilled.match(finalStatusUpdate)
+                ) {
                   socket.emit(SOCKET.ONADMINMESSAGE, {
                     msg: "Your match is canceled.",
                     roomId: mid,
@@ -176,9 +180,10 @@ const MatchStatusSwitch = ({
       <div
         className={`inline-flex items-center rounded-full text-sm font-semibold transition-all duration-300 transform 
           hover:shadow-lg 
-          ${isLoading
-            ? "opacity-50 cursor-not-allowed"
-            : "cursor-pointer shadow-md"
+          ${
+            isLoading
+              ? "opacity-50 cursor-not-allowed"
+              : "cursor-pointer shadow-md"
           }`}
       >
         {statusOptions.map((option) => (
@@ -186,18 +191,21 @@ const MatchStatusSwitch = ({
             key={option}
             onClick={() => handleStatusChange(option)}
             disabled={isLoading || option === status}
-            className={`px-4 py-3 font-medium capitalize transition-all duration-200 ${status === option
-              ? `${statusColors[option]} ${statusTextColors[option]}`
-              : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-              } ${option === statusOptions[0]
+            className={`px-4 py-3 font-medium capitalize transition-all duration-200 ${
+              status === option
+                ? `${statusColors[option]} ${statusTextColors[option]}`
+                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+            } ${
+              option === statusOptions[0]
                 ? "rounded-l-full"
                 : option === statusOptions[statusOptions.length - 1]
-                  ? "rounded-r-full"
-                  : ""
-              } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-[#46A2FF] ${option !== "canceled" || isLoading
+                ? "rounded-r-full"
+                : ""
+            } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-[#46A2FF] ${
+              option !== "canceled" || isLoading
                 ? "opacity-50 cursor-not-allowed"
                 : ""
-              }`}
+            }`}
           >
             {option.replace("_", " ")}
             {isLoading && pendingStatus === option && (
@@ -262,14 +270,14 @@ const TeamDropdown = ({
     score?.submittedBy === "team1"
       ? "Team 1"
       : score?.submittedBy === "team2"
-        ? "Team 2"
-        : "Admin";
+      ? "Team 2"
+      : "Admin";
   const players =
     score?.submittedBy === "team1"
       ? matchData.team1
       : score?.submittedBy === "team2"
-        ? matchData.team2
-        : [];
+      ? matchData.team2
+      : [];
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -288,20 +296,22 @@ const TeamDropdown = ({
     <div className="relative inline-block" ref={dropdownRef}>
       <button
         disabled={teamLabel === "Admin"}
-        className={`"font-bold text-white ${teamLabel !== "Admin" ? "cursor-pointer" : ""
-          } hover:text-gray-300 transition-colors duration-200`}
+        className={`"font-bold text-white ${
+          teamLabel !== "Admin" ? "cursor-pointer" : ""
+        } hover:text-gray-300 transition-colors duration-200`}
         onClick={() => setIsOpen(!isOpen)}
         aria-label={`Toggle ${teamLabel} players dropdown`}
         role="button"
       >
         <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-700/30 transition-all duration-200">
           <span
-            className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-md ${score?.submittedBy === "team1"
-              ? "bg-gradient-to-br from-[#46A2FF] to-[#2563eb]"
-              : score?.submittedBy === "team2"
+            className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-md ${
+              score?.submittedBy === "team1"
+                ? "bg-gradient-to-br from-[#46A2FF] to-[#2563eb]"
+                : score?.submittedBy === "team2"
                 ? "bg-gradient-to-br from-orange-500 to-orange-600"
                 : "bg-gradient-to-br from-green-500 to-green-600"
-              }`}
+            }`}
           >
             {index + 1}
           </span>
@@ -310,13 +320,14 @@ const TeamDropdown = ({
               {score?.submittedBy === "team1"
                 ? "Team 1"
                 : score?.submittedBy === "team2"
-                  ? "Team 2"
-                  : "Admin"}
+                ? "Team 2"
+                : "Admin"}
             </span>
             {teamLabel !== "Admin" && (
               <svg
-                className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""
-                  }`}
+                className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
+                  isOpen ? "rotate-180" : ""
+                }`}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -390,15 +401,14 @@ const MatchDetails = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number>();
   const [selectedAttachment, setSelectedAttachment] = useState([]);
-  const { matcheDetail, syncLoader, syncLoaderStart,  loading, error } = useSelector(
-    (state: RootState) => state.leagues
-  ) as {
-    matcheDetail: MatchDetails | null;
-    syncLoader: MatchDetails | null;
-    syncLoaderStart : MatchDetails | null;
-    loading: boolean;
-    error: string | null;
-  };
+  const { matcheDetail, syncLoader, syncLoaderStart, loading, error } =
+    useSelector((state: RootState) => state.leagues) as {
+      matcheDetail: MatchDetails | null;
+      syncLoader: MatchDetails | null;
+      syncLoaderStart: MatchDetails | null;
+      loading: boolean;
+      error: string | null;
+    };
 
   useEffect(() => {
     if (syncLoader && syncLoaderStart) {
@@ -409,7 +419,7 @@ const MatchDetails = () => {
           clearInterval(interval);
         }
       }, 1000);
-  
+
       return () => clearInterval(interval);
     }
   }, [syncLoader, syncLoaderStart, dispatch]);
@@ -433,11 +443,8 @@ const MatchDetails = () => {
         .trim(),
     }),
     onSubmit: async (values) => {
-      console.log("Saving score:", values?.team1, values?.team2);
-
       const team1Score = parseFloat(values.team1.trim());
       const team2Score = parseFloat(values.team2.trim());
-
 
       try {
         // Add the score first
@@ -453,16 +460,19 @@ const MatchDetails = () => {
           // Check if both scores are 0
           if (team1Score === 0 && team2Score === 0) {
             // Fetch updated match data to get the latest score index
-            const updatedMatchData = await dispatch(fetchLeagueMatchesByID({ matcheId: mid }));
+            const updatedMatchData = await dispatch(
+              fetchLeagueMatchesByID({ matcheId: mid })
+            );
 
             if (fetchLeagueMatchesByID.fulfilled.match(updatedMatchData)) {
-              const latestScoreIndex = updatedMatchData.payload.data.matchScores.length - 1;
+              const latestScoreIndex =
+                updatedMatchData.payload.data.matchScores.length - 1;
 
               // Auto-accept the 0-0 score
               const adoptResult = await dispatch(
                 adoptLeagueMatchScore({
                   matcheId: mid,
-                  index: latestScoreIndex
+                  index: latestScoreIndex,
                 })
               );
 
@@ -471,11 +481,13 @@ const MatchDetails = () => {
                 const statusUpdateResult = await dispatch(
                   updateLeagueMatchesByID({
                     matcheId: mid,
-                    status: "canceled"
+                    status: "canceled",
                   })
                 );
 
-                if (updateLeagueMatchesByID.fulfilled.match(statusUpdateResult)) {
+                if (
+                  updateLeagueMatchesByID.fulfilled.match(statusUpdateResult)
+                ) {
                   // Send socket message about cancellation
                   socket.emit(SOCKET.ONADMINMESSAGE, {
                     msg: "Your match has been canceled with 0-0 score.",
@@ -485,7 +497,9 @@ const MatchDetails = () => {
 
                   // Refresh match details
                   dispatch(fetchLeagueMatchesByID({ matcheId: mid }));
-                  toast.success("Match canceled with 0-0 score and automatically accepted.");
+                  toast.success(
+                    "Match canceled with 0-0 score and automatically accepted."
+                  );
                 }
               }
             }
@@ -512,7 +526,6 @@ const MatchDetails = () => {
       // // Example: send values to backend here
       // setAddingScore(false);
       // formik.resetForm();
-
     },
   });
 
@@ -708,10 +721,11 @@ const MatchDetails = () => {
           />
 
           <button
-            className={`relative py-3 px-6 font-semibold text-sm transition-all duration-200 ease-out flex-1 group ${activeTab === "details"
-              ? "text-white"
-              : "text-gray-400 hover:text-gray-200"
-              }`}
+            className={`relative py-3 px-6 font-semibold text-sm transition-all duration-200 ease-out flex-1 group ${
+              activeTab === "details"
+                ? "text-white"
+                : "text-gray-400 hover:text-gray-200"
+            }`}
             onClick={() => setActiveTab("details")}
           >
             <span className="relative z-10">Match Details</span>
@@ -722,10 +736,11 @@ const MatchDetails = () => {
           </button>
 
           <button
-            className={`relative py-3 px-6 font-semibold text-sm transition-all duration-200 ease-out flex-1 group ${activeTab === "chat"
-              ? "text-white"
-              : "text-gray-400 hover:text-gray-200"
-              }`}
+            className={`relative py-3 px-6 font-semibold text-sm transition-all duration-200 ease-out flex-1 group ${
+              activeTab === "chat"
+                ? "text-white"
+                : "text-gray-400 hover:text-gray-200"
+            }`}
             onClick={() => setActiveTab("chat")}
           >
             <span className="relative z-10">Chat</span>
@@ -796,8 +811,8 @@ const MatchDetails = () => {
                           score?.submittedBy === "team1"
                             ? matcheDetail?.team1
                             : score?.submittedBy === "team2"
-                              ? matcheDetail?.team2
-                              : [];
+                            ? matcheDetail?.team2
+                            : [];
 
                         return (
                           <tr key={score._id} className="bg-gray-700/30">
@@ -805,38 +820,38 @@ const MatchDetails = () => {
                               {score?.submittedBy === "team1"
                                 ? "Team 1"
                                 : score?.submittedBy === "team2"
-                                  ? "Team 2"
-                                  : "Admin"}
+                                ? "Team 2"
+                                : "Admin"}
                             </td>
                             <td className="p-4 border-b border-gray-700/50">
                               <div className="flex flex-wrap gap-1">
                                 {players.length > 0
                                   ? players.map((item) => (
-                                    <div
-                                      key={item?.participant?._id}
-                                      className="relative group inline-block"
-                                    >
-                                      <span className="text-white cursor-pointer">
-                                        {item?.participant?.userId?.username}
-                                      </span>
-                                      <div className="absolute hidden group-hover:block bg-gray-800 text-white text-sm rounded-lg p-2 shadow-lg z-10 min-w-max">
-                                        <p>
-                                          <strong>Discord ID:</strong>{" "}
-                                          {
-                                            item?.participant?.otherFields?.find(
-                                              (field) =>
-                                                field.key === "Discord ID"
-                                            )?.value
-                                          }
-                                        </p>
-                                        <p>
-                                          <strong>Game ID:</strong>{" "}
-                                          {item?.participant?.gameId}
-                                        </p>
+                                      <div
+                                        key={item?.participant?._id}
+                                        className="relative group inline-block"
+                                      >
+                                        <span className="text-white cursor-pointer">
+                                          {item?.participant?.userId?.username}
+                                        </span>
+                                        <div className="absolute hidden group-hover:block bg-gray-800 text-white text-sm rounded-lg p-2 shadow-lg z-10 min-w-max">
+                                          <p>
+                                            <strong>Discord ID:</strong>{" "}
+                                            {
+                                              item?.participant?.otherFields?.find(
+                                                (field) =>
+                                                  field.key === "Discord ID"
+                                              )?.value
+                                            }
+                                          </p>
+                                          <p>
+                                            <strong>Game ID:</strong>{" "}
+                                            {item?.participant?.gameId}
+                                          </p>
+                                        </div>
+                                        {players.length > 1 && ","}
                                       </div>
-                                      {players.length > 1 && ","}
-                                    </div>
-                                  ))
+                                    ))
                                   : "-"}
                               </div>
                             </td>
@@ -845,8 +860,8 @@ const MatchDetails = () => {
                                 {score?.submittedBy === "team1"
                                   ? score?.yourScore.toFixed(0)
                                   : score?.submittedBy === "admin"
-                                    ? score?.yourScore.toFixed(0)
-                                    : score?.opponentScore.toFixed(0)}
+                                  ? score?.yourScore.toFixed(0)
+                                  : score?.opponentScore.toFixed(0)}
                               </p>
                             </td>
                             <td className="p-4 border-b border-gray-700/50">
@@ -854,8 +869,8 @@ const MatchDetails = () => {
                                 {score?.submittedBy === "team1"
                                   ? score?.opponentScore.toFixed(0)
                                   : score?.submittedBy === "admin"
-                                    ? score?.opponentScore.toFixed(0)
-                                    : score?.yourScore.toFixed(0)}
+                                  ? score?.opponentScore.toFixed(0)
+                                  : score?.yourScore.toFixed(0)}
                               </p>
                             </td>
                             <td className="p-4 border-b border-gray-700/50">
@@ -923,10 +938,11 @@ const MatchDetails = () => {
                             <input
                               type="text"
                               name="team1"
-                              className={`w-20 bg-gray-800 text-white px-2 py-1 rounded ${formik.touched.team1 && formik.errors.team1
-                                ? "border-red-500 border"
-                                : ""
-                                }`}
+                              className={`w-20 bg-gray-800 text-white px-2 py-1 rounded ${
+                                formik.touched.team1 && formik.errors.team1
+                                  ? "border-red-500 border"
+                                  : ""
+                              }`}
                               value={formik.values.team1}
                               onChange={formik.handleChange}
                               onBlur={formik.handleBlur}
@@ -941,10 +957,11 @@ const MatchDetails = () => {
                             <input
                               type="text"
                               name="team2"
-                              className={`w-20 bg-gray-800 text-white px-2 py-1 rounded ${formik.touched.team2 && formik.errors.team2
-                                ? "border-red-500 border"
-                                : ""
-                                }`}
+                              className={`w-20 bg-gray-800 text-white px-2 py-1 rounded ${
+                                formik.touched.team2 && formik.errors.team2
+                                  ? "border-red-500 border"
+                                  : ""
+                              }`}
                               value={formik.values.team2}
                               onChange={formik.handleChange}
                               onBlur={formik.handleBlur}
@@ -1006,10 +1023,11 @@ const MatchDetails = () => {
                       return (
                         <div
                           key={message._id}
-                          className={`p-1 flex ${message?.isAdmin
-                            ? "text-blue-200 justify-end"
-                            : "text-gray-200 justify-start"
-                            }`}
+                          className={`p-1 flex ${
+                            message?.isAdmin
+                              ? "text-blue-200 justify-end"
+                              : "text-gray-200 justify-start"
+                          }`}
                         >
                           {message.isSystemMsg ? (
                             <div className="text-gray-200 justify-start">
@@ -1073,16 +1091,18 @@ const MatchDetails = () => {
                             </div>
                           ) : (
                             <div
-                              className={`p-1 flex ${message?.isAdmin
-                                ? "text-blue-200 justify-end"
-                                : "text-gray-200 justify-start"
-                                }`}
+                              className={`p-1 flex ${
+                                message?.isAdmin
+                                  ? "text-blue-200 justify-end"
+                                  : "text-gray-200 justify-start"
+                              }`}
                             >
                               <div
-                                className={`inline-block rounded-lg ${message?.isAdmin
-                                  ? "bg-blue-600/30"
-                                  : "bg-gray-700/30"
-                                  }`}
+                                className={`inline-block rounded-lg ${
+                                  message?.isAdmin
+                                    ? "bg-blue-600/30"
+                                    : "bg-gray-700/30"
+                                }`}
                               >
                                 <div className="flex items-start space-x-2 px-3 py-2 rounded-lg">
                                   <p className="text-sm break-words">
