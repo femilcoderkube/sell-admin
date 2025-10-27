@@ -1431,6 +1431,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
         </div>
       )}
       <QuickScoreModal
+        stageType={stagesList?.stageType}
         show={showQuickScoreModal}
         onClose={() => setShowQuickScoreModal(false)}
         match={selectedMatch}
