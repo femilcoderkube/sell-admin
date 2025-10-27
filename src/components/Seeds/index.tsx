@@ -23,9 +23,11 @@ import { createMatches } from "../../app/features/tournament/createMatchesSlice"
 import HandLogoLoader from "../Loader/Loader";
 import GroupCard from "./GroupCard";
 import { allParticipants } from "../../utils/constant";
-import { Group, Participant } from "../../app/types";
+import { Group, Match, Participant } from "../../app/types";
 import { updateStageGroup } from "../../app/features/tournament/stageGroupSlice";
 import { baseURL } from "../../axios";
+import QuickScoreModal from "../StageList/QuickScoreModal";
+import { addScore } from "../../app/features/tournament/tournamentMatchesSlice";
 
 // Mock function to fetch player details (replace with actual API call)
 // const fetchPlayerDetails = async (ids) => {
@@ -69,6 +71,8 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
 
   const tournamentId = window.location.pathname.split("/")[3];
   const stageId = window.location.pathname.split("/")[7];
+  const [showQuickScoreModal, setShowQuickScoreModal] = useState(false);
+  const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
 
   // State for UI and data
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
@@ -206,6 +210,11 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
         }
       });
 
+      window.bracketsViewer.onMatchClicked = async (match: any) => {
+        console.log("match", match);
+        setSelectedMatch(match);
+        setShowQuickScoreModal(true);
+      };
       // Listen for fullscreen change to update button text
       document.addEventListener("fullscreenchange", () => {
         isFullscreen = !!document.fullscreenElement;
@@ -841,6 +850,28 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
     });
   };
 
+  const handleScoreSubmit = async (values: {
+    team1Score: number;
+    team2Score: number;
+    matchId: string;
+  }) => {
+    // Placeholder for score submission logic
+
+    const resultAction = await dispatch(
+      addScore({
+        matchId: values.matchId,
+        opponent1Score: values.team1Score,
+        opponent2Score: values.team2Score,
+        description: "",
+        attachment: "",
+        submittedBy: "admin",
+      })
+    );
+    if (addScore.fulfilled.match(resultAction)) {
+      dispatch(getTournamentStages({ id: stageId }));
+    }
+  };
+
   return (
     <>
       <div className="nf_legue_head--con gap-4 flex-col lg:flex-row flex-wrap flex justify-start items-center pt-3 pb-[2rem] border-b border-light-border">
@@ -1399,6 +1430,12 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
           )}
         </div>
       )}
+      <QuickScoreModal
+        show={showQuickScoreModal}
+        onClose={() => setShowQuickScoreModal(false)}
+        match={selectedMatch}
+        onSubmit={handleScoreSubmit}
+      />
     </>
   );
 };

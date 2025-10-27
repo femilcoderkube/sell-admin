@@ -5,6 +5,7 @@ import { CancelIcon } from "../ui"; // Adjust path to your CancelIcon component
 import { Match } from "../../app/types";
 
 interface QuickScoreModalProps {
+  stageType: any;
   show: boolean;
   onClose: () => void;
   match: Match | null;
@@ -16,6 +17,7 @@ interface QuickScoreModalProps {
 }
 
 const QuickScoreModal: React.FC<QuickScoreModalProps> = ({
+  stageType,
   show,
   onClose,
   match,
@@ -39,13 +41,22 @@ const QuickScoreModal: React.FC<QuickScoreModalProps> = ({
     onSubmit: (values) => {
       if (match) {
         try {
-          onSubmit({
-            team1Score: parseInt(values.team1Score),
-            team2Score: parseInt(values.team2Score),
-            matchId: match._id,
-          });
-          formik.resetForm();
-          onClose();
+          if (
+            (stageType === "DoubleElimination" ||
+              stageType === "SingleElimination") &&
+            values.team1Score === values.team2Score
+          ) {
+            setError("Scores cannot be tied.");
+            formik.resetForm();
+          } else {
+            onSubmit({
+              team1Score: parseInt(values.team1Score),
+              team2Score: parseInt(values.team2Score),
+              matchId: match._id,
+            });
+            formik.resetForm();
+            onClose();
+          }
         } catch (err) {
           setError("Failed to submit scores. Please try again.");
         }

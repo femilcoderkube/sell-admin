@@ -1292,7 +1292,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                       <div className="nf_cs-buttons flex items-center content-center">
                                         <div className="nf_cs-btn-group ">
                                           <button
-                                            className="btn btn-nf-gray timechange_data"
+                                            className="btn btn-nf-gray timechange_data gap-1 items-center"
                                             data-toggle="modal"
                                             data-target="#changetime"
                                             data-id={34042}
@@ -1302,23 +1302,23 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                             }}
                                           >
                                             <Clock className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
+                                            <strong className="text-center">
+                                              {" "}
+                                              Change Time
+                                            </strong>
                                           </button>
-                                          <strong className="text-center">
-                                            {" "}
-                                            Change Time
-                                          </strong>
                                         </div>
                                         <div className="nf_cs-btn-group">
                                           <Link
                                             to={`/${partnerId}/tournament/${tournamentId}/stage/list/${val?._id}`}
-                                            className="btn btn-nf-gray"
+                                            className="btn btn-nf-gray gap-1 items-center"
                                           >
                                             <Settings className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
+                                            <strong className="text-center">
+                                              {" "}
+                                              Manage Match
+                                            </strong>
                                           </Link>
-                                          <strong className="text-center">
-                                            {" "}
-                                            Manage Match
-                                          </strong>
                                         </div>
                                         {!val?.isScoreVerified &&
                                           val?.opponent1 &&
@@ -1326,7 +1326,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                             <div className="nf_cs-btn-group">
                                               <div className="nf_cs-btn-group">
                                                 <button
-                                                  className="btn btn-nf-gray quickscore_data"
+                                                  className="btn btn-nf-gray quickscore_data gap-1 items-center"
                                                   data-toggle="modal"
                                                   data-target="#quickscore"
                                                   data-id={34042}
@@ -1338,10 +1338,10 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
                                                   }}
                                                 >
                                                   <CirclePlusIcon className="w-4 h-4 text-gray-400 group-hover/menu:text-blue-400 transition-colors" />
+                                                  <strong className="text-center">
+                                                    Quick Scoring
+                                                  </strong>
                                                 </button>
-                                                <strong className="text-center">
-                                                  Quick Scoring
-                                                </strong>
                                               </div>
                                             </div>
                                           )}
@@ -1532,6 +1532,7 @@ export const StageLists: React.FC<{ title: string }> = ({ title }) => {
         />
       )}
       <QuickScoreModal
+        stageType={stageType}
         show={showQuickScoreModal}
         onClose={() => setShowQuickScoreModal(false)}
         match={selectedMatch}
