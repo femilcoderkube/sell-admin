@@ -1,95 +1,41 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchDashboard } from "../../app/features/admins/adminSlice";
+import { fetchDashboard2 } from "../../app/features/admins/adminSlice";
 import { AppDispatch, RootState } from "../../app/store";
 import { Layout } from "../../components/layout";
 import HandLogoLoader from "../../components/Loader/Loader";
-import { Link } from "react-router";
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
 
-// Utility function to format object keys (e.g., totalLeagues -> Total Leagues)
-const formatKey = (key: string): string => {
-  return key
-    .replace(/([A-Z])/g, " $1") // Add space before capital letters
-    .replace(/^./, (str) => str.toUpperCase()) // Capitalize first letter
-    .trim();
-};
-
-const CountingAnimation = ({
-  end,
-  duration = 2000,
-  prefix = "",
-  suffix = "",
-}) => {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    const startTime = Date.now();
-    const endTime = startTime + duration;
-
-    const timer = setInterval(() => {
-      const now = Date.now();
-      const remaining = Math.max(endTime - now, 0);
-      const progress = Math.min((duration - remaining) / duration, 1);
-
-      setCount(Math.floor(progress * end));
-
-      if (remaining === 0) {
-        clearInterval(timer);
-      }
-    }, 16);
-
-    return () => clearInterval(timer);
-  }, [end, duration]);
-
-  return (
-    <span>
-      {prefix}
-      {count.toLocaleString()}
-      {suffix}
-    </span>
-  );
-};
-
-const DashboardCard = ({ title, value, delay = 0, color = "emerald" }) => {
-  const [isVisible, setIsVisible] = useState(false);
-
-  const adminSidebar = localStorage.getItem("admin");
-  const jsonValue = JSON.parse(adminSidebar as any);
-  let partnerId = jsonValue?.adminAccess?.modules?.find(
-    (val: any) => val?.isPartner === true
-  )?.partnerId;
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIsVisible(true), delay);
-    return () => clearTimeout(timer);
-  }, [delay]);
-
-  return (
-    <div
-      className={`bg-gradient-to-br rounded-xl p-6 shadow-lg transform transition-all duration-700 hover:scale-105 hover:shadow-xl cursor-default ${
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-      } `}
-    >
-      <div className="flex items-center justify-between mb-4">
-        <div className="text-left">
-          <p className="text-white text-sm font-medium opacity-90">{title}</p>
-          <div className="text-2xl font-bold text-white mt-1">
-            {isVisible && <CountingAnimation end={value} duration={1500} />}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 export const Dashboard: FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { dashboard, loading, error } = useSelector(
+  const { dashboard2, loading, error } = useSelector(
     (state: RootState) => state.admins
-  ); // Adjust to match slice name
+  );
+
   const id = window.location.pathname.split("/")[1];
   useEffect(() => {
-    dispatch(fetchDashboard(id));
+    dispatch(fetchDashboard2(id));
   }, [dispatch]);
 
   if (loading) {
@@ -106,6 +52,232 @@ export const Dashboard: FC = () => {
     );
   }
 
+  // Chart options
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "top" as const,
+        labels: {
+          color: "#ffffff",
+        },
+      },
+      title: {
+        display: true,
+        color: "#ffffff",
+      },
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: "#ffffff",
+        },
+        grid: {
+          color: "rgba(255, 255, 255, 0.1)",
+        },
+      },
+      y: {
+        ticks: {
+          color: "#ffffff",
+        },
+        grid: {
+          color: "rgba(255, 255, 255, 0.1)",
+        },
+      },
+    },
+  };
+
+  // Chart data configurations
+  const totalLeaguesChart = {
+    type: "line",
+    data: {
+      labels: dashboard2?.labels || [],
+      datasets: [
+        {
+          label: "Total Leagues",
+          data: dashboard2?.metrics?.totalLeagues || [],
+          borderColor: "#3b82f6",
+          backgroundColor: "rgba(59, 130, 246, 0.5)",
+          fill: true,
+          tension: 0.4,
+        },
+      ],
+    },
+    options: {
+      ...chartOptions,
+      plugins: {
+        ...chartOptions.plugins,
+        title: {
+          ...chartOptions.plugins.title,
+          text: "Total Leagues Over Time",
+        },
+      },
+    },
+  };
+
+  const totalUsersChart = {
+    type: "line",
+    data: {
+      labels: dashboard2?.labels || [],
+      datasets: [
+        {
+          label: "Total Users",
+          data: dashboard2?.metrics?.totalUsers || [],
+          borderColor: "#10b981",
+          backgroundColor: "rgba(16, 185, 129, 0.5)",
+          fill: true,
+          tension: 0.4,
+        },
+      ],
+    },
+    options: {
+      ...chartOptions,
+      plugins: {
+        ...chartOptions.plugins,
+        title: {
+          ...chartOptions.plugins.title,
+          text: "Total Users Over Time",
+        },
+      },
+    },
+  };
+
+  const totalLeaguesParticipantsChart = {
+    type: "line",
+    data: {
+      labels: dashboard2?.labels || [],
+      datasets: [
+        {
+          label: "Total League Participants",
+          data: dashboard2?.metrics?.totalLeaguesParticipants || [],
+          borderColor: "#f59e0b",
+          backgroundColor: "rgba(245, 158, 11, 0.5)",
+          fill: true,
+          tension: 0.4,
+        },
+      ],
+    },
+    options: {
+      ...chartOptions,
+      plugins: {
+        ...chartOptions.plugins,
+        title: {
+          ...chartOptions.plugins.title,
+          text: "Total League Participants Over Time",
+        },
+      },
+    },
+  };
+
+  const totalMatchesChart = {
+    type: "line",
+    data: {
+      labels: dashboard2?.labels || [],
+      datasets: [
+        {
+          label: "Total Matches",
+          data: dashboard2?.metrics?.totalMatches || [],
+          borderColor: "#ef4444",
+          backgroundColor: "rgba(239, 68, 68, 0.5)",
+          fill: true,
+          tension: 0.4,
+        },
+      ],
+    },
+    options: {
+      ...chartOptions,
+      plugins: {
+        ...chartOptions.plugins,
+        title: {
+          ...chartOptions.plugins.title,
+          text: "Total Matches Over Time",
+        },
+      },
+    },
+  };
+
+  const totalTournamentsChart = {
+    type: "line",
+    data: {
+      labels: dashboard2?.labels || [],
+      datasets: [
+        {
+          label: "Total Tournaments",
+          data: dashboard2?.metrics?.totalTournaments || [],
+          borderColor: "#8b5cf6",
+          backgroundColor: "rgba(139, 92, 246, 0.5)",
+          fill: true,
+          tension: 0.4,
+        },
+      ],
+    },
+    options: {
+      ...chartOptions,
+      plugins: {
+        ...chartOptions.plugins,
+        title: {
+          ...chartOptions.plugins.title,
+          text: "Total Tournaments Over Time",
+        },
+      },
+    },
+  };
+
+  const totalTournamentParticipantsChart = {
+    type: "line",
+    data: {
+      labels: dashboard2?.labels || [],
+      datasets: [
+        {
+          label: "Total Tournament Participants",
+          data: dashboard2?.metrics?.totalTournamentParticipants || [],
+          borderColor: "#ec4899",
+          backgroundColor: "rgba(236, 72, 153, 0.5)",
+          fill: true,
+          tension: 0.4,
+        },
+      ],
+    },
+    options: {
+      ...chartOptions,
+      plugins: {
+        ...chartOptions.plugins,
+        title: {
+          ...chartOptions.plugins.title,
+          text: "Total Tournament Participants Over Time",
+        },
+      },
+    },
+  };
+
+  const totalTournamentMatchesChart = {
+    type: "line",
+    data: {
+      labels: dashboard2?.labels || [],
+      datasets: [
+        {
+          label: "Total Tournament Matches",
+          data: dashboard2?.metrics?.totalTournamentMatches || [],
+          borderColor: "#14b8a6",
+          backgroundColor: "rgba(20, 184, 166, 0.5)",
+          fill: true,
+          tension: 0.4,
+        },
+      ],
+    },
+    options: {
+      ...chartOptions,
+      plugins: {
+        ...chartOptions.plugins,
+        title: {
+          ...chartOptions.plugins.title,
+          text: "Total Tournament Matches Over Time",
+        },
+      },
+    },
+  };
+
   return (
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-6">
@@ -117,31 +289,69 @@ export const Dashboard: FC = () => {
             </h1>
           </div>
 
-          {/* Dashboard Cards Grid */}
-          {Object.keys(dashboard).length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-fr">
-              {Object.entries(dashboard).map(([key, value], index) => {
-                return (
-                  <DashboardCard
-                    key={key}
-                    title={formatKey(key)}
-                    value={value}
-                    delay={index * 100}
-                  />
-                );
-              })}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <div className="bg-gray-800 bg-opacity-50 rounded-xl p-8 max-w-md mx-auto">
-                <p className="text-gray-300 text-lg">
-                  No dashboard data available.
-                </p>
+          {/* Totals Summary */}
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
+            {Object.entries(dashboard2?.totals || {}).map(([key, value]) => (
+              <div
+                key={key}
+                className="bg-gray-800 p-6 rounded-xl border border-gray-700"
+              >
+                <h2 className="text-lg font-semibold text-gray-300 capitalize">
+                  {key
+                    .replace(/total/gi, "")
+                    .replace(/([A-Z])/g, " $1")
+                    .trim()}
+                </h2>
+                <p className="text-3xl font-bold text-blue-400">{value}</p>
               </div>
-            </div>
-          )}
+            ))}
+          </div>
 
-          {/* Floating Elements */}
+          {/* Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 h-96">
+              <Line
+                data={totalLeaguesChart.data}
+                options={totalLeaguesChart.options}
+              />
+            </div>
+            <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 h-96">
+              <Line
+                data={totalUsersChart.data}
+                options={totalUsersChart.options}
+              />
+            </div>
+            <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 h-96">
+              <Line
+                data={totalLeaguesParticipantsChart.data}
+                options={totalLeaguesParticipantsChart.options}
+              />
+            </div>
+            <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 h-96">
+              <Line
+                data={totalMatchesChart.data}
+                options={totalMatchesChart.options}
+              />
+            </div>
+            <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 h-96">
+              <Line
+                data={totalTournamentsChart.data}
+                options={totalTournamentsChart.options}
+              />
+            </div>
+            <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 h-96">
+              <Line
+                data={totalTournamentParticipantsChart.data}
+                options={totalTournamentParticipantsChart.options}
+              />
+            </div>
+            <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 h-96">
+              <Line
+                data={totalTournamentMatchesChart.data}
+                options={totalTournamentMatchesChart.options}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </Layout>

@@ -31,6 +31,7 @@ export interface AdminType {
 export interface AdminState {
   admins: AdminType[];
   dashboard: any;
+  dashboard2:any,
   role: any;
   loading: boolean;
   error: string | null;

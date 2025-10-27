@@ -5,6 +5,7 @@ import axiosInstance from "../../../axios";
 const initialState: AdminState = {
   admins: [],
   dashboard: [],
+  dashboard2: [],
   role: null,
   loading: false,
   error: null,
@@ -46,6 +47,20 @@ export const fetchDashboard = createAsyncThunk(
   async (id: any, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(`/admin/dashboard?id=${id}`);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error fetching dashboard data"
+      );
+    }
+  }
+);
+export const fetchDashboard2 = createAsyncThunk(
+  "admin/fetchDashboard2",
+  async (id: any, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(`/admin/dashboard2?id=${id}`);
+      console.log("res", response.data);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -191,6 +206,17 @@ const adminSlice = createSlice({
         state.dashboard = action.payload.data;
       })
       .addCase(fetchDashboard.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchDashboard2.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchDashboard2.fulfilled, (state, action) => {
+        state.loading = false;
+        state.dashboard2 = action.payload.data;
+      })
+      .addCase(fetchDashboard2.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
