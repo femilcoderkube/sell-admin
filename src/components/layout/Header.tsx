@@ -1,6 +1,6 @@
 import { FC, useState } from "react";
 import "../../assets/css/style.css";
-import logo from "../../assets/images/nafes-logo.svg";
+import logo from "../../assets/images/nafes-logo-2.webp";
 // import user from "../../assets/images/user.png";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../app/features/auth/authSlice";
@@ -237,13 +237,13 @@ export const Header: FC = () => {
           <div className="nf_head_left-con flex items-center gap-4">
             <Link to={"/"} className="logo-container block">
               <img
-                className="w-[2.5rem] h-[2.5rem] object-contain"
+                className="w-[10.5rem] h-[2.5rem] object-contain"
                 src={logo}
                 alt="Nafes Logo"
               />
             </Link>
             <div className="header-divider hidden sm:block"></div>
-            <h1 className="brand-text hidden sm:block">Nafes Dashboard</h1>
+            {/* <h1 className="brand-text hidden sm:block">Nafes Dashboard</h1> */}
           </div>
 
           {/* Right section - User controls */}
