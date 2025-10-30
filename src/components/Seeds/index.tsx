@@ -40,15 +40,15 @@ import { addScore } from "../../app/features/tournament/tournamentMatchesSlice";
 //   }));
 // };
 
-async function fetchTeamDetails(ids) {
-  return ids.map((item) => ({
-    id: item._id,
-    name: item.team ? item.team.teamShortName : item.user.username,
-    shortName: item.team
-      ? item.team.teamName
-      : item.user.firstName + " " + item.user.lastName,
-    logoImage: item.team ? item?.team?.logoImage : item?.user?.profilePicture,
-    region: item.team ? item.team.region : item.user.nationality,
+async function fetchTeamDetails(ids: any) {
+  return ids.map((item: any) => ({
+    id: item?._id || item?.user?._id,
+    name: item?.team ? item?.team?.teamShortName : item?.user?.firstName + " " + item?.user?.lastName,
+    shortName: item?.team
+      ? item?.team?.teamName
+      : item?.user?.username,
+    logoImage: item?.team ? item?.team?.logoImage : item?.user?.profilePicture,
+    region: item?.team ? item?.team?.region : item?.user?.nationality,
   }));
 }
 
@@ -114,7 +114,6 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
   const { error, notInStageParticipants } = useSelector(
     (state: RootState) => state.notInStage
   );
-
   const { updateTournamentStageloading } = useSelector(
     (state: RootState) => state.tournamentStage
   );
@@ -138,7 +137,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
         seed: index + 1,
         player: stagesList?.seed[index]
           ? {
-              id: stagesList?.seed[index]._id,
+              id: stagesList?.seed[index]?._id,
               name: stagesList?.seed[index].team
                 ? stagesList?.seed[index].team?.teamName
                 : stagesList?.seed[index].user?.username,
@@ -727,29 +726,30 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
 
   // Transform groups for GroupCard props
   const transformedGroups = groups?.map((group, index) => ({
+      
     groupNumber: index + 1,
-    _id: group._id,
+    _id: group?._id,
     participants: group.seed.map((seed) => ({
-      id: seed.team._id,
-      name: seed.team.teamName,
-      shortName: seed.team.teamShortName,
-      region: seed.team.region,
-      logoImage: seed.team.logoImage,
-      backgroundImage: seed.team.backgroundImage,
-      participantId: seed._id,
+      id: seed?.team?._id || seed?.user?._id,
+      name: seed?.team?.teamName || seed?.user?.firstName + " " + seed?.user?.lastName,
+      shortName: seed?.team?.teamShortName || seed?.user?.username,
+      region: seed?.team?.region || seed?.user?.nationality,
+      logoImage: seed?.team?.logoImage || seed?.user?.profilePicture,
+      backgroundImage: seed?.team?.backgroundImage,
+      participantId: seed?._id || seed?.participants[0],
     })),
   }));
 
   const allParticipants: Participant[] = groups
     ?.flatMap((group) => group.seed)
     ?.map((seed) => ({
-      id: seed.team._id,
-      name: seed.team.teamName,
-      shortName: seed.team.teamShortName,
-      region: seed.team.region,
-      logoImage: seed.team.logoImage,
-      backgroundImage: seed.team.backgroundImage,
-      participantId: seed._id,
+      id: seed.team?._id,
+      name: seed.team?.teamName,
+      shortName: seed.team?.teamShortName,
+      region: seed.team?.region,
+      logoImage: seed.team?.logoImage,
+      backgroundImage: seed.team?.backgroundImage,
+      participantId: seed?._id,
     }));
 
   const handleReplaceParticipant = (
@@ -776,14 +776,14 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
           ...newGroups[targetGroupIndex].seed[slotIndex],
           team: {
             ...newGroups[targetGroupIndex].seed[slotIndex].team,
-            _id: newParticipant.id,
-            teamName: newParticipant.name,
-            teamShortName: newParticipant.shortName,
+            _id: newParticipant?.id,
+            teamName: newParticipant?.name,
+            teamShortName: newParticipant?.shortName,
             region: newParticipant.region || "",
-            backgroundImage: newParticipant.backgroundImage,
-            logoImage: newParticipant.logoImage,
+            backgroundImage: newParticipant?.backgroundImage,
+            logoImage: newParticipant?.logoImage,
           },
-          _id: newParticipant.participantId,
+          _id: newParticipant?.participantId,
         };
         newGroups[targetGroupIndex].updatedAt = new Date().toISOString();
         return newGroups;
@@ -806,7 +806,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
           ...targetSeed,
           team: {
             ...targetSeed.team,
-            _id: newParticipant.id,
+            _id: newParticipant?.id,
             teamName: newParticipant.name,
             teamShortName: newParticipant.shortName,
             region: newParticipant.region || "",
@@ -820,14 +820,14 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
           ...sourceSeed,
           team: {
             ...sourceSeed.team,
-            _id: targetSeed.team._id,
-            teamName: targetSeed.team.teamName,
-            teamShortName: targetSeed.team.teamShortName,
-            region: targetSeed.team.region,
-            backgroundImage: targetSeed.team.backgroundImage,
-            logoImage: targetSeed.team.logoImage,
+            _id: targetSeed.team?._id,
+            teamName: targetSeed.team?.teamName,
+            teamShortName: targetSeed.team?.teamShortName,
+            region: targetSeed.team?.region,
+            backgroundImage: targetSeed.team?.backgroundImage,
+            logoImage: targetSeed.team?.logoImage,
           },
-          _id: targetSeed._id,
+          _id: targetSeed?._id,
         };
       }
 
@@ -992,7 +992,7 @@ export const Seeds: React.FC<{ title: string }> = ({ title }) => {
                                   {item.player.name}
                                 </div>
                                 <div className="text-xs text-gray-400">
-                                  {item.player.team}
+                                  {item.player?.region}
                                 </div>
                               </div>
                             </div>
