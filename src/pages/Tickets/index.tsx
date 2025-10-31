@@ -57,6 +57,7 @@ const Tickets: FC<{ title?: string }> = ({ title }) => {
         page: leaguePage,
         perPage: leaguePerPage,
         // searchTerm: leagueSearchTerm,
+        partnerId: partnerId,
         status: leagueStatus !== "all" ? leagueStatus : "",
       })
     );

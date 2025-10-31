@@ -21,11 +21,13 @@ export const fetchLeagueTickets = createAsyncThunk(
       page,
       perPage,
       // searchTerm,
+      partnerId,
       status,
     }: {
       page: number;
       perPage: number;
       //  searchTerm: string;
+      partnerId: any;
       status: string;
     },
     { rejectWithValue }
@@ -36,6 +38,7 @@ export const fetchLeagueTickets = createAsyncThunk(
           page,
           limit: perPage,
           // searchKey: searchTerm,
+          partnerId: partnerId,
           status,
         },
       });
