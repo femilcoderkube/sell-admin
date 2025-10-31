@@ -23,6 +23,7 @@ const Tickets: FC<{ title?: string }> = ({ title }) => {
   const [activeTab, setActiveTab] = useState("league-tickets");
   // const [searchInput, setSearchInput] = useState("");
   const dispatch = useDispatch();
+  const partnerId = localStorage.getItem("partnerId");
 
   const ticketOptions = ["all", "open", "closed"];
   // Selectors for league tickets
@@ -64,6 +65,7 @@ const Tickets: FC<{ title?: string }> = ({ title }) => {
         page: tournamentPage,
         perPage: tournamentPerPage,
         // searchTerm: tournamentSearchTerm,
+        partnerId: partnerId,
         status: tournamentStatus !== "all" ? tournamentStatus : "",
       })
     );
